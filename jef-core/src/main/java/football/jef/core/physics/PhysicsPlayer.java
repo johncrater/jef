@@ -1,9 +1,21 @@
 package football.jef.core.physics;
 
-public interface PhysicsPlayer
+import org.dyn4j.dynamics.Body;
+
+import football.jef.core.Player;
+
+public class PhysicsPlayer extends Body
 {
-	public String getId();
-	public float getRadiusInInches();
-	public float getMassInPounds();
-	public float getCoefficientOfFriction
+	private final Player player;
+
+	public PhysicsPlayer(final Player player)
+	{
+		this.player = player;
+	}
+
+	public Player getPlayer()
+	{
+		return this.player;
+	}
+
 }
