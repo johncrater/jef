@@ -4,6 +4,7 @@ import com.synerset.unitility.unitsystem.common.Velocity;
 import com.synerset.unitility.unitsystem.thermodynamic.Density;
 
 import football.jef.core.Football;
+import football.jef.core.physics.ball.PhysicsBall;
 
 public class PhysicsWorld
 {

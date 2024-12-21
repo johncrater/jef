@@ -88,7 +88,7 @@ public class BallTestViewer implements Runnable
 
 		BallTestViewer.physicsWorld = new PhysicsWorld();
 		BallTestViewer.ball = new TestBall();
-		BallTestViewer.ball.setLocation(27, 10, 0);
+		BallTestViewer.ball.setLocation(27.0, 10.0, 0.0);
 		BallTestViewer.physicsWorld.addBall(BallTestViewer.ball);
 
 		final Composite c = new Composite(BallTestViewer.shell, SWT.NONE);
@@ -111,7 +111,7 @@ public class BallTestViewer implements Runnable
 			{
 				BallTestViewer.ball.setLinearVelocity(new LinearVelocity());
 				BallTestViewer.ball.setAngularVelocity(new AngularVelocity());
-				BallTestViewer.ball.setLocation(27, 10, 30);
+				BallTestViewer.ball.setLocation(27.0, 10.0, 30.0);
 				BallTestViewer.path.clear();
 			}
 		});
@@ -126,7 +126,7 @@ public class BallTestViewer implements Runnable
 			{
 				BallTestViewer.ball.setLinearVelocity(new LinearVelocity());
 				BallTestViewer.ball.setAngularVelocity(new AngularVelocity());
-				BallTestViewer.ball.setLocation(27, 10, 1);
+				BallTestViewer.ball.setLocation(27.0, 10.0, 1.0);
 				if (BallTestViewer.tests.size() == 0)
 					return;
 
@@ -151,7 +151,7 @@ public class BallTestViewer implements Runnable
 			public void widgetSelected(final SelectionEvent e)
 			{
 				BallTestViewer.ball.setLinearVelocity(new LinearVelocity());
-				BallTestViewer.ball.setLocation(27, 10, 0);
+				BallTestViewer.ball.setLocation(27.0, 10.0, 0.0);
 //				BallTestViewer.physicsWorld.getPhysicsBall().kick(new LinearVelocity(10, 80, 360));
 				BallTestViewer.physicsWorld.getPhysicsBall().kick(65, Angle.ofDegrees(0), 4.01);
 				BallTestViewer.hangTimeRunning = true;
@@ -171,7 +171,7 @@ public class BallTestViewer implements Runnable
 			public void widgetSelected(final SelectionEvent e)
 			{
 				BallTestViewer.ball.setLinearVelocity(new LinearVelocity());
-				BallTestViewer.ball.setLocation(27, 10, 2);
+				BallTestViewer.ball.setLocation(27.0, 10.0, 2.0);
 				BallTestViewer.physicsWorld.getPhysicsBall().pass(30, Angle.ofDegrees(85), 1.5);
 				
 				BallTestViewer.hangTimeRunning = true;

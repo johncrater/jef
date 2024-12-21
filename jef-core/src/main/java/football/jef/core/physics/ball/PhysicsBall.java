@@ -1,4 +1,4 @@
-package football.jef.core.physics;
+package football.jef.core.physics.ball;
 
 import org.dyn4j.geometry.Transform;
 import org.dyn4j.geometry.Vector2;
@@ -11,6 +11,7 @@ import com.synerset.unitility.unitsystem.thermodynamic.Density;
 
 import football.jef.core.Conversions;
 import football.jef.core.Football;
+import football.jef.core.physics.PhysicsWorld;
 import football.jef.core.units.AngularVelocity;
 import football.jef.core.units.LinearVelocity;
 import football.jef.core.units.VUnits;
@@ -62,7 +63,7 @@ public class PhysicsBall
 						this.football.getAngularVelocity().getRadiansPerSecond()));
 
 		if (this.football.getLinearVelocity().getYZVelocity() == 0)
-			this.football.setAngularVelocity(0, 0);
+			this.football.setAngularVelocity(0.0, 0.0);
 	}
 
 	public void beforeUpdate(final double timeInterval)

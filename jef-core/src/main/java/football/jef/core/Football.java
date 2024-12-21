@@ -33,9 +33,7 @@ public interface Football
 	public static final double dragCoefficientEndOverEnd = (.75f + Football.dragCoefficientSpiral) / 2;
 
 	public Football adjustAngularVelocity(Double currentAngleInDegrees, Double radiansPerSecond);
-
 	public Football adjustLinearVelocity(Double x, Double y, Double z);
-
 	public Football adjustLocation(Double x, Double y, Double z);
 
 	/**
@@ -61,11 +59,11 @@ public interface Football
 
 	public Football setAngularVelocity(AngularVelocity angularVelocity);
 	
-	public Football setAngularVelocity(double currentAngleInDegrees, double radiansPerSecond);
+	public Football setAngularVelocity(Double currentAngleInRadians, Double radiansPerSecond);
 
 	public Football setLinearVelocity(LinearVelocity lv);
 
-	public Football setLinearVelocity(double x, double y, double z);
+	public Football setLinearVelocity(Double x, Double y, Double z);
 	
 	/**
 	 * Sets the location element of the trajectory
@@ -75,5 +73,5 @@ public interface Football
 	 */
 	public Football setLocation(Location location);
 
-	public Football setLocation(double x, double y, double z);
+	public Football setLocation(Double x, Double y, Double z);
 }

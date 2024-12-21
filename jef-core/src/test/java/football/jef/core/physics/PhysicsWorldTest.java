@@ -16,7 +16,7 @@ class PhysicsWorldTest
 	{
 		PhysicsWorld physicsWorld = new PhysicsWorld();
 		Football ball = new TestBall();
-		ball.setLinearVelocity(5, 5, 5);
+		ball.setLinearVelocity(5.0, 5.0, 5.0);
 		physicsWorld.addBall(ball);
 		
 		assertEquals(5, ball.getLinearVelocity().getX());

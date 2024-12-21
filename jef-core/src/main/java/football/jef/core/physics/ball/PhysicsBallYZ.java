@@ -1,4 +1,4 @@
-package football.jef.core.physics;
+package football.jef.core.physics.ball;
 
 import football.jef.core.Conversions;
 import football.jef.core.Football;

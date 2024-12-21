@@ -71,22 +71,46 @@ public class TestBall implements Football
 	}
 
 	@Override
-	public Football setAngularVelocity(double currentAngleInDegrees, double radiansPerSecond)
+	public Football setAngularVelocity(Double currentAngleInRadians, Double radiansPerSecond)
 	{
-		this.angularVelocity = new AngularVelocity(currentAngleInDegrees, radiansPerSecond);
+		if (currentAngleInRadians == null)
+			currentAngleInRadians = this.angularVelocity.getCurrentAngleInRadians();
+		
+		if (radiansPerSecond == null)
+			radiansPerSecond = this.angularVelocity.getRadiansPerSecond();
+		
+		this.angularVelocity = new AngularVelocity(currentAngleInRadians, radiansPerSecond);
 		return this;
 	}
 
 	@Override
-	public Football setLinearVelocity(double x, double y, double z)
+	public Football setLinearVelocity(Double x, Double y, Double z)
 	{
+		if (x == null)
+			x = this.linearVelocity.getX();
+		
+		if (y == null)
+			y = this.linearVelocity.getY();
+		
+		if (z == null)
+			z = this.linearVelocity.getZ();
+		
 		this.linearVelocity = new LinearVelocity(x, y, z);
 		return this;
 	}
 
 	@Override
-	public Football setLocation(double x, double y, double z)
+	public Football setLocation(Double x, Double y, Double z)
 	{
+		if (x == null)
+			x = this.location.getX();
+		
+		if (y == null)
+			y = this.location.getY();
+		
+		if (z == null)
+			z = this.location.getZ();
+		
 		this.location = new Location(x, y, z);
 		return this;
 	}

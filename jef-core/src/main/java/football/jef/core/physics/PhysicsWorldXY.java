@@ -7,6 +7,7 @@ import org.dyn4j.world.World;
 import com.synerset.unitility.unitsystem.common.Distance;
 
 import football.jef.core.Player;
+import football.jef.core.physics.ball.PhysicsBallXY;
 import football.jef.core.units.DUnits;
 import football.jef.core.units.Location;
 
