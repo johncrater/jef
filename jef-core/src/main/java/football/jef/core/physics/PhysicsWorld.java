@@ -49,9 +49,13 @@ public class PhysicsWorld
 
 	public void update(final double timeInterval)
 	{
-		this.physicsBall.beforeUpdate(timeInterval);
+		if (this.physicsBall != null)
+			this.physicsBall.beforeUpdate(timeInterval);
+
 		this.xyWorld.updatev(timeInterval);
 		this.yzWorld.updatev(timeInterval);
-		this.physicsBall.afterUpdate(timeInterval);
+
+		if (this.physicsBall != null)
+			this.physicsBall.afterUpdate(timeInterval);
 	}
 }

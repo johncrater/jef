@@ -36,42 +36,14 @@ public interface Football
 	public Football adjustLinearVelocity(Double x, Double y, Double z);
 	public Football adjustLocation(Double x, Double y, Double z);
 
-	/**
-	 * Refers to the rotation of the football along the X axis when kicked
-	 *
-	 * @return
-	 */
 	public AngularVelocity getAngularVelocity();
-
-	/**
-	 * Refers to the linear velocity along the XYZ hyper-plane
-	 *
-	 * @return
-	 */
 	public LinearVelocity getLinearVelocity();
-
-	/**
-	 * The location in the xyz hyper plane
-	 *
-	 * @return
-	 */
 	public Location getLocation();
 
 	public Football setAngularVelocity(AngularVelocity angularVelocity);
-	
 	public Football setAngularVelocity(Double currentAngleInRadians, Double radiansPerSecond);
-
 	public Football setLinearVelocity(LinearVelocity lv);
-
 	public Football setLinearVelocity(Double x, Double y, Double z);
-	
-	/**
-	 * Sets the location element of the trajectory
-	 *
-	 * @param location
-	 * @return
-	 */
 	public Football setLocation(Location location);
-
 	public Football setLocation(Double x, Double y, Double z);
 }

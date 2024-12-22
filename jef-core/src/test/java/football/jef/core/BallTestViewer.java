@@ -40,6 +40,8 @@ public class BallTestViewer implements Runnable
 	private static final double totalLength = Conversions.yardsToInches(125);
 	private static final double totalWidth = Conversions.yardsToInches(54 + 5);
 	private static final double totalHeight = Conversions.yardsToInches(50);
+	private static final double screenLength = 1300D;
+	private static final double screenHeight = 600D;
 
 	private static final Color fieldGreen = new Color(70, 137, 68);
 	private static final Color white = new Color(255, 255, 255);
@@ -47,8 +49,6 @@ public class BallTestViewer implements Runnable
 	private static final Color black = new Color(0, 0, 0);
 	private static final Color red = new Color(255, 0, 0);
 
-	private static final double screenLength = 1300D;
-	private static final double screenHeight = 600D;
 
 	private static Shell shell;
 	private static PhysicsWorld physicsWorld;
@@ -58,7 +58,7 @@ public class BallTestViewer implements Runnable
 	private static Image football;
 	private static Image footballSmall;
 
-	public static FontData trackingFontData = new FontData("Courier New", 16, SWT.BOLD);
+	public static FontData playerFontData = new FontData("Courier New", 16, SWT.BOLD);
 	public static Font trackingFont;
 
 	public static Football ball;
@@ -185,7 +185,7 @@ public class BallTestViewer implements Runnable
 		BallTestViewer.createCanvasXY(BallTestViewer.ball);
 		BallTestViewer.createCanvasYZ(BallTestViewer.ball);
 
-		BallTestViewer.trackingFont = new Font(BallTestViewer.shell.getDisplay(), BallTestViewer.trackingFontData);
+		BallTestViewer.trackingFont = new Font(BallTestViewer.shell.getDisplay(), BallTestViewer.playerFontData);
 
 		BallTestViewer.shell.open();
 		new BallTestViewer().run();
