@@ -11,16 +11,15 @@ public class TestPlayer implements Player
 	private String lastName;
 	private int number;
 	
-	private double massInKilograms;
+	private double massInKilograms = 100;
 	private double heightInMeters;
 	
-	private AngularVelocity angularVelocity;
-	private LinearVelocity linearVelocity;
-	private Location location;
+	private AngularVelocity angularVelocity = new AngularVelocity();
+	private LinearVelocity linearVelocity = new LinearVelocity();
+	private Location location = new Location();
 	
 	public TestPlayer()
 	{
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

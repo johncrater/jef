@@ -18,7 +18,7 @@ public class Location
 
 	public Location(double x, double y, double z)
 	{
-		vector = new Vector3D(Precision.round(x, 2), Precision.round(y, 2), Precision.round(z, 2));
+		vector = new Vector3D(Precision.round(x, 4), Precision.round(y, 4), Precision.round(z, 4));
 	}
 	
 	public Location adjust(Double x, Double y, Double z)

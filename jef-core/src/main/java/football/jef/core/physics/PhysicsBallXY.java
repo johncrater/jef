@@ -1,9 +1,9 @@
-package football.jef.core.physics.ball;
+package football.jef.core.physics;
 
 import football.jef.core.Conversions;
 import football.jef.core.Football;
 
-public class PhysicsBallXY extends PhysicsBallBase
+class PhysicsBallXY extends PhysicsBallBase
 {
 	public PhysicsBallXY(final Football ball)
 	{

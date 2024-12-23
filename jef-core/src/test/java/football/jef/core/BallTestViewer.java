@@ -49,7 +49,6 @@ public class BallTestViewer implements Runnable
 	private static final Color black = new Color(0, 0, 0);
 	private static final Color red = new Color(255, 0, 0);
 
-
 	private static Shell shell;
 	private static PhysicsWorld physicsWorld;
 	private static Canvas canvasXY;
@@ -173,7 +172,7 @@ public class BallTestViewer implements Runnable
 				BallTestViewer.ball.setLinearVelocity(new LinearVelocity());
 				BallTestViewer.ball.setLocation(27.0, 10.0, 2.0);
 				BallTestViewer.physicsWorld.getPhysicsBall().pass(30, Angle.ofDegrees(85), 1.5);
-				
+
 				BallTestViewer.hangTimeRunning = true;
 				BallTestViewer.hangTime = 0;
 				BallTestViewer.ballDistance = 0;
@@ -210,7 +209,7 @@ public class BallTestViewer implements Runnable
 		gd.grabExcessVerticalSpace = true;
 		gd.verticalAlignment = SWT.FILL;
 		gd.horizontalAlignment = SWT.FILL;
-		gd.widthHint = (int)screenHeight;
+		gd.widthHint = (int) BallTestViewer.screenHeight;
 		BallTestViewer.canvasXY.setLayoutData(gd);
 
 		BallTestViewer.canvasXY.addPaintListener(e ->
@@ -260,7 +259,7 @@ public class BallTestViewer implements Runnable
 		gd.widthHint = 1300;
 		BallTestViewer.canvasYZ.setLayoutData(gd);
 
-		BallTestViewer.canvasYZ.setBackground(black);
+		BallTestViewer.canvasYZ.setBackground(BallTestViewer.black);
 		BallTestViewer.canvasYZ.addPaintListener(e ->
 		{
 			final int xOffset = 20;
@@ -275,7 +274,7 @@ public class BallTestViewer implements Runnable
 				ts.translate(xOffset, (float) -BallTestViewer.totalWidth - yOffset);
 				ts.set();
 
-				final Body floor = BallTestViewer.physicsWorld.getYzWorld().getFloor();
+				final Body floor = BallTestViewer.physicsWorld.getFloor();
 				final Vector2 floorLocation = floor.getTransform().getTranslation();
 				Point xy = BallTestViewer.toYZPoint(floorLocation);
 
@@ -284,10 +283,10 @@ public class BallTestViewer implements Runnable
 				final Point wh = new Point(
 						(int) Conversions.yardsToInches(Conversions.metersToYards(rectangle.getWidth())),
 						(int) Conversions.yardsToInches(Conversions.metersToYards(rectangle.getHeight())));
-				e.gc.setBackground(red);
+				e.gc.setBackground(BallTestViewer.red);
 				e.gc.fillRectangle(xy.x, xy.y, wh.x, wh.y);
 
-				e.gc.setForeground(yellow);
+				e.gc.setForeground(BallTestViewer.yellow);
 				for (int i = 0; i < 10; i++)
 				{
 					e.gc.drawRectangle((int) Conversions.yardsToInches(i * 10), 0, (int) Conversions.yardsToInches(10),
@@ -330,14 +329,12 @@ public class BallTestViewer implements Runnable
 			text.append(String.format("Angular   : %.2f deg, %.2f rps\n",
 					ball.getAngularVelocity().getCurrentAngleInRadians(),
 					ball.getAngularVelocity().getRadiansPerSecond()));
-			text.append(String.format("Drag Force: %.3fN\n",
-					BallTestViewer.physicsWorld.getPhysicsBall().calculateDragForce().getInNewtons()));
 			text.append(String.format("Hang Time : %.2f\n", BallTestViewer.hangTime / 1000.0));
 			text.append(String.format("Distance  : %.0f\n", BallTestViewer.ballDistance));
 			text.append(String.format("Height    : %.0f\n", BallTestViewer.ballHeight));
 
 			e.gc.setFont(BallTestViewer.trackingFont);
-			e.gc.setBackground(black);
+			e.gc.setBackground(BallTestViewer.black);
 			e.gc.drawText(text.toString(), 0, 0);
 
 		});

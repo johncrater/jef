@@ -1,10 +1,16 @@
 package football.jef.core.physics;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+
+import org.dyn4j.dynamics.Body;
+
 import com.synerset.unitility.unitsystem.common.Velocity;
 import com.synerset.unitility.unitsystem.thermodynamic.Density;
 
 import football.jef.core.Football;
-import football.jef.core.physics.ball.PhysicsBall;
 
 public class PhysicsWorld
 {
@@ -18,6 +24,7 @@ public class PhysicsWorld
 	private final PhysicsWorldXY xyWorld;
 	private final PhysicsWorldYZ yzWorld;
 	private PhysicsBall physicsBall;
+	private HashSet<PhysicsPlayer> players = new HashSet<>();
 
 	public PhysicsWorld()
 	{
@@ -25,6 +32,22 @@ public class PhysicsWorld
 		this.yzWorld = new PhysicsWorldYZ();
 	}
 
+	public void addPlayer(PhysicsPlayer player)
+	{
+		this.players.add(player);
+		xyWorld.addPlayer(player);
+	}
+	
+	public Body getFloor()
+	{
+		return this.yzWorld.getFloor();
+	}
+	
+	public List<PhysicsPlayer> getPlayers()
+	{
+		return Collections.unmodifiableList(new ArrayList<>(this.players));
+	}
+	
 	public void addBall(final Football ball)
 	{
 		this.physicsBall = new PhysicsBall(ball);
@@ -51,11 +74,15 @@ public class PhysicsWorld
 	{
 		if (this.physicsBall != null)
 			this.physicsBall.beforeUpdate(timeInterval);
+		
+		this.getPlayers().forEach(p -> p.beforeUpdate(timeInterval));
 
 		this.xyWorld.updatev(timeInterval);
 		this.yzWorld.updatev(timeInterval);
 
 		if (this.physicsBall != null)
 			this.physicsBall.afterUpdate(timeInterval);
+
+		this.getPlayers().forEach(p -> p.afterUpdate(timeInterval));
 	}
 }

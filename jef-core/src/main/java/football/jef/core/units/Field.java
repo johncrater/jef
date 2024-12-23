@@ -1,8 +1,6 @@
-package football.jef.core.physics;
+package football.jef.core.units;
 
 import com.synerset.unitility.unitsystem.common.Distance;
-
-import football.jef.core.units.DUnits;
 
 public class Field
 {

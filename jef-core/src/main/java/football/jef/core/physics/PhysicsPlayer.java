@@ -2,14 +2,15 @@ package football.jef.core.physics;
 
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Mass;
+import org.dyn4j.geometry.Transform;
 import org.dyn4j.geometry.Vector2;
 
 import com.synerset.unitility.unitsystem.common.Velocity;
 import com.synerset.unitility.unitsystem.thermodynamic.Density;
 
 import football.jef.core.Conversions;
-import football.jef.core.Football;
 import football.jef.core.Player;
+import football.jef.core.units.AngularVelocity;
 import football.jef.core.units.VUnits;
 
 public class PhysicsPlayer extends Body
@@ -21,10 +22,8 @@ public class PhysicsPlayer extends Body
 	public static final float coefficientOfRestitution = .09f; // a total guess
 
 	// deceleration is in YPY^2. It is not a velocity
-	public static final float maximumDecelerationRate = (float) Velocity.ofMetersPerSecond(6)
-			.getInUnit(VUnits.YPS);
-	public static final float normalDecelerationRate = (float) Velocity.ofMetersPerSecond(3)
-			.getInUnit(VUnits.YPS);
+	public static final float maximumDecelerationRate = (float) Velocity.ofMetersPerSecond(6).getInUnit(VUnits.YPS);
+	public static final float normalDecelerationRate = (float) Velocity.ofMetersPerSecond(3).getInUnit(VUnits.YPS);
 	// turning speed in milliseconds for changing orientation. A total guess 180
 	// degree turn in .25 seconds
 	public static final float maximumAngularVelocity = 180 / .25f;
@@ -38,8 +37,8 @@ public class PhysicsPlayer extends Body
 	public PhysicsPlayer(final Player player)
 	{
 		this.player = player;
-		
-		this.setLinearDamping(normalDecelerationRate);
+
+		this.setLinearDamping(PhysicsPlayer.normalDecelerationRate);
 		this.setMass(new Mass(new Vector2(0, 0), player.getMassInKilograms(), 0));
 		this.setLinearVelocity(Conversions.yardsToMeters(player.getLinearVelocity().getX()),
 				Conversions.yardsToMeters(player.getLinearVelocity().getY()));
@@ -47,9 +46,44 @@ public class PhysicsPlayer extends Body
 				Conversions.yardsToMeters(player.getLocation().getY()));
 	}
 
+	public void afterUpdate(final double timeInterval)
+	{
+		final Vector2 newXYLocation = this.getTransform().getTranslation();
+		final Vector2 newXYLinearVelocity = this.getLinearVelocity();
+
+		this.player.setLocation(Conversions.metersToYards(newXYLocation.x), Conversions.metersToYards(newXYLocation.y),
+				0.0);
+
+		this.player.setLinearVelocity(Conversions.metersToYards(newXYLinearVelocity.y),
+				Conversions.metersToYards(newXYLinearVelocity.y), 0.0);
+		final double radians = this.player.getAngularVelocity().getRadiansPerSecond() * timeInterval;
+
+		this.player.setAngularVelocity(
+				new AngularVelocity((this.player.getAngularVelocity().getCurrentAngleInRadians() + radians) % Math.PI,
+						this.player.getAngularVelocity().getRadiansPerSecond()));
+
+		if (this.player.getLinearVelocity().getYZVelocity() == 0)
+			this.player.setAngularVelocity(0.0, 0.0);
+	}
+
+	public void beforeUpdate(final double timeInterval)
+	{
+		this.setEnabled(true);
+		this.setAtRest(false);
+
+		final Vector2 vXy = new Vector2(Conversions.yardsToMeters(this.player.getLinearVelocity().getX()),
+				Conversions.yardsToMeters(this.player.getLinearVelocity().getY()));
+		this.setLinearVelocity(vXy);
+
+		final Vector2 lXy = new Vector2(Conversions.yardsToMeters(this.player.getLocation().getX()),
+				Conversions.yardsToMeters(this.player.getLocation().getY()));
+		final Transform t = new Transform();
+		t.translate(lXy);
+		this.setTransform(t);
+	}
+
 	public Player getPlayer()
 	{
 		return this.player;
 	}
-
 }

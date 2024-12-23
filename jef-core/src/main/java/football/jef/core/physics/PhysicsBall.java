@@ -1,32 +1,19 @@
-package football.jef.core.physics.ball;
+package football.jef.core.physics;
 
 import org.dyn4j.geometry.Transform;
 import org.dyn4j.geometry.Vector2;
 
 import com.synerset.unitility.unitsystem.common.Angle;
-import com.synerset.unitility.unitsystem.common.Area;
 import com.synerset.unitility.unitsystem.common.Velocity;
-import com.synerset.unitility.unitsystem.mechanical.Force;
-import com.synerset.unitility.unitsystem.thermodynamic.Density;
 
 import football.jef.core.Conversions;
 import football.jef.core.Football;
-import football.jef.core.physics.PhysicsWorld;
 import football.jef.core.units.AngularVelocity;
 import football.jef.core.units.LinearVelocity;
 import football.jef.core.units.VUnits;
 
 public class PhysicsBall
 {
-	public static Force calculateDragForce(final Velocity velocity, final double dragCoefficient, final Density ofAir,
-			final Area area)
-	{
-		// 0.5 * air density (ρ) * velocity (v)^2 * drag coefficient (Cd) * reference
-		// area (A)
-		return Force.ofNewtons(.5 * ofAir.getInKilogramsPerCubicMeters() * Math.pow(velocity.getInMetersPerSecond(), 2)
-				* dragCoefficient * area.getInSquareMeters());
-	}
-
 	private final Football football;
 	private final PhysicsBallXY xyBall;
 	private final PhysicsBallYZ yzBall;
@@ -89,21 +76,6 @@ public class PhysicsBall
 		t = new Transform();
 		t.translate(lYz);
 		this.yzBall.setTransform(t);
-	}
-
-	public Force calculateDragForce()
-	{
-		final Velocity currentVelocity = Velocity.of(this.football.getLinearVelocity().getY(), VUnits.YPS);
-		if (currentVelocity.isEqualZero())
-			return Force.ofNewtons(0);
-
-		final double dragCoefficient = this.football.getAngularVelocity().isCloseToZero()
-				? Football.dragCoefficientSpiral
-				: Football.dragCoefficientEndOverEnd;
-		final Area areaCovered = this.football.getAngularVelocity().isCloseToZero() ? Football.areaOfMinorAxis
-				: Football.areaOfMajorAxis.plus(Football.areaOfMinorAxis).div(2);
-
-		return PhysicsBall.calculateDragForce(currentVelocity, dragCoefficient, PhysicsWorld.densityOfAir, areaCovered);
 	}
 
 	public Football getFootball()
@@ -174,7 +146,7 @@ public class PhysicsBall
 	private void applyDrag(final double deltaTime)
 	{
 		// drag for y
-		final var dragForce = this.calculateDragForce();
+		final var dragForce = this.getYzBall().calculateDragForce();
 		if (dragForce.isEqualZero())
 			return;
 
@@ -183,7 +155,7 @@ public class PhysicsBall
 		// we include * Constants.TIMER_INTERVAL because drag is a rate of acceleration
 		// per second and we deal in ticks
 		final Velocity updatedVelocity = Velocity.ofMetersPerSecond(currentVelocity.getInMetersPerSecond()
-				- (dragForce.div(Football.mass.getInKilograms()).getInNewtons() * deltaTime));
+				- (dragForce.div(PhysicsBallBase.mass.getInKilograms()).getInNewtons() * deltaTime));
 
 		this.yzBall.setLinearDamping(currentVelocity.getInMetersPerSecond() - updatedVelocity.getInMetersPerSecond());
 		this.xyBall.setLinearDamping(currentVelocity.getInMetersPerSecond() - updatedVelocity.getInMetersPerSecond());

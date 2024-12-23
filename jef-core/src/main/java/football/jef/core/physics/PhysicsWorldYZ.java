@@ -12,12 +12,11 @@ import com.synerset.unitility.unitsystem.common.Distance;
 
 import football.jef.core.Conversions;
 import football.jef.core.Player;
-import football.jef.core.physics.ball.PhysicsBallYZ;
 import football.jef.core.units.AngularVelocity;
 import football.jef.core.units.DUnits;
 import football.jef.core.units.Location;
 
-public class PhysicsWorldYZ extends World<Body>
+class PhysicsWorldYZ extends World<Body>
 {
 	private class Contacts extends ContactListenerAdapter<Body>
 	{
@@ -25,11 +24,11 @@ public class PhysicsWorldYZ extends World<Body>
 		@Override
 		public void collision(final ContactCollisionData<Body> collision)
 		{
-			final double newAngularVelocity = PhysicsWorldYZ.this.ball.getBall().getAngularVelocity()
+			final double newAngularVelocity = PhysicsWorldYZ.this.ball.getFootball().getAngularVelocity()
 					.getRadiansPerSecond() / 2;
-			PhysicsWorldYZ.this.ball.getBall()
+			PhysicsWorldYZ.this.ball.getFootball()
 					.setAngularVelocity(new AngularVelocity(
-							PhysicsWorldYZ.this.ball.getBall().getAngularVelocity().getCurrentAngleInRadians(),
+							PhysicsWorldYZ.this.ball.getFootball().getAngularVelocity().getCurrentAngleInRadians(),
 							newAngularVelocity));
 			PhysicsWorldYZ.this.ball.setAngularVelocity(newAngularVelocity);
 			super.collision(collision);
