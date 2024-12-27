@@ -49,7 +49,7 @@ public class PhysicsBall
 				new AngularVelocity((this.football.getAngularVelocity().getCurrentAngleInRadians() + radians) % Math.PI,
 						this.football.getAngularVelocity().getRadiansPerSecond()));
 
-		if (this.football.getLinearVelocity().getYZVelocity() == 0)
+		if (this.football.getLinearVelocity().getYZSpeed() == 0)
 			this.football.setAngularVelocity(0.0, 0.0);
 	}
 

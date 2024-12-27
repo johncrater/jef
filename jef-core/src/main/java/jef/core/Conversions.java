@@ -26,4 +26,20 @@ public interface Conversions
 		return Distance.ofInches(inches).getInUnit(DUnits.YARD);
 	}
 
-}
+	public static double roundToNearestQuarter(double value)
+	{
+		return Math.round(value * 4.0) / 4.0;
+	}
+
+    public static double normalizeAngle(double angle) 
+    {
+        angle = angle % (2 * Math.PI); // Normalize to the range -2PI to 2PI
+
+        if (angle > Math.PI) {
+            angle -= 2 * Math.PI;
+        } else if (angle < -Math.PI) {
+            angle += 2 * Math.PI;
+        }
+
+        return angle;
+    }}

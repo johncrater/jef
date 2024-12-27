@@ -6,18 +6,18 @@ import jef.core.units.Location;
 
 public interface Football
 {
-	public Football adjustAngularVelocity(Double currentAngleInDegrees, Double radiansPerSecond);
-	public Football adjustLinearVelocity(Double x, Double y, Double z);
-	public Football adjustLocation(Double x, Double y, Double z);
+	public void adjustAngularVelocity(double currentAngleInDegrees, double radiansPerSecond);
+	public void adjustLinearVelocity(double x, double y, double z);
+	public void adjustLocation(double x, double y, double z);
 
 	public AngularVelocity getAngularVelocity();
 	public LinearVelocity getLinearVelocity();
 	public Location getLocation();
 
-	public Football setAngularVelocity(AngularVelocity angularVelocity);
-	public Football setAngularVelocity(Double currentAngleInRadians, Double radiansPerSecond);
-	public Football setLinearVelocity(LinearVelocity lv);
-	public Football setLinearVelocity(Double x, Double y, Double z);
-	public Football setLocation(Location location);
-	public Football setLocation(Double x, Double y, Double z);
+	public void setAngularVelocity(AngularVelocity angularVelocity);
+	public void setAngularVelocity(Double currentAngleInRadians, Double radiansPerSecond);
+	public void setLinearVelocity(LinearVelocity lv);
+	public void setLinearVelocity(Double x, Double y, Double z);
+	public void setLocation(Location location);
+	public void setLocation(Double x, Double y, Double z);
 }

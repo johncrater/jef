@@ -2,37 +2,40 @@ package jef.core.units;
 
 import java.util.Objects;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.util.Precision;
 
 public class LinearVelocity
 {
 	public static final double EPSILON = .01;
 
-	private final Vector3D vector;
+	private double x;
+	private double y;
+	private double z;
 
 	public LinearVelocity()
 	{
-		this.vector = Vector3D.ZERO;
 	}
 
 	public LinearVelocity(final double x, final double y, final double z)
 	{
-		this.vector = new Vector3D(Precision.round(x, 4), Precision.round(y, 4), Precision.round(z, 4));
+		this.x = x;
+		this.y = y;
+		this.z = z;
 	}
 
-	public LinearVelocity adjust(Double x, Double y, Double z)
+	public LinearVelocity adjust( double x, final double y, final double z)
 	{
-		if (x == null)
-			x = this.getX();
+		return new LinearVelocity(this.x + x, this.y + y, this.z + z);
+	}
 
-		if (y == null)
-			y = this.getY();
+	public double calculateXYAngle()
+	{
+		return Math.atan2(this.getY(), this.getX());
+	}
 
-		if (z == null)
-			z = this.getZ();
-
-		return new LinearVelocity(x, y, z);
+	public double calculateYZAngle()
+	{
+		return Math.atan2(this.getZ(), this.getY());
 	}
 
 	@Override
@@ -46,40 +49,55 @@ public class LinearVelocity
 
 		final LinearVelocity other = (LinearVelocity) obj;
 
-		return Precision.equals(this.vector.getX(), other.vector.getX(), LinearVelocity.EPSILON)
-				&& Precision.equals(this.vector.getY(), other.vector.getY(), LinearVelocity.EPSILON)
-				&& Precision.equals(this.vector.getZ(), other.vector.getZ(), LinearVelocity.EPSILON);
+		return Precision.equals(getX(), other.getX(), LinearVelocity.EPSILON)
+				&& Precision.equals(getY(), other.getY(), LinearVelocity.EPSILON)
+				&& Precision.equals(getZ(), other.getZ(), LinearVelocity.EPSILON);
 	}
 
 	public double getX()
 	{
-		return this.vector.getX();
+		return x;
 	}
 
-	public double getXYVelocity()
+	public double getXYSpeed()
 	{
-		return Precision.round(Math.sqrt(Math.pow(this.vector.getX(), 2) + Math.pow(this.vector.getY(), 2)), 2);
+		return Precision.round(Math.sqrt(Math.pow(getX(), 2) + Math.pow(getY(), 2)), 2);
 	}
 
 	public double getY()
 	{
-		return this.vector.getY();
+		return y;
 	}
 
-	public double getYZVelocity()
+	public double getYZSpeed()
 	{
-		return Precision.round(Math.sqrt(Math.pow(this.vector.getY(), 2) + Math.pow(this.vector.getZ(), 2)), 2);
+		return Precision.round(Math.sqrt(Math.pow(getY(), 2) + Math.pow(getZ(), 2)), 2);
 	}
 
 	public double getZ()
 	{
-		return this.vector.getZ();
+		return z;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(this.vector);
+		return Objects.hash(x, y, z);
+	}
+
+	public boolean isCloseToZero()
+	{
+		return this.magnitude() < LinearVelocity.EPSILON;
+	}
+
+	public LinearVelocity normalize()
+	{
+		return multiply(1 / magnitude());
+	}
+	
+	public double magnitude()
+	{
+		return Math.sqrt(Math.pow(this.getX(), 2) + Math.pow(this.getY(), 2) + Math.pow(this.getZ(), 2));
 	}
 
 	public LinearVelocity multiply(final double scalar)
@@ -87,20 +105,10 @@ public class LinearVelocity
 		return new LinearVelocity(this.getX() * scalar, this.getY() * scalar, this.getZ() * scalar);
 	}
 
-	public double magnitude()
-	{
-		return Math.sqrt(Math.pow(getX(), 2) + Math.pow(getY(), 2) + Math.pow(getZ(), 2));
-	}
-	
-	public boolean isCloseToZero()
-	{
-		return magnitude() < EPSILON;
-	}
-
 	@Override
 	public String toString()
 	{
-		return "LinearVelocity " + this.vector;
+		return "LinearVelocity [x=" + this.x + ", y=" + this.y + ", z=" + this.z + "]";
 	}
 
 }

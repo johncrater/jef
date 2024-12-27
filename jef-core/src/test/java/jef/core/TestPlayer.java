@@ -1,11 +1,9 @@
 package jef.core;
 
-import jef.core.Player;
-import jef.core.units.AngularVelocity;
-import jef.core.units.LinearVelocity;
-import jef.core.units.Location;
+import jef.core.steering.Path;
+import jef.core.steering.Steerable;
 
-public class TestPlayer implements Player
+public class TestPlayer extends MoveableImpl implements Player, Steerable
 {
 	private String id;
 	private String firstName;
@@ -15,9 +13,7 @@ public class TestPlayer implements Player
 	private double massInKilograms = 100;
 	private double heightInMeters;
 	
-	private AngularVelocity angularVelocity = new AngularVelocity();
-	private LinearVelocity linearVelocity = new LinearVelocity();
-	private Location location = new Location();
+	private Path path;
 	
 	public TestPlayer()
 	{
@@ -29,10 +25,26 @@ public class TestPlayer implements Player
 		return massInKilograms;
 	}
 
+	public Path getPath()
+	{
+		return this.path;
+	}
+
+	public void setPath(Path path)
+	{
+		this.path = path;
+	}
+
 	@Override
 	public String getId()
 	{
 		return id;
+	}
+
+	@Override
+	public double getMaxSpeed()
+	{
+		return 10;
 	}
 
 	@Override
@@ -57,111 +69,6 @@ public class TestPlayer implements Player
 	public int getNumber()
 	{
 		return number;
-	}
-
-	@Override
-	public Player adjustAngularVelocity(Double currentAngleInDegrees, Double radiansPerSecond)
-	{
-		this.angularVelocity = angularVelocity.adjust(currentAngleInDegrees, radiansPerSecond);
-		return this;
-	}
-
-	@Override
-	public Player adjustLinearVelocity(Double x, Double y, Double z)
-	{
-		this.linearVelocity = this.linearVelocity.adjust(x, y, z);
-		return this;
-	}
-
-	@Override
-	public Player adjustLocation(Double x, Double y, Double z)
-	{
-		this.location = this.location.adjust(x, y, z);
-		return this;
-	}
-
-	@Override
-	public AngularVelocity getAngularVelocity()
-	{
-		return this.angularVelocity;
-	}
-
-	@Override
-	public LinearVelocity getLinearVelocity()
-	{
-		return this.linearVelocity;
-	}
-
-	@Override
-	public Location getLocation()
-	{
-		return this.location;
-	}
-
-	@Override
-	public Player setAngularVelocity(AngularVelocity angularVelocity)
-	{
-		this.angularVelocity = angularVelocity;
-		return this;
-	}
-
-	@Override
-	public Player setAngularVelocity(Double currentAngleInRadians, Double radiansPerSecond)
-	{
-		if (currentAngleInRadians == null)
-			currentAngleInRadians = this.angularVelocity.getCurrentAngleInRadians();
-		
-		if (radiansPerSecond == null)
-			radiansPerSecond = this.angularVelocity.getRadiansPerSecond();
-		
-		this.angularVelocity = new AngularVelocity(currentAngleInRadians, radiansPerSecond);
-		return this;
-	}
-
-	@Override
-	public Player setLinearVelocity(Double x, Double y, Double z)
-	{
-		if (x == null)
-			x = this.linearVelocity.getX();
-		
-		if (y == null)
-			y = this.linearVelocity.getY();
-		
-		if (z == null)
-			z = this.linearVelocity.getZ();
-		
-		this.linearVelocity = new LinearVelocity(x, y, z);
-		return this;
-	}
-
-	@Override
-	public Player setLocation(Double x, Double y, Double z)
-	{
-		if (x == null)
-			x = this.location.getX();
-		
-		if (y == null)
-			y = this.location.getY();
-		
-		if (z == null)
-			z = this.location.getZ();
-		
-		this.location = new Location(x, y, z);
-		return this;
-	}
-
-	@Override
-	public Player setLinearVelocity(LinearVelocity lv)
-	{
-		this.linearVelocity = lv;
-		return this;
-	}
-
-	@Override
-	public Player setLocation(Location location)
-	{
-		this.location = location;
-		return this;
 	}
 
 	public void setNumber(int number)

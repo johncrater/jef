@@ -4,6 +4,8 @@ import java.util.Objects;
 
 import org.apache.commons.math3.util.Precision;
 
+import jef.core.Conversions;
+
 public class AngularVelocity
 {
 	public static final double EPSILON_ANGLE = .01;
@@ -20,26 +22,22 @@ public class AngularVelocity
 
 	public AngularVelocity(double currentAngleInRadians, double radiansPerSecond)
 	{
-		this.currentAngleInRadians = Precision.round(currentAngleInRadians, 2);
-		this.radiansPerSecond = Precision.round(radiansPerSecond, 2);
+		this.currentAngleInRadians = Conversions.normalizeAngle(currentAngleInRadians);
+		this.radiansPerSecond = radiansPerSecond;
 	}
 
 	public boolean isCloseToZero()
 	{
 		return Math.abs(radiansPerSecond) < EPSILON_ROTATIONS;
 	}
-	
-	public AngularVelocity adjust(Double currentAngleInRadians, Double radiansPerSecond)
+
+	public AngularVelocity adjust(double currentAngleInRadians, double radiansPerSecond)
 	{
-		if (currentAngleInRadians == null)
-			currentAngleInRadians = this.getCurrentAngleInRadians();
-		
-		if (radiansPerSecond == null)
-			radiansPerSecond = this.getRadiansPerSecond();
-		
-		return new AngularVelocity(currentAngleInRadians, radiansPerSecond);
-			
+		return new AngularVelocity(this.currentAngleInRadians + currentAngleInRadians,
+				this.radiansPerSecond + radiansPerSecond);
+
 	}
+
 	public double getCurrentAngleInRadians()
 	{
 		return this.currentAngleInRadians;
@@ -48,6 +46,11 @@ public class AngularVelocity
 	public double getRadiansPerSecond()
 	{
 		return this.radiansPerSecond;
+	}
+
+	public AngularVelocity multiply(double value)
+	{
+		return new AngularVelocity(this.currentAngleInRadians, this.radiansPerSecond * value);
 	}
 
 	@Override

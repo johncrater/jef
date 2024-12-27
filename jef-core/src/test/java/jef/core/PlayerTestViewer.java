@@ -24,8 +24,6 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
-import jef.core.Conversions;
-import jef.core.Player;
 import jef.core.physics.PhysicsPlayer;
 import jef.core.physics.PhysicsWorld;
 import jef.core.units.Field;
@@ -33,6 +31,7 @@ import jef.core.units.Location;
 
 public class PlayerTestViewer implements Runnable
 {
+	private static final float TIMER_INTERVAL = .04f;
 	private static final double totalLength = Conversions.yardsToInches(125);
 	private static final double totalWidth = Conversions.yardsToInches(54 + 5);
 	private static final double totalHeight = Conversions.yardsToInches(50);
@@ -129,6 +128,18 @@ public class PlayerTestViewer implements Runnable
 			{
 				player.setLocation(50.0, 27.0, 0.0);
 				player.setLinearVelocity(10.0, 10.0, 0.0);
+			}
+		});
+
+		btn = new Button(c, SWT.PUSH);
+		btn.setText("Steering");
+		btn.addSelectionListener(new SelectionAdapter() 
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				player.setLocation(50.0, 27.0, 0.0);
+				player.setLinearVelocity(0.0, 0.0, 0.0);
 			}
 		});
 	}
@@ -232,7 +243,7 @@ public class PlayerTestViewer implements Runnable
 			return;
 		}
 
-		physicsWorld.update(.04f);
+		physicsWorld.update(TIMER_INTERVAL);
 		canvas.redraw();
 
 		this.lastMilliseconds = System.currentTimeMillis();
@@ -244,4 +255,5 @@ public class PlayerTestViewer implements Runnable
 		new PlayerTestViewer().messageLoop();
 	}
 
+	
 }

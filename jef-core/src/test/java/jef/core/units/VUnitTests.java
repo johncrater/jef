@@ -1,12 +1,10 @@
 package jef.core.units;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
 import com.synerset.unitility.unitsystem.common.Velocity;
-
-import jef.core.units.VUnits;
 
 class VUnitTests
 {

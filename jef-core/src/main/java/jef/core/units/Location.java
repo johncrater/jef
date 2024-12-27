@@ -2,83 +2,73 @@ package jef.core.units;
 
 import java.util.Objects;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.util.Precision;
 
 public class Location
 {
 	public static final float EPSILON = .01f;
-	
-	private Vector3D vector;
-	
+
+	private double x;
+	private double y;
+	private double z;
+
 	public Location()
 	{
-		vector = Vector3D.ZERO;
 	}
-
+	
 	public Location(double x, double y, double z)
 	{
-		vector = new Vector3D(Precision.round(x, 4), Precision.round(y, 4), Precision.round(z, 4));
+		this.x = x;
+		this.y = y;
+		this.z = z;
 	}
-	
-	public Location adjust(Double x, Double y, Double z)
+
+	public Location adjust(double x, double y, double z)
 	{
-		if (x == null)
-			x = getX();
-		
-		if (y == null)
-			y = getY();
-		
-		if (z == null)
-			z = getZ();
-		
-		return new Location(x, y, z);
-	}
-	
-	public double getX()
-	{
-		return this.vector.getX();
-	}
-	
-	public double getY()
-	{
-		return this.vector.getY();
-	}
-	
-	public double getZ()
-	{
-		return this.vector.getZ();
-	}
-	
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(vector);
+		return new Location(this.x + x, this.y + y, this.z + z);
 	}
 
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(final Object obj)
 	{
 		if (this == obj)
 			return true;
 
-		if (obj == null)
+		if ((obj == null) || (this.getClass() != obj.getClass()))
 			return false;
 
-		if (getClass() != obj.getClass())
-			return false;
+		final Location other = (Location) obj;
 
-		Location other = (Location) obj;
+		return Precision.equals(getX(), other.getX(), Location.EPSILON)
+				&& Precision.equals(getY(), other.getY(), Location.EPSILON)
+				&& Precision.equals(getZ(), other.getZ(), Location.EPSILON);
+	}
 
-		return Precision.equals(vector.getX(), other.vector.getX(), EPSILON)
-				&& Precision.equals(vector.getY(), other.vector.getY(), EPSILON)
-				&& Precision.equals(vector.getZ(), other.vector.getZ(), EPSILON);
+	public double getX()
+	{
+		return x;
+	}
+
+	public double getY()
+	{
+		return y;
+	}
+
+	public double getZ()
+	{
+		return z;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(x, y, z);
 	}
 
 	@Override
 	public String toString()
 	{
-		return "Location " + this.vector;
+		return "Location [x=" + this.x + ", y=" + this.y + ", z=" + this.z + "]";
 	}
 
 }

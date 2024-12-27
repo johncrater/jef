@@ -1,12 +1,26 @@
 package jef.core;
 
+import com.synerset.unitility.unitsystem.common.Velocity;
+
 import jef.core.units.AngularVelocity;
 import jef.core.units.LinearVelocity;
 import jef.core.units.Location;
+import jef.core.units.VUnits;
 
-public interface Player
+public interface Player 
 {
-	public static final float size = 1.0f;
+	// deceleration is in YPY^2. It is not a velocity
+	public static final float maximumDecelerationRate = (float) Velocity.ofMetersPerSecond(-6).getInUnit(VUnits.YPS);
+	public static final float normalDecelerationRate = (float) Velocity.ofMetersPerSecond(-3).getInUnit(VUnits.YPS);
+	// turning speed in milliseconds for changing orientation. A total guess 180
+	// degree turn in .25 seconds
+	public static final float maximumAngularVelocity = 180 / .25f;
+
+	// suspect players are faster. But this is a general idea
+	public static final float visualReactionTime = .200f;
+	public static final float auditoryReactionTime = .150f;
+
+	public static final double size = 1.0f;
 
 	public double getMassInKilograms();
 	public String getId();
@@ -14,19 +28,18 @@ public interface Player
 	public String getLastName();
 	public double getHeightInMeters();
 	public int getNumber();
-	
-	public Player adjustAngularVelocity(Double currentAngleInDegrees, Double radiansPerSecond);
-	public Player adjustLinearVelocity(Double x, Double y, Double z);
-	public Player adjustLocation(Double x, Double y, Double z);
+
+	public void adjustAngularVelocity(Double currentAngleInDegrees, Double radiansPerSecond);
+	public void adjustLinearVelocity(Double x, Double y, Double z);
+	public void adjustLocation(Double x, Double y, Double z);
 
 	public AngularVelocity getAngularVelocity();
 	public LinearVelocity getLinearVelocity();
 	public Location getLocation();
 
-	public Player setAngularVelocity(AngularVelocity angularVelocity);
-	public Player setAngularVelocity(Double currentAngleInRadians, Double radiansPerSecond);
-	public Player setLinearVelocity(LinearVelocity lv);
-	public Player setLinearVelocity(Double x, Double y, Double z);
-	public Player setLocation(Location location);
-	public Player setLocation(Double x, Double y, Double z);
-}
+	public void setAngularVelocity(AngularVelocity angularVelocity);
+	public void setAngularVelocity(Double currentAngleInRadians, Double radiansPerSecond);
+	public void setLinearVelocity(LinearVelocity lv);
+	public void setLinearVelocity(Double x, Double y, Double z);
+	public void setLocation(Location location);
+	public void setLocation(Double x, Double y, Double z);}

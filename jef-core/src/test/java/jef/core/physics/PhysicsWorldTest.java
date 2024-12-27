@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import jef.core.Football;
+import jef.core.TestBall;
 
 class PhysicsWorldTest
 {
