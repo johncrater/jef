@@ -4,11 +4,11 @@ import jef.core.units.AngularVelocity;
 import jef.core.units.LinearVelocity;
 import jef.core.units.Location;
 
-public interface Moveable
+public interface MoveableObject
 {
-	void adjustAngularVelocity(Double currentAngleInDegrees, Double radiansPerSecond);
-	void adjustLinearVelocity(Double x, Double y, Double z);
-	void adjustLocation(Double x, Double y, Double z);
+	void adjustAngularVelocity(double currentAngleInDegrees, double radiansPerSecond, double spiralVelocity);
+	void adjustLinearVelocity(double x, double y, double z);
+	void adjustLocation(double x, double y, double z);
 
 	AngularVelocity getAngularVelocity();
 	LinearVelocity getLinearVelocity();

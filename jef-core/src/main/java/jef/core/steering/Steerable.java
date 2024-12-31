@@ -1,6 +1,6 @@
 package jef.core.steering;
 
-public interface Steerable extends Moveable
+public interface Steerable extends MoveableObject
 {
 	public double getMaxSpeed();
 	public Path getPath();

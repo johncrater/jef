@@ -3,7 +3,7 @@ package jef.core;
 import jef.core.steering.Path;
 import jef.core.steering.Steerable;
 
-public class TestPlayer extends MoveableImpl implements Player, Steerable
+public class TestPlayer extends Moveable implements Player, Steerable
 {
 	private String id;
 	private String firstName;

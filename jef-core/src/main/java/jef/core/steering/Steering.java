@@ -2,11 +2,11 @@ package jef.core.steering;
 
 import java.util.Iterator;
 
-import jef.core.MoveableImpl;
+import jef.core.Moveable;
 import jef.core.Player;
 import jef.core.units.LinearVelocity;
 
-public class Steering implements Iterable<Moveable>, Iterator<Moveable>
+public class Steering implements Iterable<MoveableObject>, Iterator<MoveableObject>
 {
 	private Steerable steerable;
 	private double timeInterval;
@@ -19,7 +19,7 @@ public class Steering implements Iterable<Moveable>, Iterator<Moveable>
 	}
 
 	@Override
-	public Iterator<Moveable> iterator()
+	public Iterator<MoveableObject> iterator()
 	{
 		// TODO Auto-generated method stub
 		return null;
@@ -32,9 +32,9 @@ public class Steering implements Iterable<Moveable>, Iterator<Moveable>
 	}
 
 	@Override
-	public Moveable next()
+	public MoveableObject next()
 	{
-		MoveableImpl moveable = new MoveableImpl(this.steerable);
+		Moveable moveable = new Moveable(this.steerable);
 		this.remainingVelocity = steerable.getLinearVelocity().multiply(timeInterval);
 		if (hasNext() == false)
 		{

@@ -8,22 +8,30 @@ import jef.core.Conversions;
 
 public class AngularVelocity
 {
-	public static final double EPSILON_ANGLE = .01;
-	public static final double EPSILON_ROTATIONS = .01;
+	public static final double EPSILON_ANGLE = .02;
+	public static final double EPSILON_ROTATIONS = .02;
 
 	private double currentAngleInRadians;
 	private double radiansPerSecond;
+	private double spiralVelocity;
 
 	public AngularVelocity()
 	{
 		currentAngleInRadians = 0;
 		radiansPerSecond = 0;
+		spiralVelocity = 0;
 	}
 
 	public AngularVelocity(double currentAngleInRadians, double radiansPerSecond)
 	{
+		this(currentAngleInRadians, radiansPerSecond, 0);
+	}
+
+	public AngularVelocity(double currentAngleInRadians, double radiansPerSecond, double spiralVelocity)
+	{
 		this.currentAngleInRadians = Conversions.normalizeAngle(currentAngleInRadians);
 		this.radiansPerSecond = radiansPerSecond;
+		this.spiralVelocity = spiralVelocity;
 	}
 
 	public boolean isCloseToZero()
@@ -31,13 +39,27 @@ public class AngularVelocity
 		return Math.abs(radiansPerSecond) < EPSILON_ROTATIONS;
 	}
 
-	public AngularVelocity adjust(double currentAngleInRadians, double radiansPerSecond)
+	public AngularVelocity adjust(double currentAngleInRadians, double radiansPerSecond, double spiralVelocity)
 	{
 		return new AngularVelocity(this.currentAngleInRadians + currentAngleInRadians,
-				this.radiansPerSecond + radiansPerSecond);
-
+				this.radiansPerSecond + radiansPerSecond, this.spiralVelocity + spiralVelocity);
 	}
 
+	public AngularVelocity adjust(AngularVelocity av)
+	{
+		return adjust(av.currentAngleInRadians, av.radiansPerSecond, av.spiralVelocity);
+	}
+
+	public boolean rotatingClockwise()
+	{
+		return this.radiansPerSecond < 0;
+	}
+	
+	public boolean rotatingCounterClockwise()
+	{
+		return this.radiansPerSecond > 0;
+	}
+	
 	public double getCurrentAngleInRadians()
 	{
 		return this.currentAngleInRadians;
@@ -46,6 +68,16 @@ public class AngularVelocity
 	public double getRadiansPerSecond()
 	{
 		return this.radiansPerSecond;
+	}
+
+	public double getSpiralVelocity()
+	{
+		return this.spiralVelocity;
+	}
+
+	public void setSpiralVelocity(double spiralVelocity)
+	{
+		this.spiralVelocity = spiralVelocity;
 	}
 
 	public AngularVelocity multiply(double value)

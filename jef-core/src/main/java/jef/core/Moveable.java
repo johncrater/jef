@@ -1,31 +1,31 @@
 package jef.core;
 
-import jef.core.steering.Moveable;
+import jef.core.steering.MoveableObject;
 import jef.core.units.AngularVelocity;
 import jef.core.units.LinearVelocity;
 import jef.core.units.Location;
 
-public class MoveableImpl implements Moveable
+public class Moveable implements MoveableObject
 {
 	private AngularVelocity angularVelocity;
 	private LinearVelocity linearVelocity;
 	private Location location;
 	
-	public MoveableImpl(Location location, LinearVelocity linearVelocity, AngularVelocity angularVelocity)
+	public Moveable(Location location, LinearVelocity linearVelocity, AngularVelocity angularVelocity)
 	{
 		this.location = location;
 		this.linearVelocity = linearVelocity;
 		this.angularVelocity = angularVelocity;
 	}
 
-	public MoveableImpl()
+	public Moveable()
 	{
 		this.location = new Location();
 		this.linearVelocity = new LinearVelocity();
 		this.angularVelocity = new AngularVelocity();
 	}
 
-	public MoveableImpl(Moveable moveable)
+	public Moveable(MoveableObject moveable)
 	{
 		this.location = moveable.getLocation();
 		this.linearVelocity = moveable.getLinearVelocity();
@@ -33,19 +33,19 @@ public class MoveableImpl implements Moveable
 	}
 
 	@Override
-	public void adjustAngularVelocity(Double currentAngleInDegrees, Double radiansPerSecond)
+	public void adjustAngularVelocity(double currentAngleInDegrees, double radiansPerSecond, double spiralVelocity)
 	{
-		this.angularVelocity = this.getAngularVelocity().adjust(currentAngleInDegrees, radiansPerSecond);
+		this.angularVelocity = this.getAngularVelocity().adjust(currentAngleInDegrees, radiansPerSecond, spiralVelocity);
 	}
 
 	@Override
-	public void adjustLinearVelocity(Double x, Double y, Double z)
+	public void adjustLinearVelocity(double x, double y, double z)
 	{
-		this.linearVelocity = this.linearVelocity.adjust(x, y, z);
+		this.linearVelocity = this.linearVelocity.add(x, y, z);
 	}
 
 	@Override
-	public void adjustLocation(Double x, Double y, Double z)
+	public void adjustLocation(double x, double y, double z)
 	{
 		this.location = this.location.adjust(x, y, z);
 	}

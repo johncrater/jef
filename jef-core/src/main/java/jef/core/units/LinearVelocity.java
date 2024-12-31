@@ -6,7 +6,12 @@ import org.apache.commons.math3.util.Precision;
 
 public class LinearVelocity
 {
-	public static final double EPSILON = .01;
+	public static boolean withinEpsilon(double v1, double v2)
+	{
+		return Math.abs(v1 - v2) < EPSILON;
+	}
+	
+	public static final double EPSILON = .02;
 
 	private double x;
 	private double y;
@@ -23,9 +28,19 @@ public class LinearVelocity
 		this.z = z;
 	}
 
-	public LinearVelocity adjust( double x, final double y, final double z)
+	public LinearVelocity add( double x, final double y, final double z)
 	{
 		return new LinearVelocity(this.x + x, this.y + y, this.z + z);
+	}
+	
+	public LinearVelocity add(LinearVelocity lv)
+	{
+		return add(lv.getX(), lv.getY(), lv.getZ());
+	}
+
+	public LinearVelocity subtract(LinearVelocity lv)
+	{
+		return add(-lv.getX(), -lv.getY(), -lv.getZ());
 	}
 
 	public double calculateXYAngle()
@@ -33,9 +48,9 @@ public class LinearVelocity
 		return Math.atan2(this.getY(), this.getX());
 	}
 
-	public double calculateYZAngle()
+	public double calculateXZAngle()
 	{
-		return Math.atan2(this.getZ(), this.getY());
+		return Math.atan2(this.getZ(), this.getX());
 	}
 
 	@Override
@@ -61,7 +76,7 @@ public class LinearVelocity
 
 	public double getXYSpeed()
 	{
-		return Precision.round(Math.sqrt(Math.pow(getX(), 2) + Math.pow(getY(), 2)), 2);
+		return Math.sqrt(Math.pow(getX(), 2) + Math.pow(getY(), 2));
 	}
 
 	public double getY()
@@ -69,9 +84,9 @@ public class LinearVelocity
 		return y;
 	}
 
-	public double getYZSpeed()
+	public double getXZSpeed()
 	{
-		return Precision.round(Math.sqrt(Math.pow(getY(), 2) + Math.pow(getZ(), 2)), 2);
+		return Math.sqrt(Math.pow(getX(), 2) + Math.pow(getZ(), 2));
 	}
 
 	public double getZ()
@@ -90,6 +105,18 @@ public class LinearVelocity
 		return this.magnitude() < LinearVelocity.EPSILON;
 	}
 
+	public boolean movingRight()
+	{
+		double xyAngle = this.calculateXYAngle();
+		return this.getXYSpeed() > 0 && xyAngle > -Math.PI / 2 && xyAngle < Math.PI / 2; 
+	}
+	
+	public boolean movingLeft()
+	{
+		double xyAngle = this.calculateXYAngle();
+		return this.getXYSpeed() > 0 && (xyAngle > Math.PI / 2 || xyAngle < -Math.PI / 2); 
+	}
+	
 	public LinearVelocity normalize()
 	{
 		return multiply(1 / magnitude());

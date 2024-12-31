@@ -6,7 +6,12 @@ import org.apache.commons.math3.util.Precision;
 
 public class Location
 {
-	public static final float EPSILON = .01f;
+	public static boolean withinEpsilon(double v1, double v2)
+	{
+		return Math.abs(v1 - v2) < EPSILON;
+	}
+	
+	public static final double EPSILON = .02;
 
 	private double x;
 	private double y;
@@ -26,6 +31,16 @@ public class Location
 	public Location adjust(double x, double y, double z)
 	{
 		return new Location(this.x + x, this.y + y, this.z + z);
+	}
+
+	public Location adjust(LinearVelocity lv)
+	{
+		return adjust(lv.getX(), lv.getY(), lv.getZ());
+	}
+
+	public Location adjust(Location loc)
+	{
+		return adjust(loc.getX(), loc.getY(), loc.getZ());
 	}
 
 	@Override

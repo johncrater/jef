@@ -1,4 +1,4 @@
-package jef.core.physics;
+package jef.core.physics.ball;
 
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Circle;

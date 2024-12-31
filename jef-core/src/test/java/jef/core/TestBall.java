@@ -33,7 +33,7 @@ public class TestBall implements Football
 	@Override
 	public void adjustLinearVelocity(double x, double y, double z)
 	{
-		this.linearVelocity = this.linearVelocity.adjust(x, y, z);
+		this.linearVelocity = this.linearVelocity.add(x, y, z);
 	}
 
 	@Override
