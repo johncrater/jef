@@ -28,6 +28,11 @@ public class LinearVelocity
 		this.z = z;
 	}
 
+	public LinearVelocity(double angle, double speed)
+	{
+		this(Math.cos(angle) * speed, Math.sin(angle) * speed, 0);
+	}
+	
 	public LinearVelocity add( double x, final double y, final double z)
 	{
 		return new LinearVelocity(this.x + x, this.y + y, this.z + z);
@@ -48,6 +53,14 @@ public class LinearVelocity
 		return Math.atan2(this.getY(), this.getX());
 	}
 
+	public LinearVelocity turn(double newAngle)
+	{
+		double xySpeed = this.getXYSpeed();
+		double x = Math.cos(newAngle) * xySpeed;
+		double y = Math.sin(newAngle) * xySpeed;
+		return new LinearVelocity(x, y, this.getZ());
+	}
+	
 	public double calculateXZAngle()
 	{
 		return Math.atan2(this.getZ(), this.getX());

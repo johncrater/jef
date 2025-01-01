@@ -28,6 +28,26 @@ public class Location
 		this.z = z;
 	}
 
+	public double distanceBetween(Location loc)
+	{
+		return Math.sqrt(Math.pow(getX() - loc.getX(), 2) + Math.pow(getY() - loc.getY(), 2) + Math.pow(getZ() - loc.getZ(), 2));
+	}
+	
+	public boolean closeEnoughTo(Location loc, double distance)
+	{
+		return distanceBetween(loc) <= distance;
+	}
+	
+	public boolean closeEnoughTo(Location loc)
+	{
+		return closeEnoughTo(loc, EPSILON);
+	}
+	
+	public double angleTo(Location loc)
+	{
+		return Math.atan2(loc.getY() - getY(), loc.getX() - getX());
+	}
+	
 	public Location adjust(double x, double y, double z)
 	{
 		return new Location(this.x + x, this.y + y, this.z + z);
