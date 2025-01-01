@@ -27,7 +27,7 @@ public class TestBall implements Football
 	@Override
 	public void adjustAngularVelocity(double currentAngleInDegrees, double radiansPerSecond)
 	{
-		this.angularVelocity = this.getAngularVelocity().adjust(currentAngleInDegrees, radiansPerSecond);
+		this.angularVelocity = this.getAngularVelocity().adjust(currentAngleInDegrees, radiansPerSecond, 0);
 	}
 
 	@Override

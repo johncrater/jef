@@ -29,9 +29,9 @@ public interface Player
 	public double getHeightInMeters();
 	public int getNumber();
 
-	public void adjustAngularVelocity(Double currentAngleInDegrees, Double radiansPerSecond);
-	public void adjustLinearVelocity(Double x, Double y, Double z);
-	public void adjustLocation(Double x, Double y, Double z);
+	public void adjustAngularVelocity(double currentAngleInDegrees, double radiansPerSecond);
+	public void adjustLinearVelocity(double x, double y, double z);
+	public void adjustLocation(double x, double y, double z);
 
 	public AngularVelocity getAngularVelocity();
 	public LinearVelocity getLinearVelocity();

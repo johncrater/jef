@@ -76,4 +76,9 @@ public class TestPlayer extends Moveable implements Player, Steerable
 		this.number = number;
 	}
 
+	@Override
+	public void adjustAngularVelocity(double currentAngleInDegrees, double radiansPerSecond)
+	{
+		this.adjustAngularVelocity(currentAngleInDegrees, radiansPerSecond, 0);
+	}
 }
