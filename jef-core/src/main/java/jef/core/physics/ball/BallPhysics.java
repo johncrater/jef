@@ -54,65 +54,76 @@ public class BallPhysics
 		LinearVelocity lv = ball.getLinearVelocity();
 		Location loc = ball.getLocation();
 		AngularVelocity av = ball.getAngularVelocity();
-
-		LinearVelocity lvGravityAdjustment = calculateGravityAdjustment();
-		LinearVelocity lvAfterAdjustments = lv.add(lvGravityAdjustment.multiply(deltaTime));
-
-		// drag is in the opposite direction to the linearVelocity, so we multiply by -1
-		LinearVelocity lvDragAdjustment = calculateDragAdjustment(lvAfterAdjustments, av).multiply(-1);
-
-		lvAfterAdjustments = lvAfterAdjustments.add(lvDragAdjustment.multiply(deltaTime));
-		Location locAfterAdjustments = loc.adjust(lvAfterAdjustments.multiply(deltaTime));
-
-		System.out.print(String.format("Loc: %6.2f ", loc.getZ()));
-		System.out.print(String.format("LV: %7.4f ", lv.multiply(deltaTime).getZ()));
-		System.out.print(String.format("Gravity: %7.4f ", lvGravityAdjustment.multiply(deltaTime).multiply(deltaTime).getZ()));
-		System.out.print(String.format("Drag: %7.4f ", lvDragAdjustment.multiply(deltaTime).multiply(deltaTime).getZ()));
 		
-		double distanceBelowGround = Math.max(0, 0 - locAfterAdjustments.getZ());
+		System.out.print(String.format("Loc: %s ", loc));
+		System.out.print(String.format("LV: %s ", lv));
+		System.out.print(String.format("AV: %s ", av.multiply(deltaTime)));
 
-		if (distanceBelowGround > 0)
+		LinearVelocity accumulatedLV = new LinearVelocity();
+		
+		LinearVelocity lvGravityAdjustment = calculateGravityAdjustment().multiply(deltaTime);
+		accumulatedLV = accumulatedLV.add(lvGravityAdjustment);
+		
+		// drag is in the opposite direction to the linearVelocity, so we multiply by -1
+		LinearVelocity lvDragAdjustment = calculateDragAdjustment(lv.add(accumulatedLV), av).multiply(-1).multiply(deltaTime);
+		System.out.print(String.format("Drag: %s ", lvDragAdjustment));
+		accumulatedLV = accumulatedLV.add(lvDragAdjustment);
+				
+		Location locTmp = loc.adjust(lv.add(accumulatedLV).multiply(deltaTime));
+
+		double pctBelowGround = 0;
+		if (locTmp.getZ() < 0)
 		{
-			double zDistance = loc.getZ() - locAfterAdjustments.getZ();
+			double zDistance = loc.getZ() - locTmp.getZ();
 			double distanceAboveGround = loc.getZ();
-
-			LinearVelocity lvAtImpact = lv.add(lvGravityAdjustment.multiply(deltaTime)).add(lvDragAdjustment.multiply(deltaTime)).multiply(distanceAboveGround / zDistance);
-			Location locAtImpact = loc.adjust(lvAtImpact.multiply(deltaTime));
-			lvAtImpact = lv.add(lvAfterAdjustments.subtract(lv).multiply(distanceBelowGround / zDistance));
 			
-			assert Location.withinEpsilon(0, locAtImpact.getZ());
+			pctBelowGround = 1 - distanceAboveGround / zDistance;
+			accumulatedLV = accumulatedLV.multiply(distanceAboveGround / zDistance);
+		}
+		
+		if (pctBelowGround > 0)
+		{
+			loc = loc.adjust(lv.add(accumulatedLV).multiply(deltaTime).multiply(1 - pctBelowGround));
+			lv = lv.add(accumulatedLV.multiply(1 - pctBelowGround));
+			accumulatedLV = new LinearVelocity();
+			
+			assert Location.withinEpsilon(0, loc.getZ());
+			
+			accumulatedLV = new LinearVelocity();
 
-			AngularVelocity avFrictionAdjustment = Friction.calculateAVAdjustment(av, lvAtImpact);
-			AngularVelocity avImpactAdjustment = AngularImpact.calculateAVAdjustment(av, lvAtImpact);
+			AngularVelocity avFrictionAdjustment = Friction.calculateAVAdjustment(av, lv);
+			AngularVelocity avImpactAdjustment = AngularImpact.calculateAVAdjustment(av, lv);
 			av = avImpactAdjustment.adjust(avFrictionAdjustment);
-			av = this.applyAngularVelocity(av, lv, deltaTime);
+			
+			LinearVelocity lvFrictionAdjustment = Friction.calculateLVAdjustment(av, lv.add(accumulatedLV), mass).multiply(-1).multiply(deltaTime);
+			System.out.print(String.format("Friction: %s ", lvFrictionAdjustment));
+			accumulatedLV = accumulatedLV.add(lvFrictionAdjustment);
+			
+			// we don't add deltaTime to impact adjustment as it does not represent acceleration 
+			LinearVelocity lvImpactAdjustment = LinearImpact.calculateLVAdjustment(av, lv.add(accumulatedLV));
+			System.out.print(String.format("Impact: %s ", lvImpactAdjustment));
+			accumulatedLV = accumulatedLV.add(lvImpactAdjustment);
 
-			LinearVelocity lvFrictionAdjustment = Friction.calculateLVAdjustment(av, lvAtImpact, mass);
-			LinearVelocity lvImpactAdjustment = LinearImpact.calculateLVAdjustment(av, lvAtImpact);
 			LinearVelocity lvPostImpactGravityAdjustment = calculateGravityAdjustment()
-					.multiply(distanceBelowGround / zDistance);
-			LinearVelocity lvPostImpactDragAdjustment = calculateDragAdjustment(lvAtImpact, av)
-					.multiply(distanceBelowGround / zDistance);
-			LinearVelocity lvPostImpactTotalAdjustment = lvFrictionAdjustment.add(lvImpactAdjustment)
-					.add(lvPostImpactGravityAdjustment.multiply(deltaTime)).add(lvPostImpactDragAdjustment.multiply(deltaTime));
+					.multiply(pctBelowGround).multiply(deltaTime);
+			accumulatedLV = accumulatedLV.add(lvPostImpactGravityAdjustment);
+			
+			LinearVelocity lvPostImpactDragAdjustment = calculateDragAdjustment(lv.add(accumulatedLV), av)
+					.multiply(pctBelowGround).multiply(deltaTime);
+			System.out.print(String.format("Drag: %s ", lvPostImpactDragAdjustment));
+			accumulatedLV = accumulatedLV.add(lvPostImpactDragAdjustment);
 
-			System.out.print(String.format("Friction: %7.4f ", lvFrictionAdjustment.multiply(deltaTime).getZ()));
-			System.out.print(String.format("Impact: %7.4f ", lvImpactAdjustment.multiply(deltaTime).getZ()));
-			System.out.print(String.format("Gravity: %7.4f ", lvPostImpactGravityAdjustment.multiply(deltaTime).multiply(deltaTime).getZ()));
-			System.out.print(String.format("Drag: %7.4f ", lvPostImpactDragAdjustment.multiply(deltaTime).multiply(deltaTime).getZ()));
-
-			lv = lvPostImpactTotalAdjustment;
-			loc = locAtImpact.adjust(lv.multiply(deltaTime));
+			lv = accumulatedLV;
+			loc = loc.adjust(lv.multiply(deltaTime));
+			av = this.applyAngularVelocity(av, lv, deltaTime);
 		}
 		else
 		{
-			lv = lvAfterAdjustments;
-			loc = locAfterAdjustments;
+			lv = lv.add(accumulatedLV);
+			loc = loc.adjust(lv.multiply(deltaTime));
 			av = this.applyAngularVelocity(av, lv, deltaTime);
 		}
 
-		System.out.print(String.format("LV: %7.4f ", lv.multiply(deltaTime).getZ()));
-		System.out.print(String.format("Loc: %6.2f ", loc.getZ()));
 		System.out.println();
 
 		if (LinearVelocity.withinEpsilon(0, lv.getX()))
@@ -164,7 +175,6 @@ public class BallPhysics
 	private LinearVelocity calculateDragAdjustment(LinearVelocity incomingVelocity,
 			AngularVelocity incomingAngularVelocity)
 	{
-		// drag for x
 		final Velocity currentVelocity = Velocity.of(incomingVelocity.magnitude(), VUnits.YPS);
 
 		final Force dragForce = calculateDragForce(currentVelocity, incomingAngularVelocity.isCloseToZero()

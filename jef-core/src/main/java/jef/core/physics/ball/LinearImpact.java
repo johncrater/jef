@@ -10,8 +10,8 @@ import jef.core.units.LinearVelocity;
 
 public class LinearImpact
 {
-	private static final double coefficientOfRestitutionMin = .75;
-	private static final double coefficientOfRestitutionMax = .81;
+	private static final double coefficientOfRestitutionMin = .5;
+	private static final double coefficientOfRestitutionMax = .6;
 
 	// index is incident angle / 10.
 	// value is y / z cot(theta2)
@@ -57,9 +57,9 @@ public class LinearImpact
 	{
 		final Angle reboundAngle = Angle.ofDegrees(LinearImpact.calculateReboundAngle(av, lv));
 
-		double newX = (lv.getXZSpeed() * reboundAngle.cos() + lv.getXYSpeed() * reboundAngle.cos()) / 2;
-		double newY = (lv.getY() + lv.getXYSpeed() * reboundAngle.cos()) / 2;
-		double newZ = lv.getXZSpeed() * reboundAngle.sin() * LinearImpact.calculateCOR(av);
+		double newX = lv.getXZSpeed() * reboundAngle.cos() * LinearImpact.calculateCOR(av);
+		double newY = lv.getYZSpeed() * reboundAngle.cos() * LinearImpact.calculateCOR(av);
+		double newZ = lv.getZ() * reboundAngle.sin() * LinearImpact.calculateCOR(av) * -1;
 		
 		return new LinearVelocity(newX, newY, newZ);
 	}
@@ -91,7 +91,7 @@ public class LinearImpact
 		if (BallUtils.hasTopSpin(av, lv))
 		{
 			final double angleForTopspin = LinearImpact.indexValue(psi, LinearImpact.obliqueTopspinOutgoingAngleRatios);
-			return (indexValue + angleForTopspin) / 2;
+			return (indexValue + angleForTopspin) / 2 * (lv.calculateXYAngle() > -Math.PI /2 && lv.calculateXYAngle() < Math.PI / 2 ? 1 : -1);
 		}
 		
 		if (lv.getXYSpeed() == 0)

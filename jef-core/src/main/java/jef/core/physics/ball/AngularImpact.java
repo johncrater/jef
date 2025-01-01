@@ -79,7 +79,7 @@ public class AngularImpact
 	private static double indexValue(double rotationAngleInDegrees, final double[] values)
 	{
 		if (rotationAngleInDegrees < 0)
-			rotationAngleInDegrees = rotationAngleInDegrees * -1;
+			rotationAngleInDegrees = rotationAngleInDegrees + 180;
 
 		assert (rotationAngleInDegrees >= 0) && (rotationAngleInDegrees <= 180);
 

@@ -135,7 +135,12 @@ public class LinearVelocity
 	@Override
 	public String toString()
 	{
-		return "LinearVelocity [x=" + this.x + ", y=" + this.y + ", z=" + this.z + "]";
+		return String.format("(%6.2f, %6.2f, %6.2f)", this.x, this.y, this.z);
+	}
+
+	public double getYZSpeed()
+	{
+		return Math.sqrt(Math.pow(getY(), 2) + Math.pow(getZ(), 2));
 	}
 
 }

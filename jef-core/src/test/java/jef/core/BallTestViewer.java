@@ -189,6 +189,51 @@ public class BallTestViewer implements Runnable
 			}
 		});
 
+		dropButton = new Button(c, SWT.PUSH);
+		dropButton.setText("Drop 110\u00B0");
+		dropButton.addSelectionListener(new SelectionAdapter()
+		{
+
+			@Override
+			public void widgetSelected(final SelectionEvent e)
+			{
+				BallTestViewer.ball.setLinearVelocity(new LinearVelocity());
+				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(Math.PI * 11 / 18, 0));
+				BallTestViewer.ball.setLocation(60.0, 27.0, 30.0);
+				BallTestViewer.path.clear();
+			}
+		});
+
+		dropButton = new Button(c, SWT.PUSH);
+		dropButton.setText("Drop 140\u00B0");
+		dropButton.addSelectionListener(new SelectionAdapter()
+		{
+
+			@Override
+			public void widgetSelected(final SelectionEvent e)
+			{
+				BallTestViewer.ball.setLinearVelocity(new LinearVelocity());
+				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(Math.PI * 14 / 18, 0));
+				BallTestViewer.ball.setLocation(60.0, 27.0, 30.0);
+				BallTestViewer.path.clear();
+			}
+		});
+
+		dropButton = new Button(c, SWT.PUSH);
+		dropButton.setText("Drop 160\u00B0");
+		dropButton.addSelectionListener(new SelectionAdapter()
+		{
+
+			@Override
+			public void widgetSelected(final SelectionEvent e)
+			{
+				BallTestViewer.ball.setLinearVelocity(new LinearVelocity());
+				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(Math.PI * 16 / 18, 0));
+				BallTestViewer.ball.setLocation(60.0, 27.0, 30.0);
+				BallTestViewer.path.clear();
+			}
+		});
+
 
 		Button kickButton = new Button(c, SWT.PUSH);
 		kickButton.setText("Kick");
@@ -443,8 +488,8 @@ public class BallTestViewer implements Runnable
 					String.format("Location  : %.2f, %.2f, %.2f\n", location.getX(), location.getY(), location.getZ()));
 			text.append(String.format("Velocity  : %.2f, %.2f, %.2f\n", ball.getLinearVelocity().getX(),
 					ball.getLinearVelocity().getY(), ball.getLinearVelocity().getZ()));
-			text.append(String.format("Angular   : %.2f rad, %.2f rps\n",
-					ball.getAngularVelocity().getCurrentAngleInRadians(),
+			text.append(String.format("Angular   : %.0f\u00B0, %.2f r/s\n",
+					Math.toDegrees(ball.getAngularVelocity().getCurrentAngleInRadians()),
 					ball.getAngularVelocity().getRadiansPerSecond()));
 			text.append(String.format("Hang Time : %.2f\n", BallTestViewer.hangTime / 1000.0));
 			text.append(String.format("Distance  : %.0f\n", BallTestViewer.ballDistance));

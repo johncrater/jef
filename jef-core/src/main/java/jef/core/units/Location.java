@@ -83,7 +83,7 @@ public class Location
 	@Override
 	public String toString()
 	{
-		return "Location [x=" + this.x + ", y=" + this.y + ", z=" + this.z + "]";
+		return String.format("(%6.2f, %5.2f, %5.2f)", this.x, this.y, this.z);
 	}
 
 }

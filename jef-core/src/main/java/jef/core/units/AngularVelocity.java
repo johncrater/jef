@@ -109,8 +109,7 @@ public class AngularVelocity
 	@Override
 	public String toString()
 	{
-		return "AngularVelocity [currentAngleInRadians=" + this.currentAngleInRadians + ", radiansPerSecond="
-				+ this.radiansPerSecond + "]";
+		return String.format("(%4.0f\u00B0, %4.2f)", Math.toDegrees(this.currentAngleInRadians), this.radiansPerSecond);
 	}
 
 }
