@@ -9,7 +9,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>jef</groupId>
-	<artifactId>jef-core</artifactId>
+	<artifactId>jef-test</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -24,14 +24,6 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/org.eclipse/swt -->
-		<dependency>
-			<groupId>jfg.swt</groupId>
-			<artifactId>swt</artifactId>
-			<version>3.0.0</version>
-			<scope>system</scope>
-			<systemPath>${swt-systemPath}</systemPath>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.synerset/unitility-core -->
 		<dependency>
 			<groupId>com.synerset</groupId>
@@ -50,11 +42,6 @@
 			<artifactId>commons-math3</artifactId>
 			<version>3.6.1</version>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>com.badlogicgames.gdx</groupId>-->
-<!--			<artifactId>gdx-ai</artifactId>-->
-<!--			<version>1.8.2</version>-->
-<!--		</dependency>-->
 		<!--
 		https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
 		<dependency>
@@ -62,6 +49,14 @@
 			<artifactId>junit-jupiter-api</artifactId>
 			<version>5.11.3</version>
 			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.eclipse/swt -->
+		<dependency>
+			<groupId>jfg.swt</groupId>
+			<artifactId>swt</artifactId>
+			<version>3.0.0</version>
+			<scope>system</scope>
+			<systemPath>${swt-systemPath}</systemPath>
 		</dependency>
 	</dependencies>
 </project>
