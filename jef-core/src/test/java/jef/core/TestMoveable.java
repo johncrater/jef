@@ -71,13 +71,13 @@ public class TestMoveable implements Moveable
 	@Override
 	public void turn(double angle)
 	{
-		this.linearVelocity = linearVelocity.turn(angle);
+		this.linearVelocity = linearVelocity.set(null, angle, null);
 	}
 
 	@Override
 	public void move(double distance)
 	{
-		this.location = this.location.adjust(new LinearVelocity(this.linearVelocity.calculateXYAngle(), distance));
+		this.location = this.location.adjust(this.linearVelocity.set(null, null, distance));
 	}
 
 	@Override
@@ -89,34 +89,18 @@ public class TestMoveable implements Moveable
 	@Override
 	public void adjustSpeed(double speedDelta)
 	{
-		if (this.linearVelocity.magnitude() == 0)
-		{
-			this.linearVelocity = new LinearVelocity(this.angularVelocity.getCurrentAngleInRadians(), speedDelta);
-		}
-		else
-		{
-			double factor = speedDelta / this.linearVelocity.magnitude();
-			this.linearVelocity = this.linearVelocity.add(this.linearVelocity.getX() * factor, this.linearVelocity.getY() * factor, 0);
-		}
+		this.linearVelocity = this.linearVelocity.add(0, 0, speedDelta);
 	}
 
 	@Override
 	public void setSpeed(double newSpeed)
 	{
-		double x = Math.sqrt(newSpeed * newSpeed / 2);
-		if (this.linearVelocity.magnitude() == 0)
-		{
-			this.linearVelocity = new LinearVelocity(this.angularVelocity.getCurrentAngleInRadians(), x);
-		}
-		else
-		{
-			this.linearVelocity = new LinearVelocity(this.linearVelocity.calculateXYAngle(), newSpeed);
-		}
+		this.linearVelocity = this.linearVelocity.set(null, null, newSpeed);
 	}
 
 	@Override
 	public double getSpeed()
 	{
-		return this.linearVelocity.getXYSpeed();
+		return this.linearVelocity.getDistance();
 	}
 }

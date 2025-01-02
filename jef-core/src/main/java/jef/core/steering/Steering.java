@@ -57,13 +57,13 @@ public class Steering implements Iterable<Steerable>, Iterator<Steerable>
 		}
 
 		final double newAngle = this.calculateAngleOfTurn(this.steerable.getLocation(), this.steerable.getDestination(),
-				this.steerable.getLinearVelocity().calculateXYAngle());
+				this.steerable.getLinearVelocity().getAzimuth());
 
 		if (LinearVelocity.withinEpsilon(0, startingSpeed))
 		{
 			// if we are just standing there like a rock we need to at least point ourselves
 			// in the right direction..
-			this.steerable.setAngularVelocity(new AngularVelocity(newAngle, 0));
+			this.steerable.turn(newAngle);
 		}
 		else
 		{
@@ -200,7 +200,7 @@ public class Steering implements Iterable<Steerable>, Iterator<Steerable>
 
 	private double getSpeed()
 	{
-		return this.steerable.getLinearVelocity().getXYSpeed();
+		return this.steerable.getLinearVelocity().getXYDistance();
 	}
 
 	private List<Waypoint> getWaypoints()
@@ -409,7 +409,7 @@ public class Steering implements Iterable<Steerable>, Iterator<Steerable>
 	{
 		// otherwise we see if we need to slow down
 		final double distanceNeededToDecelerate = this.calculateDecelerationDistanceToStop(finalVelocity,
-				initialVector.getXYSpeed(), Player.maximumDecelerationRate);
+				initialVector.getXYDistance(), Player.maximumDecelerationRate);
 
 		// technically this should be distanceRemaining < distanceNeededToStop
 		// but if distanceRemaining gets less than distanceNeededToStop then

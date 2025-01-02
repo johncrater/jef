@@ -63,6 +63,20 @@ public class Location
 		return adjust(loc.getX(), loc.getY(), loc.getZ());
 	}
 
+	public Location set(Double x, Double y, Double z)
+	{
+		if (x == null)
+			x = getX();
+		
+		if (y == null)
+			y = getY();
+		
+		if (z == null)
+			z = getZ();
+		
+		return new Location(x, y, z);
+	}
+	
 	@Override
 	public boolean equals(final Object obj)
 	{
