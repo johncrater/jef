@@ -83,7 +83,7 @@ public class BallPhysics
 			accumulatedLV = accumulatedLV.multiply(distanceAboveGround / zDistance);
 		}
 		
-		if (pctBelowGround == 1 || (locTmp.getZ() == 0 && lv.getAltitude() == 0))
+		if (pctBelowGround == 1 || (locTmp.getZ() == 0 && lv.getElevation() == 0))
 		{
 			// we are rolling on the ground
 			double frictionAdjustment = friction.calculateLVAdjustment(av, lv.add(accumulatedLV), mass) * deltaTime;
@@ -215,7 +215,7 @@ public class BallPhysics
 
 		if (av.getRadiansPerSecond() == 0 && av.getSpiralVelocity() > 0)
 		{
-			spin = lv.getAltitude();
+			spin = lv.getElevation();
 		}
 
 		return new AngularVelocity(spin, av.getRadiansPerSecond(), av.getSpiralVelocity());

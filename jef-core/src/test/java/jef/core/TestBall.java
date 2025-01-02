@@ -31,9 +31,9 @@ public class TestBall implements Football
 	}
 
 	@Override
-	public void adjustLinearVelocity(double altitude, double azimuth, double speed)
+	public void adjustLinearVelocity(double elevation, double azimuth, double speed)
 	{
-		this.linearVelocity = this.linearVelocity.add(altitude, azimuth, speed);
+		this.linearVelocity = this.linearVelocity.add(elevation, azimuth, speed);
 	}
 
 	@Override
@@ -79,9 +79,9 @@ public class TestBall implements Football
 	}
 
 	@Override
-	public void setLinearVelocity(Double altitude,  Double azimuth, Double speed)
+	public void setLinearVelocity(Double elevation,  Double azimuth, Double speed)
 	{
-		this.linearVelocity = this.linearVelocity.set(altitude, azimuth, speed);
+		this.linearVelocity = this.linearVelocity.set(elevation, azimuth, speed);
 	}
 
 	@Override

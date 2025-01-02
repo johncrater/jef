@@ -27,9 +27,9 @@ public class LinearVelocity
 		this.vector = vector;
 	}
 	
-	public LinearVelocity(double altitude, double azimuth, double distance)
+	public LinearVelocity(double elevation, double azimuth, double distance)
 	{
-		this(new Vector3D(azimuth, altitude).scalarMultiply(distance));
+		this(new Vector3D(azimuth, elevation).scalarMultiply(distance));
 	}
 
 	public LinearVelocity add(final double distance)
@@ -37,9 +37,9 @@ public class LinearVelocity
 		return new LinearVelocity(this.vector.getDelta(), vector.getAlpha(), distance + vector.getNorm());		
 	}
 
-	public LinearVelocity add(final double altitude, final double azimuth, final double distance)
+	public LinearVelocity add(final double elevation, final double azimuth, final double distance)
 	{
-		Vector3D toVector = new Vector3D(azimuth, altitude, distance).add(this.vector);
+		Vector3D toVector = new Vector3D(azimuth, elevation, distance).add(this.vector);
 		return new LinearVelocity(toVector);
 	}
 
@@ -60,12 +60,12 @@ public class LinearVelocity
 
 		final LinearVelocity other = (LinearVelocity) obj;
 
-		return Precision.equals(this.getAltitude(), other.getAltitude(), LinearVelocity.EPSILON)
+		return Precision.equals(this.getElevation(), other.getElevation(), LinearVelocity.EPSILON)
 				&& Precision.equals(this.getAzimuth(), other.getAzimuth(), LinearVelocity.EPSILON)
 				&& Precision.equals(this.getDistance(), other.getDistance(), LinearVelocity.EPSILON);
 	}
 
-	public double getAltitude()
+	public double getElevation()
 	{
 		return this.vector.getDelta();
 	}
@@ -113,7 +113,7 @@ public class LinearVelocity
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(this.getAltitude(), this.getAzimuth(), this.getDistance());
+		return Objects.hash(this.getElevation(), this.getAzimuth(), this.getDistance());
 	}
 
 	public boolean isCloseToZero()
@@ -141,10 +141,10 @@ public class LinearVelocity
 		return new LinearVelocity(vector.normalize());
 	}
 
-	public LinearVelocity set(Double altitude, Double azimuth, Double distance)
+	public LinearVelocity set(Double elevation, Double azimuth, Double distance)
 	{
-		if (altitude == null)
-			altitude = this.getAltitude();
+		if (elevation == null)
+			elevation = this.getElevation();
 
 		if (azimuth == null)
 			azimuth = this.getAzimuth();
@@ -152,7 +152,7 @@ public class LinearVelocity
 		if (distance == null)
 			distance = this.getDistance();
 
-		return new LinearVelocity(altitude, azimuth, distance);
+		return new LinearVelocity(elevation, azimuth, distance);
 	}
 
 	public LinearVelocity subtract(final LinearVelocity lv)
@@ -163,7 +163,7 @@ public class LinearVelocity
 	@Override
 	public String toString()
 	{
-		return String.format("(%3.0f\u00B0, %3.0f\u00B0, %7.3f y/s)", Math.toDegrees(this.getAltitude()),
+		return String.format("(%3.0f\u00B0, %3.0f\u00B0, %7.3f y/s)", Math.toDegrees(this.getElevation()),
 				Math.toDegrees(this.getAzimuth()), this.getDistance());
 	}
 	

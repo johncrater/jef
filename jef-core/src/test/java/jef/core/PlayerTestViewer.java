@@ -239,9 +239,9 @@ public class PlayerTestViewer implements Runnable
 		
 		StringBuilder str = new StringBuilder();
 		str.append(String.format("Name            : %s %s\n", player.getFirstName(), player.getLastName()));
-		str.append(String.format("Location        : %f %f\n", player.getLocation().getX(), player.getLocation().getY()));
-		str.append(String.format("Linear velocity : %f %f y/s\n", player.getLinearVelocity().getX(), player.getLinearVelocity().getY()));
-		str.append(String.format("Angular velocity: %.2f %.2f r/s\n", player.getAngularVelocity().getCurrentAngleInRadians(), player.getAngularVelocity().getRadiansPerSecond()));
+		str.append(String.format("Location        : %s\n", player.getLocation()));
+		str.append(String.format("Linear velocity : %s\n", player.getLinearVelocity()));
+		str.append(String.format("Angular velocity: %s\n", player.getAngularVelocity()));
 		
 		gc.setFont(playerDataFont);
 		gc.drawText(str.toString(), 3000, 20);
