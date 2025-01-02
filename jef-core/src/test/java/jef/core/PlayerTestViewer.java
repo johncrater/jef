@@ -4,9 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -24,9 +28,12 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
-import jef.core.physics.PhysicsPlayer;
-import jef.core.physics.PhysicsWorld;
+import jef.core.steering.Path;
+import jef.core.steering.Steering;
+import jef.core.steering.Waypoint;
+import jef.core.steering.Waypoint.DestinationAction;
 import jef.core.units.Field;
+import jef.core.units.LinearVelocity;
 import jef.core.units.Location;
 
 public class PlayerTestViewer implements Runnable
@@ -52,8 +59,8 @@ public class PlayerTestViewer implements Runnable
 	private long lastMilliseconds;
 	private Image field;
 
-	private PhysicsWorld physicsWorld = new PhysicsWorld();
 	private TestPlayer player;
+	private List<TestPlayer> players = new ArrayList<TestPlayer>();
 	
 	public PlayerTestViewer()
 	{
@@ -126,8 +133,8 @@ public class PlayerTestViewer implements Runnable
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				player.setLocation(50.0, 27.0, 0.0);
-				player.setLinearVelocity(10.0, 10.0, 0.0);
+				player.setLocation(new Location(50.0, 27.0, 0.0));
+				player.setLinearVelocity(new LinearVelocity(10.0, 10.0, 0.0));
 			}
 		});
 
@@ -138,8 +145,8 @@ public class PlayerTestViewer implements Runnable
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				player.setLocation(50.0, 27.0, 0.0);
-				player.setLinearVelocity(0.0, 0.0, 0.0);
+				player.setLocation(new Location(50.0, 27.0, 0.0));
+				player.setLinearVelocity(new LinearVelocity(0.0, 0.0, 0.0));
 			}
 		});
 	}
@@ -148,8 +155,7 @@ public class PlayerTestViewer implements Runnable
 	{
 		player = new TestPlayer();
 		player.setNumber(44);
-		player.setLocation(50.0, 27.0, 0.0);
-		this.physicsWorld.addPlayer(new PhysicsPlayer(player));
+		this.players.add(player);
 	}
 
 	private void createCanvas()
@@ -169,17 +175,31 @@ public class PlayerTestViewer implements Runnable
 				
 				e.gc.drawImage(field, 0, 0);
 				
-				for (PhysicsPlayer player : physicsWorld.getPlayers())
+				for (TestPlayer player : players)
 				{
-					drawPlayer(e.gc, player.getPlayer());
+					drawPlayer(e.gc, player);
 				}
 				
-				Player player = physicsWorld.getPlayers().getFirst().getPlayer();
+				player = players.getFirst();
 			}
 			catch (Exception e1)
 			{
 				e1.printStackTrace();
 			}
+		});
+		
+		canvas.addMouseListener(new MouseAdapter() 
+		{
+
+			@Override
+			public void mouseUp(MouseEvent e)
+			{
+				super.mouseUp(e);
+				Location loc = pointToLocation(new Point(e.x, e.y));
+				Path path = new Path();
+				path.addWaypoint(new Waypoint(loc, 10, DestinationAction.hardStop));
+			}
+			
 		});
 	}
 
@@ -201,7 +221,7 @@ public class PlayerTestViewer implements Runnable
 			}
 	}
 
-	private void drawPlayer(GC gc, Player player)
+	private void drawPlayer(GC gc, TestPlayer player)
 	{
 		int offset = (int) Conversions.yardsToInches(Player.size / 2);
 
@@ -224,16 +244,21 @@ public class PlayerTestViewer implements Runnable
 		str.append(String.format("Angular velocity: %.2f %.2f r/s\n", player.getAngularVelocity().getCurrentAngleInRadians(), player.getAngularVelocity().getRadiansPerSecond()));
 		
 		gc.setFont(playerDataFont);
-		gc.drawText(str.toString(), 20, 20);
+		gc.drawText(str.toString(), 3000, 20);
 	}
 
 	private Point locationToPoint(Location loc)
 	{
-		int x = (int) Conversions.yardsToInches(loc.getX() + Field.FIELD_BORDER_WIDTH + Field.FIELD_END_ZONE_DEPTH);
-		int y = (int) Conversions.yardsToInches(loc.getY() + Field.FIELD_BORDER_WIDTH);
+		int x = (int) Conversions.yardsToInches(loc.getX());
+		int y = (int) (Conversions.yardsToInches(Field.FIELD_TOTAL_WIDTH) - Conversions.yardsToInches(loc.getY()));
 		return new Point(x, y);
 	}
 
+	private Location pointToLocation(Point p)
+	{
+		return new Location(Conversions.inchesToYards(p.x), Conversions.inchesToYards(p.y), 0.0);
+	}
+	
 	public void run()
 	{
 		final long interval = System.currentTimeMillis() - this.lastMilliseconds;
@@ -243,7 +268,13 @@ public class PlayerTestViewer implements Runnable
 			return;
 		}
 
-		physicsWorld.update(TIMER_INTERVAL);
+		for (TestPlayer player : players)
+		{
+			Steering steering = new Steering(player, .04);
+			if (steering.hasNext())
+				steering.next();
+		}
+		
 		canvas.redraw();
 
 		this.lastMilliseconds = System.currentTimeMillis();
@@ -255,5 +286,4 @@ public class PlayerTestViewer implements Runnable
 		new PlayerTestViewer().messageLoop();
 	}
 
-	
 }

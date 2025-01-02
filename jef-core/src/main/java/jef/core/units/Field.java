@@ -27,8 +27,6 @@ public class Field
 			+ (2f * FIELD_BORDER_WIDTH);
 	public static final float FIELD_TOTAL_WIDTH = FIELD_PLAYABLE_WIDTH + (2f * FIELD_BORDER_WIDTH);
 	public static final float FIELD_NEUTRAL_ZONE_LENGTH = 11f / 36.0f;
-	public static final float FIELD_MIDFIELD_X = FIELD_PLAYABLE_WIDTH / 2;
-	public static final float FIELD_MIDFIELD_Y = 50;
 
 	public static final float FIELD_GOAL_POST_DIAMETER = .5f; // 3
 	public static final float FIELD_GOAL_POST_HEIGHT = 10f / 3f;
@@ -50,11 +48,10 @@ public class Field
 	public static final float STADIUM_TOTAL_LENGTH = Math.round(FIELD_TOTAL_LENGTH * 1.5f);
 	public static final float STADIUM_ORIGIN_X = -Math.round(FIELD_TOTAL_WIDTH * .25f);
 	public static final float STADIUM_ORIGIN_Y = -Math.round(FIELD_TOTAL_LENGTH * .25f);
-	
 
-	public Field()
+	public static Location midfield()
 	{
-		// TODO Auto-generated constructor stub
+		return new Location(FIELD_TOTAL_LENGTH / 2, FIELD_TOTAL_WIDTH / 2, 0.0);
 	}
-
+	
 }

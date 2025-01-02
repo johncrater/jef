@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.dyn4j.geometry.Vector2;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -25,7 +24,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 import com.synerset.unitility.unitsystem.common.Angle;
 
@@ -66,14 +67,6 @@ public class BallTestViewer implements Runnable
 	private static double ballHeight;
 	private static boolean hangTimeRunning = false;
 	private static List<Location> path = new ArrayList<>();
-	private static List<LinearVelocity> tests = new ArrayList<>();
-
-	static
-	{
-		for (int y = 80; y < 240; y += 20)
-			for (int z = 80; z < 400; z += 20)
-				BallTestViewer.tests.add(new LinearVelocity(0, y, z));
-	}
 
 	public static void main(final String[] args) throws IOException
 	{
@@ -99,262 +92,65 @@ public class BallTestViewer implements Runnable
 
 		c.setLayout(new FillLayout());
 
-		Button dropButton = new Button(c, SWT.PUSH);
-		dropButton.setText("Drop 0\u00B0");
-		dropButton.addSelectionListener(new SelectionAdapter()
+		Label l = new Label(c, SWT.None);
+		l.setText("Phi");
+		Text phi = new Text(c, SWT.None);
+		phi.setText("0");
+		
+		l = new Label(c, SWT.NONE);
+		l.setText("Theta");
+		Text theta = new Text(c, SWT.NONE);
+		theta.setText("-90");
+		
+		l = new Label(c, SWT.NONE);
+		l.setText("Speed");
+		Text speed = new Text(c, SWT.NONE);
+		speed.setText("25");
+		
+		l = new Label(c, SWT.NONE);
+		l.setText("Omega");
+		Text omega = new Text(c, SWT.NONE);
+		omega.setText("0");
+		
+		l = new Label(c, SWT.NONE);
+		l.setText("Height");
+		Text height = new Text(c, SWT.NONE);
+		height.setText("1.0");
+		
+		l = new Label(c, SWT.NONE);
+		l.setText("Azimuth");
+		Text azimuth = new Text(c, SWT.NONE);
+		azimuth.setText("0");
+		
+		l = new Label(c, SWT.NONE);
+		l.setText("YardLine");
+		Text yardLine = new Text(c, SWT.NONE);
+		yardLine.setText("50");
+		
+		Button b = new Button(c, SWT.PUSH);
+		b.setText("Go!");
+		b.addSelectionListener(new SelectionAdapter() 
 		{
-
 			@Override
-			public void widgetSelected(final SelectionEvent e)
+			public void widgetSelected(SelectionEvent e)
 			{
-				BallTestViewer.ball.setLinearVelocity(new LinearVelocity());
-				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(0, 0));
-				BallTestViewer.ball.setLocation(60.0, 27.0, 30.0);
-				BallTestViewer.path.clear();
-			}
-		});
+				double thetaInDegrees = Double.parseDouble(theta.getText());
+				double speedInYPS = Double.parseDouble(speed.getText());
+				double azimuthInRadians = Double.parseDouble(azimuth.getText());
+				BallTestViewer.ball.setLinearVelocity(new LinearVelocity(Math.toRadians(thetaInDegrees), azimuthInRadians, speedInYPS));
 
-		dropButton = new Button(c, SWT.PUSH);
-		dropButton.setText("Drop 20\u00B0");
-		dropButton.addSelectionListener(new SelectionAdapter()
-		{
+				double phiInDegrees = Double.parseDouble(phi.getText());
+				double omegaInDegreesPerSecond = Double.parseDouble(omega.getText());
+				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(Math.toRadians(phiInDegrees), Math.toRadians(omegaInDegreesPerSecond)));
 
-			@Override
-			public void widgetSelected(final SelectionEvent e)
-			{
-				BallTestViewer.ball.setLinearVelocity(new LinearVelocity());
-				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(Math.PI / 8, 0));
-				BallTestViewer.ball.setLocation(60.0, 27.0, 30.0);
-				BallTestViewer.path.clear();
-			}
-		});
-
-		dropButton = new Button(c, SWT.PUSH);
-		dropButton.setText("Drop 40\u00B0");
-		dropButton.addSelectionListener(new SelectionAdapter()
-		{
-
-			@Override
-			public void widgetSelected(final SelectionEvent e)
-			{
-				BallTestViewer.ball.setLinearVelocity(new LinearVelocity());
-				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(Math.PI * 4 / 18, 0));
-				BallTestViewer.ball.setLocation(60.0, 27.0, 30.0);
-				BallTestViewer.path.clear();
-			}
-		});
-
-		dropButton = new Button(c, SWT.PUSH);
-		dropButton.setText("Drop 70\u00B0");
-		dropButton.addSelectionListener(new SelectionAdapter()
-		{
-
-			@Override
-			public void widgetSelected(final SelectionEvent e)
-			{
-				BallTestViewer.ball.setLinearVelocity(new LinearVelocity());
-				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(Math.PI * 7 / 18, 0));
-				BallTestViewer.ball.setLocation(60.0, 27.0, 30.0);
-				BallTestViewer.path.clear();
-			}
-		});
-
-		dropButton = new Button(c, SWT.PUSH);
-		dropButton.setText("Drop 91\u00B0");
-		dropButton.addSelectionListener(new SelectionAdapter()
-		{
-
-			@Override
-			public void widgetSelected(final SelectionEvent e)
-			{
-				BallTestViewer.ball.setLinearVelocity(new LinearVelocity());
-				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(Math.PI * 9.1 / 18, 0));
-				BallTestViewer.ball.setLocation(60.0, 27.0, 30.0);
-				BallTestViewer.path.clear();
-			}
-		});
-
-		dropButton = new Button(c, SWT.PUSH);
-		dropButton.setText("Drop Random\u00B0");
-		dropButton.addSelectionListener(new SelectionAdapter()
-		{
-
-			@Override
-			public void widgetSelected(final SelectionEvent e)
-			{
-				BallTestViewer.ball.setLinearVelocity(new LinearVelocity());
-				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(Math.random() * Math.PI, 0));
-				BallTestViewer.ball.setLocation(60.0, 27.0, 30.0);
-				BallTestViewer.path.clear();
-			}
-		});
-
-		dropButton = new Button(c, SWT.PUSH);
-		dropButton.setText("Drop 110\u00B0");
-		dropButton.addSelectionListener(new SelectionAdapter()
-		{
-
-			@Override
-			public void widgetSelected(final SelectionEvent e)
-			{
-				BallTestViewer.ball.setLinearVelocity(new LinearVelocity());
-				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(Math.PI * 11 / 18, 0));
-				BallTestViewer.ball.setLocation(60.0, 27.0, 30.0);
-				BallTestViewer.path.clear();
-			}
-		});
-
-		dropButton = new Button(c, SWT.PUSH);
-		dropButton.setText("Drop 140\u00B0");
-		dropButton.addSelectionListener(new SelectionAdapter()
-		{
-
-			@Override
-			public void widgetSelected(final SelectionEvent e)
-			{
-				BallTestViewer.ball.setLinearVelocity(new LinearVelocity());
-				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(Math.PI * 14 / 18, 0));
-				BallTestViewer.ball.setLocation(60.0, 27.0, 30.0);
-				BallTestViewer.path.clear();
-			}
-		});
-
-		dropButton = new Button(c, SWT.PUSH);
-		dropButton.setText("Drop 160\u00B0");
-		dropButton.addSelectionListener(new SelectionAdapter()
-		{
-
-			@Override
-			public void widgetSelected(final SelectionEvent e)
-			{
-				BallTestViewer.ball.setLinearVelocity(new LinearVelocity());
-				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(Math.PI * 16 / 18, 0));
-				BallTestViewer.ball.setLocation(60.0, 27.0, 30.0);
-				BallTestViewer.path.clear();
-			}
-		});
-
-
-		Button kickButton = new Button(c, SWT.PUSH);
-		kickButton.setText("Kick");
-		kickButton.addSelectionListener(new SelectionAdapter()
-		{
-
-			@Override
-			public void widgetSelected(final SelectionEvent e)
-			{
-				// 5	0.64
-				// 10	1.45
-				// 15	1.90
-				// 20	2.29
-				// 25	2.74
-				// 30	3.08
-				// 35	3.45
-				// 40	4.04
-				BallTestViewer.ball.setLinearVelocity(new LinearVelocity(35, 0, 35));
-				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(0, 20));
-				BallTestViewer.ball.setLocation(10.0, 27.0, 1.0);
-
-				BallTestViewer.hangTimeRunning = true;
-				BallTestViewer.hangTime = 0;
-				BallTestViewer.ballDistance = 0;
-				BallTestViewer.ballHeight = 0;
-				BallTestViewer.path.clear();
-			}
-		});
-
-		kickButton = new Button(c, SWT.PUSH);
-		kickButton.setText("Kick Random");
-		kickButton.addSelectionListener(new SelectionAdapter()
-		{
-
-			@Override
-			public void widgetSelected(final SelectionEvent e)
-			{
-				// 5	0.64
-				// 10	1.45
-				// 15	1.90
-				// 20	2.29
-				// 25	2.74
-				// 30	3.08
-				// 35	3.45
-				// 40	4.04
-				BallTestViewer.ball.setLinearVelocity(new LinearVelocity(30 + 10 * Math.random(), -5 + 10 * Math.random(), 25 + 15 * Math.random()));
-				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(0, 15 + 10 * Math.random()));
-				BallTestViewer.ball.setLocation(10.0, 27.0, 1.0);
-
-				BallTestViewer.hangTimeRunning = true;
-				BallTestViewer.hangTime = 0;
-				BallTestViewer.ballDistance = 0;
-				BallTestViewer.ballHeight = 0;
-				BallTestViewer.path.clear();
-			}
-		});
-
-		Button puntButton = new Button(c, SWT.PUSH);
-		puntButton.setText("Punt");
-		puntButton.addSelectionListener(new SelectionAdapter()
-		{
-
-			@Override
-			public void widgetSelected(final SelectionEvent e)
-			{
-				BallTestViewer.ball.setLinearVelocity(new LinearVelocity(15, 4, 33));
-				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(0, 0, 20));
-				BallTestViewer.ball.setLocation(10.0, 27.0, 2.0);
-
-				BallTestViewer.hangTimeRunning = true;
-				BallTestViewer.hangTime = 0;
-				BallTestViewer.ballDistance = 0;
-				BallTestViewer.ballHeight = 0;
-				BallTestViewer.path.clear();
-			}
-		});
-
-		puntButton = new Button(c, SWT.PUSH);
-		puntButton.setText("Punt Random");
-		puntButton.addSelectionListener(new SelectionAdapter()
-		{
-
-			@Override
-			public void widgetSelected(final SelectionEvent e)
-			{
-				double random = 3.3; //Math.round(100 * Math.random()) / 10.0;
-				System.out.println(random);
+				double heightInYards =  Double.parseDouble(height.getText());
+				double yardLineValue =  Double.parseDouble(yardLine.getText()) + 10;
 				
-				BallTestViewer.ball.setLinearVelocity(new LinearVelocity(5 + random, -5 + random, 25 + random));
-				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(0, 0, 10 + random));
-				BallTestViewer.ball.setLocation(10.0, 27.0, 2.0);
-
-				BallTestViewer.hangTimeRunning = true;
-				BallTestViewer.hangTime = 0;
-				BallTestViewer.ballDistance = 0;
-				BallTestViewer.ballHeight = 0;
+				BallTestViewer.ball.setLocation(yardLineValue, 27.0, heightInYards);
 				BallTestViewer.path.clear();
 			}
+			
 		});
-
-		final Button passButton = new Button(c, SWT.PUSH);
-		passButton.setText("Pass");
-		passButton.addSelectionListener(new SelectionAdapter()
-		{
-
-			@Override
-			public void widgetSelected(final SelectionEvent e)
-			{
-				BallTestViewer.ball.setLinearVelocity(new LinearVelocity(13, 4, 33));
-				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(0, 0, 20));
-				BallTestViewer.ball.setLocation(10.0, 27.0, 2.0);
-
-				BallTestViewer.hangTimeRunning = true;
-				BallTestViewer.hangTime = 0;
-				BallTestViewer.ballDistance = 0;
-				BallTestViewer.ballHeight = 0;
-				BallTestViewer.path.clear();
-			}
-		});
-
-
 
 		BallTestViewer.createCanvasXY(BallTestViewer.ball);
 		BallTestViewer.createCanvasXZ(BallTestViewer.ball);
@@ -486,8 +282,7 @@ public class BallTestViewer implements Runnable
 			final StringBuilder text = new StringBuilder();
 			text.append(
 					String.format("Location  : %.2f, %.2f, %.2f\n", location.getX(), location.getY(), location.getZ()));
-			text.append(String.format("Velocity  : %.2f, %.2f, %.2f\n", ball.getLinearVelocity().getX(),
-					ball.getLinearVelocity().getY(), ball.getLinearVelocity().getZ()));
+			text.append(String.format("Velocity  : %s\n", ball.getLinearVelocity()));
 			text.append(String.format("Angular   : %.0f\u00B0, %.2f r/s\n",
 					Math.toDegrees(ball.getAngularVelocity().getCurrentAngleInRadians()),
 					ball.getAngularVelocity().getRadiansPerSecond()));
@@ -599,7 +394,16 @@ public class BallTestViewer implements Runnable
 			return;
 		}
 
-		new BallPhysics(ball).update(.04f);
+		try
+		{
+			new BallPhysics(ball).update(.04f);
+		}
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		BallTestViewer.canvasXY.redraw();
 		BallTestViewer.canvasXZ.redraw();
 

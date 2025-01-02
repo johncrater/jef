@@ -2,55 +2,51 @@ package jef.core.units;
 
 import java.util.Objects;
 
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.util.Precision;
 
 public class LinearVelocity
 {
-	public static boolean withinEpsilon(double v1, double v2)
-	{
-		return Math.abs(v1 - v2) < EPSILON;
-	}
-	
 	public static final double EPSILON = .02;
 
-	private double x;
-	private double y;
-	private double z;
+	public static boolean withinEpsilon(final double v1, final double v2)
+	{
+		return Math.abs(v1 - v2) < LinearVelocity.EPSILON;
+	}
+
+	private Vector3D vector;
 
 	public LinearVelocity()
 	{
+		vector = new Vector3D(0, 0, 0);
 	}
 
-	public LinearVelocity(final double x, final double y, final double z)
+	public LinearVelocity(Vector3D vector)
 	{
-		this.x = x;
-		this.y = y;
-		this.z = z;
-	}
-
-	public LinearVelocity add( double x, final double y, final double z)
-	{
-		return new LinearVelocity(this.x + x, this.y + y, this.z + z);
+		this.vector = vector;
 	}
 	
-	public LinearVelocity add(LinearVelocity lv)
+	public LinearVelocity(double altitude, double azimuth, double distance)
 	{
-		return add(lv.getX(), lv.getY(), lv.getZ());
+		this(new Vector3D(azimuth, altitude).scalarMultiply(distance));
 	}
 
-	public LinearVelocity subtract(LinearVelocity lv)
+	public LinearVelocity add(final double distance)
 	{
-		return add(-lv.getX(), -lv.getY(), -lv.getZ());
+		return new LinearVelocity(this.vector.getDelta(), vector.getAlpha(), distance + vector.getNorm());		
 	}
 
-	public double calculateXYAngle()
+	public LinearVelocity add(final double altitude, final double azimuth, final double distance)
 	{
-		return Math.atan2(this.getY(), this.getX());
+		Vector3D toVector = new Vector3D(azimuth, altitude, distance).add(this.vector);
+		return new LinearVelocity(toVector);
 	}
 
-	public double calculateXZAngle()
+	public LinearVelocity add(final LinearVelocity lv)
 	{
-		return Math.atan2(this.getZ(), this.getX());
+		Vector3D toVector = lv.vector.add(this.vector);
+		return new LinearVelocity(toVector);
 	}
 
 	@Override
@@ -64,83 +60,115 @@ public class LinearVelocity
 
 		final LinearVelocity other = (LinearVelocity) obj;
 
-		return Precision.equals(getX(), other.getX(), LinearVelocity.EPSILON)
-				&& Precision.equals(getY(), other.getY(), LinearVelocity.EPSILON)
-				&& Precision.equals(getZ(), other.getZ(), LinearVelocity.EPSILON);
+		return Precision.equals(this.getAltitude(), other.getAltitude(), LinearVelocity.EPSILON)
+				&& Precision.equals(this.getAzimuth(), other.getAzimuth(), LinearVelocity.EPSILON)
+				&& Precision.equals(this.getDistance(), other.getDistance(), LinearVelocity.EPSILON);
+	}
+
+	public double getAltitude()
+	{
+		return this.vector.getDelta();
+	}
+
+	public double getAzimuth()
+	{
+		return this.vector.getAlpha();
+	}
+
+	public double getDistance()
+	{
+		return this.vector.getNorm();
 	}
 
 	public double getX()
 	{
-		return x;
+		return this.vector.getX();
 	}
 
-	public double getXYSpeed()
+	public double getXYDistance()
 	{
-		return Math.sqrt(Math.pow(getX(), 2) + Math.pow(getY(), 2));
+		return new Vector2D(getX(), getY()).getNorm();
+	}
+
+	public double getXZDistance()
+	{
+		return new Vector2D(getX(), getZ()).getNorm();
 	}
 
 	public double getY()
 	{
-		return y;
+		return this.vector.getY();
 	}
 
-	public double getXZSpeed()
+	public double getYZDistance()
 	{
-		return Math.sqrt(Math.pow(getX(), 2) + Math.pow(getZ(), 2));
+		return new Vector2D(getY(), getZ()).getNorm();
 	}
 
 	public double getZ()
 	{
-		return z;
+		return vector.getZ();
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(x, y, z);
+		return Objects.hash(this.getAltitude(), this.getAzimuth(), this.getDistance());
 	}
 
 	public boolean isCloseToZero()
 	{
-		return this.magnitude() < LinearVelocity.EPSILON;
+		return this.getDistance() < LinearVelocity.EPSILON;
+	}
+
+	public boolean movingLeft()
+	{
+		return (this.getAzimuth() > (Math.PI / 2)) || (this.getAzimuth() < (-Math.PI / 2));
 	}
 
 	public boolean movingRight()
 	{
-		double xyAngle = this.calculateXYAngle();
-		return this.getXYSpeed() > 0 && xyAngle > -Math.PI / 2 && xyAngle < Math.PI / 2; 
-	}
-	
-	public boolean movingLeft()
-	{
-		double xyAngle = this.calculateXYAngle();
-		return this.getXYSpeed() > 0 && (xyAngle > Math.PI / 2 || xyAngle < -Math.PI / 2); 
-	}
-	
-	public LinearVelocity normalize()
-	{
-		return multiply(1 / magnitude());
-	}
-	
-	public double magnitude()
-	{
-		return Math.sqrt(Math.pow(this.getX(), 2) + Math.pow(this.getY(), 2) + Math.pow(this.getZ(), 2));
+		return (this.getAzimuth() > (-Math.PI / 2)) && (this.getAzimuth() < (Math.PI / 2));
 	}
 
 	public LinearVelocity multiply(final double scalar)
 	{
-		return new LinearVelocity(this.getX() * scalar, this.getY() * scalar, this.getZ() * scalar);
+		return new LinearVelocity(new Vector3D(scalar, vector));
+	}
+
+	public LinearVelocity normalize()
+	{
+		return new LinearVelocity(vector.normalize());
+	}
+
+	public LinearVelocity set(Double altitude, Double azimuth, Double distance)
+	{
+		if (altitude == null)
+			altitude = this.getAltitude();
+
+		if (azimuth == null)
+			azimuth = this.getAzimuth();
+
+		if (distance == null)
+			distance = this.getDistance();
+
+		return new LinearVelocity(altitude, azimuth, distance);
+	}
+
+	public LinearVelocity subtract(final LinearVelocity lv)
+	{
+		return new LinearVelocity(vector.subtract(lv.vector));
 	}
 
 	@Override
 	public String toString()
 	{
-		return String.format("(%6.2f, %6.2f, %6.2f)", this.x, this.y, this.z);
+		return String.format("(%3.0f\u00B0, %3.0f\u00B0, %7.3f y/s)", Math.toDegrees(this.getAltitude()),
+				Math.toDegrees(this.getAzimuth()), this.getDistance());
 	}
-
-	public double getYZSpeed()
+	
+	public Vector3D toVector3D()
 	{
-		return Math.sqrt(Math.pow(getY(), 2) + Math.pow(getZ(), 2));
+		return vector;
 	}
-
 }
