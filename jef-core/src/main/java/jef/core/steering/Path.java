@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import jef.core.Location;
 import jef.core.units.DefaultLocation;
-import jef.core.units.Location;
 
 public class Path implements Iterable<Waypoint>
 {

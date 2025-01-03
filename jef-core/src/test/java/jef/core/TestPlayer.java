@@ -4,8 +4,6 @@ import jef.core.steering.Path;
 import jef.core.steering.Steerable;
 import jef.core.steering.Waypoint;
 import jef.core.steering.Waypoint.DestinationAction;
-import jef.core.units.Field;
-import jef.core.units.Location;
 
 public class TestPlayer extends TestMoveable implements Player, Steerable
 {

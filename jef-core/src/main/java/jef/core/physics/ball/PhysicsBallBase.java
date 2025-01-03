@@ -41,7 +41,7 @@ class PhysicsBallBase extends Body
 	{
 		this.football = ball;
 		this.setBullet(true);
-		this.setAngularVelocity(ball.getAngularVelocity().getRotation());
+		this.setAngularVelocity(ball.getAV().getRotation());
 
 		this.setMass(new org.dyn4j.geometry.Mass(new Vector2(0, 0), PhysicsBallBase.mass.getInKilograms(), 0));
 

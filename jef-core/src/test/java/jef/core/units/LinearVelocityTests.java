@@ -8,19 +8,21 @@ import static org.junit.jupiter.api.Assertions.fail;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.junit.jupiter.api.Test;
 
+import jef.core.LinearVelocity;
+
 class LinearVelocityTests
 {
 
 	@Test
 	void testWithinEpsilon()
 	{
-		assertTrue(DefaultLinearVelocity.withinEpsilon(DefaultLinearVelocity.EPSILON, DefaultLinearVelocity.EPSILON));
-		assertTrue(DefaultLinearVelocity.withinEpsilon(0, DefaultLinearVelocity.EPSILON - .00000001));
-		assertFalse(DefaultLinearVelocity.withinEpsilon(0, DefaultLinearVelocity.EPSILON + .00000001));
+		assertTrue(DefaultLinearVelocity.withinEpsilon(LinearVelocity.EPSILON, LinearVelocity.EPSILON));
+		assertTrue(DefaultLinearVelocity.withinEpsilon(0, LinearVelocity.EPSILON - .00000001));
+		assertFalse(DefaultLinearVelocity.withinEpsilon(0, LinearVelocity.EPSILON + .00000001));
 
-		assertTrue(DefaultLinearVelocity.withinEpsilon(-DefaultLinearVelocity.EPSILON, -DefaultLinearVelocity.EPSILON));
-		assertFalse(DefaultLinearVelocity.withinEpsilon(-DefaultLinearVelocity.EPSILON - .00000001, 0));
-		assertTrue(DefaultLinearVelocity.withinEpsilon(-DefaultLinearVelocity.EPSILON + .00000001, 0));
+		assertTrue(DefaultLinearVelocity.withinEpsilon(-LinearVelocity.EPSILON, -LinearVelocity.EPSILON));
+		assertFalse(DefaultLinearVelocity.withinEpsilon(-LinearVelocity.EPSILON - .00000001, 0));
+		assertTrue(DefaultLinearVelocity.withinEpsilon(-LinearVelocity.EPSILON + .00000001, 0));
 	}
 
 	@Test

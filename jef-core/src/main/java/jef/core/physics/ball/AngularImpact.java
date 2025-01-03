@@ -1,9 +1,9 @@
 package jef.core.physics.ball;
 
+import jef.core.AngularVelocity;
 import jef.core.BallUtils;
-import jef.core.units.AngularVelocity;
+import jef.core.LinearVelocity;
 import jef.core.units.DefaultAngularVelocity;
-import jef.core.units.LinearVelocity;
 
 public class AngularImpact extends IndexedCalculator
 {

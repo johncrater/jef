@@ -1,11 +1,7 @@
 package jef.core;
 
-import jef.core.steering.Moveable;
-import jef.core.units.AngularVelocity;
 import jef.core.units.DefaultAngularVelocity;
 import jef.core.units.DefaultLinearVelocity;
-import jef.core.units.LinearVelocity;
-import jef.core.units.Location;
 import jef.core.units.DefaultLocation;
 
 public class TestMoveable implements Moveable
@@ -31,9 +27,9 @@ public class TestMoveable implements Moveable
 
 	public TestMoveable(final Moveable moveable)
 	{
-		this.location = moveable.getLocation();
-		this.linearVelocity = moveable.getLinearVelocity();
-		this.angularVelocity = moveable.getAngularVelocity();
+		this.location = moveable.getLoc();
+		this.linearVelocity = moveable.getLV();
+		this.angularVelocity = moveable.getAV();
 	}
 
 	@Override
@@ -43,19 +39,19 @@ public class TestMoveable implements Moveable
 	}
 
 	@Override
-	public AngularVelocity getAngularVelocity()
+	public AngularVelocity getAV()
 	{
 		return this.angularVelocity;
 	}
 
 	@Override
-	public LinearVelocity getLinearVelocity()
+	public LinearVelocity getLV()
 	{
 		return this.linearVelocity;
 	}
 
 	@Override
-	public Location getLocation()
+	public Location getLoc()
 	{
 		return this.location;
 	}
@@ -79,19 +75,19 @@ public class TestMoveable implements Moveable
 	}
 
 	@Override
-	public void setAngularVelocity(final AngularVelocity angularVelocity)
+	public void setAV(final AngularVelocity angularVelocity)
 	{
 		this.angularVelocity = angularVelocity;
 	}
 
 	@Override
-	public void setLinearVelocity(final LinearVelocity lv)
+	public void setLV(final LinearVelocity lv)
 	{
 		this.linearVelocity = lv;
 	}
 
 	@Override
-	public void setLocation(final Location location)
+	public void setLoc(final Location location)
 	{
 		this.location = location;
 	}

@@ -1,8 +1,8 @@
 package jef.core.steering;
 
-import jef.core.units.Location;
+import jef.core.Location;
 
-public interface Steerable extends Moveable
+public interface Steerable
 {
 	public double getMaxSpeed();
 	public double getDesiredSpeed();

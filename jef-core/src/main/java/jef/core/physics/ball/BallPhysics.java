@@ -8,13 +8,13 @@ import com.synerset.unitility.unitsystem.common.Velocity;
 import com.synerset.unitility.unitsystem.mechanical.Force;
 import com.synerset.unitility.unitsystem.thermodynamic.Density;
 
+import jef.core.AngularVelocity;
 import jef.core.Conversions;
 import jef.core.Football;
-import jef.core.units.AngularVelocity;
+import jef.core.LinearVelocity;
+import jef.core.Location;
 import jef.core.units.DefaultAngularVelocity;
 import jef.core.units.DefaultLinearVelocity;
-import jef.core.units.LinearVelocity;
-import jef.core.units.Location;
 import jef.core.units.DefaultLocation;
 import jef.core.units.VUnits;
 
@@ -53,12 +53,12 @@ public class BallPhysics
 
 	public void update(float deltaTime)
 	{
-		if (ball.getLinearVelocity().getDistance() == 0 && ball.getLocation().getZ() == 0)
+		if (ball.getLV().getDistance() == 0 && ball.getLoc().getZ() == 0)
 			return;
 
-		LinearVelocity lv = ball.getLinearVelocity();
-		DefaultLocation loc = ball.getLocation();
-		AngularVelocity av = ball.getAngularVelocity();
+		LinearVelocity lv = ball.getLV();
+		Location loc = ball.getLoc();
+		AngularVelocity av = ball.getAV();
 		
 		System.out.print(String.format("Loc: %s ", loc));
 		System.out.print(String.format("LV: %s ", lv));
@@ -167,9 +167,9 @@ public class BallPhysics
 			av = new DefaultAngularVelocity();
 		}
 
-		ball.setAngularVelocity(av);
-		ball.setLinearVelocity(lv);
-		ball.setLocation(loc);
+		ball.setAV(av);
+		ball.setLV(lv);
+		ball.setLoc(loc);
 	}
 
 	public LinearVelocity calculateGravityAdjustment()

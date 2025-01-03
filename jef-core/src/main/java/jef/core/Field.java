@@ -1,6 +1,9 @@
-package jef.core.units;
+package jef.core;
 
 import com.synerset.unitility.unitsystem.common.Distance;
+
+import jef.core.units.DUnits;
+import jef.core.units.DefaultLocation;
 
 public class Field
 {

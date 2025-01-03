@@ -32,8 +32,6 @@ import jef.core.steering.Path;
 import jef.core.steering.Steering;
 import jef.core.steering.Waypoint;
 import jef.core.steering.Waypoint.DestinationAction;
-import jef.core.units.Field;
-import jef.core.units.Location;
 import jef.core.units.DefaultLinearVelocity;
 import jef.core.units.DefaultLocation;
 
@@ -134,8 +132,8 @@ public class PlayerTestViewer implements Runnable
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				player.setLocation(new DefaultLocation(50.0, 27.0, 0.0));
-				player.setLinearVelocity(new DefaultLinearVelocity(10.0, 10.0, 0.0));
+				player.setLoc(new DefaultLocation(50.0, 27.0, 0.0));
+				player.setLV(new DefaultLinearVelocity(10.0, 10.0, 0.0));
 			}
 		});
 
@@ -146,8 +144,8 @@ public class PlayerTestViewer implements Runnable
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				player.setLocation(new DefaultLocation(50.0, 27.0, 0.0));
-				player.setLinearVelocity(new DefaultLinearVelocity(0.0, 0.0, 0.0));
+				player.setLoc(new DefaultLocation(50.0, 27.0, 0.0));
+				player.setLV(new DefaultLinearVelocity(0.0, 0.0, 0.0));
 			}
 		});
 	}
@@ -230,7 +228,7 @@ public class PlayerTestViewer implements Runnable
 		gc.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
 		gc.setFont(playerFont);
 		
-		Point p = locationToPoint(player.getLocation());
+		Point p = locationToPoint(player.getLoc());
 		gc.fillOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
 
 		String playerNumber = "" + player.getNumber();
@@ -240,9 +238,9 @@ public class PlayerTestViewer implements Runnable
 		
 		StringBuilder str = new StringBuilder();
 		str.append(String.format("Name            : %s %s\n", player.getFirstName(), player.getLastName()));
-		str.append(String.format("Location        : %s\n", player.getLocation()));
-		str.append(String.format("Linear velocity : %s\n", player.getLinearVelocity()));
-		str.append(String.format("Angular velocity: %s\n", player.getAngularVelocity()));
+		str.append(String.format("Location        : %s\n", player.getLoc()));
+		str.append(String.format("Linear velocity : %s\n", player.getLV()));
+		str.append(String.format("Angular velocity: %s\n", player.getAV()));
 		
 		gc.setFont(playerDataFont);
 		gc.drawText(str.toString(), 3000, 20);

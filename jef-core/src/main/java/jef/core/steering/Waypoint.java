@@ -1,6 +1,6 @@
 package jef.core.steering;
 
-import jef.core.units.Location;
+import jef.core.Location;
 
 public class Waypoint
 {

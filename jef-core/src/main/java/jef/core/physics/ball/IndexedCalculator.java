@@ -2,10 +2,10 @@ package jef.core.physics.ball;
 
 import java.util.Arrays;
 
+import jef.core.AngularVelocity;
 import jef.core.BallUtils;
-import jef.core.units.AngularVelocity;
+import jef.core.LinearVelocity;
 import jef.core.units.DefaultLinearVelocity;
-import jef.core.units.LinearVelocity;
 
 public class IndexedCalculator
 {

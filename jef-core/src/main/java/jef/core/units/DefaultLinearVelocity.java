@@ -7,13 +7,13 @@ import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.util.MathUtils;
 import org.apache.commons.math3.util.Precision;
 
+import jef.core.LinearVelocity;
+
 public class DefaultLinearVelocity implements LinearVelocity
 {
-	public static final double EPSILON = .02;
-
 	public static boolean withinEpsilon(final double v1, final double v2)
 	{
-		return Math.abs(v1 - v2) <= DefaultLinearVelocity.EPSILON;
+		return Math.abs(v1 - v2) <= LinearVelocity.EPSILON;
 	}
 
 	private double elevation;
@@ -88,9 +88,9 @@ public class DefaultLinearVelocity implements LinearVelocity
 
 		final LinearVelocity other = (LinearVelocity) obj;
 
-		return Precision.equals(this.getElevation(), other.getElevation(), DefaultLinearVelocity.EPSILON)
-				&& Precision.equals(this.getAzimuth(), other.getAzimuth(), DefaultLinearVelocity.EPSILON)
-				&& Precision.equals(this.getDistance(), other.getDistance(), DefaultLinearVelocity.EPSILON);
+		return Precision.equals(this.getElevation(), other.getElevation(), LinearVelocity.EPSILON)
+				&& Precision.equals(this.getAzimuth(), other.getAzimuth(), LinearVelocity.EPSILON)
+				&& Precision.equals(this.getDistance(), other.getDistance(), LinearVelocity.EPSILON);
 	}
 
 	@Override
@@ -156,7 +156,7 @@ public class DefaultLinearVelocity implements LinearVelocity
 	@Override
 	public boolean isNotMoving()
 	{
-		return this.getDistance() < DefaultLinearVelocity.EPSILON;
+		return this.getDistance() < LinearVelocity.EPSILON;
 	}
 
 	@Override

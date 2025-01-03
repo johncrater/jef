@@ -1,8 +1,10 @@
-package jef.core.units;
+package jef.core;
 
 public interface AngularVelocity
 {
 
+	double EPSILON_ANGLE = .02;
+	double EPSILON_ROTATIONS = .02;
 	boolean isNotRotating();
 
 	AngularVelocity addRotation(double currentAngleInRadians, double radiansPerSecond, double spiralVelocity);

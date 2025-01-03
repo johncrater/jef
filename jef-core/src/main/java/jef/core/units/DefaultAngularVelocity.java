@@ -4,13 +4,11 @@ import java.util.Objects;
 
 import org.apache.commons.math3.util.Precision;
 
+import jef.core.AngularVelocity;
 import jef.core.Conversions;
 
 public class DefaultAngularVelocity implements AngularVelocity
 {
-	public static final double EPSILON_ANGLE = .02;
-	public static final double EPSILON_ROTATIONS = .02;
-
 	private double orientation;
 	private double rotation;
 	private double spiralVelocity;

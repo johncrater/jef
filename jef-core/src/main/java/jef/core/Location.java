@@ -1,8 +1,9 @@
-package jef.core.units;
+package jef.core;
 
 public interface Location
 {
 
+	double EPSILON = .02;
 	double distanceBetween(Location loc);
 
 	boolean closeEnoughTo(Location loc, double distance);

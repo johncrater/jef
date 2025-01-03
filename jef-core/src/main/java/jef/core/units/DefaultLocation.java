@@ -4,6 +4,9 @@ import java.util.Objects;
 
 import org.apache.commons.math3.util.Precision;
 
+import jef.core.LinearVelocity;
+import jef.core.Location;
+
 public class DefaultLocation implements Location
 {
 	public static boolean withinEpsilon(double v1, double v2)
@@ -11,8 +14,6 @@ public class DefaultLocation implements Location
 		return Math.abs(v1 - v2) < EPSILON;
 	}
 	
-	public static final double EPSILON = .02;
-
 	private double x;
 	private double y;
 	private double z;
@@ -96,9 +97,9 @@ public class DefaultLocation implements Location
 
 		final Location other = (Location) obj;
 
-		return Precision.equals(getX(), other.getX(), DefaultLocation.EPSILON)
-				&& Precision.equals(getY(), other.getY(), DefaultLocation.EPSILON)
-				&& Precision.equals(getZ(), other.getZ(), DefaultLocation.EPSILON);
+		return Precision.equals(getX(), other.getX(), Location.EPSILON)
+				&& Precision.equals(getY(), other.getY(), Location.EPSILON)
+				&& Precision.equals(getZ(), other.getZ(), Location.EPSILON);
 	}
 
 	@Override

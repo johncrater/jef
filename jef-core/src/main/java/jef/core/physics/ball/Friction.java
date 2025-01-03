@@ -4,12 +4,12 @@ import com.synerset.unitility.unitsystem.common.Mass;
 import com.synerset.unitility.unitsystem.common.Velocity;
 import com.synerset.unitility.unitsystem.mechanical.Force;
 
+import jef.core.AngularVelocity;
 import jef.core.BallUtils;
 import jef.core.Conversions;
-import jef.core.units.AngularVelocity;
+import jef.core.LinearVelocity;
 import jef.core.units.DefaultAngularVelocity;
 import jef.core.units.DefaultLinearVelocity;
-import jef.core.units.LinearVelocity;
 import jef.core.units.VUnits;
 
 public class Friction extends IndexedCalculator

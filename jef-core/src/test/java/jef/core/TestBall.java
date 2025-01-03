@@ -1,9 +1,7 @@
 package jef.core;
 
-import jef.core.units.AngularVelocity;
 import jef.core.units.DefaultAngularVelocity;
 import jef.core.units.DefaultLinearVelocity;
-import jef.core.units.LinearVelocity;
 import jef.core.units.DefaultLocation;
 
 public class TestBall implements Football
@@ -29,7 +27,7 @@ public class TestBall implements Football
 	@Override
 	public void adjustAngularVelocity(double currentAngleInDegrees, double radiansPerSecond)
 	{
-		this.angularVelocity = this.getAngularVelocity().addRotation(currentAngleInDegrees, radiansPerSecond, 0);
+		this.angularVelocity = this.getAV().addRotation(currentAngleInDegrees, radiansPerSecond, 0);
 	}
 
 	@Override
@@ -45,25 +43,25 @@ public class TestBall implements Football
 	}
 
 	@Override
-	public AngularVelocity getAngularVelocity()
+	public AngularVelocity getAV()
 	{
 		return this.angularVelocity;
 	}
 
 	@Override
-	public LinearVelocity getLinearVelocity()
+	public LinearVelocity getLV()
 	{
 		return this.linearVelocity;
 	}
 
 	@Override
-	public DefaultLocation getLocation()
+	public DefaultLocation getLoc()
 	{
 		return this.location;
 	}
 
 	@Override
-	public void setAngularVelocity(AngularVelocity angularVelocity)
+	public void setAV(AngularVelocity angularVelocity)
 	{
 		this.angularVelocity = angularVelocity;
 	}
@@ -102,7 +100,7 @@ public class TestBall implements Football
 	}
 
 	@Override
-	public void setLinearVelocity(LinearVelocity lv)
+	public void setLV(LinearVelocity lv)
 	{
 		this.linearVelocity = lv;
 	}

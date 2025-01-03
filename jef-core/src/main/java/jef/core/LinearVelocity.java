@@ -1,9 +1,10 @@
-package jef.core.units;
+package jef.core;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 public interface LinearVelocity
 {
+	double EPSILON = .02;
 	LinearVelocity add(double distance);
 	LinearVelocity add(double elevation, double azimuth, double distance);
 	LinearVelocity add(LinearVelocity lv);
