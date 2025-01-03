@@ -1,14 +1,19 @@
 package jef.core.steering;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.math3.util.MathUtils;
 
+import jef.core.Conversions;
 import jef.core.Player;
-import jef.core.units.AngularVelocity;
+import jef.core.steering.Waypoint.DestinationAction;
+import jef.core.units.DefaultLinearVelocity;
 import jef.core.units.LinearVelocity;
 import jef.core.units.Location;
+import jef.core.units.DefaultLocation;
 
 public class Steering implements Iterable<Steerable>, Iterator<Steerable>
 {
@@ -28,8 +33,7 @@ public class Steering implements Iterable<Steerable>, Iterator<Steerable>
 	@Override
 	public boolean hasNext()
 	{
-		return !((getWaypoints().size() == 0)
-				&& this.steerable.getLinearVelocity().isCloseToZero());
+		return !((getWaypoints().size() == 0) && this.steerable.getLinearVelocity().isNotMoving());
 	}
 
 	@Override
@@ -39,9 +43,32 @@ public class Steering implements Iterable<Steerable>, Iterator<Steerable>
 		return null;
 	}
 
+	private String printDetails()
+	{
+		String ret = String.format("%s %s", steerable.getLinearVelocity(), steerable.getLocation());
+		return ret;
+	}
+
+	private void buildMessage(String msg)
+	{
+		System.out.println(msg);
+		out.println(msg);
+	}
+
+	private ByteArrayOutputStream baos;
+	private PrintStream out;
+
 	@Override
 	public Steerable next()
 	{
+		baos = new ByteArrayOutputStream();
+		out = new PrintStream(baos);
+
+		buildMessage(String.format("%-25s: %s", "Initial", printDetails()));
+
+		LinearVelocity lvTmp = new DefaultLinearVelocity();
+		Location locTmp = new DefaultLocation();
+		
 		this.remainingTime = this.timeInterval;
 		if (getWaypoints().size() == 0)
 		{
@@ -59,17 +86,18 @@ public class Steering implements Iterable<Steerable>, Iterator<Steerable>
 		final double newAngle = this.calculateAngleOfTurn(this.steerable.getLocation(), this.steerable.getDestination(),
 				this.steerable.getLinearVelocity().getAzimuth());
 
-		if (LinearVelocity.withinEpsilon(0, startingSpeed))
+		if (DefaultLinearVelocity.withinEpsilon(0, startingSpeed))
 		{
 			// if we are just standing there like a rock we need to at least point ourselves
 			// in the right direction..
 			this.steerable.turn(newAngle);
+			buildMessage(String.format("%-25s: %s", "No Velocity Turn", printDetails()));
 		}
 		else
 		{
-	
+
 			final LinearVelocity velocity = this.steerable.getLinearVelocity();
-	
+
 			// turns of any significance only happen at the beginning of a waypoint.
 			// if the current waypoint is the last one, then we use the current waypoint's
 			// turning speed to decelerate
@@ -79,13 +107,14 @@ public class Steering implements Iterable<Steerable>, Iterator<Steerable>
 			// prior to reaching the waypoint. The next waypoint will be able to accelerate
 			// out of the turn and minimize
 			// any distance.
-	
+
 			final double distanceRemainingToDestination = this.steerable.getLocation()
 					.distanceBetween(getDestination());
+
 			double decelerationAdjustment = 0;
 			final List<Waypoint> waypoints = getWaypoints();
 			final Waypoint currentWaypoint = getCurrentWaypoint();
-	
+
 			if ((getWaypoints().size() == 1)
 					&& (currentWaypoint.getDestinationAction() == Waypoint.DestinationAction.hardStop))
 				decelerationAdjustment = this.decelerate(velocity, 0, distanceRemainingToDestination,
@@ -93,59 +122,67 @@ public class Steering implements Iterable<Steerable>, Iterator<Steerable>
 			else if (waypoints.size() > 1)
 				decelerationAdjustment = this.decelerate(velocity, this.steerable.getTurningSpeed(),
 						distanceRemainingToDestination, this.remainingTime);
-	
+
 			if (decelerationAdjustment != 0)
+			{
 				this.steerable.adjustSpeed(decelerationAdjustment);
-	
-			final double minTurnRadius = this.calculateTightestRadiusTurnForAtSpeed(
-					getSpeed(), getMaxSpeed());
+				buildMessage(String.format("%-25s: %s", "Deceleration", printDetails()));
+			}
+
+			final double minTurnRadius = this.calculateTightestRadiusTurnForAtSpeed(getSpeed(), getMaxSpeed());
 			double distanceNeededToCompleteTurn = Math.abs(minTurnRadius * newAngle);
-	
+
 			if ((distanceNeededToCompleteTurn > 0) && (distanceNeededToCompleteTurn > this.steerable.getLocation()
 					.distanceBetween(currentWaypoint.getDestination())))
 			{
-				double turnSpeedAdjustment = this.calculateTurnSpeedAdjustment(
-						getSpeed(), this.steerable.getTurningSpeed(),
-						this.steerable.getDesiredSpeed(), this.remainingTime);
-	
+				double turnSpeedAdjustment = this.calculateTurnSpeedAdjustment(getSpeed(),
+						this.steerable.getTurningSpeed(), this.steerable.getDesiredSpeed(), this.remainingTime);
+
 				// if we still can't make the turn given the limitations of the waypoint's
 				// turnSpeed
 				// we will just have to try harder. Otherwise, we could loop for ever in a
 				// perpetual holding pattern
-				final double maxSpeedToMakeTurn = this.calculateMaximumSpeedForRadiusTurn(minTurnRadius,
-						getMaxSpeed());
-	//				if (maxSpeedToMakeTurn > ray.getSpeed() - turnSpeedAdjustment
-	//						&& Utils.normalizeAngleInDegrees(angleAdjustment) >= 45)
-	
+				final double maxSpeedToMakeTurn = this.calculateMaximumSpeedForRadiusTurn(minTurnRadius, getMaxSpeed());
+				// if (maxSpeedToMakeTurn > ray.getSpeed() - turnSpeedAdjustment
+				// && Utils.normalizeAngleInDegrees(angleAdjustment) >= 45)
+
 				// I had a limitation on the angle (see above). But I'm not sure why. Perhaps I
 				// will
 				// come back around and fix it. But for now...
 				if (maxSpeedToMakeTurn < (getSpeed() - turnSpeedAdjustment))
-					turnSpeedAdjustment = Math.max(
-							maxSpeedToMakeTurn
-									- (getSpeed() - turnSpeedAdjustment),
+					turnSpeedAdjustment = Math.max(maxSpeedToMakeTurn - (getSpeed() - turnSpeedAdjustment),
 							Player.maximumDecelerationRate * this.remainingTime);
-	
+
 				if (turnSpeedAdjustment != 0)
+				{
 					this.steerable.adjustSpeed(turnSpeedAdjustment);
-	
-				distanceNeededToCompleteTurn = this.calculateDistanceNeededToCompleteTurn(newAngle,
-						getSpeed(), getMaxSpeed());
+					buildMessage(String.format("%-25s: %s", "Slowing for long turn", printDetails()));
+					buildMessage(String.format("\tminTurnRadius. %.5f", minTurnRadius));
+					buildMessage(String.format("\tdistanceNeededToCompleteTurn. %.5f", distanceNeededToCompleteTurn));
+					buildMessage(String.format("\tturnSpeedAdjustment. %.5f", turnSpeedAdjustment));
+					buildMessage(String.format("\tmaxSpeedToMakeTurn. %.5f", maxSpeedToMakeTurn));
+				}
+
+				distanceNeededToCompleteTurn = this.calculateDistanceNeededToCompleteTurn(newAngle, getSpeed(),
+						getMaxSpeed());
 			}
-	
+
 			if (distanceNeededToCompleteTurn > 0)
 			{
 				// hold on boys, we're turning
-	
+
 				final double distanceUsed = Math.min(
 						this.steerable.getLocation().distanceBetween(currentWaypoint.getDestination()),
-						Math.min(getSpeed(), distanceNeededToCompleteTurn));
-	
+						Math.min(getSpeed() * remainingTime, distanceNeededToCompleteTurn));
+
 				this.steerable.turn((newAngle * distanceUsed) / distanceNeededToCompleteTurn);
 				this.steerable.move(distanceUsed);
+				buildMessage(String.format("%-25s: %s", "Turning", printDetails()));
+				buildMessage(String.format("\tdistanceNeededToCompleteTurn. %.5f", distanceNeededToCompleteTurn));
+				buildMessage(String.format("\tdistanceUsed. %.5f", distanceUsed));
 			}
 		}
-		
+
 		// if the speed has not changed we can accelerate
 		if (this.steerable.getSpeed() >= startingSpeed)
 		{
@@ -157,29 +194,35 @@ public class Steering implements Iterable<Steerable>, Iterator<Steerable>
 			newSpeed = Math.min(newSpeed, this.steerable.getDesiredSpeed());
 
 			if ((newSpeed - getSpeed()) != 0)
+			{
 				this.steerable.adjustSpeed(newSpeed - getSpeed());
+				buildMessage(String.format("%-25s: %s", "Accelerating", printDetails()));
+			}
 		}
 
 		this.steerable.move(this.steerable.getLinearVelocity().multiply(remainingTime));
+		buildMessage(String.format("%-25s: %s", "Moved", printDetails()));
 
 		if (this.destinationReached())
 		{
 			if (getWaypoints().size() > 1)
 			{
 				this.switchWaypoints();
+				buildMessage(String.format("%-25s: %s", "Destination Reached", printDetails()));
 				return this.next();
 			}
-			final double distance = this.steerable.getLocation()
-					.distanceBetween(getDestination());
+
+			final double distance = this.steerable.getLocation().distanceBetween(getDestination());
 			final Location nextTickLocationEstimate = this.steerable.getLocation()
-					.adjust(this.steerable.getLinearVelocity());
-			if (nextTickLocationEstimate
-					.distanceBetween(getDestination()) >= distance)
+					.add(this.steerable.getLinearVelocity());
+			if (nextTickLocationEstimate.distanceBetween(getDestination()) >= distance)
 				this.steerable.setLocation(getDestination());
 
 			this.switchWaypoints();
+			buildMessage(String.format("%-25s: %s", "Waypoint Reached", printDetails()));
 		}
 
+		buildMessage(String.format("%-25s: %s", "Final", printDetails()));
 		return this.steerable;
 	}
 
@@ -200,7 +243,7 @@ public class Steering implements Iterable<Steerable>, Iterator<Steerable>
 
 	private double getSpeed()
 	{
-		return this.steerable.getLinearVelocity().getXYDistance();
+		return this.steerable.getSpeed();
 	}
 
 	private List<Waypoint> getWaypoints()
@@ -402,6 +445,7 @@ public class Steering implements Iterable<Steerable>, Iterator<Steerable>
 		this.steerable.setSpeed(currentSpeed);
 		this.steerable.move(this.steerable.getLinearVelocity());
 		this.remainingTime = 0;
+		buildMessage(String.format("%-25s: %s", "Coasting To Stop", printDetails()));
 	}
 
 	private double decelerate(final LinearVelocity initialVector, final double finalVelocity,
@@ -416,9 +460,10 @@ public class Steering implements Iterable<Steerable>, Iterator<Steerable>
 		// it may be hard to catch up. So, we have a buffer of decelerationRate
 		// have to include EPSILON as well or our calc is off
 		if (distanceRemaining < (distanceNeededToDecelerate
-				+ ((Player.maximumDecelerationRate + LinearVelocity.EPSILON) * deltaTime)))
+				+ ((Player.maximumDecelerationRate + DefaultLinearVelocity.EPSILON) * deltaTime)))
 			return Math.min(Player.maximumDecelerationRate * deltaTime, 0);
 
+		buildMessage(String.format("%-25s: %s", "Out of Control", printDetails()));
 		return 0;
 	}
 
@@ -428,8 +473,7 @@ public class Steering implements Iterable<Steerable>, Iterator<Steerable>
 		if (waypoint == null)
 			return true;
 
-		return this.steerable.getLocation()
-				.closeEnoughTo(getDestination());
+		return this.steerable.getLocation().closeEnoughTo(getDestination());
 	}
 
 	private void outOfControl(final double startingSpeed)

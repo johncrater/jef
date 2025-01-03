@@ -31,8 +31,9 @@ import org.eclipse.swt.widgets.Text;
 import com.synerset.unitility.unitsystem.common.Angle;
 
 import jef.core.physics.ball.BallPhysics;
-import jef.core.units.AngularVelocity;
-import jef.core.units.LinearVelocity;
+import jef.core.units.DefaultAngularVelocity;
+import jef.core.units.DefaultLinearVelocity;
+import jef.core.units.DefaultLocation;
 import jef.core.units.Location;
 
 public class BallTestViewer implements Runnable
@@ -66,7 +67,7 @@ public class BallTestViewer implements Runnable
 	private static double ballDistance;
 	private static double ballHeight;
 	private static boolean hangTimeRunning = false;
-	private static List<Location> path = new ArrayList<>();
+	private static List<DefaultLocation> path = new ArrayList<>();
 
 	public static void main(final String[] args) throws IOException
 	{
@@ -137,11 +138,11 @@ public class BallTestViewer implements Runnable
 				double thetaInDegrees = Double.parseDouble(theta.getText());
 				double speedInYPS = Double.parseDouble(speed.getText());
 				double azimuthInRadians = Double.parseDouble(azimuth.getText());
-				BallTestViewer.ball.setLinearVelocity(new LinearVelocity(Math.toRadians(thetaInDegrees), azimuthInRadians, speedInYPS));
+				BallTestViewer.ball.setLinearVelocity(new DefaultLinearVelocity(Math.toRadians(thetaInDegrees), azimuthInRadians, speedInYPS));
 
 				double phiInDegrees = Double.parseDouble(phi.getText());
 				double omegaInDegreesPerSecond = Double.parseDouble(omega.getText());
-				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(Math.toRadians(phiInDegrees), Math.toRadians(omegaInDegreesPerSecond)));
+				BallTestViewer.ball.setAngularVelocity(new DefaultAngularVelocity(Math.toRadians(phiInDegrees), Math.toRadians(omegaInDegreesPerSecond)));
 
 				double heightInYards =  Double.parseDouble(height.getText());
 				double yardLineValue =  Double.parseDouble(yardLine.getText()) + 10;
@@ -202,7 +203,7 @@ public class BallTestViewer implements Runnable
 					e.gc.drawLine(offset, 3 * offset + (int) Conversions.yardsToInches(i),
 							offset + (int) BallTestViewer.totalLength, offset + (int) Conversions.yardsToInches(i));
 
-				final Location location = ball.getLocation();
+				final DefaultLocation location = ball.getLocation();
 				final Point xy = new Point((int) Conversions.yardsToInches(location.getY()),
 						(int) Conversions.yardsToInches(location.getX()));
 
@@ -254,20 +255,20 @@ public class BallTestViewer implements Runnable
 							(int) Conversions.yardsToInches(10));
 				}
 
-				final Location location = ball.getLocation();
+				final DefaultLocation location = ball.getLocation();
 
 				Point xy = BallTestViewer.toXZPoint(location);
 
 				try (TransformStack ts2 = new TransformStack(e.gc))
 				{
 					ts2.translate(xy.x, xy.y);
-					ts2.rotate(Angle.ofRadians(ball.getAngularVelocity().getCurrentAngleInRadians() * -1));
+					ts2.rotate(Angle.ofRadians(ball.getAngularVelocity().getOrientation() * -1));
 					ts2.set();
 					e.gc.drawImage(BallTestViewer.footballSmall, -17, -17);
 				}
 
 				e.gc.setBackground(BallTestViewer.white);
-				for (final Location l : BallTestViewer.path)
+				for (final DefaultLocation l : BallTestViewer.path)
 					e.gc.fillOval((int) Conversions.yardsToInches(l.getX()), (int) Conversions.yardsToInches(l.getZ()),
 							7, 7);
 			}
@@ -277,15 +278,15 @@ public class BallTestViewer implements Runnable
 				e1.printStackTrace();
 			}
 
-			final Location location = ball.getLocation();
+			final DefaultLocation location = ball.getLocation();
 
 			final StringBuilder text = new StringBuilder();
 			text.append(
 					String.format("Location  : %.2f, %.2f, %.2f\n", location.getX(), location.getY(), location.getZ()));
 			text.append(String.format("Velocity  : %s\n", ball.getLinearVelocity()));
 			text.append(String.format("Angular   : %.0f\u00B0, %.2f r/s\n",
-					Math.toDegrees(ball.getAngularVelocity().getCurrentAngleInRadians()),
-					ball.getAngularVelocity().getRadiansPerSecond()));
+					Math.toDegrees(ball.getAngularVelocity().getOrientation()),
+					ball.getAngularVelocity().getRotation()));
 			text.append(String.format("Hang Time : %.2f\n", BallTestViewer.hangTime / 1000.0));
 			text.append(String.format("Distance  : %.0f\n", BallTestViewer.ballDistance));
 			text.append(String.format("Height    : %.0f\n", BallTestViewer.ballHeight));
@@ -298,7 +299,7 @@ public class BallTestViewer implements Runnable
 			{
 				ts.translate(canvasXZ.getBounds().width - 400, canvasXZ.getBounds().y + 200);
 				ts.scale(.15f, .15f);
-				ts.rotate(Angle.ofRadians(Math.PI / 2.0 + ball.getAngularVelocity().getCurrentAngleInRadians()));
+				ts.rotate(Angle.ofRadians(Math.PI / 2.0 + ball.getAngularVelocity().getOrientation()));
 				ts.set();
 				
 				e.gc.drawImage(BallTestViewer.footballBig, (int)(-footballBig.getImageData().width / 2.0) + 1, (int)(-footballBig.getImageData().height / 2.0) + 1);
@@ -422,7 +423,7 @@ public class BallTestViewer implements Runnable
 			BallTestViewer.hangTime += interval;
 		}
 
-		if (!BallTestViewer.ball.getLinearVelocity().isCloseToZero())
+		if (!BallTestViewer.ball.getLinearVelocity().isNotMoving())
 			BallTestViewer.path.add(BallTestViewer.ball.getLocation());
 
 		BallTestViewer.shell.getDisplay().asyncExec(this);

@@ -51,7 +51,7 @@ public class Field
 
 	public static Location midfield()
 	{
-		return new Location(FIELD_TOTAL_LENGTH / 2, FIELD_TOTAL_WIDTH / 2, 0.0);
+		return new DefaultLocation(FIELD_TOTAL_LENGTH / 2, FIELD_TOTAL_WIDTH / 2, 0.0);
 	}
 	
 }

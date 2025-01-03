@@ -2,6 +2,7 @@ package jef.core.physics.ball;
 
 import jef.core.BallUtils;
 import jef.core.units.AngularVelocity;
+import jef.core.units.DefaultAngularVelocity;
 import jef.core.units.LinearVelocity;
 
 public class AngularImpact extends IndexedCalculator
@@ -39,7 +40,7 @@ public class AngularImpact extends IndexedCalculator
 	public AngularVelocity calculateAVAdjustment(final AngularVelocity av, final LinearVelocity lv)
 	{
 		final double newVelocity = calculate(av, lv);
-		return new AngularVelocity(av.getCurrentAngleInRadians(), newVelocity);
+		return new DefaultAngularVelocity(av.getOrientation(), newVelocity);
 	}
 
 }

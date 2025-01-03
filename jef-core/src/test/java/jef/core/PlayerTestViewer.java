@@ -33,8 +33,9 @@ import jef.core.steering.Steering;
 import jef.core.steering.Waypoint;
 import jef.core.steering.Waypoint.DestinationAction;
 import jef.core.units.Field;
-import jef.core.units.LinearVelocity;
 import jef.core.units.Location;
+import jef.core.units.DefaultLinearVelocity;
+import jef.core.units.DefaultLocation;
 
 public class PlayerTestViewer implements Runnable
 {
@@ -133,8 +134,8 @@ public class PlayerTestViewer implements Runnable
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				player.setLocation(new Location(50.0, 27.0, 0.0));
-				player.setLinearVelocity(new LinearVelocity(10.0, 10.0, 0.0));
+				player.setLocation(new DefaultLocation(50.0, 27.0, 0.0));
+				player.setLinearVelocity(new DefaultLinearVelocity(10.0, 10.0, 0.0));
 			}
 		});
 
@@ -145,8 +146,8 @@ public class PlayerTestViewer implements Runnable
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				player.setLocation(new Location(50.0, 27.0, 0.0));
-				player.setLinearVelocity(new LinearVelocity(0.0, 0.0, 0.0));
+				player.setLocation(new DefaultLocation(50.0, 27.0, 0.0));
+				player.setLinearVelocity(new DefaultLinearVelocity(0.0, 0.0, 0.0));
 			}
 		});
 	}
@@ -256,7 +257,7 @@ public class PlayerTestViewer implements Runnable
 
 	private Location pointToLocation(Point p)
 	{
-		return new Location(Conversions.inchesToYards(p.x), Conversions.inchesToYards(p.y), 0.0);
+		return new DefaultLocation(Conversions.inchesToYards(p.x), Conversions.inchesToYards(p.y), 0.0);
 	}
 	
 	public void run()

@@ -59,13 +59,13 @@ public class LinearImpact extends IndexedCalculator
 	{
 		double reboundAngle = Math.toRadians(calculate(av, lv));
 		double cor = calculateCOR(av);
-		return lv.set(reboundAngle, null, lv.getDistance() * cor);
+		return lv.newFrom(reboundAngle, null, lv.getDistance() * cor);
 	}
 
 	private double calculateCOR(final AngularVelocity av)
 	{
 		return Math.max(coefficientOfRestitutionMin,
-				(Math.abs(Math.cos(av.getCurrentAngleInRadians()))
+				(Math.abs(Math.cos(av.getOrientation()))
 						* (coefficientOfRestitutionMax - coefficientOfRestitutionMin))
 						+ coefficientOfRestitutionMin);
 	}

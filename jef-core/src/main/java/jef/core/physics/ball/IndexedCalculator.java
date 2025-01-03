@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import jef.core.BallUtils;
 import jef.core.units.AngularVelocity;
+import jef.core.units.DefaultLinearVelocity;
 import jef.core.units.LinearVelocity;
 
 public class IndexedCalculator
@@ -55,7 +56,7 @@ public class IndexedCalculator
 
 	protected double calculatePhi(AngularVelocity av, LinearVelocity lv)
 	{
-		return Math.toDegrees(lv.movingLeft() ? Math.PI - av.getCurrentAngleInRadians() : av.getCurrentAngleInRadians());
+		return Math.toDegrees(lv.movingLeft() ? Math.PI - av.getOrientation() : av.getOrientation());
 	}
 	
 	protected double calculateTheta(LinearVelocity lv)
@@ -106,7 +107,7 @@ public class IndexedCalculator
 		if (BallUtils.hasTopSpin(av, lv))
 			return (indexValue + indexValue(phi, obliqueTopspin)) / 2.0;
 
-		if (LinearVelocity.withinEpsilon(lv.getElevation(), -Math.PI / 2))
+		if (DefaultLinearVelocity.withinEpsilon(lv.getElevation(), -Math.PI / 2))
 			return indexValue(phi, verticalNoSpin);
 
 		return (indexValue + indexValue(phi, obliqueNoSpin)) / 2.0;

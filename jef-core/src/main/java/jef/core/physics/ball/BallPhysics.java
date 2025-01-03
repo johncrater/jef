@@ -11,8 +11,11 @@ import com.synerset.unitility.unitsystem.thermodynamic.Density;
 import jef.core.Conversions;
 import jef.core.Football;
 import jef.core.units.AngularVelocity;
+import jef.core.units.DefaultAngularVelocity;
+import jef.core.units.DefaultLinearVelocity;
 import jef.core.units.LinearVelocity;
 import jef.core.units.Location;
+import jef.core.units.DefaultLocation;
 import jef.core.units.VUnits;
 
 public class BallPhysics
@@ -54,24 +57,24 @@ public class BallPhysics
 			return;
 
 		LinearVelocity lv = ball.getLinearVelocity();
-		Location loc = ball.getLocation();
+		DefaultLocation loc = ball.getLocation();
 		AngularVelocity av = ball.getAngularVelocity();
 		
-//		System.out.print(String.format("Loc: %s ", loc));
-//		System.out.print(String.format("LV: %s ", lv));
-//		System.out.print(String.format("AV: %s ", av.multiply(deltaTime)));
+		System.out.print(String.format("Loc: %s ", loc));
+		System.out.print(String.format("LV: %s ", lv));
+		System.out.print(String.format("AV: %s ", av.multiply(deltaTime)));
 
-		LinearVelocity accumulatedLV = new LinearVelocity();
+		LinearVelocity accumulatedLV = new DefaultLinearVelocity();
 		
 		LinearVelocity lvGravityAdjustment = calculateGravityAdjustment().multiply(deltaTime);
 		accumulatedLV = accumulatedLV.add(lvGravityAdjustment);
 		
 		// drag is in the opposite direction to the linearVelocity, so we multiply by -1
 		double dragAdjustment = calculateDragAdjustment(lv.getDistance() + accumulatedLV.getDistance(), av) * deltaTime;
-//		System.out.print(String.format("Drag: %.2f ", dragAdjustment));
+		System.out.print(String.format("Drag: %.2f ", dragAdjustment));
 		accumulatedLV = accumulatedLV.add(dragAdjustment);
 				
-		Location locTmp = loc.adjust(lv.add(accumulatedLV).multiply(deltaTime));
+		Location locTmp = loc.add(lv.add(accumulatedLV).multiply(deltaTime));
 
 		double pctBelowGround = 0;
 		if (locTmp.getZ() < 0)
@@ -87,13 +90,13 @@ public class BallPhysics
 		{
 			// we are rolling on the ground
 			double frictionAdjustment = friction.calculateLVAdjustment(av, lv.add(accumulatedLV), mass) * deltaTime;
-//			System.out.print(String.format("Friction: %.2f ", frictionAdjustment));
+			System.out.print(String.format("Friction: %.2f ", frictionAdjustment));
 
 			lv = lv.add(frictionAdjustment);
-			loc = loc.adjust(lv.multiply(deltaTime));
+			loc = loc.add(lv.multiply(deltaTime));
 			av = this.applyAngularVelocity(av, lv, deltaTime);
 
-			av = new AngularVelocity();
+			av = new DefaultAngularVelocity();
 		}
 		
 		if (pctBelowGround > 0 && pctBelowGround < 1)
@@ -102,12 +105,12 @@ public class BallPhysics
 			System.out.print(String.format("LV: %s ", lv));
 			System.out.print(String.format("AV: %s ", av.multiply(deltaTime)));
 
-			loc = loc.adjust(lv.add(accumulatedLV).multiply(deltaTime).multiply(1 - pctBelowGround));
+			loc = loc.add(lv.add(accumulatedLV).multiply(deltaTime).multiply(1 - pctBelowGround));
 			lv = lv.add(accumulatedLV.multiply(1 - pctBelowGround));
 			
-			assert Location.withinEpsilon(0, loc.getZ());
+			assert DefaultLocation.withinEpsilon(0, loc.getZ());
 			
-			accumulatedLV = new LinearVelocity();
+			accumulatedLV = new DefaultLinearVelocity();
 
 			AngularVelocity avFrictionAdjustment = friction.calculateAVAdjustment(av, lv);
 			AngularVelocity avImpactAdjustment = angularImpact.calculateAVAdjustment(av, lv);
@@ -130,37 +133,38 @@ public class BallPhysics
 			accumulatedLV = accumulatedLV.add(postImpactDragAdjustment);
 
 			lv = accumulatedLV;
-			loc = loc.adjust(lv.multiply(deltaTime));
-			av = this.applyAngularVelocity(avImpactAdjustment.adjust(avFrictionAdjustment), lv, deltaTime);
+			loc = loc.add(lv.multiply(deltaTime));
+			av = this.applyAngularVelocity(avImpactAdjustment.addRotation(avFrictionAdjustment), lv, deltaTime);
 
-			System.out.println();
 		}
 		else if (pctBelowGround == 0)
 		{
 			lv = lv.add(accumulatedLV);
-			loc = loc.adjust(lv.multiply(deltaTime));
+			loc = loc.add(lv.multiply(deltaTime));
 			av = this.applyAngularVelocity(av, lv, deltaTime);
 		}
 
+		System.out.println();
+
 		if (loc.getZ() < 0)
-			loc = loc.adjust(0, 0, -loc.getZ());
+			loc = loc.add(0, 0, -loc.getZ());
 
 		if (loc.getZ() <= 0 && lv.getZ() <= 0)
 		{
-			lv = lv.set(0.0, null, null);
-			loc = loc.adjust(0, 0, -loc.getZ());
+			lv = lv.newFrom(0.0, null, null);
+			loc = loc.add(0, 0, -loc.getZ());
 		}
 
-		if (Location.withinEpsilon(0, loc.getZ()) && LinearVelocity.withinEpsilon(0, lv.getZ()))
+		if (DefaultLocation.withinEpsilon(0, loc.getZ()) && DefaultLinearVelocity.withinEpsilon(0, lv.getZ()))
 		{
-			lv = lv.set(0.0, null, null);
-			loc = loc.adjust(0, 0, -loc.getZ());
+			lv = lv.newFrom(0.0, null, null);
+			loc = loc.add(0, 0, -loc.getZ());
 		}
 
-		if (lv.isCloseToZero() && Location.withinEpsilon(0, loc.getZ()))
+		if (lv.isNotMoving() && DefaultLocation.withinEpsilon(0, loc.getZ()))
 		{
-			lv = new LinearVelocity();
-			av = new AngularVelocity();
+			lv = new DefaultLinearVelocity();
+			av = new DefaultAngularVelocity();
 		}
 
 		ball.setAngularVelocity(av);
@@ -170,7 +174,7 @@ public class BallPhysics
 
 	public LinearVelocity calculateGravityAdjustment()
 	{
-		return new LinearVelocity(-Math.PI / 2, 0, gravity.getInUnit(VUnits.YPS));
+		return new DefaultLinearVelocity(-Math.PI / 2, 0, gravity.getInUnit(VUnits.YPS));
 	}
 
 	private static Force calculateDragForce(Velocity velocity, final double dragCoefficient, final Density ofAir,
@@ -187,11 +191,11 @@ public class BallPhysics
 	{
 		final Velocity currentVelocity = Velocity.of(incomingVelocity, VUnits.YPS);
 
-		final Force dragForce = calculateDragForce(currentVelocity, incomingAngularVelocity.isCloseToZero()
+		final Force dragForce = calculateDragForce(currentVelocity, incomingAngularVelocity.isNotRotating()
 
 				? dragCoefficientSpiral
 				: dragCoefficientEndOverEnd, densityOfAir,
-				incomingAngularVelocity.isCloseToZero() ? areaOfTheMinorAxis
+				incomingAngularVelocity.isNotRotating() ? areaOfTheMinorAxis
 						: areaOfTheMinorAxis.plus(areaOfTheMajorAxis).div(2));
 
 		// we include * Constants.TIMER_INTERVAL because drag is a rate of acceleration
@@ -211,14 +215,14 @@ public class BallPhysics
 	private AngularVelocity applyAngularVelocity(AngularVelocity av, LinearVelocity lv, double deltaTime)
 	{
 		double spin = 0;
-		spin = Conversions.normalizeAngle(av.getCurrentAngleInRadians() + av.getRadiansPerSecond() * deltaTime);
+		spin = Conversions.normalizeAngle(av.getOrientation() + av.getRotation() * deltaTime);
 
-		if (av.getRadiansPerSecond() == 0 && av.getSpiralVelocity() > 0)
+		if (av.getRotation() == 0 && av.getSpiralVelocity() > 0)
 		{
 			spin = lv.getElevation();
 		}
 
-		return new AngularVelocity(spin, av.getRadiansPerSecond(), av.getSpiralVelocity());
+		return new DefaultAngularVelocity(spin, av.getRotation(), av.getSpiralVelocity());
 	}
 
 }

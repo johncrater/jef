@@ -7,6 +7,8 @@ import com.synerset.unitility.unitsystem.mechanical.Force;
 import jef.core.BallUtils;
 import jef.core.Conversions;
 import jef.core.units.AngularVelocity;
+import jef.core.units.DefaultAngularVelocity;
+import jef.core.units.DefaultLinearVelocity;
 import jef.core.units.LinearVelocity;
 import jef.core.units.VUnits;
 
@@ -36,10 +38,10 @@ public class Friction extends IndexedCalculator
 		final double coefficientOfFriction = calculate(av, lv);
 
 		final double xyDistance = lv.getXYDistance();
-		if (!LinearVelocity.withinEpsilon(0, xyDistance))
-			return new AngularVelocity(0, (-1 * (xyDistance * coefficientOfFriction)) / xyDistance);
+		if (!DefaultLinearVelocity.withinEpsilon(0, xyDistance))
+			return new DefaultAngularVelocity(0, (-1 * (xyDistance * coefficientOfFriction)) / xyDistance);
 
-		return new AngularVelocity();
+		return new DefaultAngularVelocity();
 	}
 
 	public double calculateLVAdjustment(final AngularVelocity av, final LinearVelocity lv, final Mass mass)
