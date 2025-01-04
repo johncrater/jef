@@ -33,12 +33,6 @@ public class TestMoveable implements Moveable
 	}
 
 	@Override
-	public void adjustSpeed(final double speedDelta)
-	{
-		this.linearVelocity = this.linearVelocity.add(speedDelta);
-	}
-
-	@Override
 	public AngularVelocity getAV()
 	{
 		return this.angularVelocity;
@@ -54,24 +48,6 @@ public class TestMoveable implements Moveable
 	public Location getLoc()
 	{
 		return this.location;
-	}
-
-	@Override
-	public double getSpeed()
-	{
-		return this.linearVelocity.getDistance();
-	}
-
-	@Override
-	public void move(final double distance)
-	{
-		this.location = this.location.add(this.linearVelocity.newFrom(null, null, distance));
-	}
-
-	@Override
-	public void move(final LinearVelocity lv)
-	{
-		this.location = this.location.add(lv);
 	}
 
 	@Override
@@ -92,15 +68,4 @@ public class TestMoveable implements Moveable
 		this.location = location;
 	}
 
-	@Override
-	public void setSpeed(final double newSpeed)
-	{
-		this.linearVelocity = this.linearVelocity.newFrom(null, null, newSpeed);
-	}
-
-	@Override
-	public void turn(final double angle)
-	{
-		this.linearVelocity = this.linearVelocity.newFrom(null, angle, null);
-	}
 }

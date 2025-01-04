@@ -8,8 +8,8 @@ import jef.core.LinearVelocity;
 
 public class LinearImpact extends IndexedCalculator
 {
-	private static final double coefficientOfRestitutionMin = .5;
-	private static final double coefficientOfRestitutionMax = .6;
+	private static final double coefficientOfRestitutionMin = .75;
+	private static final double coefficientOfRestitutionMax = .82;
 
 	public LinearImpact()
 	{

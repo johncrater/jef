@@ -1,5 +1,6 @@
 package jef.core;
 
+import jef.core.steering.DefaultPath;
 import jef.core.steering.Path;
 import jef.core.steering.Steerable;
 import jef.core.steering.Waypoint;
@@ -21,16 +22,17 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 
 	public TestPlayer()
 	{
-		this.path = new Path();
+		this.path = new DefaultPath();
 		this.path.addWaypoint(new Waypoint(Field.midfield(), 10, DestinationAction.hardStop));
 	}
 
-	@Override
-	public Location getDestination()
+	public void update(Tracker tracker)
 	{
-		return this.path.getDestination();
+		this.setAV(tracker.getAV());
+		this.setLV(tracker.getLV());
+		this.setLoc(tracker.getLoc());
 	}
-
+	
 	@Override
 	public String getFirstName()
 	{

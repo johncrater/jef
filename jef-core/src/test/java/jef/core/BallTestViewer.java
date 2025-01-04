@@ -31,6 +31,7 @@ import org.eclipse.swt.widgets.Text;
 import com.synerset.unitility.unitsystem.common.Angle;
 
 import jef.core.physics.ball.BallPhysics;
+import jef.core.physics.ball.BallTracker;
 import jef.core.units.DefaultAngularVelocity;
 import jef.core.units.DefaultLinearVelocity;
 import jef.core.units.DefaultLocation;
@@ -66,7 +67,7 @@ public class BallTestViewer implements Runnable
 	private static double ballDistance;
 	private static double ballHeight;
 	private static boolean hangTimeRunning = false;
-	private static List<DefaultLocation> path = new ArrayList<>();
+	private static List<Location> path = new ArrayList<>();
 
 	public static void main(final String[] args) throws IOException
 	{
@@ -80,7 +81,7 @@ public class BallTestViewer implements Runnable
 				BallTestViewer.class.getResourceAsStream("/football-34x34.png"));
 
 		BallTestViewer.ball = new TestBall();
-		BallTestViewer.ball.setLocation(10.0, 27.0, 0.0);
+		BallTestViewer.ball.setLoc(new DefaultLocation(10.0, 27.0, 0.0));
 
 		final Composite c = new Composite(BallTestViewer.shell, SWT.NONE);
 		final GridData gd = new GridData();
@@ -140,13 +141,13 @@ public class BallTestViewer implements Runnable
 				BallTestViewer.ball.setLV(new DefaultLinearVelocity(Math.toRadians(thetaInDegrees), azimuthInRadians, speedInYPS));
 
 				double phiInDegrees = Double.parseDouble(phi.getText());
-				double omegaInDegreesPerSecond = Double.parseDouble(omega.getText());
-				BallTestViewer.ball.setAV(new DefaultAngularVelocity(Math.toRadians(phiInDegrees), Math.toRadians(omegaInDegreesPerSecond)));
+				double omegaInRadiansPerSecond = Double.parseDouble(omega.getText());
+				BallTestViewer.ball.setAV(new DefaultAngularVelocity(Math.toRadians(phiInDegrees), omegaInRadiansPerSecond));
 
 				double heightInYards =  Double.parseDouble(height.getText());
 				double yardLineValue =  Double.parseDouble(yardLine.getText()) + 10;
 				
-				BallTestViewer.ball.setLocation(yardLineValue, 27.0, heightInYards);
+				BallTestViewer.ball.setLoc(new DefaultLocation(yardLineValue, 27.0, heightInYards));
 				BallTestViewer.path.clear();
 			}
 			
@@ -202,7 +203,7 @@ public class BallTestViewer implements Runnable
 					e.gc.drawLine(offset, 3 * offset + (int) Conversions.yardsToInches(i),
 							offset + (int) BallTestViewer.totalLength, offset + (int) Conversions.yardsToInches(i));
 
-				final DefaultLocation location = ball.getLoc();
+				final Location location = ball.getLoc();
 				final Point xy = new Point((int) Conversions.yardsToInches(location.getY()),
 						(int) Conversions.yardsToInches(location.getX()));
 
@@ -254,7 +255,7 @@ public class BallTestViewer implements Runnable
 							(int) Conversions.yardsToInches(10));
 				}
 
-				final DefaultLocation location = ball.getLoc();
+				final Location location = ball.getLoc();
 
 				Point xy = BallTestViewer.toXZPoint(location);
 
@@ -267,7 +268,7 @@ public class BallTestViewer implements Runnable
 				}
 
 				e.gc.setBackground(BallTestViewer.white);
-				for (final DefaultLocation l : BallTestViewer.path)
+				for (final Location l : BallTestViewer.path)
 					e.gc.fillOval((int) Conversions.yardsToInches(l.getX()), (int) Conversions.yardsToInches(l.getZ()),
 							7, 7);
 			}
@@ -277,7 +278,7 @@ public class BallTestViewer implements Runnable
 				e1.printStackTrace();
 			}
 
-			final DefaultLocation location = ball.getLoc();
+			final Location location = ball.getLoc();
 
 			final StringBuilder text = new StringBuilder();
 			text.append(
@@ -396,7 +397,11 @@ public class BallTestViewer implements Runnable
 
 		try
 		{
-			new BallPhysics(ball).update(.04f);
+			BallTracker tracker = new BallTracker(ball, .04);
+			new BallPhysics().update(tracker);
+			ball.setAV(tracker.getAV());
+			ball.setLV(tracker.getLV());
+			ball.setLoc(tracker.getLoc());
 		}
 		catch (Exception e)
 		{

@@ -15,9 +15,7 @@ public class DefaultAngularVelocity implements AngularVelocity
 
 	public DefaultAngularVelocity()
 	{
-		orientation = 0;
-		rotation = 0;
-		spiralVelocity = 0;
+		this(0, 0, 0);
 	}
 
 	public DefaultAngularVelocity(double currentAngleInRadians, double radiansPerSecond)

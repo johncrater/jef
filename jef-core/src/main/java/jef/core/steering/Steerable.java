@@ -8,5 +8,4 @@ public interface Steerable
 	public double getDesiredSpeed();
 	public double getTurningSpeed();
 	public Path getPath();
-	public Location getDestination();
 }

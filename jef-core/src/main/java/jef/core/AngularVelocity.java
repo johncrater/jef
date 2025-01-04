@@ -1,22 +1,23 @@
 package jef.core;
 
+/* @formatter:off */
 public interface AngularVelocity
 {
+	public static final double EPSILON_ANGLE = .02;
+	public static final double EPSILON_ROTATIONS = .02;
 
-	double EPSILON_ANGLE = .02;
-	double EPSILON_ROTATIONS = .02;
-	boolean isNotRotating();
+	public boolean isNotRotating();
 
-	AngularVelocity addRotation(double currentAngleInRadians, double radiansPerSecond, double spiralVelocity);
-	AngularVelocity addRotation(AngularVelocity av);
+	public AngularVelocity addRotation(double currentAngleInRadians, double radiansPerSecond, double spiralVelocity);
+	public AngularVelocity addRotation(AngularVelocity av);
 
-	boolean isRotatingClockwise();
-	boolean isRotatingCounterClockwise();
+	public boolean isRotatingClockwise();
+	public boolean isRotatingCounterClockwise();
 
-	double getOrientation();
-	double getRotation();
-	double getSpiralVelocity();
+	public double getOrientation();
+	public double getRotation();
+	public double getSpiralVelocity();
 
-	AngularVelocity newFrom(Double currentAngle, Double rotationalVelocity, Double spiralVelocity);
-	AngularVelocity multiply(double value);
+	public AngularVelocity newFrom(Double currentAngle, Double rotationalVelocity, Double spiralVelocity);
+	public AngularVelocity multiply(double value);
 }

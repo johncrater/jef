@@ -11,11 +11,6 @@ import jef.core.LinearVelocity;
 
 public class DefaultLinearVelocity implements LinearVelocity
 {
-	public static boolean withinEpsilon(final double v1, final double v2)
-	{
-		return Math.abs(v1 - v2) <= LinearVelocity.EPSILON;
-	}
-
 	private double elevation;
 	private double azimuth;
 	private double distance;
@@ -37,22 +32,27 @@ public class DefaultLinearVelocity implements LinearVelocity
 		
 		if (this.distance < 0)
 		{
-			this.azimuth += Math.PI;
+			this.azimuth *= -1;
+			this.elevation *= -1;
 			this.distance *= -1;
 		}
 		
 		while (this.elevation > Math.PI / 2)
 		{
-			this.elevation -= Math.PI / 2;
+			this.elevation = Math.PI - this.elevation;
 			this.azimuth += Math.PI;
 		}
 		
 		while (this.elevation < -Math.PI / 2)
 		{
-			this.elevation += Math.PI / 2;
+			this.elevation = Math.PI - this.elevation;
 			this.azimuth -= Math.PI;
 		}
 
+		this.elevation = Precision.round(this.elevation, 5);
+		this.azimuth = Precision.round(this.azimuth, 5);
+		this.distance = Precision.round(this.distance, 5);
+		
 		this.azimuth = MathUtils.normalizeAngle(this.azimuth, 0.0);
 		assert this.distance >= 0 && this.elevation >= -Math.PI / 2 && this.elevation <= Math.PI / 2;
 	}

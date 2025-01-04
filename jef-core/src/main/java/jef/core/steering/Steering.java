@@ -2,10 +2,12 @@ package jef.core.steering;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.math3.util.MathUtils;
 
+import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.Player;
 import jef.core.Tracker;
@@ -38,7 +40,7 @@ public class Steering
 		if (this.getWaypoints().size() == 0)
 		{
 			this.coastToAStop(tracker);
-			return this.waypoints;
+			return Collections.emptyList();
 		}
 
 		final double startingSpeed = tracker.getLV().getDistance();
@@ -48,10 +50,10 @@ public class Steering
 			return this.waypoints;
 		}
 
-		final double newAngle = this.calculateAngleOfTurn(tracker.getLoc(), this.steerable.getDestination(),
+		final double newAngle = this.calculateAngleOfTurn(tracker.getLoc(), this.steerable.getPath().getDestination(),
 				tracker.getLV().getAzimuth());
 
-		if (DefaultLinearVelocity.withinEpsilon(0, startingSpeed))
+		if (LinearVelocity.withinEpsilon(0, startingSpeed))
 		{
 			// if we are just standing there like a rock we need to at least point ourselves
 			// in the right direction..

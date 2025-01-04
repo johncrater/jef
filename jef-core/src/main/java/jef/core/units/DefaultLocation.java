@@ -2,6 +2,7 @@ package jef.core.units;
 
 import java.util.Objects;
 
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.util.Precision;
 
 import jef.core.LinearVelocity;
@@ -9,11 +10,6 @@ import jef.core.Location;
 
 public class DefaultLocation implements Location
 {
-	public static boolean withinEpsilon(double v1, double v2)
-	{
-		return Math.abs(v1 - v2) < EPSILON;
-	}
-	
 	private double x;
 	private double y;
 	private double z;
@@ -24,9 +20,14 @@ public class DefaultLocation implements Location
 	
 	public DefaultLocation(double x, double y, double z)
 	{
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		this.x = Precision.round(x, 3);
+		this.y = Precision.round(y, 3);
+		this.z = Precision.round(z, 3);
+	}
+	
+	public DefaultLocation(Vector3D vector)
+	{
+		this(vector.getX(), vector.getY(), vector.getZ());
 	}
 
 	@Override
@@ -124,6 +125,13 @@ public class DefaultLocation implements Location
 	public int hashCode()
 	{
 		return Objects.hash(x, y, z);
+	}
+
+	
+	@Override
+	public Vector3D toVector3D()
+	{
+		return new Vector3D(x, y, z);
 	}
 
 	@Override

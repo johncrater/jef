@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
+import jef.core.steering.DefaultPath;
 import jef.core.steering.Path;
 import jef.core.steering.Steering;
 import jef.core.steering.Waypoint;
@@ -195,7 +196,7 @@ public class PlayerTestViewer implements Runnable
 			{
 				super.mouseUp(e);
 				Location loc = pointToLocation(new Point(e.x, e.y));
-				Path path = new Path();
+				Path path = new DefaultPath();
 				path.addWaypoint(new Waypoint(loc, 10, DestinationAction.hardStop));
 			}
 			
@@ -269,9 +270,10 @@ public class PlayerTestViewer implements Runnable
 
 		for (TestPlayer player : players)
 		{
-			Steering steering = new Steering(player, .04);
-			if (steering.hasNext())
-				steering.next();
+			Steering steering = new Steering(player);
+			
+			Tracker tracker = new Tracker(player, .04);
+			List<Waypoint> completedWaypoints = steering.next(tracker);
 		}
 		
 		canvas.redraw();

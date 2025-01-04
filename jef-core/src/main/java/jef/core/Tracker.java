@@ -104,10 +104,10 @@ public class Tracker implements Moveable
 	 */
 	public void moveRemaining(double speedAdjustment)
 	{
-		speedAdjustment = calculateAdjustedSpeed(speedAdjustment);
-		this.lv = this.lv.add(speedAdjustment);
-		this.loc = this.loc.add(this.lv.multiply(pctRemaining * this.timeInterval));
+		this.lv = this.lv.add(speedAdjustment * this.getRemainingTime());
+		this.loc = this.loc.add(this.lv.multiply(this.getRemainingTime()));
 		this.pctRemaining = 0;
+		this.applyAngularVelocity();
 	}
 	
 	/**
@@ -154,14 +154,37 @@ public class Tracker implements Moveable
 		if (remainingTime == 0)
 			return 0;
 		
+		this.applyAngularVelocity();
+
 		if (lvAdjustment != null)
 			lv = lv.add(lvAdjustment.multiply(remainingTime));
 		
-		double ratio = calculateTraverableDistance(lv.getDistance()) / maximumDistance;
-		Location tmpLoc = this.loc.add(lv.multiply(ratio));
-		double ret = this.loc.distanceBetween(tmpLoc);
-		this.loc = tmpLoc;
+		double traversableDistance = calculateTraverableDistance(lv.getDistance());
+		if (traversableDistance == 0)
+			return 0;
+		
+		if (maximumDistance == null)
+			maximumDistance = traversableDistance;
+		
+		maximumDistance = Math.min(traversableDistance, maximumDistance);
+		double ratio = maximumDistance / traversableDistance;
+
+		Location oldLocation = this.loc;
+		this.loc = this.loc.add(lv.multiply(ratio).multiply(remainingTime));
+		double ret = this.loc.distanceBetween(oldLocation);
+		
+		this.pctRemaining = 0;
 		return ret;
+	}
+	
+	/**
+	 * Moves the distance corresponding to the current linear velocity from the current location in the time remaining.
+	 * This is the same as move(null, null)
+	 * @return the distance traveled
+	 */
+	public double move()
+	{
+		return this.move(null, null);
 	}
 	
 	/**
@@ -182,9 +205,28 @@ public class Tracker implements Moveable
 		return this.timeInterval * this.pctRemaining;
 	}
 	
+	public void setRotation(double rotation)
+	{
+		this.av = this.av.newFrom(null, rotation, null);
+	}
+	
 	@Override
 	public String toString()
 	{
 		return String.format("%s %s %s %.2f", this.loc, this.lv, this.av, this.pctRemaining);
 	}
+
+	protected void applyAngularVelocity()
+	{
+		double spin = 0;
+		spin = Conversions.normalizeAngle(av.getOrientation() + av.getRotation() * this.getRemainingTime());
+
+		if (av.getRotation() == 0 && av.getSpiralVelocity() > 0)
+		{
+			spin = lv.getElevation();
+		}
+
+		this.av = new DefaultAngularVelocity(spin, av.getRotation(), av.getSpiralVelocity());
+	}
+
 }

@@ -33,15 +33,15 @@ public class Friction extends IndexedCalculator
 
 	}
 
-	public AngularVelocity calculateAVAdjustment(final AngularVelocity av, final LinearVelocity lv)
+	public double calculateAVAdjustment(final AngularVelocity av, final LinearVelocity lv)
 	{
 		final double coefficientOfFriction = calculate(av, lv);
 
 		final double xyDistance = lv.getXYDistance();
-		if (!DefaultLinearVelocity.withinEpsilon(0, xyDistance))
-			return new DefaultAngularVelocity(0, (-1 * (xyDistance * coefficientOfFriction)) / xyDistance);
+		if (!LinearVelocity.withinEpsilon(0, xyDistance))
+			return -1 * (xyDistance * coefficientOfFriction) / xyDistance;
 
-		return new DefaultAngularVelocity();
+		return 0;
 	}
 
 	public double calculateLVAdjustment(final AngularVelocity av, final LinearVelocity lv, final Mass mass)

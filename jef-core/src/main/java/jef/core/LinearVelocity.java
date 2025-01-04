@@ -2,33 +2,40 @@ package jef.core;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
+/* @formatter:off */
 public interface LinearVelocity
 {
-	double EPSILON = .02;
-	LinearVelocity add(double distance);
-	LinearVelocity add(double elevation, double azimuth, double distance);
-	LinearVelocity add(LinearVelocity lv);
-	LinearVelocity subtract(LinearVelocity lv);
-	LinearVelocity multiply(double scalar);
-	LinearVelocity normalize();
+	public static final double EPSILON = .02;
 
-	double getElevation();
-	double getAzimuth();
-	double getDistance();
+	public static boolean withinEpsilon(final double v1, final double v2)
+	{
+		return Math.abs(v1 - v2) <= LinearVelocity.EPSILON;
+	}
 
-	double getX();
-	double getY();
-	double getZ();
+	public LinearVelocity add(double distance);
+	public LinearVelocity add(double elevation, double azimuth, double distance);
+	public LinearVelocity add(LinearVelocity lv);
+	public LinearVelocity subtract(LinearVelocity lv);
+	public LinearVelocity multiply(double scalar);
+	public LinearVelocity normalize();
+	public LinearVelocity newFrom(Double elevation, Double azimuth, Double distance);
 
-	double getXYDistance();
-	double getXZDistance();
-	double getYZDistance();
+	public double getElevation();
+	public double getAzimuth();
+	public double getDistance();
 
-	boolean isNotMoving();
-	boolean movingLeft();
-	boolean movingRight();
+	public double getX();
+	public double getY();
+	public double getZ();
 
-	LinearVelocity newFrom(Double elevation, Double azimuth, Double distance);
-	Vector3D toVector3D();
+	public double getXYDistance();
+	public double getXZDistance();
+	public double getYZDistance();
+
+	public boolean isNotMoving();
+	public boolean movingLeft();
+	public boolean movingRight();
+
+	public Vector3D toVector3D();
 
 }

@@ -1,7 +1,6 @@
 package jef.core.physics.ball;
 
 import com.synerset.unitility.unitsystem.common.Area;
-import com.synerset.unitility.unitsystem.common.Distance;
 import com.synerset.unitility.unitsystem.common.Mass;
 import com.synerset.unitility.unitsystem.common.MassUnits;
 import com.synerset.unitility.unitsystem.common.Velocity;
@@ -10,12 +9,8 @@ import com.synerset.unitility.unitsystem.thermodynamic.Density;
 
 import jef.core.AngularVelocity;
 import jef.core.Conversions;
-import jef.core.Football;
 import jef.core.LinearVelocity;
-import jef.core.Location;
-import jef.core.units.DefaultAngularVelocity;
 import jef.core.units.DefaultLinearVelocity;
-import jef.core.units.DefaultLocation;
 import jef.core.units.VUnits;
 
 public class BallPhysics
@@ -28,9 +23,6 @@ public class BallPhysics
 	public static final double coefficientOfRestitutionMax = .82;
 	public static final double coefficientOfRestitutionMin = .75;
 
-	public static final Distance lengthOfTheMajorAxis = Distance.ofInches(11.25f);
-	public static final Distance lengthOfTheMinorAxis = Distance.ofInches(6.70f);
-
 	public static final Mass mass = Mass.of(14.5, MassUnits.OUNCE);
 	public static final Density density = Density.ofKilogramPerCubicMeter(.1);
 	public static final Area areaOfTheMajorAxis = Area
@@ -41,135 +33,79 @@ public class BallPhysics
 	public static final double dragCoefficientSpiral = .19f;
 	public static final double dragCoefficientEndOverEnd = (.75f + PhysicsBallBase.dragCoefficientSpiral) / 2;
 
-	private Football ball;
 	private Friction friction = new Friction();
 	private LinearImpact linearImpact = new LinearImpact();
 	private AngularImpact angularImpact = new AngularImpact();
 
-	public BallPhysics(Football ball)
+	public BallPhysics()
 	{
-		this.ball = ball;
 	}
 
-	public void update(float deltaTime)
+	public void update(BallTracker tracker)
 	{
-		if (ball.getLV().getDistance() == 0 && ball.getLoc().getZ() == 0)
+		if (tracker.getLV().getDistance() == 0 && tracker.getLoc().getZ() == 0)
 			return;
 
-		LinearVelocity lv = ball.getLV();
-		Location loc = ball.getLoc();
-		AngularVelocity av = ball.getAV();
-		
-		System.out.print(String.format("Loc: %s ", loc));
-		System.out.print(String.format("LV: %s ", lv));
-		System.out.print(String.format("AV: %s ", av.multiply(deltaTime)));
+		System.out.print(String.format("%s ", tracker));
 
-		LinearVelocity accumulatedLV = new DefaultLinearVelocity();
-		
-		LinearVelocity lvGravityAdjustment = calculateGravityAdjustment().multiply(deltaTime);
-		accumulatedLV = accumulatedLV.add(lvGravityAdjustment);
+		LinearVelocity accumulatedLV = calculateGravityAdjustment();
 		
 		// drag is in the opposite direction to the linearVelocity, so we multiply by -1
-		double dragAdjustment = calculateDragAdjustment(lv.getDistance() + accumulatedLV.getDistance(), av) * deltaTime;
-		System.out.print(String.format("Drag: %.2f ", dragAdjustment));
-		accumulatedLV = accumulatedLV.add(dragAdjustment);
+		// drag is a force that produces acceleration when multiplied by time. We need to this multiplication
+		// here to convert it into a velocity before we use it.
+		double dragAcceleration = -1 * tracker.getRemainingTime() * calculateDragAcceleration(tracker.getLV().getDistance() + accumulatedLV.getDistance(), tracker.getAV());
+		System.out.print(String.format("Drag: %.2f ", dragAcceleration));
+		accumulatedLV = accumulatedLV.add(dragAcceleration);
 				
-		Location locTmp = loc.add(lv.add(accumulatedLV).multiply(deltaTime));
-
-		double pctBelowGround = 0;
-		if (locTmp.getZ() < 0)
-		{
-			double zDistance = loc.getZ() - locTmp.getZ();
-			double distanceAboveGround = loc.getZ();
-			
-			pctBelowGround = 1 - distanceAboveGround / zDistance;
-			accumulatedLV = accumulatedLV.multiply(distanceAboveGround / zDistance);
-		}
-		
-		if (pctBelowGround == 1 || (locTmp.getZ() == 0 && lv.getElevation() == 0))
+		tracker.moveToGround(accumulatedLV);
+		if (tracker.getLoc().getZ() == 0 && LinearVelocity.withinEpsilon(0, tracker.getLV().getElevation()))
 		{
 			// we are rolling on the ground
-			double frictionAdjustment = friction.calculateLVAdjustment(av, lv.add(accumulatedLV), mass) * deltaTime;
+			tracker.setLV(tracker.getLV().newFrom(0.0, null, null));
+			double frictionAdjustment = friction.calculateLVAdjustment(tracker.getAV(), tracker.getLV().add(accumulatedLV), mass);
 			System.out.print(String.format("Friction: %.2f ", frictionAdjustment));
-
-			lv = lv.add(frictionAdjustment);
-			loc = loc.add(lv.multiply(deltaTime));
-			av = this.applyAngularVelocity(av, lv, deltaTime);
-
-			av = new DefaultAngularVelocity();
+			tracker.moveRemaining(frictionAdjustment);
 		}
-		
-		if (pctBelowGround > 0 && pctBelowGround < 1)
+		else if (tracker.getLoc().getZ() == 0 && tracker.getLV().getElevation() < 0)
 		{
-			System.out.print(String.format("Loc: %s ", loc));
-			System.out.print(String.format("LV: %s ", lv));
-			System.out.print(String.format("AV: %s ", av.multiply(deltaTime)));
-
-			loc = loc.add(lv.add(accumulatedLV).multiply(deltaTime).multiply(1 - pctBelowGround));
-			lv = lv.add(accumulatedLV.multiply(1 - pctBelowGround));
+			double avFrictionAdjustment = friction.calculateAVAdjustment(tracker.getAV(), tracker.getLV());
+			double avImpactAdjustment = angularImpact.calculateAVAdjustment(tracker.getAV(), tracker.getLV());
 			
-			assert DefaultLocation.withinEpsilon(0, loc.getZ());
+			// we don't add deltaTime to impact adjustment as it does not represent acceleration 
+			LinearVelocity reboundLV = linearImpact.calculateLVAdjustment(tracker.getAV(), tracker.getLV());
+			System.out.print(String.format("Impact: %s ", reboundLV));
+
+			// since we are rebounding, we need manually set the new LV
+			tracker.setLV(reboundLV);
 			
 			accumulatedLV = new DefaultLinearVelocity();
 
-			AngularVelocity avFrictionAdjustment = friction.calculateAVAdjustment(av, lv);
-			AngularVelocity avImpactAdjustment = angularImpact.calculateAVAdjustment(av, lv);
-			
-			// we don't add deltaTime to impact adjustment as it does not represent acceleration 
-			LinearVelocity lvImpactAdjustment = linearImpact.calculateLVAdjustment(av, lv);
-			System.out.print(String.format("Impact: %s ", lvImpactAdjustment));
-			accumulatedLV = lvImpactAdjustment;
-			
-			double frictionAdjustment = friction.calculateLVAdjustment(av, lv, mass) * deltaTime;
+			double frictionAdjustment = friction.calculateLVAdjustment(tracker.getAV(), tracker.getLV(), mass);
 			System.out.print(String.format("Friction: %.2f ", frictionAdjustment));
 			accumulatedLV = accumulatedLV.add(frictionAdjustment);
 
 			LinearVelocity lvPostImpactGravityAdjustment = calculateGravityAdjustment()
-					.multiply(pctBelowGround).multiply(deltaTime);
+					.multiply(tracker.getPctRemaining());
 			accumulatedLV = accumulatedLV.add(lvPostImpactGravityAdjustment);
 			
-			double postImpactDragAdjustment = calculateDragAdjustment(lv.getDistance() + accumulatedLV.getDistance(), av) * pctBelowGround * deltaTime;
-			System.out.print(String.format("Drag: %.2f ", postImpactDragAdjustment));
-			accumulatedLV = accumulatedLV.add(postImpactDragAdjustment);
+			// drag is in the opposite direction to the linearVelocity, so we multiply by -1
+			// drag is a force that produces acceleration when multiplied by time. We need to this multiplication
+			// here to convert it into a velocity before we use it.
+			dragAcceleration = -1 * tracker.getRemainingTime() * calculateDragAcceleration(tracker.getLV().getDistance() + accumulatedLV.getDistance(), tracker.getAV());
+			System.out.print(String.format("Drag: %.2f ", dragAcceleration));
+			accumulatedLV = accumulatedLV.add(dragAcceleration);
 
-			lv = accumulatedLV;
-			loc = loc.add(lv.multiply(deltaTime));
-			av = this.applyAngularVelocity(avImpactAdjustment.addRotation(avFrictionAdjustment), lv, deltaTime);
-
-		}
-		else if (pctBelowGround == 0)
-		{
-			lv = lv.add(accumulatedLV);
-			loc = loc.add(lv.multiply(deltaTime));
-			av = this.applyAngularVelocity(av, lv, deltaTime);
+			tracker.setRotation(avImpactAdjustment + avFrictionAdjustment);
+			
+			tracker.move(accumulatedLV, null);
 		}
 
-		System.out.println();
+		// let's use the remaining time
+		tracker.move();
+		
+		System.out.println(String.format("%s ", tracker));
 
-		if (loc.getZ() < 0)
-			loc = loc.add(0, 0, -loc.getZ());
-
-		if (loc.getZ() <= 0 && lv.getZ() <= 0)
-		{
-			lv = lv.newFrom(0.0, null, null);
-			loc = loc.add(0, 0, -loc.getZ());
-		}
-
-		if (DefaultLocation.withinEpsilon(0, loc.getZ()) && DefaultLinearVelocity.withinEpsilon(0, lv.getZ()))
-		{
-			lv = lv.newFrom(0.0, null, null);
-			loc = loc.add(0, 0, -loc.getZ());
-		}
-
-		if (lv.isNotMoving() && DefaultLocation.withinEpsilon(0, loc.getZ()))
-		{
-			lv = new DefaultLinearVelocity();
-			av = new DefaultAngularVelocity();
-		}
-
-		ball.setAV(av);
-		ball.setLV(lv);
-		ball.setLoc(loc);
+		tracker.rationalize();
 	}
 
 	public LinearVelocity calculateGravityAdjustment()
@@ -186,10 +122,13 @@ public class BallPhysics
 				* dragCoefficient * area.getInSquareMeters());
 	}
 
-	private double calculateDragAdjustment(double incomingVelocity,
+	private double calculateDragAcceleration(double incomingVelocity,
 			AngularVelocity incomingAngularVelocity)
 	{
 		final Velocity currentVelocity = Velocity.of(incomingVelocity, VUnits.YPS);
+		double currentVelocityInYPS = currentVelocity.getInUnit(VUnits.YPS);
+		if (currentVelocityInYPS == 0)
+			return 0;
 
 		final Force dragForce = calculateDragForce(currentVelocity, incomingAngularVelocity.isNotRotating()
 
@@ -198,31 +137,7 @@ public class BallPhysics
 				incomingAngularVelocity.isNotRotating() ? areaOfTheMinorAxis
 						: areaOfTheMinorAxis.plus(areaOfTheMajorAxis).div(2));
 
-		// we include * Constants.TIMER_INTERVAL because drag is a rate of acceleration
-		// per second and we deal in ticks
-		final var updatedVelocity = Velocity.ofMetersPerSecond(
-				currentVelocity.getInMetersPerSecond() - (dragForce.div(mass.getInKilograms()).getInNewtons()));
-
-		double currentVelocityInYPS = currentVelocity.getInUnit(VUnits.YPS);
-		if (currentVelocityInYPS == 0)
-			return 0;
-
-		final var ratio = 1 - updatedVelocity.getInUnit(VUnits.YPS) / currentVelocityInYPS;
-
-		return -1 * incomingVelocity * ratio;
-	}
-
-	private AngularVelocity applyAngularVelocity(AngularVelocity av, LinearVelocity lv, double deltaTime)
-	{
-		double spin = 0;
-		spin = Conversions.normalizeAngle(av.getOrientation() + av.getRotation() * deltaTime);
-
-		if (av.getRotation() == 0 && av.getSpiralVelocity() > 0)
-		{
-			spin = lv.getElevation();
-		}
-
-		return new DefaultAngularVelocity(spin, av.getRotation(), av.getSpiralVelocity());
+		return Conversions.metersToYards(dragForce.div(mass.getInKilograms()).getInNewtons());
 	}
 
 }

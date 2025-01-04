@@ -16,13 +16,13 @@ class LinearVelocityTests
 	@Test
 	void testWithinEpsilon()
 	{
-		assertTrue(DefaultLinearVelocity.withinEpsilon(LinearVelocity.EPSILON, LinearVelocity.EPSILON));
-		assertTrue(DefaultLinearVelocity.withinEpsilon(0, LinearVelocity.EPSILON - .00000001));
-		assertFalse(DefaultLinearVelocity.withinEpsilon(0, LinearVelocity.EPSILON + .00000001));
+		assertTrue(LinearVelocity.withinEpsilon(LinearVelocity.EPSILON, LinearVelocity.EPSILON));
+		assertTrue(LinearVelocity.withinEpsilon(0, LinearVelocity.EPSILON - .00000001));
+		assertFalse(LinearVelocity.withinEpsilon(0, LinearVelocity.EPSILON + .00000001));
 
-		assertTrue(DefaultLinearVelocity.withinEpsilon(-LinearVelocity.EPSILON, -LinearVelocity.EPSILON));
-		assertFalse(DefaultLinearVelocity.withinEpsilon(-LinearVelocity.EPSILON - .00000001, 0));
-		assertTrue(DefaultLinearVelocity.withinEpsilon(-LinearVelocity.EPSILON + .00000001, 0));
+		assertTrue(LinearVelocity.withinEpsilon(-LinearVelocity.EPSILON, -LinearVelocity.EPSILON));
+		assertFalse(LinearVelocity.withinEpsilon(-LinearVelocity.EPSILON - .00000001, 0));
+		assertTrue(LinearVelocity.withinEpsilon(-LinearVelocity.EPSILON + .00000001, 0));
 	}
 
 	@Test
