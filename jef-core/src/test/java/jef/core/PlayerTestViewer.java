@@ -38,7 +38,7 @@ import jef.core.units.DefaultLocation;
 
 public class PlayerTestViewer implements Runnable
 {
-	private static final float TIMER_INTERVAL = .04f;
+	private static final double TIMER_INTERVAL = .05f;
 	private static final double totalLength = Conversions.yardsToInches(125);
 	private static final double totalWidth = Conversions.yardsToInches(54 + 5);
 	private static final double totalHeight = Conversions.yardsToInches(50);
@@ -77,9 +77,6 @@ public class PlayerTestViewer implements Runnable
 		playerFont = new Font(shell.getDisplay(), playerFontData);
 		playerDataFont = new Font(shell.getDisplay(), playerDataFontData);
 		
-		field = new Image(shell.getDisplay(),
-				this.getClass().getResourceAsStream("/field-4500x2124.png"));
-
 		createPlayers();
 		
 		try
@@ -163,6 +160,11 @@ public class PlayerTestViewer implements Runnable
 		canvas = new Canvas(shell, SWT.DOUBLE_BUFFERED);
 		canvas.setLayoutData(new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.FILL_VERTICAL));
 		canvas.setBackground(black);
+		canvas.layout(true);
+		
+		field = new Image(shell.getDisplay(),
+				this.getClass().getResourceAsStream("/field-4500x2124.png"));
+
 		canvas.addPaintListener(e ->
 		{
 			try (TransformStack ts = new TransformStack(e.gc))
@@ -181,6 +183,8 @@ public class PlayerTestViewer implements Runnable
 				}
 				
 				player = players.getFirst();
+
+				drawPerformance(e.gc);
 			}
 			catch (Exception e1)
 			{
@@ -208,12 +212,12 @@ public class PlayerTestViewer implements Runnable
 		shell.open();
 		run();
 
+		Performance.cycleTime.beginCycle();
 		while (!shell.isDisposed())
 			try
 			{
-				if (shell.getDisplay().readAndDispatch())
-					if (!shell.isDisposed())
-						shell.getDisplay().sleep();
+				if (!shell.getDisplay().readAndDispatch())
+					shell.getDisplay().sleep();
 			}
 			catch (final Throwable t)
 			{
@@ -244,6 +248,7 @@ public class PlayerTestViewer implements Runnable
 		str.append(String.format("Angular velocity: %s\n", player.getAV()));
 		
 		gc.setFont(playerDataFont);
+		gc.setForeground(yellow);
 		gc.drawText(str.toString(), 3000, 20);
 	}
 
@@ -262,24 +267,84 @@ public class PlayerTestViewer implements Runnable
 	public void run()
 	{
 		final long interval = System.currentTimeMillis() - this.lastMilliseconds;
-		if (interval < 25)
+		if (interval < 24)
 		{
 			shell.getDisplay().asyncExec(this);
 			return;
 		}
 
+		Performance.cycleTime.endCycle();
+		Performance.cycleTime.beginCycle();
+		Performance.processTime.beginCycle();
 		for (TestPlayer player : players)
 		{
 			Steering steering = new Steering(player);
 			
-			Tracker tracker = new Tracker(player, .04);
-			List<Waypoint> completedWaypoints = steering.next(tracker);
+			Tracker tracker = new Tracker(player, TIMER_INTERVAL);
+			List<Waypoint> waypointsRemaining = steering.next(tracker);
+			player.setLV(tracker.getLV());
+			player.setAV(tracker.getAV());
+			player.setLoc(tracker.getLoc());
+			player.getPath().clear();
+			for (Waypoint wp : waypointsRemaining)
+				player.getPath().addWaypoint(wp);
 		}
+		Performance.processTime.endCycle();
 		
+		Performance.drawTime.beginCycle();
 		canvas.redraw();
+		Performance.drawTime.endCycle();
 
 		this.lastMilliseconds = System.currentTimeMillis();
 		shell.getDisplay().asyncExec(this);
+	}
+
+	double cycleRate = Performance.cycleTime.getFrameRate();
+	double cycleTimePerFrame = Performance.cycleTime.getAvgTime();
+	double processRate = Performance.processTime.getAvgTime();
+	double drawRate = Performance.cycleTime.getAvgTime();
+	double otherRate = cycleTimePerFrame - processRate - drawRate;
+	long refreshCycleCount = System.currentTimeMillis();
+	long freeMemory = Runtime.getRuntime().freeMemory();
+	long totalMemory = Runtime.getRuntime().totalMemory();
+	long maxMemory = Runtime.getRuntime().totalMemory();
+
+	private void drawPerformance(final GC gc)
+	{
+		gc.setFont(playerDataFont);
+		gc.setForeground(yellow);
+
+		long current = System.currentTimeMillis();
+		if (current - refreshCycleCount > 1000)
+		{
+			cycleRate = Performance.cycleTime.getFrameRate();
+			cycleTimePerFrame = Performance.cycleTime.getAvgTime();
+			if (cycleTimePerFrame == 0)
+				return;
+
+			processRate = Performance.processTime.getAvgTime();
+			drawRate = Performance.drawTime.getAvgTime();
+			otherRate = cycleTimePerFrame - processRate - drawRate;
+			refreshCycleCount = current;
+
+			freeMemory = Runtime.getRuntime().freeMemory();
+			totalMemory = Runtime.getRuntime().totalMemory();
+			maxMemory = Runtime.getRuntime().totalMemory();
+		}
+
+		StringBuilder msg = new StringBuilder();
+		msg.append(String.format("Tick Count  : %d\n", Performance.processTime.getTickCount()));
+		msg.append(String.format("Frame Rate  : %.1f fps\n", cycleRate));
+		msg.append(String.format("Process Rate: %.1f%% (%.1f ns)\n", processRate * 100 / cycleTimePerFrame, processRate));
+		msg.append(String.format("Draw Rate   : %.1f%% (%.1f ns)\n", drawRate * 100 / cycleTimePerFrame, drawRate));
+		msg.append(String.format("Other Rate  : %.1f%%\n", otherRate * 100 / cycleTimePerFrame));
+		msg.append("\n");
+		msg.append(String.format("Max Memory  : %d MB\n", maxMemory / 1000000));
+		msg.append(String.format("Total Memory: %d MB\n", totalMemory / 1000000));
+		msg.append(String.format("Free Memory : %d MB \n", freeMemory / 1000000));
+		msg.append("\n");
+		
+		gc.drawText(msg.toString(), 10, 10, false);
 	}
 
 	public static void main(String[] args)

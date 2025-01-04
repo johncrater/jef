@@ -170,10 +170,10 @@ public class Tracker implements Moveable
 		double ratio = maximumDistance / traversableDistance;
 
 		Location oldLocation = this.loc;
-		this.loc = this.loc.add(lv.multiply(ratio).multiply(remainingTime));
+		this.loc = this.loc.add(lv.multiply(ratio * remainingTime));
 		double ret = this.loc.distanceBetween(oldLocation);
 		
-		this.pctRemaining = 0;
+		this.pctRemaining -= this.pctRemaining * ratio;
 		return ret;
 	}
 	

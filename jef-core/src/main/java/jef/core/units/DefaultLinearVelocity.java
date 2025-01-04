@@ -1,5 +1,6 @@
 package jef.core.units;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
@@ -49,9 +50,8 @@ public class DefaultLinearVelocity implements LinearVelocity
 			this.azimuth -= Math.PI;
 		}
 
-		this.elevation = Precision.round(this.elevation, 5);
-		this.azimuth = Precision.round(this.azimuth, 5);
-		this.distance = Precision.round(this.distance, 5);
+		// floor rounding or we may never get to zero
+		this.distance = Precision.round(this.distance, 3, BigDecimal.ROUND_FLOOR);
 		
 		this.azimuth = MathUtils.normalizeAngle(this.azimuth, 0.0);
 		assert this.distance >= 0 && this.elevation >= -Math.PI / 2 && this.elevation <= Math.PI / 2;

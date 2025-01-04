@@ -87,14 +87,18 @@ public class BallTracker extends Tracker
 	 */
 	public void rationalize()
 	{
-		// the ball can't actually be below ground. But it can be falling towards it or
-		// rising above it at zero altitude
-		if (getLoc().getZ() < 0)
+		// if we are still at or below ground that means we have no rebounded any. Due to rounding
+		// it may be possible to have a very small slow upward trajectory. Let's set that elevation to zero
+		if (getLoc().getZ() <= 0)
+		{
 			setLoc(getLoc().newFrom(null, null, 0.0));
-
+			setLV(getLV().newFrom(0.0, null, null));
+			setAV(new DefaultAngularVelocity());
+		}
+		
 		// if the ball is not moving and it is sitting within EPSILON of the ground, we
 		// consider it stopped. It might be not moving but above ground when it reaches
-		// apogee. 
+		// apogee. That is why we check for close to the ground
 		if (Location.withinEpsilon(0, getLoc().getZ()) && getLV().isNotMoving())
 		{
 			setLV(getLV().newFrom(0.0, null, null));

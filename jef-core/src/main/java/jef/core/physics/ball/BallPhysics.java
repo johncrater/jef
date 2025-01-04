@@ -22,6 +22,9 @@ public class BallPhysics
 
 	public static final double coefficientOfRestitutionMax = .82;
 	public static final double coefficientOfRestitutionMin = .75;
+	
+	public static final double coefficientOfSlidingFriction = .41;
+
 
 	public static final Mass mass = Mass.of(14.5, MassUnits.OUNCE);
 	public static final Density density = Density.ofKilogramPerCubicMeter(.1);
@@ -62,9 +65,11 @@ public class BallPhysics
 		{
 			// we are rolling on the ground
 			tracker.setLV(tracker.getLV().newFrom(0.0, null, null));
-			double frictionAdjustment = friction.calculateLVAdjustment(tracker.getAV(), tracker.getLV().add(accumulatedLV), mass);
-			System.out.print(String.format("Friction: %.2f ", frictionAdjustment));
-			tracker.moveRemaining(frictionAdjustment);
+
+			// sliding friction is different from rebounding friction. So we use a different constant
+			double frictionAdjustment = friction.calculateLVSlidingFrictionAdjustment(tracker.getLV().add(accumulatedLV), mass, coefficientOfSlidingFriction);
+			System.out.print(String.format("S-Friction: %.2f ", frictionAdjustment));
+			tracker.moveRemaining(Math.max(frictionAdjustment, -tracker.getLV().getDistance()));
 		}
 		else if (tracker.getLoc().getZ() == 0 && tracker.getLV().getElevation() < 0)
 		{

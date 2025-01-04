@@ -159,7 +159,6 @@ public class Steering
 		}
 
 		// if the speed has not changed we can accelerate
-		double accumulatedSpeedChanges = 0;
 		if (tracker.getLV().getDistance() >= startingSpeed)
 		{
 			// calculate where we are in the acceleration cycle
@@ -171,13 +170,11 @@ public class Steering
 
 			if ((newSpeed - tracker.getLV().getDistance()) != 0)
 			{
-				accumulatedSpeedChanges = newSpeed - tracker.getLV().getDistance();
+				double accumulatedSpeedChanges = newSpeed - tracker.getLV().getDistance();
+				tracker.moveRemaining(accumulatedSpeedChanges);
 				this.buildMessage(String.format("%-25s: %s", "Accelerating", this.printDetails(tracker)));
 			}
 		}
-
-		tracker.moveRemaining(accumulatedSpeedChanges);
-		this.buildMessage(String.format("%-25s: %s", "Moved", this.printDetails(tracker)));
 
 		if (this.destinationReached(tracker))
 		{

@@ -15,6 +15,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -59,6 +60,7 @@ public class BallTestViewer implements Runnable
 	private static Image footballSmall;
 
 	public static FontData playerFontData = new FontData("Courier New", 16, SWT.BOLD);
+	private static Font playerDataFont;
 	public static Font trackingFont;
 
 	public static Football ball;
@@ -72,6 +74,8 @@ public class BallTestViewer implements Runnable
 	public static void main(final String[] args) throws IOException
 	{
 		BallTestViewer.createShell();
+
+		playerDataFont = new Font(shell.getDisplay(), playerFontData);
 
 		BallTestViewer.footballBig = new Image(BallTestViewer.shell.getDisplay(),
 				BallTestViewer.class.getResourceAsStream("/football-1125x672.png"));
@@ -160,6 +164,7 @@ public class BallTestViewer implements Runnable
 
 		BallTestViewer.shell.open();
 		new BallTestViewer().run();
+		Performance.cycleTime.beginCycle();
 
 		while (!BallTestViewer.shell.isDisposed())
 			try
@@ -211,12 +216,15 @@ public class BallTestViewer implements Runnable
 				ts.rotate(90);
 				ts.set();
 				e.gc.drawImage(BallTestViewer.football, 0 - 34, 0 - 34);
+				
 			}
 			catch (final Exception e1)
 			{
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+
+			BallTestViewer.drawPerformance(e.gc);
 		});
 	}
 
@@ -397,6 +405,10 @@ public class BallTestViewer implements Runnable
 
 		try
 		{
+			Performance.cycleTime.endCycle();
+			Performance.cycleTime.beginCycle();
+			Performance.processTime.beginCycle();
+
 			BallTracker tracker = new BallTracker(ball, .04);
 			new BallPhysics().update(tracker);
 			ball.setAV(tracker.getAV());
@@ -409,9 +421,14 @@ public class BallTestViewer implements Runnable
 			e.printStackTrace();
 		}
 
+		Performance.processTime.endCycle();
+		
+		Performance.drawTime.beginCycle();
 		BallTestViewer.canvasXY.redraw();
 		BallTestViewer.canvasXZ.redraw();
+		Performance.drawTime.endCycle();
 
+		
 		this.lastMilliseconds = System.currentTimeMillis();
 
 		if (BallTestViewer.hangTimeRunning)
@@ -433,4 +450,51 @@ public class BallTestViewer implements Runnable
 		BallTestViewer.shell.getDisplay().asyncExec(this);
 	}
 
+	static double cycleRate = Performance.cycleTime.getFrameRate();
+	static double cycleTimePerFrame = Performance.cycleTime.getAvgTime();
+	static double processRate = Performance.processTime.getAvgTime();
+	static double drawRate = Performance.cycleTime.getAvgTime();
+	static double otherRate = cycleTimePerFrame - processRate - drawRate;
+	static long refreshCycleCount = System.currentTimeMillis();
+	static long freeMemory = Runtime.getRuntime().freeMemory();
+	static long totalMemory = Runtime.getRuntime().totalMemory();
+	static long maxMemory = Runtime.getRuntime().totalMemory();
+
+	private static void drawPerformance(final GC gc)
+	{
+		gc.setFont(playerDataFont);
+		gc.setForeground(black);
+
+		long current = System.currentTimeMillis();
+		if (current - refreshCycleCount > 1000)
+		{
+			cycleRate = Performance.cycleTime.getFrameRate();
+			cycleTimePerFrame = Performance.cycleTime.getAvgTime();
+			if (cycleTimePerFrame == 0)
+				return;
+
+			processRate = Performance.processTime.getAvgTime();
+			drawRate = Performance.drawTime.getAvgTime();
+			otherRate = cycleTimePerFrame - processRate - drawRate;
+			refreshCycleCount = current;
+
+			freeMemory = Runtime.getRuntime().freeMemory();
+			totalMemory = Runtime.getRuntime().totalMemory();
+			maxMemory = Runtime.getRuntime().totalMemory();
+		}
+
+		StringBuilder msg = new StringBuilder();
+		msg.append(String.format("Tick Count  : %d\n", Performance.processTime.getTickCount()));
+		msg.append(String.format("Frame Rate  : %.1f fps\n", cycleRate));
+		msg.append(String.format("Process Rate: %.1f%% (%.1f ns)\n", processRate * 100 / cycleTimePerFrame, processRate));
+		msg.append(String.format("Draw Rate   : %.1f%% (%.1f ns)\n", drawRate * 100 / cycleTimePerFrame, drawRate));
+		msg.append(String.format("Other Rate  : %.1f%%\n", otherRate * 100 / cycleTimePerFrame));
+		msg.append("\n");
+		msg.append(String.format("Max Memory  : %d MB\n", maxMemory / 1000000));
+		msg.append(String.format("Total Memory: %d MB\n", totalMemory / 1000000));
+		msg.append(String.format("Free Memory : %d MB \n", freeMemory / 1000000));
+		msg.append("\n");
+		
+		gc.drawText(msg.toString(), 10, 10, true);
+	}
 }

@@ -27,7 +27,7 @@ public class DefaultPath implements Iterable<Waypoint>, Path
 	@Override
 	public List<Waypoint> getWaypoints()
 	{
-		return Collections.unmodifiableList(waypoints);
+		return new ArrayList<Waypoint>(waypoints);
 	}
 	
 	@Override

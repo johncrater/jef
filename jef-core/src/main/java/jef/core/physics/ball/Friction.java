@@ -58,4 +58,16 @@ public class Friction extends IndexedCalculator
 		return -velocityReduction;
 	}
 
+	public double calculateLVSlidingFrictionAdjustment(final LinearVelocity lv, final Mass mass, double coefficientOfFriction)
+	{
+		final var currentVelocity = Velocity.of(lv.getDistance(), VUnits.YPS);
+
+		final var frictionForce = Force
+				.ofNewtons(mass.getInKilograms() * currentVelocity.getInMetersPerSecond() * coefficientOfFriction);
+
+		final double velocityReduction = Conversions
+				.metersToYards(frictionForce.div(mass.getInKilograms()).getInNewtons());
+		return -velocityReduction;
+	}
+
 }
