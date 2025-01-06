@@ -20,9 +20,9 @@ public class DefaultLocation implements Location
 	
 	public DefaultLocation(double x, double y, double z)
 	{
-		this.x = Precision.round(x, 3);
-		this.y = Precision.round(y, 3);
-		this.z = Precision.round(z, 3);
+		this.x = Precision.round(x, 8);
+		this.y = Precision.round(y, 8);
+		this.z = Precision.round(z, 8);
 	}
 	
 	public DefaultLocation(Vector3D vector)

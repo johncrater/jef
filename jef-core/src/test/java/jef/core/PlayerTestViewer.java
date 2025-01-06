@@ -199,9 +199,31 @@ public class PlayerTestViewer implements Runnable
 			public void mouseUp(MouseEvent e)
 			{
 				super.mouseUp(e);
-				Location loc = pointToLocation(new Point(e.x, e.y));
-				Path path = new DefaultPath();
-				path.addWaypoint(new Waypoint(loc, 10, DestinationAction.hardStop));
+				
+				Point p = new Point(e.x, e.y);
+				
+				GC gc = new GC(shell.getDisplay());
+				try (TransformStack ts = new TransformStack(gc))
+				{
+					float scaleX = (float)(canvas.getClientArea().width / totalLength);
+					float scaleY = (float)(canvas.getClientArea().height / totalWidth);
+					float scale = Math.min(scaleX, scaleY);
+					ts.scale(1 / scale, 1 / scale);
+					ts.set();
+
+					p = ts.transform(p);
+					p.y = (int)(totalWidth - p.y);
+					Location loc = pointToLocation(p);
+					
+					player.getPath().addWaypoint(new Waypoint(loc, player.getDesiredSpeed(), DestinationAction.hardStop));
+				}
+				catch (Exception e1)
+				{
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				gc.dispose();
 			}
 			
 		});
@@ -246,6 +268,10 @@ public class PlayerTestViewer implements Runnable
 		str.append(String.format("Location        : %s\n", player.getLoc()));
 		str.append(String.format("Linear velocity : %s\n", player.getLV()));
 		str.append(String.format("Angular velocity: %s\n", player.getAV()));
+		str.append(String.format("\n"));
+		
+		for (Waypoint wp : player.getPath().getWaypoints())
+			str.append(String.format("       waypoint : %s\n", wp));
 		
 		gc.setFont(playerDataFont);
 		gc.setForeground(yellow);

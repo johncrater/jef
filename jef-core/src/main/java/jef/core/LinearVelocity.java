@@ -1,15 +1,16 @@
 package jef.core;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.apache.commons.math3.util.Precision;
 
 /* @formatter:off */
 public interface LinearVelocity
 {
 	public static final double EPSILON = .02;
 
-	public static boolean withinEpsilon(final double v1, final double v2)
+	public static boolean equals(final double v1, final double v2)
 	{
-		return Math.abs(v1 - v2) <= LinearVelocity.EPSILON;
+		return Precision.equals(v1, v2, LinearVelocity.EPSILON);
 	}
 
 	public LinearVelocity add(double distance);

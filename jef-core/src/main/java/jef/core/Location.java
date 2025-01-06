@@ -5,7 +5,7 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 /* @formatter:off */
 public interface Location
 {
-	public static final double EPSILON = .001;
+	public static final double EPSILON = .02;
 
 	public static boolean withinEpsilon(double v1, double v2)
 	{

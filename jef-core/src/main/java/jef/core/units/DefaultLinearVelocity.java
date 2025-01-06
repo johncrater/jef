@@ -33,26 +33,27 @@ public class DefaultLinearVelocity implements LinearVelocity
 		
 		if (this.distance < 0)
 		{
-			this.azimuth *= -1;
+			this.azimuth += Math.PI;
 			this.elevation *= -1;
 			this.distance *= -1;
 		}
 		
-		while (this.elevation > Math.PI / 2)
+		this.azimuth = MathUtils.normalizeAngle(this.azimuth, 0.0);
+		
+		this.elevation = MathUtils.normalizeAngle(this.elevation, 0.0);
+		
+		if (this.elevation > Math.PI / 2)
 		{
 			this.elevation = Math.PI - this.elevation;
 			this.azimuth += Math.PI;
 		}
 		
-		while (this.elevation < -Math.PI / 2)
+		if (this.elevation < -Math.PI / 2)
 		{
-			this.elevation = Math.PI - this.elevation;
+			this.elevation = Math.PI + this.elevation;
 			this.azimuth -= Math.PI;
 		}
 
-		// floor rounding or we may never get to zero
-		this.distance = Precision.round(this.distance, 3, BigDecimal.ROUND_FLOOR);
-		
 		this.azimuth = MathUtils.normalizeAngle(this.azimuth, 0.0);
 		assert this.distance >= 0 && this.elevation >= -Math.PI / 2 && this.elevation <= Math.PI / 2;
 	}
@@ -66,7 +67,7 @@ public class DefaultLinearVelocity implements LinearVelocity
 	@Override
 	public LinearVelocity add(final double elevation, final double azimuth, final double distance)
 	{
-		Vector3D toVector = new Vector3D(azimuth, elevation).add(distance, toVector3D());
+		Vector3D toVector = toVector3D().add(distance, new Vector3D(azimuth, elevation));
 		return new DefaultLinearVelocity(toVector);
 	}
 

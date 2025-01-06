@@ -61,7 +61,7 @@ public class BallPhysics
 		accumulatedLV = accumulatedLV.add(dragAcceleration);
 				
 		tracker.moveToGround(accumulatedLV);
-		if (tracker.getLoc().getZ() == 0 && LinearVelocity.withinEpsilon(0, tracker.getLV().getElevation()))
+		if (tracker.getLoc().getZ() == 0 && LinearVelocity.equals(0, tracker.getLV().getElevation()))
 		{
 			// we are rolling on the ground
 			tracker.setLV(tracker.getLV().newFrom(0.0, null, null));

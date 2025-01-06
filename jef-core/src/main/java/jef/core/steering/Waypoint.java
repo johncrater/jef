@@ -52,4 +52,10 @@ public class Waypoint
 		this.destinationAction = destinationAction;
 	}
 
+	@Override
+	public String toString()
+	{
+		return String.format("%s %3.1f %s", this.destination, this.maxSpeed, this.destinationAction);
+	}
+
 }

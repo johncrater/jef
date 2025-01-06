@@ -84,7 +84,7 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 	@Override
 	public double getTurningSpeed()
 	{
-		return this.turningSpeed;
+		return 4;
 	}
 
 	public void setFirstName(final String firstName)
