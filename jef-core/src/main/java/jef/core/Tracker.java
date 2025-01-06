@@ -47,7 +47,7 @@ public class Tracker implements Moveable
 	public double calculateAdjustedSpeed(double speedAdjustment)
 	{
 		speedAdjustment = speedAdjustment * this.getRemainingTime();
-		return Math.max(0, this.lv.getDistance() + speedAdjustment);
+		return Math.max(0, this.lv.getSpeed() + speedAdjustment);
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class Tracker implements Moveable
 	 */
 	public double calculateDistanceToReachSpeed(final double accelerationRate, final double desiredSpeed)
 	{
-		return (Math.pow(desiredSpeed, 2) - Math.pow(this.lv.getDistance(), 2)) / (2 * accelerationRate);
+		return (Math.pow(desiredSpeed, 2) - Math.pow(this.lv.getSpeed(), 2)) / (2 * accelerationRate);
 	}
 
 	/**
@@ -77,7 +77,7 @@ public class Tracker implements Moveable
 	{
 		if (speed == null)
 		{
-			speed = this.lv.getDistance();
+			speed = this.lv.getSpeed();
 		}
 
 		return speed * this.getRemainingTime();
@@ -149,7 +149,7 @@ public class Tracker implements Moveable
 			this.lv = this.lv.add(lvAdjustment.multiply(remainingTime));
 		}
 
-		final double traversableDistance = this.calculateTraverableDistance(this.lv.getDistance());
+		final double traversableDistance = this.calculateTraverableDistance(this.lv.getSpeed());
 		if (traversableDistance == 0)
 			return 0;
 
@@ -179,7 +179,7 @@ public class Tracker implements Moveable
 	 */
 	public void moveRemaining(final double speedAdjustment)
 	{
-		double adjustedLV = this.lv.getDistance() + speedAdjustment * this.getRemainingTime();
+		double adjustedLV = this.lv.getSpeed() + speedAdjustment * this.getRemainingTime();
 		adjustedLV = Math.max(0, adjustedLV);
 		
 		this.lv = this.lv.newFrom(null,  null, adjustedLV);

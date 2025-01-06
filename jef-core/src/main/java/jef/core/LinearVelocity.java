@@ -13,25 +13,25 @@ public interface LinearVelocity
 		return Precision.equals(v1, v2, LinearVelocity.EPSILON);
 	}
 
-	public LinearVelocity add(double distance);
-	public LinearVelocity add(double elevation, double azimuth, double distance);
+	public LinearVelocity add(double speed);
+	public LinearVelocity add(double elevation, double azimuth, double speed);
 	public LinearVelocity add(LinearVelocity lv);
 	public LinearVelocity subtract(LinearVelocity lv);
 	public LinearVelocity multiply(double scalar);
 	public LinearVelocity normalize();
-	public LinearVelocity newFrom(Double elevation, Double azimuth, Double distance);
+	public LinearVelocity newFrom(Double elevation, Double azimuth, Double speed);
 
 	public double getElevation();
 	public double getAzimuth();
-	public double getDistance();
+	public double getSpeed();
 
 	public double getX();
 	public double getY();
 	public double getZ();
 
-	public double getXYDistance();
-	public double getXZDistance();
-	public double getYZDistance();
+	public double getXYSpeed();
+	public double getXZSpeed();
+	public double getYZSpeed();
 
 	public boolean isNotMoving();
 	public boolean movingLeft();

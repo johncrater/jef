@@ -46,7 +46,7 @@ public class BallPhysics
 
 	public void update(BallTracker tracker)
 	{
-		if (tracker.getLV().getDistance() == 0 && tracker.getLoc().getZ() == 0)
+		if (tracker.getLV().getSpeed() == 0 && tracker.getLoc().getZ() == 0)
 			return;
 
 		System.out.print(String.format("%s ", tracker));
@@ -56,7 +56,7 @@ public class BallPhysics
 		// drag is in the opposite direction to the linearVelocity, so we multiply by -1
 		// drag is a force that produces acceleration when multiplied by time. We need to this multiplication
 		// here to convert it into a velocity before we use it.
-		double dragAcceleration = -1 * tracker.getRemainingTime() * calculateDragAcceleration(tracker.getLV().getDistance() + accumulatedLV.getDistance(), tracker.getAV());
+		double dragAcceleration = -1 * tracker.getRemainingTime() * calculateDragAcceleration(tracker.getLV().getSpeed() + accumulatedLV.getSpeed(), tracker.getAV());
 		System.out.print(String.format("Drag: %.2f ", dragAcceleration));
 		accumulatedLV = accumulatedLV.add(dragAcceleration);
 				
@@ -69,7 +69,7 @@ public class BallPhysics
 			// sliding friction is different from rebounding friction. So we use a different constant
 			double frictionAdjustment = friction.calculateLVSlidingFrictionAdjustment(tracker.getLV().add(accumulatedLV), mass, coefficientOfSlidingFriction);
 			System.out.print(String.format("S-Friction: %.2f ", frictionAdjustment));
-			tracker.moveRemaining(Math.max(frictionAdjustment, -tracker.getLV().getDistance()));
+			tracker.moveRemaining(Math.max(frictionAdjustment, -tracker.getLV().getSpeed()));
 		}
 		else if (tracker.getLoc().getZ() == 0 && tracker.getLV().getElevation() < 0)
 		{
@@ -96,7 +96,7 @@ public class BallPhysics
 			// drag is in the opposite direction to the linearVelocity, so we multiply by -1
 			// drag is a force that produces acceleration when multiplied by time. We need to this multiplication
 			// here to convert it into a velocity before we use it.
-			dragAcceleration = -1 * tracker.getRemainingTime() * calculateDragAcceleration(tracker.getLV().getDistance() + accumulatedLV.getDistance(), tracker.getAV());
+			dragAcceleration = -1 * tracker.getRemainingTime() * calculateDragAcceleration(tracker.getLV().getSpeed() + accumulatedLV.getSpeed(), tracker.getAV());
 			System.out.print(String.format("Drag: %.2f ", dragAcceleration));
 			accumulatedLV = accumulatedLV.add(dragAcceleration);
 

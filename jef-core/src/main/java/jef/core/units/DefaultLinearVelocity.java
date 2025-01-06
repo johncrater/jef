@@ -14,7 +14,7 @@ public class DefaultLinearVelocity implements LinearVelocity
 {
 	private double elevation;
 	private double azimuth;
-	private double distance;
+	private double speed;
 
 	public DefaultLinearVelocity()
 	{
@@ -25,17 +25,17 @@ public class DefaultLinearVelocity implements LinearVelocity
 		this(vector.getDelta(), vector.getAlpha(), vector.getNorm());
 	}
 	
-	public DefaultLinearVelocity(double elevation, double azimuth, double distance)
+	public DefaultLinearVelocity(double elevation, double azimuth, double speed)
 	{
 		this.elevation = elevation;
 		this.azimuth = azimuth;
-		this.distance = distance;
+		this.speed = speed;
 		
-		if (this.distance < 0)
+		if (this.speed < 0)
 		{
 			this.azimuth += Math.PI;
 			this.elevation *= -1;
-			this.distance *= -1;
+			this.speed *= -1;
 		}
 		
 		this.azimuth = MathUtils.normalizeAngle(this.azimuth, 0.0);
@@ -55,19 +55,19 @@ public class DefaultLinearVelocity implements LinearVelocity
 		}
 
 		this.azimuth = MathUtils.normalizeAngle(this.azimuth, 0.0);
-		assert this.distance >= 0 && this.elevation >= -Math.PI / 2 && this.elevation <= Math.PI / 2;
+		assert this.speed >= 0 && this.elevation >= -Math.PI / 2 && this.elevation <= Math.PI / 2;
 	}
 
 	@Override
-	public LinearVelocity add(final double distance)
+	public LinearVelocity add(final double speed)
 	{
-		return new DefaultLinearVelocity(getElevation(), getAzimuth(), distance == Double.MIN_VALUE ? distance : getDistance() + distance);
+		return new DefaultLinearVelocity(getElevation(), getAzimuth(), speed == Double.MIN_VALUE ? speed : getSpeed() + speed);
 	}
 
 	@Override
-	public LinearVelocity add(final double elevation, final double azimuth, final double distance)
+	public LinearVelocity add(final double elevation, final double azimuth, final double speed)
 	{
-		Vector3D toVector = toVector3D().add(distance, new Vector3D(azimuth, elevation));
+		Vector3D toVector = toVector3D().add(speed, new Vector3D(azimuth, elevation));
 		return new DefaultLinearVelocity(toVector);
 	}
 
@@ -91,7 +91,7 @@ public class DefaultLinearVelocity implements LinearVelocity
 
 		return Precision.equals(this.getElevation(), other.getElevation(), LinearVelocity.EPSILON)
 				&& Precision.equals(this.getAzimuth(), other.getAzimuth(), LinearVelocity.EPSILON)
-				&& Precision.equals(this.getDistance(), other.getDistance(), LinearVelocity.EPSILON);
+				&& Precision.equals(this.getSpeed(), other.getSpeed(), LinearVelocity.EPSILON);
 	}
 
 	@Override
@@ -107,9 +107,9 @@ public class DefaultLinearVelocity implements LinearVelocity
 	}
 
 	@Override
-	public double getDistance()
+	public double getSpeed()
 	{
-		return this.distance;
+		return this.speed;
 	}
 
 	@Override
@@ -119,13 +119,13 @@ public class DefaultLinearVelocity implements LinearVelocity
 	}
 
 	@Override
-	public double getXYDistance()
+	public double getXYSpeed()
 	{
 		return new Vector2D(getX(), getY()).getNorm();
 	}
 
 	@Override
-	public double getXZDistance()
+	public double getXZSpeed()
 	{
 		return new Vector2D(getX(), getZ()).getNorm();
 	}
@@ -137,7 +137,7 @@ public class DefaultLinearVelocity implements LinearVelocity
 	}
 
 	@Override
-	public double getYZDistance()
+	public double getYZSpeed()
 	{
 		return new Vector2D(getY(), getZ()).getNorm();
 	}
@@ -151,13 +151,13 @@ public class DefaultLinearVelocity implements LinearVelocity
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(this.getElevation(), this.getAzimuth(), this.getDistance());
+		return Objects.hash(this.getElevation(), this.getAzimuth(), this.getSpeed());
 	}
 
 	@Override
 	public boolean isNotMoving()
 	{
-		return this.getDistance() < LinearVelocity.EPSILON;
+		return this.getSpeed() < LinearVelocity.EPSILON;
 	}
 
 	@Override
@@ -175,7 +175,7 @@ public class DefaultLinearVelocity implements LinearVelocity
 	@Override
 	public LinearVelocity multiply(final double scalar)
 	{
-		return new DefaultLinearVelocity(getElevation(), getAzimuth(), getDistance() * scalar);
+		return new DefaultLinearVelocity(getElevation(), getAzimuth(), getSpeed() * scalar);
 	}
 
 	@Override
@@ -185,7 +185,7 @@ public class DefaultLinearVelocity implements LinearVelocity
 	}
 
 	@Override
-	public LinearVelocity newFrom(Double elevation, Double azimuth, Double distance)
+	public LinearVelocity newFrom(Double elevation, Double azimuth, Double speed)
 	{
 		if (elevation == null)
 			elevation = this.getElevation();
@@ -193,10 +193,10 @@ public class DefaultLinearVelocity implements LinearVelocity
 		if (azimuth == null)
 			azimuth = this.getAzimuth();
 
-		if (distance == null)
-			distance = this.getDistance();
+		if (speed == null)
+			speed = this.getSpeed();
 
-		return new DefaultLinearVelocity(elevation, azimuth, distance);
+		return new DefaultLinearVelocity(elevation, azimuth, speed);
 	}
 
 	@Override
@@ -209,13 +209,13 @@ public class DefaultLinearVelocity implements LinearVelocity
 	public String toString()
 	{
 		return String.format("(%3.0f\u00B0, %3.0f\u00B0, %7.3f y/s)", Math.toDegrees(this.getElevation()),
-				Math.toDegrees(this.getAzimuth()), this.getDistance());
+				Math.toDegrees(this.getAzimuth()), this.getSpeed());
 	}
 	
 	@Override
 	public Vector3D toVector3D()
 	{
-		double d = getDistance();
+		double d = getSpeed();
 		if (d == 0)
 			d = Double.MIN_VALUE;
 		

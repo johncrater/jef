@@ -37,9 +37,9 @@ public class Friction extends IndexedCalculator
 	{
 		final double coefficientOfFriction = calculate(av, lv);
 
-		final double xyDistance = lv.getXYDistance();
-		if (!LinearVelocity.equals(0, xyDistance))
-			return -1 * (xyDistance * coefficientOfFriction) / xyDistance;
+		final double xySpeed = lv.getXYSpeed();
+		if (!LinearVelocity.equals(0, xySpeed))
+			return -1 * (xySpeed * coefficientOfFriction) / xySpeed;
 
 		return 0;
 	}
@@ -48,7 +48,7 @@ public class Friction extends IndexedCalculator
 	{
 		final double coefficientOfFriction = calculate(av, lv);
 
-		final var currentVelocity = Velocity.of(lv.getDistance(), VUnits.YPS);
+		final var currentVelocity = Velocity.of(lv.getSpeed(), VUnits.YPS);
 
 		final var frictionForce = Force
 				.ofNewtons(mass.getInKilograms() * currentVelocity.getInMetersPerSecond() * coefficientOfFriction);
@@ -60,7 +60,7 @@ public class Friction extends IndexedCalculator
 
 	public double calculateLVSlidingFrictionAdjustment(final LinearVelocity lv, final Mass mass, double coefficientOfFriction)
 	{
-		final var currentVelocity = Velocity.of(lv.getDistance(), VUnits.YPS);
+		final var currentVelocity = Velocity.of(lv.getSpeed(), VUnits.YPS);
 
 		final var frictionForce = Force
 				.ofNewtons(mass.getInKilograms() * currentVelocity.getInMetersPerSecond() * coefficientOfFriction);

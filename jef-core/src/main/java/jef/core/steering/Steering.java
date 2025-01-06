@@ -42,7 +42,7 @@ public class Steering
 			this.buildMessage(String.format("%-25s: \t%4f", "Turn Speed Adjustment", turnSpeedAdjustment));
 
 			final double distanceRemaining = tracker
-					.calculateTraverableDistance(tracker.getLV().add(turnSpeedAdjustment).getDistance());
+					.calculateTraverableDistance(tracker.getLV().add(turnSpeedAdjustment).getSpeed());
 			this.buildMessage(String.format("%-25s: \t%4f", "Distance Remaining", distanceRemaining));
 
 			final Waypoint currentWaypoint = this.getCurrentWaypoint();
@@ -80,7 +80,7 @@ public class Steering
 			return Collections.emptyList();
 		}
 
-		final double startingSpeed = tracker.getLV().getDistance();
+		final double startingSpeed = tracker.getLV().getSpeed();
 		if (startingSpeed > this.getMaxSpeed())
 		{
 			// too fast
@@ -99,11 +99,11 @@ public class Steering
 		
 		this.performTurn(tracker, angleAdjustment, newAngle);
 
-		if (startingSpeed <= tracker.getLV().getDistance() + speedAdjustment)
+		if (startingSpeed <= tracker.getLV().getSpeed() + speedAdjustment)
 		{
 			// calculate where we are in the acceleration cycle
 			double elapsedTime = this
-					.calculateElapsedTime((tracker.getLV().getDistance() + speedAdjustment) / this.getMaxSpeed());
+					.calculateElapsedTime((tracker.getLV().getSpeed() + speedAdjustment) / this.getMaxSpeed());
 			elapsedTime += tracker.getRemainingTime();
 			double newSpeed = this.calculateSpeed(elapsedTime);
 			newSpeed *= this.getMaxSpeed();
@@ -185,7 +185,7 @@ public class Steering
 	{
 		final Waypoint currentWaypoint = this.getCurrentWaypoint();
 
-		final double minTurnRadius = this.calculateTightestRadiusTurnForAtSpeed(tracker.getLV().getDistance(),
+		final double minTurnRadius = this.calculateTightestRadiusTurnForAtSpeed(tracker.getLV().getSpeed(),
 				this.getMaxSpeed());
 		double distanceNeededToCompleteTurn = Math.abs(minTurnRadius * newAngle);
 
@@ -195,7 +195,7 @@ public class Steering
 //			this.buildMessage(String.format("%-25s: %s", "Turn Speed Adj.", String.format("%3.2f %s", tracker.getPctRemaining(), lvAccumulator)));
 
 			distanceNeededToCompleteTurn = this.calculateDistanceNeededToCompleteTurn(newAngle,
-					tracker.getLV().getDistance(), this.getMaxSpeed());
+					tracker.getLV().getSpeed(), this.getMaxSpeed());
 		}
 
 		return distanceNeededToCompleteTurn;
@@ -370,7 +370,7 @@ public class Steering
 
 	private double calculateTurnSpeedAdjustment(final Tracker tracker)
 	{
-		final double minTurnRadius = this.calculateTightestRadiusTurnForAtSpeed(tracker.getLV().getDistance(),
+		final double minTurnRadius = this.calculateTightestRadiusTurnForAtSpeed(tracker.getLV().getSpeed(),
 				this.getMaxSpeed());
 
 		// if we still can't make the turn given the limitations of the waypoint's
@@ -379,9 +379,9 @@ public class Steering
 		// perpetual holding pattern
 		final double maxSpeedToMakeTurn = this.calculateMaximumSpeedForRadiusTurn(minTurnRadius, this.getMaxSpeed());
 
-		if (maxSpeedToMakeTurn < tracker.getLV().getDistance())
+		if (maxSpeedToMakeTurn < tracker.getLV().getSpeed())
 		{
-			return Math.max(maxSpeedToMakeTurn - (tracker.getLV().getDistance()),
+			return Math.max(maxSpeedToMakeTurn - (tracker.getLV().getSpeed()),
 					Player.maximumDecelerationRate);
 		}
 

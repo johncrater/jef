@@ -53,7 +53,7 @@ public class BallTracker extends Tracker
 		Location locTmp = this.getLoc().add(tmpLV.multiply(getRemainingTime()));
 		if (locTmp.getZ() < 0)
 		{
-			double zDistance = getLoc().distanceBetween(locTmp);
+			double zSpeed = getLoc().distanceBetween(locTmp);
 			Vector3D loc3D = getLoc().toVector3D();
 			Line line = new Line(loc3D, locTmp.toVector3D(), Location.EPSILON);
 			Vector3D intersection = Field.thePlane.intersection(line);
@@ -62,7 +62,7 @@ public class BallTracker extends Tracker
 			intersection = new Vector3D(intersection.getX(), intersection.getY(), 0);
 
 			double distanceAboveGround = loc3D.distance(intersection);
-			double pctAboveGround = distanceAboveGround / zDistance;
+			double pctAboveGround = distanceAboveGround / zSpeed;
 
 			this.setLV(this.getLV().add(lvAdjustment.multiply(getRemainingTime()).multiply(pctAboveGround)));
 

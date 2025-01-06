@@ -32,28 +32,28 @@ class LinearVelocityTests
 
 		assertTrue(LinearVelocity.equals(Math.PI / 4, lv.getElevation()));
 		assertTrue(LinearVelocity.equals(Math.PI / 2, lv.getAzimuth()));
-		assertTrue(LinearVelocity.equals(1, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(1, lv.getSpeed()));
 
 		vector = new Vector3D(Math.cos(Math.toRadians(37)), Math.sin(Math.toRadians(37)), 0);
 		lv = new DefaultLinearVelocity(vector);
 
 		assertTrue(LinearVelocity.equals(0, Math.toDegrees(lv.getElevation())));
 		assertTrue(LinearVelocity.equals(37, Math.toDegrees(lv.getAzimuth())));
-		assertTrue(LinearVelocity.equals(1, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(1, lv.getSpeed()));
 
 		vector = new Vector3D(Math.cos(Math.toRadians(37)), 0, Math.sin(Math.toRadians(37)));
 		lv = new DefaultLinearVelocity(vector);
 
 		assertTrue(LinearVelocity.equals(37, Math.toDegrees(lv.getElevation())));
 		assertTrue(LinearVelocity.equals(0, Math.toDegrees(lv.getAzimuth())));
-		assertTrue(LinearVelocity.equals(1, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(1, lv.getSpeed()));
 
 		vector = new Vector3D(0, Math.cos(Math.toRadians(37)), Math.sin(Math.toRadians(37)));
 		lv = new DefaultLinearVelocity(vector);
 
 		assertTrue(LinearVelocity.equals(37, Math.toDegrees(lv.getElevation())));
 		assertTrue(LinearVelocity.equals(90, Math.toDegrees(lv.getAzimuth())));
-		assertTrue(LinearVelocity.equals(1, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(1, lv.getSpeed()));
 
 		double radians = Math.toRadians(37);
 		double x = Math.cos(radians);
@@ -68,7 +68,7 @@ class LinearVelocityTests
 
 		assertTrue(LinearVelocity.equals(37, Math.toDegrees(lv.getElevation())));
 		assertTrue(LinearVelocity.equals(37, Math.toDegrees(lv.getAzimuth())));
-		assertTrue(LinearVelocity.equals(1, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(1, lv.getSpeed()));
 	}
 
 	@Test
@@ -77,52 +77,52 @@ class LinearVelocityTests
 		LinearVelocity lv = new DefaultLinearVelocity(0, 0, 0);
 		assertTrue(LinearVelocity.equals(0, lv.getElevation()));
 		assertTrue(LinearVelocity.equals(0, lv.getAzimuth()));
-		assertTrue(LinearVelocity.equals(0, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(0, lv.getSpeed()));
 
 		lv = new DefaultLinearVelocity(Math.PI / 4, Math.PI / 4, 10);
 		assertTrue(LinearVelocity.equals(Math.PI / 4, lv.getElevation()));
 		assertTrue(LinearVelocity.equals(Math.PI / 4, lv.getAzimuth()));
-		assertTrue(LinearVelocity.equals(10, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(10, lv.getSpeed()));
 
 		lv = new DefaultLinearVelocity(7 * Math.PI / 8, Math.PI / 4, 10);
 		assertTrue(LinearVelocity.equals(Math.PI / 8, lv.getElevation()));
 		assertTrue(LinearVelocity.equals(-3 * Math.PI / 4, lv.getAzimuth()));
-		assertTrue(LinearVelocity.equals(10, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(10, lv.getSpeed()));
 
 		lv = new DefaultLinearVelocity(Math.PI / 4, 5 * Math.PI / 4, 10);
 		assertTrue(LinearVelocity.equals(Math.PI / 4, lv.getElevation()));
 		assertTrue(LinearVelocity.equals(-3 * Math.PI / 4, lv.getAzimuth()));
-		assertTrue(LinearVelocity.equals(10, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(10, lv.getSpeed()));
 
 		lv = new DefaultLinearVelocity(Math.PI / 4, Math.PI / 4, -10);
 		assertTrue(LinearVelocity.equals(-Math.PI / 4, lv.getElevation()));
 		assertTrue(LinearVelocity.equals(-3 * Math.PI / 4, lv.getAzimuth()));
-		assertTrue(LinearVelocity.equals(10, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(10, lv.getSpeed()));
 
 		lv = new DefaultLinearVelocity(15 * Math.PI + Math.PI / 4, Math.PI / 4, 10);
 		assertTrue(LinearVelocity.equals(Math.PI / 4, lv.getElevation()));
 		assertTrue(LinearVelocity.equals(-3 * Math.PI / 4, lv.getAzimuth()));
-		assertTrue(LinearVelocity.equals(10, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(10, lv.getSpeed()));
 
 		lv = new DefaultLinearVelocity(16 * Math.PI + Math.PI / 4, Math.PI / 4, 10);
 		assertTrue(LinearVelocity.equals(Math.PI / 4, lv.getElevation()));
 		assertTrue(LinearVelocity.equals(Math.PI / 4, lv.getAzimuth()));
-		assertTrue(LinearVelocity.equals(10, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(10, lv.getSpeed()));
 
 		lv = new DefaultLinearVelocity(Math.PI / 4, 26 * Math.PI, 10);
 		assertTrue(LinearVelocity.equals(Math.PI / 4, lv.getElevation()));
 		assertTrue(LinearVelocity.equals(0, lv.getAzimuth()));
-		assertTrue(LinearVelocity.equals(10, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(10, lv.getSpeed()));
 
 		lv = new DefaultLinearVelocity(Math.PI / 4, 27 * Math.PI, 10);
 		assertTrue(LinearVelocity.equals(Math.PI / 4, lv.getElevation()));
 		assertTrue(LinearVelocity.equals(Math.PI, lv.getAzimuth()));
-		assertTrue(LinearVelocity.equals(10, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(10, lv.getSpeed()));
 
 		lv = new DefaultLinearVelocity(Math.PI / 4, Math.PI, -10);
 		assertTrue(LinearVelocity.equals(-Math.PI / 4, lv.getElevation()));
 		assertTrue(LinearVelocity.equals(0, lv.getAzimuth()));
-		assertTrue(LinearVelocity.equals(10, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(10, lv.getSpeed()));
 	}
 
 	@Test
@@ -133,25 +133,25 @@ class LinearVelocityTests
 		
 		assertTrue(LinearVelocity.equals(Math.toRadians(37), lv.getElevation()));
 		assertTrue(LinearVelocity.equals(Math.toRadians(37), lv.getAzimuth()));
-		assertTrue(LinearVelocity.equals(7.5, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(7.5, lv.getSpeed()));
 
 		lv = lv.add(-3.5);
 
 		assertTrue(LinearVelocity.equals(Math.toRadians(37), lv.getElevation()));
 		assertTrue(LinearVelocity.equals(Math.toRadians(37), lv.getAzimuth()));
-		assertTrue(LinearVelocity.equals(4.0, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(4.0, lv.getSpeed()));
 
 		lv = lv.add(-7);
 
 		assertTrue(LinearVelocity.equals(Math.toRadians(-37), lv.getElevation()));
 		assertTrue(LinearVelocity.equals(Math.toRadians(-143), lv.getAzimuth()));
-		assertTrue(LinearVelocity.equals(3.0, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(3.0, lv.getSpeed()));
 
-		lv = lv.add(-lv.getDistance());
+		lv = lv.add(-lv.getSpeed());
 
 		assertTrue(LinearVelocity.equals(Math.toRadians(-37), lv.getElevation()));
 		assertTrue(LinearVelocity.equals(Math.toRadians(-143), lv.getAzimuth()));
-		assertTrue(LinearVelocity.equals(0, lv.getDistance()));
+		assertTrue(LinearVelocity.equals(0, lv.getSpeed()));
 
 	}
 
@@ -186,7 +186,7 @@ class LinearVelocityTests
 //	}
 //
 //	@Test
-//	void testGetDistance()
+//	void testGetSpeed()
 //	{
 //		fail("Not yet implemented");
 //	}
@@ -198,13 +198,13 @@ class LinearVelocityTests
 //	}
 //
 //	@Test
-//	void testGetXYDistance()
+//	void testGetXYSpeed()
 //	{
 //		fail("Not yet implemented");
 //	}
 //
 //	@Test
-//	void testGetXZDistance()
+//	void testGetXZSpeed()
 //	{
 //		fail("Not yet implemented");
 //	}
@@ -216,7 +216,7 @@ class LinearVelocityTests
 //	}
 //
 //	@Test
-//	void testGetYZDistance()
+//	void testGetYZSpeed()
 //	{
 //		fail("Not yet implemented");
 //	}
