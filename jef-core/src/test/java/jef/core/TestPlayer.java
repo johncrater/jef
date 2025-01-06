@@ -1,10 +1,11 @@
 package jef.core;
 
-import jef.core.steering.DefaultPath;
-import jef.core.steering.Path;
-import jef.core.steering.Steerable;
-import jef.core.steering.Waypoint;
-import jef.core.steering.Waypoint.DestinationAction;
+import jef.core.movement.Moveable;
+import jef.core.movement.player.DefaultPath;
+import jef.core.movement.player.Path;
+import jef.core.movement.player.Steerable;
+import jef.core.movement.player.Waypoint;
+import jef.core.movement.player.Waypoint.DestinationAction;
 
 public class TestPlayer extends TestMoveable implements Player, Steerable
 {
@@ -26,7 +27,7 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 		this.path.addWaypoint(new Waypoint(Field.midfield(), 10, DestinationAction.hardStop));
 	}
 
-	public void update(Tracker tracker)
+	public void update(Moveable tracker)
 	{
 		this.setAV(tracker.getAV());
 		this.setLV(tracker.getLV());

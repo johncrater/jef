@@ -1,8 +1,12 @@
 package jef.core;
 
-import jef.core.units.DefaultAngularVelocity;
-import jef.core.units.DefaultLinearVelocity;
-import jef.core.units.DefaultLocation;
+import jef.core.movement.AngularVelocity;
+import jef.core.movement.DefaultAngularVelocity;
+import jef.core.movement.DefaultLinearVelocity;
+import jef.core.movement.DefaultLocation;
+import jef.core.movement.LinearVelocity;
+import jef.core.movement.Location;
+import jef.core.movement.Moveable;
 
 public class TestMoveable implements Moveable
 {
@@ -67,5 +71,4 @@ public class TestMoveable implements Moveable
 	{
 		this.location = location;
 	}
-
 }

@@ -1,8 +1,6 @@
-package jef.core;
+package jef.core.movement;
 
-import jef.core.units.DefaultAngularVelocity;
-import jef.core.units.DefaultLinearVelocity;
-import jef.core.units.DefaultLocation;
+import jef.core.Conversions;
 
 public class Tracker implements Moveable
 {
@@ -37,43 +35,11 @@ public class Tracker implements Moveable
 	}
 
 	/**
-	 * Calculates the speed after the adjust taking into consideration of remaining
-	 * time and the lower limit of zero
-	 *
-	 * @param speedAdjustment y/s speed adjustment
-	 * @return The adjusted speed. Does not consider any limitations on maximum
-	 *         speed.
-	 */
-	public double calculateAdjustedSpeed(double speedAdjustment)
-	{
-		speedAdjustment = speedAdjustment * this.getRemainingTime();
-		return Math.max(0, this.lv.getSpeed() + speedAdjustment);
-	}
-
-	/**
-	 * Calculates the distance necessary to reach the desired speed using the
-	 * current direction.
-	 *
-	 * @param accelerationRate
-	 * @param desiredSpeed
-	 * @return a positive value to indicate the distance or a negative value meaning
-	 *         the desiredSpeed cannot be reached using the acceleration rate
-	 *         argument. This will happen if the acceleration rate is negative and
-	 *         the desired speed is greater that the current speed or if the
-	 *         acceleration rate is positive and the desired speed is less than the
-	 *         current speed
-	 */
-	public double calculateDistanceToReachSpeed(final double accelerationRate, final double desiredSpeed)
-	{
-		return (Math.pow(desiredSpeed, 2) - Math.pow(this.lv.getSpeed(), 2)) / (2 * accelerationRate);
-	}
-
-	/**
 	 * @param speed null to use the current speed
 	 * @return the distance that can be traveled at the given speed with the given
 	 *         time remaining in the turn
 	 */
-	public double calculateTraverableDistance(Double speed)
+	public double calculateTraversableDistance(Double speed)
 	{
 		if (speed == null)
 		{
@@ -149,7 +115,7 @@ public class Tracker implements Moveable
 			this.lv = this.lv.add(lvAdjustment.multiply(remainingTime));
 		}
 
-		final double traversableDistance = this.calculateTraverableDistance(this.lv.getSpeed());
+		final double traversableDistance = this.calculateTraversableDistance(this.lv.getSpeed());
 		if (traversableDistance == 0)
 			return 0;
 
@@ -228,17 +194,6 @@ public class Tracker implements Moveable
 	public String toString()
 	{
 		return String.format("%s %s %s %.2f", this.loc, this.lv, this.av, this.pctRemaining);
-	}
-
-	/**
-	 * Simply adjust the linear velocity to point in the direction created by adding
-	 * the adjustment to the current velocity
-	 *
-	 * @param angleAdjustment
-	 */
-	public void turn(final double angleAdjustment)
-	{
-		this.lv = this.lv.newFrom(null, this.lv.getAzimuth() + angleAdjustment, null);
 	}
 
 	protected void applyAngularVelocity()

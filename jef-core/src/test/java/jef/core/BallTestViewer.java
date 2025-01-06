@@ -31,11 +31,12 @@ import org.eclipse.swt.widgets.Text;
 
 import com.synerset.unitility.unitsystem.common.Angle;
 
-import jef.core.physics.ball.BallPhysics;
-import jef.core.physics.ball.BallTracker;
-import jef.core.units.DefaultAngularVelocity;
-import jef.core.units.DefaultLinearVelocity;
-import jef.core.units.DefaultLocation;
+import jef.core.movement.DefaultAngularVelocity;
+import jef.core.movement.DefaultLinearVelocity;
+import jef.core.movement.DefaultLocation;
+import jef.core.movement.Location;
+import jef.core.movement.ball.BallPhysics;
+import jef.core.movement.ball.BallTracker;
 
 public class BallTestViewer implements Runnable
 {

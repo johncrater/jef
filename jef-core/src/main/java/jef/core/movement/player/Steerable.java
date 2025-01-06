@@ -1,6 +1,4 @@
-package jef.core.steering;
-
-import jef.core.Location;
+package jef.core.movement.player;
 
 public interface Steerable
 {

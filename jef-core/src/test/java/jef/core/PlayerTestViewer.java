@@ -28,13 +28,13 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
-import jef.core.steering.DefaultPath;
-import jef.core.steering.Path;
-import jef.core.steering.Steering;
-import jef.core.steering.Waypoint;
-import jef.core.steering.Waypoint.DestinationAction;
-import jef.core.units.DefaultLinearVelocity;
-import jef.core.units.DefaultLocation;
+import jef.core.movement.DefaultLinearVelocity;
+import jef.core.movement.DefaultLocation;
+import jef.core.movement.Location;
+import jef.core.movement.player.PlayerTracker;
+import jef.core.movement.player.Steering;
+import jef.core.movement.player.Waypoint;
+import jef.core.movement.player.Waypoint.DestinationAction;
 
 public class PlayerTestViewer implements Runnable
 {
@@ -305,15 +305,14 @@ public class PlayerTestViewer implements Runnable
 		for (TestPlayer player : players)
 		{
 			Steering steering = new Steering(player);
+			PlayerTracker tracker = new PlayerTracker(player.getPath(), player, TIMER_INTERVAL);
+
+			steering.next(tracker);
 			
-			Tracker tracker = new Tracker(player, TIMER_INTERVAL);
-			List<Waypoint> waypointsRemaining = steering.next(tracker);
 			player.setLV(tracker.getLV());
 			player.setAV(tracker.getAV());
 			player.setLoc(tracker.getLoc());
-			player.getPath().clear();
-			for (Waypoint wp : waypointsRemaining)
-				player.getPath().addWaypoint(wp);
+			player.setPath(tracker.getPath());
 		}
 		Performance.processTime.endCycle();
 		

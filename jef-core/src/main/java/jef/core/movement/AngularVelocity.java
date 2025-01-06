@@ -1,4 +1,4 @@
-package jef.core;
+package jef.core.movement;
 
 /* @formatter:off */
 public interface AngularVelocity

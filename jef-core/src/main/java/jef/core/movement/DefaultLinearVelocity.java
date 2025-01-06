@@ -1,4 +1,4 @@
-package jef.core.units;
+package jef.core.movement;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -7,8 +7,6 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.util.MathUtils;
 import org.apache.commons.math3.util.Precision;
-
-import jef.core.LinearVelocity;
 
 public class DefaultLinearVelocity implements LinearVelocity
 {

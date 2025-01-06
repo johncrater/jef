@@ -1,12 +1,11 @@
-package jef.core.steering;
+package jef.core.movement.player;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import jef.core.Location;
-import jef.core.units.DefaultLocation;
+import jef.core.movement.DefaultLocation;
+import jef.core.movement.Location;
 
 public class DefaultPath implements Iterable<Waypoint>, Path
 {

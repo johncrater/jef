@@ -1,10 +1,9 @@
-package jef.core.units;
+package jef.core.movement;
 
 import java.util.Objects;
 
 import org.apache.commons.math3.util.Precision;
 
-import jef.core.AngularVelocity;
 import jef.core.Conversions;
 
 public class DefaultAngularVelocity implements AngularVelocity

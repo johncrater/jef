@@ -1,4 +1,4 @@
-package jef.core.units;
+package jef.core.movement;
 
 import com.synerset.unitility.unitsystem.common.Distance;
 import com.synerset.unitility.unitsystem.common.DistanceUnit;

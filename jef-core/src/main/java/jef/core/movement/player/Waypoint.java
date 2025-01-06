@@ -1,6 +1,6 @@
-package jef.core.steering;
+package jef.core.movement.player;
 
-import jef.core.Location;
+import jef.core.movement.Location;
 
 public class Waypoint
 {

@@ -2,7 +2,7 @@ package jef.core;
 
 import com.synerset.unitility.unitsystem.common.Velocity;
 
-import jef.core.units.VUnits;
+import jef.core.movement.VUnits;
 
 public interface Player 
 {

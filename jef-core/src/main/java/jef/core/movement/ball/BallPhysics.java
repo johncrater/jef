@@ -1,4 +1,4 @@
-package jef.core.physics.ball;
+package jef.core.movement.ball;
 
 import com.synerset.unitility.unitsystem.common.Area;
 import com.synerset.unitility.unitsystem.common.Mass;
@@ -7,11 +7,11 @@ import com.synerset.unitility.unitsystem.common.Velocity;
 import com.synerset.unitility.unitsystem.mechanical.Force;
 import com.synerset.unitility.unitsystem.thermodynamic.Density;
 
-import jef.core.AngularVelocity;
 import jef.core.Conversions;
-import jef.core.LinearVelocity;
-import jef.core.units.DefaultLinearVelocity;
-import jef.core.units.VUnits;
+import jef.core.movement.AngularVelocity;
+import jef.core.movement.DefaultLinearVelocity;
+import jef.core.movement.LinearVelocity;
+import jef.core.movement.VUnits;
 
 public class BallPhysics
 {

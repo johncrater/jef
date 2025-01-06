@@ -1,17 +1,15 @@
-package jef.core.steering;
+package jef.core.movement.player;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.math3.util.MathUtils;
 
-import jef.core.LinearVelocity;
-import jef.core.Location;
 import jef.core.Player;
-import jef.core.Tracker;
-import jef.core.units.DefaultLinearVelocity;
+import jef.core.movement.DefaultLinearVelocity;
+import jef.core.movement.LinearVelocity;
+import jef.core.movement.Location;
 
 public class Steering
 {
@@ -19,7 +17,6 @@ public class Steering
 	{ .333f, .600f, 1.10f, 1.66f, 2.33f, 6.00f };
 
 	private final Steerable steerable;
-	private final List<Waypoint> waypoints;
 
 	private ByteArrayOutputStream baos;
 	private PrintStream out;
@@ -27,46 +24,13 @@ public class Steering
 	public Steering(final Steerable steerable)
 	{
 		this.steerable = steerable;
-		this.waypoints = steerable.getPath().getWaypoints();
 	}
 
-	private boolean performTurn(Tracker tracker, double angleAdjustment, double newAngle)
+	public void next(final PlayerTracker tracker)
 	{
-		final double distanceNeededToCompleteTurn = this.calculateDistanceNeededToCompleteTurn(tracker,
-				angleAdjustment);
-		if (LinearVelocity.equals(0, distanceNeededToCompleteTurn) == false)
-		{
-			this.buildMessage(String.format("%-25s: \t%4f", "Turning Distance", distanceNeededToCompleteTurn));
+		if (tracker.getLoc().closeEnoughTo(this.getDestination()) && tracker.getLV().isNotMoving())
+			return;
 
-			final double turnSpeedAdjustment = this.calculateTurnSpeedAdjustment(tracker);
-			this.buildMessage(String.format("%-25s: \t%4f", "Turn Speed Adjustment", turnSpeedAdjustment));
-
-			final double distanceRemaining = tracker
-					.calculateTraverableDistance(tracker.getLV().add(turnSpeedAdjustment).getSpeed());
-			this.buildMessage(String.format("%-25s: \t%4f", "Distance Remaining", distanceRemaining));
-
-			final Waypoint currentWaypoint = this.getCurrentWaypoint();
-			final double distanceUsed = Math.min(tracker.getLoc().distanceBetween(getDestination()),
-					Math.min(distanceRemaining, distanceNeededToCompleteTurn));
-			this.buildMessage(String.format("%-25s: \t%4f", "Distance Used", distanceUsed));
-
-			// we aren't adding the direction, we are setting it explicitly
-			tracker.turn(angleAdjustment);
-			tracker.move(tracker.getLV().newFrom(null, null, turnSpeedAdjustment), distanceUsed);
-			this.buildMessage(String.format("%-25s: %s", "Turning",
-					String.format("%3.2f %s %s", tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
-
-			return true;
-		}
-		
-		return false;
-	}
-
-	public List<Waypoint> next(final Tracker tracker)
-	{
-		if (tracker.getLoc().closeEnoughTo(getDestination()) && tracker.getLV().isNotMoving())
-			return Collections.emptyList();
-		
 		this.baos = new ByteArrayOutputStream();
 		this.out = new PrintStream(this.baos);
 
@@ -77,7 +41,7 @@ public class Steering
 		{
 			// coasting to a stop
 			this.coastToAStop(tracker);
-			return Collections.emptyList();
+			return;
 		}
 
 		final double startingSpeed = tracker.getLV().getSpeed();
@@ -85,21 +49,21 @@ public class Steering
 		{
 			// too fast
 			this.outOfControl(tracker);
-			return this.waypoints;
+			return;
 		}
 
 		// do we need to decelerate?
 		double speedAdjustment = this.calculateDecelerationAdjustment(tracker);
 
-		final double angleAdjustment = this.calculateAngleOfTurn(tracker.getLoc(),
-				getDestination(), tracker.getLV().getAzimuth());
+		final double angleAdjustment = this.calculateAngleOfTurn(tracker.getLoc(), this.getDestination(),
+				tracker.getLV().getAzimuth());
 		this.buildMessage(String.format("%-25s: \t\t%4f\u00B0", "Angle Adjustment", Math.toDegrees(angleAdjustment)));
 
 		final double newAngle = angleAdjustment + tracker.getLV().getAzimuth();
-		
+
 		this.performTurn(tracker, angleAdjustment, newAngle);
 
-		if (startingSpeed <= tracker.getLV().getSpeed() + speedAdjustment)
+		if (startingSpeed <= (tracker.getLV().getSpeed() + speedAdjustment))
 		{
 			// calculate where we are in the acceleration cycle
 			double elapsedTime = this
@@ -117,22 +81,23 @@ public class Steering
 
 		if (this.destinationReached(tracker))
 		{
+			tracker.getPath().removeWaypoint(tracker.getPath().getCurrentWaypoint());
+
 			if (this.getWaypoints().size() > 1)
 			{
-				this.waypoints.removeFirst();
 				this.buildMessage(String.format("%-25s: %s", "Destination Reached",
 						String.format("%3.2f %s %s", tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
-				return this.next(tracker);
+				this.next(tracker);
 			}
-
-			this.waypoints.removeFirst();
-			this.buildMessage(String.format("%-25s: %s", "Waypoint Reached",
-					String.format("%3.2f %s %s", tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
+			else
+			{
+				this.buildMessage(String.format("%-25s: %s", "Waypoint Reached",
+						String.format("%3.2f %s %s", tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
+			}
 		}
 
 		this.buildMessage(String.format("%-25s: %s", "Final",
 				String.format("%3.2f %s %s", tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
-		return this.waypoints;
 	}
 
 	private void buildMessage(final String msg)
@@ -148,13 +113,13 @@ public class Steering
 		return MathUtils.normalizeAngle(angularDiff, 0.0);
 	}
 
-	private double calculateDecelerationAdjustment(final Tracker tracker)
+	private double calculateDecelerationAdjustment(final PlayerTracker tracker)
 	{
-		final double distanceRemainingToDestination = tracker.getLoc().distanceBetween(getDestination());
+		final double distanceRemainingToDestination = tracker.getLoc().distanceBetween(this.getDestination());
 
 		double decelerationAdjustment = 0;
 		final List<Waypoint> waypoints = this.getWaypoints();
-		final Waypoint currentWaypoint = this.getCurrentWaypoint();
+		final Waypoint currentWaypoint = this.steerable.getPath().getCurrentWaypoint();
 
 		if ((this.getWaypoints().size() == 1)
 				|| (currentWaypoint.getDestinationAction() == Waypoint.DestinationAction.hardStop))
@@ -168,7 +133,9 @@ public class Steering
 		}
 
 		if (decelerationAdjustment != 0)
+		{
 			this.buildMessage(String.format("%-25s: \t\t%4f", "Deceleration Adjustment", decelerationAdjustment));
+		}
 
 		return decelerationAdjustment;
 	}
@@ -181,16 +148,14 @@ public class Steering
 		return Math.abs(minTurnRadius * angle);
 	}
 
-	private double calculateDistanceNeededToCompleteTurn(final Tracker tracker, final double newAngle)
+	private double calculateDistanceNeededToCompleteTurn(final PlayerTracker tracker, final double newAngle)
 	{
-		final Waypoint currentWaypoint = this.getCurrentWaypoint();
-
 		final double minTurnRadius = this.calculateTightestRadiusTurnForAtSpeed(tracker.getLV().getSpeed(),
 				this.getMaxSpeed());
 		double distanceNeededToCompleteTurn = Math.abs(minTurnRadius * newAngle);
 
 		if ((distanceNeededToCompleteTurn > 0)
-				&& (distanceNeededToCompleteTurn > tracker.getLoc().distanceBetween(getDestination())))
+				&& (distanceNeededToCompleteTurn > tracker.getLoc().distanceBetween(this.getDestination())))
 		{
 //			this.buildMessage(String.format("%-25s: %s", "Turn Speed Adj.", String.format("%3.2f %s", tracker.getPctRemaining(), lvAccumulator)));
 
@@ -368,7 +333,7 @@ public class Steering
 		return 12.1f;
 	}
 
-	private double calculateTurnSpeedAdjustment(final Tracker tracker)
+	private double calculateTurnSpeedAdjustment(final PlayerTracker tracker)
 	{
 		final double minTurnRadius = this.calculateTightestRadiusTurnForAtSpeed(tracker.getLV().getSpeed(),
 				this.getMaxSpeed());
@@ -380,15 +345,12 @@ public class Steering
 		final double maxSpeedToMakeTurn = this.calculateMaximumSpeedForRadiusTurn(minTurnRadius, this.getMaxSpeed());
 
 		if (maxSpeedToMakeTurn < tracker.getLV().getSpeed())
-		{
-			return Math.max(maxSpeedToMakeTurn - (tracker.getLV().getSpeed()),
-					Player.maximumDecelerationRate);
-		}
+			return Math.max(maxSpeedToMakeTurn - (tracker.getLV().getSpeed()), Player.maximumDecelerationRate);
 
 		return 0;
 	}
 
-	private void coastToAStop(final Tracker tracker)
+	private void coastToAStop(final PlayerTracker tracker)
 	{
 		// coast to a stop
 		tracker.moveRemaining(Player.normalDecelerationRate);
@@ -396,7 +358,7 @@ public class Steering
 				String.format("%3.2f %s %s", tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
 	}
 
-	private double decelerate(final Tracker tracker, final double finalVelocity, final double distanceRemaining)
+	private double decelerate(final PlayerTracker tracker, final double finalVelocity, final double distanceRemaining)
 	{
 		final double decelerationRate = Player.maximumDecelerationRate;
 		final double distanceNeededToDecelerate = tracker.calculateDistanceToReachSpeed(decelerationRate,
@@ -408,18 +370,13 @@ public class Steering
 		return 0;
 	}
 
-	private boolean destinationReached(final Tracker tracker)
+	private boolean destinationReached(final PlayerTracker tracker)
 	{
-		final Waypoint waypoint = this.getCurrentWaypoint();
+		final Waypoint waypoint = this.steerable.getPath().getCurrentWaypoint();
 		if (waypoint == null)
 			return true;
 
-		return tracker.getLoc().closeEnoughTo(getDestination());
-	}
-
-	private Waypoint getCurrentWaypoint()
-	{
-		return this.steerable.getPath().getCurrentWaypoint();
+		return tracker.getLoc().closeEnoughTo(this.getDestination());
 	}
 
 	private Location getDestination()
@@ -437,7 +394,7 @@ public class Steering
 		return this.steerable.getPath().getWaypoints();
 	}
 
-	private void outOfControl(final Tracker tracker)
+	private void outOfControl(final PlayerTracker tracker)
 	{
 		// we are out of control and will fall if we can't decelerate below
 		// getMaxSpeed()
@@ -457,6 +414,37 @@ public class Steering
 		tracker.moveRemaining(adjustment);
 		this.buildMessage(String.format("%-25s: %s", "Out of Control",
 				String.format("%3.2f %s %s", tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
+	}
+
+	private boolean performTurn(final PlayerTracker tracker, final double angleAdjustment, final double newAngle)
+	{
+		final double distanceNeededToCompleteTurn = this.calculateDistanceNeededToCompleteTurn(tracker,
+				angleAdjustment);
+		if (!LinearVelocity.equals(0, distanceNeededToCompleteTurn))
+		{
+			this.buildMessage(String.format("%-25s: \t%4f", "Turning Distance", distanceNeededToCompleteTurn));
+
+			final double turnSpeedAdjustment = this.calculateTurnSpeedAdjustment(tracker);
+			this.buildMessage(String.format("%-25s: \t%4f", "Turn Speed Adjustment", turnSpeedAdjustment));
+
+			final double distanceRemaining = tracker
+					.calculateTraversableDistance(tracker.getLV().add(turnSpeedAdjustment).getSpeed());
+			this.buildMessage(String.format("%-25s: \t%4f", "Distance Remaining", distanceRemaining));
+
+			final double distanceUsed = Math.min(tracker.getLoc().distanceBetween(this.getDestination()),
+					Math.min(distanceRemaining, distanceNeededToCompleteTurn));
+			this.buildMessage(String.format("%-25s: \t%4f", "Distance Used", distanceUsed));
+
+			// we aren't adding the direction, we are setting it explicitly
+			tracker.turn(angleAdjustment);
+			tracker.move(tracker.getLV().newFrom(null, null, turnSpeedAdjustment), distanceUsed);
+			this.buildMessage(String.format("%-25s: %s", "Turning",
+					String.format("%3.2f %s %s", tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
+
+			return true;
+		}
+
+		return false;
 	}
 
 }

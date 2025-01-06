@@ -5,8 +5,10 @@ import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import com.synerset.unitility.unitsystem.common.Distance;
 
-import jef.core.units.DUnits;
-import jef.core.units.DefaultLocation;
+import jef.core.movement.DUnits;
+import jef.core.movement.DefaultLocation;
+import jef.core.movement.LinearVelocity;
+import jef.core.movement.Location;
 
 public class Field
 {

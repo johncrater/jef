@@ -1,8 +1,8 @@
-package jef.core.steering;
+package jef.core.movement.player;
 
 import java.util.List;
 
-import jef.core.Location;
+import jef.core.movement.Location;
 
 public interface Path
 {

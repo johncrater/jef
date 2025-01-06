@@ -6,7 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.junit.jupiter.api.Test;
 
-import jef.core.LinearVelocity;
+import jef.core.movement.DefaultLinearVelocity;
+import jef.core.movement.LinearVelocity;
 
 class LinearVelocityTests
 {

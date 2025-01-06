@@ -1,12 +1,9 @@
-package jef.core.units;
+package jef.core.movement;
 
 import java.util.Objects;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.util.Precision;
-
-import jef.core.LinearVelocity;
-import jef.core.Location;
 
 public class DefaultLocation implements Location
 {

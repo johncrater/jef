@@ -1,18 +1,16 @@
-package jef.core.physics.ball;
+package jef.core.movement.ball;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Line;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
-import jef.core.AngularVelocity;
 import jef.core.Field;
-import jef.core.Football;
-import jef.core.LinearVelocity;
-import jef.core.Location;
-import jef.core.Moveable;
-import jef.core.Tracker;
-import jef.core.units.DefaultAngularVelocity;
-import jef.core.units.DefaultLinearVelocity;
-import jef.core.units.DefaultLocation;
+import jef.core.movement.AngularVelocity;
+import jef.core.movement.DefaultAngularVelocity;
+import jef.core.movement.DefaultLocation;
+import jef.core.movement.LinearVelocity;
+import jef.core.movement.Location;
+import jef.core.movement.Moveable;
+import jef.core.movement.Tracker;
 
 public class BallTracker extends Tracker
 {
@@ -110,5 +108,19 @@ public class BallTracker extends Tracker
 			setLV(getLV().newFrom(0.0, null, null));
 			setAV(new DefaultAngularVelocity());
 		}
+	}
+
+	/**
+	 * Calculates the speed after the adjust taking into consideration of remaining
+	 * time and the lower limit of zero
+	 *
+	 * @param speedAdjustment y/s speed adjustment
+	 * @return The adjusted speed. Does not consider any limitations on maximum
+	 *         speed.
+	 */
+	public double calculateAdjustedSpeed(double speedAdjustment)
+	{
+		speedAdjustment = speedAdjustment * this.getRemainingTime();
+		return Math.max(0, this.getLV().getSpeed() + speedAdjustment);
 	}
 }
