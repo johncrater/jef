@@ -8,9 +8,9 @@ public class Tracker implements Moveable
 	private Location loc;
 	private AngularVelocity av;
 
-	private LinearVelocity originalLv;
-	private Location originalLoc;
-	private AngularVelocity originalAv;
+	private LinearVelocity startingLv;
+	private Location startingLoc;
+	private AngularVelocity startingAv;
 
 	private double pctRemaining;
 	private final double timeInterval;
@@ -22,9 +22,9 @@ public class Tracker implements Moveable
 
 	public Tracker(final LinearVelocity lv, final Location loc, final AngularVelocity av, final double timeInterval)
 	{
-		this.lv = this.originalLv = lv;
-		this.loc = this.originalLoc = loc;
-		this.av = this.originalAv = av;
+		this.lv = this.startingLv = lv;
+		this.loc = this.startingLoc = loc;
+		this.av = this.startingAv = av;
 		this.pctRemaining = 1.0;
 		this.timeInterval = timeInterval;
 	}
@@ -32,6 +32,21 @@ public class Tracker implements Moveable
 	public Tracker(final Moveable moveable, final double timeInterval)
 	{
 		this(moveable.getLV(), moveable.getLoc(), moveable.getAV(), timeInterval);
+	}
+
+	public LinearVelocity getStartingLv()
+	{
+		return this.startingLv;
+	}
+
+	public Location getStartingLoc()
+	{
+		return this.startingLoc;
+	}
+
+	public AngularVelocity getStartingAv()
+	{
+		return this.startingAv;
 	}
 
 	/**
@@ -156,9 +171,9 @@ public class Tracker implements Moveable
 
 	public void reset()
 	{
-		this.lv = this.originalLv;
-		this.av = this.originalAv;
-		this.loc = this.originalLoc;
+		this.lv = this.startingLv;
+		this.av = this.startingAv;
+		this.loc = this.startingLoc;
 		this.pctRemaining = 1.0;
 	}
 

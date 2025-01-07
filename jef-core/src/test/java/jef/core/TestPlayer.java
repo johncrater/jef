@@ -24,7 +24,7 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 	public TestPlayer()
 	{
 		this.path = new DefaultPath();
-		this.path.addWaypoint(new Waypoint(Field.midfield(), 10, DestinationAction.hardStop));
+		this.path.addWaypoint(new Waypoint(Field.midfield(), 10, DestinationAction.fastStop));
 	}
 
 	public void update(Moveable tracker)
@@ -67,7 +67,7 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 	@Override
 	public double getMaxSpeed()
 	{
-		return 10;
+		return 15;
 	}
 
 	@Override
@@ -126,10 +126,6 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 	@Override
 	public double getDesiredSpeed()
 	{
-		Waypoint waypoint = this.getPath().getCurrentWaypoint();
-		if (waypoint == null)
-			return 0;
-		
-		return waypoint.getMaxSpeed();
+		return 10;
 	}
 }

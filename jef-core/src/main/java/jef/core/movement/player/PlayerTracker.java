@@ -1,5 +1,11 @@
 package jef.core.movement.player;
 
+
+
+import org.apache.commons.math3.geometry.euclidean.twod.Line;
+import org.apache.commons.math3.geometry.euclidean.twod.SubLine;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
+
 import jef.core.movement.AngularVelocity;
 import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
@@ -9,7 +15,7 @@ import jef.core.movement.Tracker;
 public class PlayerTracker extends Tracker
 {
 	private Path path;
-	
+
 	public PlayerTracker(Path path, double timeInterval)
 	{
 		super(timeInterval);
@@ -31,6 +37,24 @@ public class PlayerTracker extends Tracker
 	public Path getPath()
 	{
 		return this.path;
+	}
+
+	public boolean hasPastDestination()
+	{
+		Vector2D origin = this.getStartingLoc().toVector2D();
+		Vector2D dest = this.getPath().getCurrentWaypoint().getDestination().toVector2D();
+		
+		Vector2D slopeVector = dest.subtract(origin);
+		Vector2D antiSlopVector = new Vector2D(slopeVector.getY(), slopeVector.getX() * -1);
+		
+		Vector2D perpVector = dest.add(antiSlopVector);
+		
+		SubLine perpLine = new SubLine(this.getPath().getCurrentWaypoint().getDestination().toVector2D(), perpVector, Location.EPSILON);
+
+		SubLine currentLine = new SubLine(this.getStartingLoc().toVector2D(), this.getLoc().toVector2D(), Location.EPSILON);
+		Vector2D intersection = perpLine.intersection(currentLine, true);
+		
+		return intersection != null;
 	}
 
 	/**
@@ -76,5 +100,4 @@ public class PlayerTracker extends Tracker
 		return Math.max(0, this.getLV().getSpeed() + speedAdjustment);
 	}
 
-	
 }

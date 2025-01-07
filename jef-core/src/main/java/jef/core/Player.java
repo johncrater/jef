@@ -8,7 +8,9 @@ public interface Player
 {
 	// deceleration is in YPY^2. It is not a velocity
 	public static final double maximumDecelerationRate = (double) Velocity.ofMetersPerSecond(-6).getInUnit(VUnits.YPS);
-	public static final double normalDecelerationRate = (double) Velocity.ofMetersPerSecond(-3).getInUnit(VUnits.YPS);
+	public static final double normalDecelerationRate = (double) Velocity.ofMetersPerSecond(-4).getInUnit(VUnits.YPS);
+	public static final double slowDecelerationRate = (double) Velocity.ofMetersPerSecond(-2).getInUnit(VUnits.YPS);
+
 	// turning speed in milliseconds for changing orientation. A total guess 180
 	// degree turn in .25 seconds
 	public static final double maximumAngularVelocity = 180 / .25;

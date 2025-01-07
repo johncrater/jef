@@ -4,7 +4,7 @@ import jef.core.movement.Location;
 
 public class Waypoint
 {
-	public enum DestinationAction { hardStop, softStop, runThrough, angleForNextWaypoint }
+	public enum DestinationAction { fastStop, normalStop, slowStop, noStop}
 	
 	private Location destination;
 	private double maxSpeed;

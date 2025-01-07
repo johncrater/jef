@@ -3,6 +3,7 @@ package jef.core.movement;
 import java.util.Objects;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.util.Precision;
 
 public class DefaultLocation implements Location
@@ -129,6 +130,12 @@ public class DefaultLocation implements Location
 	public Vector3D toVector3D()
 	{
 		return new Vector3D(x, y, z);
+	}
+
+	@Override
+	public Vector2D toVector2D()
+	{
+		return new Vector2D(x, y);
 	}
 
 	@Override

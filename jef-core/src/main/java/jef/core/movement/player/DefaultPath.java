@@ -43,7 +43,7 @@ public class DefaultPath implements Iterable<Waypoint>, Path
 	@Override
 	public Waypoint getCurrentWaypoint()
 	{
-		return this.waypoints.getFirst();
+		return this.waypoints.size() > 0 ? this.waypoints.getFirst() : null;
 	}
 	
 	@Override

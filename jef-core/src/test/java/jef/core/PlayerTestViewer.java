@@ -25,6 +25,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
@@ -61,6 +62,7 @@ public class PlayerTestViewer implements Runnable
 
 	private TestPlayer player;
 	private List<TestPlayer> players = new ArrayList<TestPlayer>();
+	private DestinationAction nextDestinationAction = DestinationAction.fastStop;
 	
 	public PlayerTestViewer()
 	{
@@ -123,29 +125,21 @@ public class PlayerTestViewer implements Runnable
 		c.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL));
 		c.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
-		Button btn = new Button(c, SWT.PUSH);
-		btn.setText("Linear Dampening");
-		btn.addSelectionListener(new SelectionAdapter() 
+		Combo combo = new Combo(c, SWT.DROP_DOWN);
+		for (DestinationAction action : Waypoint.DestinationAction.values())
+			combo.add(action.name(), action.ordinal());
+		
+		combo.addSelectionListener(new SelectionAdapter() 
 		{
-			@Override
-			public void widgetSelected(SelectionEvent e)
-			{
-				player.setLoc(new DefaultLocation(50.0, 27.0, 0.0));
-				player.setLV(new DefaultLinearVelocity(10.0, 10.0, 0.0));
-			}
-		});
 
-		btn = new Button(c, SWT.PUSH);
-		btn.setText("Steering");
-		btn.addSelectionListener(new SelectionAdapter() 
-		{
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				player.setLoc(new DefaultLocation(50.0, 27.0, 0.0));
-				player.setLV(new DefaultLinearVelocity(0.0, 0.0, 0.0));
+				nextDestinationAction = DestinationAction.values()[combo.getSelectionIndex()];
 			}
+			
 		});
+		
 	}
 
 	private void createPlayers()
@@ -215,7 +209,7 @@ public class PlayerTestViewer implements Runnable
 					p.y = (int)(totalWidth - p.y);
 					Location loc = pointToLocation(p);
 					
-					player.getPath().addWaypoint(new Waypoint(loc, player.getDesiredSpeed(), DestinationAction.hardStop));
+					player.getPath().addWaypoint(new Waypoint(loc, player.getDesiredSpeed(), nextDestinationAction));
 				}
 				catch (Exception e1)
 				{
@@ -271,7 +265,7 @@ public class PlayerTestViewer implements Runnable
 		str.append(String.format("\n"));
 		
 		for (Waypoint wp : player.getPath().getWaypoints())
-			str.append(String.format("       waypoint : %s\n", wp));
+			str.append(String.format("       waypoint : %s - Dist: %.2f\n", wp, player.getLoc().distanceBetween(wp.getDestination())));
 		
 		gc.setFont(playerDataFont);
 		gc.setForeground(yellow);
