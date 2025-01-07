@@ -15,6 +15,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -30,10 +31,12 @@ import org.eclipse.swt.widgets.Text;
 
 import com.synerset.unitility.unitsystem.common.Angle;
 
-import jef.core.physics.ball.BallPhysics;
-import jef.core.units.AngularVelocity;
-import jef.core.units.LinearVelocity;
-import jef.core.units.Location;
+import jef.core.movement.DefaultAngularVelocity;
+import jef.core.movement.DefaultLinearVelocity;
+import jef.core.movement.DefaultLocation;
+import jef.core.movement.Location;
+import jef.core.movement.ball.BallPhysics;
+import jef.core.movement.ball.BallTracker;
 
 public class BallTestViewer implements Runnable
 {
@@ -58,6 +61,7 @@ public class BallTestViewer implements Runnable
 	private static Image footballSmall;
 
 	public static FontData playerFontData = new FontData("Courier New", 16, SWT.BOLD);
+	private static Font playerDataFont;
 	public static Font trackingFont;
 
 	public static Football ball;
@@ -72,6 +76,8 @@ public class BallTestViewer implements Runnable
 	{
 		BallTestViewer.createShell();
 
+		playerDataFont = new Font(shell.getDisplay(), playerFontData);
+
 		BallTestViewer.footballBig = new Image(BallTestViewer.shell.getDisplay(),
 				BallTestViewer.class.getResourceAsStream("/football-1125x672.png"));
 		BallTestViewer.football = new Image(BallTestViewer.shell.getDisplay(),
@@ -80,7 +86,7 @@ public class BallTestViewer implements Runnable
 				BallTestViewer.class.getResourceAsStream("/football-34x34.png"));
 
 		BallTestViewer.ball = new TestBall();
-		BallTestViewer.ball.setLocation(10.0, 27.0, 0.0);
+		BallTestViewer.ball.setLoc(new DefaultLocation(10.0, 27.0, 0.0));
 
 		final Composite c = new Composite(BallTestViewer.shell, SWT.NONE);
 		final GridData gd = new GridData();
@@ -137,16 +143,16 @@ public class BallTestViewer implements Runnable
 				double thetaInDegrees = Double.parseDouble(theta.getText());
 				double speedInYPS = Double.parseDouble(speed.getText());
 				double azimuthInRadians = Double.parseDouble(azimuth.getText());
-				BallTestViewer.ball.setLinearVelocity(new LinearVelocity(Math.toRadians(thetaInDegrees), azimuthInRadians, speedInYPS));
+				BallTestViewer.ball.setLV(new DefaultLinearVelocity(Math.toRadians(thetaInDegrees), azimuthInRadians, speedInYPS));
 
 				double phiInDegrees = Double.parseDouble(phi.getText());
-				double omegaInDegreesPerSecond = Double.parseDouble(omega.getText());
-				BallTestViewer.ball.setAngularVelocity(new AngularVelocity(Math.toRadians(phiInDegrees), Math.toRadians(omegaInDegreesPerSecond)));
+				double omegaInRadiansPerSecond = Double.parseDouble(omega.getText());
+				BallTestViewer.ball.setAV(new DefaultAngularVelocity(Math.toRadians(phiInDegrees), omegaInRadiansPerSecond));
 
 				double heightInYards =  Double.parseDouble(height.getText());
 				double yardLineValue =  Double.parseDouble(yardLine.getText()) + 10;
 				
-				BallTestViewer.ball.setLocation(yardLineValue, 27.0, heightInYards);
+				BallTestViewer.ball.setLoc(new DefaultLocation(yardLineValue, 27.0, heightInYards));
 				BallTestViewer.path.clear();
 			}
 			
@@ -159,6 +165,7 @@ public class BallTestViewer implements Runnable
 
 		BallTestViewer.shell.open();
 		new BallTestViewer().run();
+		Performance.cycleTime.beginCycle();
 
 		while (!BallTestViewer.shell.isDisposed())
 			try
@@ -202,7 +209,7 @@ public class BallTestViewer implements Runnable
 					e.gc.drawLine(offset, 3 * offset + (int) Conversions.yardsToInches(i),
 							offset + (int) BallTestViewer.totalLength, offset + (int) Conversions.yardsToInches(i));
 
-				final Location location = ball.getLocation();
+				final Location location = ball.getLoc();
 				final Point xy = new Point((int) Conversions.yardsToInches(location.getY()),
 						(int) Conversions.yardsToInches(location.getX()));
 
@@ -210,12 +217,15 @@ public class BallTestViewer implements Runnable
 				ts.rotate(90);
 				ts.set();
 				e.gc.drawImage(BallTestViewer.football, 0 - 34, 0 - 34);
+				
 			}
 			catch (final Exception e1)
 			{
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+
+			BallTestViewer.drawPerformance(e.gc);
 		});
 	}
 
@@ -254,14 +264,14 @@ public class BallTestViewer implements Runnable
 							(int) Conversions.yardsToInches(10));
 				}
 
-				final Location location = ball.getLocation();
+				final Location location = ball.getLoc();
 
 				Point xy = BallTestViewer.toXZPoint(location);
 
 				try (TransformStack ts2 = new TransformStack(e.gc))
 				{
 					ts2.translate(xy.x, xy.y);
-					ts2.rotate(Angle.ofRadians(ball.getAngularVelocity().getCurrentAngleInRadians() * -1));
+					ts2.rotate(Angle.ofRadians(ball.getAV().getOrientation() * -1));
 					ts2.set();
 					e.gc.drawImage(BallTestViewer.footballSmall, -17, -17);
 				}
@@ -277,15 +287,15 @@ public class BallTestViewer implements Runnable
 				e1.printStackTrace();
 			}
 
-			final Location location = ball.getLocation();
+			final Location location = ball.getLoc();
 
 			final StringBuilder text = new StringBuilder();
 			text.append(
 					String.format("Location  : %.2f, %.2f, %.2f\n", location.getX(), location.getY(), location.getZ()));
-			text.append(String.format("Velocity  : %s\n", ball.getLinearVelocity()));
+			text.append(String.format("Velocity  : %s\n", ball.getLV()));
 			text.append(String.format("Angular   : %.0f\u00B0, %.2f r/s\n",
-					Math.toDegrees(ball.getAngularVelocity().getCurrentAngleInRadians()),
-					ball.getAngularVelocity().getRadiansPerSecond()));
+					Math.toDegrees(ball.getAV().getOrientation()),
+					ball.getAV().getRotation()));
 			text.append(String.format("Hang Time : %.2f\n", BallTestViewer.hangTime / 1000.0));
 			text.append(String.format("Distance  : %.0f\n", BallTestViewer.ballDistance));
 			text.append(String.format("Height    : %.0f\n", BallTestViewer.ballHeight));
@@ -298,7 +308,7 @@ public class BallTestViewer implements Runnable
 			{
 				ts.translate(canvasXZ.getBounds().width - 400, canvasXZ.getBounds().y + 200);
 				ts.scale(.15f, .15f);
-				ts.rotate(Angle.ofRadians(Math.PI / 2.0 + ball.getAngularVelocity().getCurrentAngleInRadians()));
+				ts.rotate(Angle.ofRadians(Math.PI / 2.0 + ball.getAV().getOrientation()));
 				ts.set();
 				
 				e.gc.drawImage(BallTestViewer.footballBig, (int)(-footballBig.getImageData().width / 2.0) + 1, (int)(-footballBig.getImageData().height / 2.0) + 1);
@@ -396,7 +406,15 @@ public class BallTestViewer implements Runnable
 
 		try
 		{
-			new BallPhysics(ball).update(.04f);
+			Performance.cycleTime.endCycle();
+			Performance.cycleTime.beginCycle();
+			Performance.processTime.beginCycle();
+
+			BallTracker tracker = new BallTracker(ball, .04);
+			new BallPhysics().update(tracker);
+			ball.setAV(tracker.getAV());
+			ball.setLV(tracker.getLV());
+			ball.setLoc(tracker.getLoc());
 		}
 		catch (Exception e)
 		{
@@ -404,28 +422,80 @@ public class BallTestViewer implements Runnable
 			e.printStackTrace();
 		}
 
+		Performance.processTime.endCycle();
+		
+		Performance.drawTime.beginCycle();
 		BallTestViewer.canvasXY.redraw();
 		BallTestViewer.canvasXZ.redraw();
+		Performance.drawTime.endCycle();
 
+		
 		this.lastMilliseconds = System.currentTimeMillis();
 
 		if (BallTestViewer.hangTimeRunning)
 		{
-			if (BallTestViewer.ball.getLocation().getZ() < 1)
+			if (BallTestViewer.ball.getLoc().getZ() < 1)
 				BallTestViewer.hangTimeRunning = false;
 
-			BallTestViewer.ballDistance = Math.max(BallTestViewer.ball.getLocation().getX() - 10,
+			BallTestViewer.ballDistance = Math.max(BallTestViewer.ball.getLoc().getX() - 10,
 					BallTestViewer.ballDistance);
-			BallTestViewer.ballHeight = Math.max(BallTestViewer.ball.getLocation().getZ() - 0,
+			BallTestViewer.ballHeight = Math.max(BallTestViewer.ball.getLoc().getZ() - 0,
 					BallTestViewer.ballHeight);
 
 			BallTestViewer.hangTime += interval;
 		}
 
-		if (!BallTestViewer.ball.getLinearVelocity().isCloseToZero())
-			BallTestViewer.path.add(BallTestViewer.ball.getLocation());
+		if (!BallTestViewer.ball.getLV().isNotMoving())
+			BallTestViewer.path.add(BallTestViewer.ball.getLoc());
 
 		BallTestViewer.shell.getDisplay().asyncExec(this);
 	}
 
+	static double cycleRate = Performance.cycleTime.getFrameRate();
+	static double cycleTimePerFrame = Performance.cycleTime.getAvgTime();
+	static double processRate = Performance.processTime.getAvgTime();
+	static double drawRate = Performance.cycleTime.getAvgTime();
+	static double otherRate = cycleTimePerFrame - processRate - drawRate;
+	static long refreshCycleCount = System.currentTimeMillis();
+	static long freeMemory = Runtime.getRuntime().freeMemory();
+	static long totalMemory = Runtime.getRuntime().totalMemory();
+	static long maxMemory = Runtime.getRuntime().totalMemory();
+
+	private static void drawPerformance(final GC gc)
+	{
+		gc.setFont(playerDataFont);
+		gc.setForeground(black);
+
+		long current = System.currentTimeMillis();
+		if (current - refreshCycleCount > 1000)
+		{
+			cycleRate = Performance.cycleTime.getFrameRate();
+			cycleTimePerFrame = Performance.cycleTime.getAvgTime();
+			if (cycleTimePerFrame == 0)
+				return;
+
+			processRate = Performance.processTime.getAvgTime();
+			drawRate = Performance.drawTime.getAvgTime();
+			otherRate = cycleTimePerFrame - processRate - drawRate;
+			refreshCycleCount = current;
+
+			freeMemory = Runtime.getRuntime().freeMemory();
+			totalMemory = Runtime.getRuntime().totalMemory();
+			maxMemory = Runtime.getRuntime().totalMemory();
+		}
+
+		StringBuilder msg = new StringBuilder();
+		msg.append(String.format("Tick Count  : %d\n", Performance.processTime.getTickCount()));
+		msg.append(String.format("Frame Rate  : %.1f fps\n", cycleRate));
+		msg.append(String.format("Process Rate: %.1f%% (%.1f ns)\n", processRate * 100 / cycleTimePerFrame, processRate));
+		msg.append(String.format("Draw Rate   : %.1f%% (%.1f ns)\n", drawRate * 100 / cycleTimePerFrame, drawRate));
+		msg.append(String.format("Other Rate  : %.1f%%\n", otherRate * 100 / cycleTimePerFrame));
+		msg.append("\n");
+		msg.append(String.format("Max Memory  : %d MB\n", maxMemory / 1000000));
+		msg.append(String.format("Total Memory: %d MB\n", totalMemory / 1000000));
+		msg.append(String.format("Free Memory : %d MB \n", freeMemory / 1000000));
+		msg.append("\n");
+		
+		gc.drawText(msg.toString(), 10, 10, true);
+	}
 }

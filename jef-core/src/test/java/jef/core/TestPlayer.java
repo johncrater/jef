@@ -1,11 +1,9 @@
 package jef.core;
 
-import jef.core.steering.Path;
-import jef.core.steering.Steerable;
-import jef.core.steering.Waypoint;
-import jef.core.steering.Waypoint.DestinationAction;
-import jef.core.units.Field;
-import jef.core.units.Location;
+import jef.core.movement.Moveable;
+import jef.core.movement.player.DefaultPath;
+import jef.core.movement.player.Path;
+import jef.core.movement.player.Steerable;
 
 public class TestPlayer extends TestMoveable implements Player, Steerable
 {
@@ -17,22 +15,21 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 	private final double massInKilograms = 100;
 	private double heightInMeters;
 
-	private Path path;
+	private Path path = new DefaultPath();
 
 	private double turningSpeed;
 
 	public TestPlayer()
 	{
-		this.path = new Path();
-		this.path.addWaypoint(new Waypoint(Field.midfield(), 10, DestinationAction.hardStop));
 	}
 
-	@Override
-	public Location getDestination()
+	public void update(Moveable tracker)
 	{
-		return this.path.getDestination();
+		this.setAV(tracker.getAV());
+		this.setLV(tracker.getLV());
+		this.setLoc(tracker.getLoc());
 	}
-
+	
 	@Override
 	public String getFirstName()
 	{
@@ -66,7 +63,7 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 	@Override
 	public double getMaxSpeed()
 	{
-		return 10;
+		return 15;
 	}
 
 	@Override
@@ -84,7 +81,7 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 	@Override
 	public double getTurningSpeed()
 	{
-		return this.turningSpeed;
+		return 4;
 	}
 
 	public void setFirstName(final String firstName)
@@ -125,10 +122,6 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 	@Override
 	public double getDesiredSpeed()
 	{
-		Waypoint waypoint = this.getPath().getCurrentWaypoint();
-		if (waypoint == null)
-			return 0;
-		
-		return waypoint.getMaxSpeed();
+		return 10;
 	}
 }

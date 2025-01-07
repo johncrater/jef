@@ -1,15 +1,12 @@
-package jef.core.physics.ball;
+package jef.core.movement.ball;
 
-import java.util.Arrays;
-
-import jef.core.BallUtils;
-import jef.core.units.AngularVelocity;
-import jef.core.units.LinearVelocity;
+import jef.core.movement.AngularVelocity;
+import jef.core.movement.LinearVelocity;
 
 public class LinearImpact extends IndexedCalculator
 {
-	private static final double coefficientOfRestitutionMin = .5;
-	private static final double coefficientOfRestitutionMax = .6;
+	private static final double coefficientOfRestitutionMin = .75;
+	private static final double coefficientOfRestitutionMax = .82;
 
 	public LinearImpact()
 	{
@@ -59,13 +56,13 @@ public class LinearImpact extends IndexedCalculator
 	{
 		double reboundAngle = Math.toRadians(calculate(av, lv));
 		double cor = calculateCOR(av);
-		return lv.set(reboundAngle, null, lv.getDistance() * cor);
+		return lv.newFrom(reboundAngle, null, lv.getSpeed() * cor);
 	}
 
 	private double calculateCOR(final AngularVelocity av)
 	{
 		return Math.max(coefficientOfRestitutionMin,
-				(Math.abs(Math.cos(av.getCurrentAngleInRadians()))
+				(Math.abs(Math.cos(av.getOrientation()))
 						* (coefficientOfRestitutionMax - coefficientOfRestitutionMin))
 						+ coefficientOfRestitutionMin);
 	}

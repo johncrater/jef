@@ -50,13 +50,7 @@
 			<artifactId>commons-math3</artifactId>
 			<version>3.6.1</version>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>com.badlogicgames.gdx</groupId>-->
-<!--			<artifactId>gdx-ai</artifactId>-->
-<!--			<version>1.8.2</version>-->
-<!--		</dependency>-->
-		<!--
-		https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+<!--		https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>

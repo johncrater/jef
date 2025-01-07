@@ -127,6 +127,15 @@ public class TransformStack implements AutoCloseable
 		this.currentTransform.transform(floatArray);
 	}
 	
+	public Point transform(Point p)
+	{
+		float [] f = new float[] {p.x, p.y};
+		transform(f);
+		
+		Point ret = new Point((int)f[0], (int)f[1]);
+		return ret;
+	}
+	
 	public void translate(float offsetX, float offsetY)
 	{
 		this.currentTransform.translate(offsetX, offsetY);

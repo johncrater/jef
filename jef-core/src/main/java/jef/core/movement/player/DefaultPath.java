@@ -1,32 +1,35 @@
-package jef.core.steering;
+package jef.core.movement.player;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import jef.core.units.Location;
+import jef.core.movement.DefaultLocation;
+import jef.core.movement.Location;
 
-public class Path implements Iterable<Waypoint>
+public class DefaultPath implements Iterable<Waypoint>, Path
 {
 	private List<Waypoint> waypoints = new ArrayList<>();
-	private Location destination = new Location();
+	private Location destination = new DefaultLocation();
 	
-	public Path()
+	public DefaultPath()
 	{
 	}
 
+	@Override
 	public void addWaypoint(Waypoint waypoint)
 	{
 		this.waypoints.add(waypoint);
 		updateDestination();
 	}
 
+	@Override
 	public List<Waypoint> getWaypoints()
 	{
-		return Collections.unmodifiableList(waypoints);
+		return new ArrayList<Waypoint>(waypoints);
 	}
 	
+	@Override
 	public void clear()
 	{
 		this.waypoints.clear();
@@ -37,16 +40,19 @@ public class Path implements Iterable<Waypoint>
 		return this.waypoints.iterator();
 	}
 
+	@Override
 	public Waypoint getCurrentWaypoint()
 	{
-		return this.waypoints.getFirst();
+		return this.waypoints.size() > 0 ? this.waypoints.getFirst() : null;
 	}
 	
+	@Override
 	public Location getDestination()
 	{
 		return this.destination;
 	}
 	
+	@Override
 	public void removeWaypoint(Waypoint waypoint)
 	{
 		this.waypoints.remove(waypoint);

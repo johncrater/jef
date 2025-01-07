@@ -1,4 +1,4 @@
-package jef.core.physics.ball;
+package jef.core.movement.ball;
 
 import org.dyn4j.dynamics.Body;
 import org.dyn4j.geometry.Circle;
@@ -11,7 +11,7 @@ import com.synerset.unitility.unitsystem.common.MassUnits;
 import com.synerset.unitility.unitsystem.thermodynamic.Density;
 
 import jef.core.Football;
-import jef.core.units.DUnits;
+import jef.core.movement.DUnits;
 
 class PhysicsBallBase extends Body
 {
@@ -41,7 +41,7 @@ class PhysicsBallBase extends Body
 	{
 		this.football = ball;
 		this.setBullet(true);
-		this.setAngularVelocity(ball.getAngularVelocity().getRadiansPerSecond());
+		this.setAngularVelocity(ball.getAV().getRotation());
 
 		this.setMass(new org.dyn4j.geometry.Mass(new Vector2(0, 0), PhysicsBallBase.mass.getInKilograms(), 0));
 

@@ -1,106 +1,74 @@
 package jef.core;
 
-import jef.core.steering.Moveable;
-import jef.core.units.AngularVelocity;
-import jef.core.units.LinearVelocity;
-import jef.core.units.Location;
+import jef.core.movement.AngularVelocity;
+import jef.core.movement.DefaultAngularVelocity;
+import jef.core.movement.DefaultLinearVelocity;
+import jef.core.movement.DefaultLocation;
+import jef.core.movement.LinearVelocity;
+import jef.core.movement.Location;
+import jef.core.movement.Moveable;
 
 public class TestMoveable implements Moveable
 {
 	private AngularVelocity angularVelocity;
 	private LinearVelocity linearVelocity;
 	private Location location;
-	
-	public TestMoveable(Location location, LinearVelocity linearVelocity, AngularVelocity angularVelocity)
+
+	public TestMoveable()
+	{
+		this.location = new DefaultLocation();
+		this.linearVelocity = new DefaultLinearVelocity();
+		this.angularVelocity = new DefaultAngularVelocity();
+	}
+
+	public TestMoveable(final Location location, final LinearVelocity linearVelocity,
+			final AngularVelocity angularVelocity)
 	{
 		this.location = location;
 		this.linearVelocity = linearVelocity;
 		this.angularVelocity = angularVelocity;
 	}
 
-	public TestMoveable()
+	public TestMoveable(final Moveable moveable)
 	{
-		this.location = new Location();
-		this.linearVelocity = new LinearVelocity();
-		this.angularVelocity = new AngularVelocity();
-	}
-
-	public TestMoveable(Moveable moveable)
-	{
-		this.location = moveable.getLocation();
-		this.linearVelocity = moveable.getLinearVelocity();
-		this.angularVelocity = moveable.getAngularVelocity();
+		this.location = moveable.getLoc();
+		this.linearVelocity = moveable.getLV();
+		this.angularVelocity = moveable.getAV();
 	}
 
 	@Override
-	public AngularVelocity getAngularVelocity()
+	public AngularVelocity getAV()
 	{
 		return this.angularVelocity;
 	}
 
 	@Override
-	public LinearVelocity getLinearVelocity()
+	public LinearVelocity getLV()
 	{
 		return this.linearVelocity;
 	}
 
 	@Override
-	public Location getLocation()
+	public Location getLoc()
 	{
 		return this.location;
 	}
 
 	@Override
-	public void setAngularVelocity(AngularVelocity angularVelocity)
+	public void setAV(final AngularVelocity angularVelocity)
 	{
 		this.angularVelocity = angularVelocity;
 	}
 
 	@Override
-	public void setLinearVelocity(LinearVelocity lv)
+	public void setLV(final LinearVelocity lv)
 	{
 		this.linearVelocity = lv;
 	}
 
 	@Override
-	public void setLocation(Location location)
+	public void setLoc(final Location location)
 	{
 		this.location = location;
-	}
-
-	@Override
-	public void turn(double angle)
-	{
-		this.linearVelocity = linearVelocity.set(null, angle, null);
-	}
-
-	@Override
-	public void move(double distance)
-	{
-		this.location = this.location.adjust(this.linearVelocity.set(null, null, distance));
-	}
-
-	@Override
-	public void move(LinearVelocity lv)
-	{
-		this.location = this.location.adjust(lv);
-	}
-
-	@Override
-	public void adjustSpeed(double speedDelta)
-	{
-		this.linearVelocity = this.linearVelocity.add(0, 0, speedDelta);
-	}
-
-	@Override
-	public void setSpeed(double newSpeed)
-	{
-		this.linearVelocity = this.linearVelocity.set(null, null, newSpeed);
-	}
-
-	@Override
-	public double getSpeed()
-	{
-		return this.linearVelocity.getDistance();
 	}
 }

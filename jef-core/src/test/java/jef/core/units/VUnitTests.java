@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import com.synerset.unitility.unitsystem.common.Velocity;
 
+import jef.core.movement.VUnits;
+
 class VUnitTests
 {
 

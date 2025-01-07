@@ -1,8 +1,8 @@
-package jef.core.physics.ball;
+package jef.core.movement.ball;
 
 import jef.core.BallUtils;
-import jef.core.units.AngularVelocity;
-import jef.core.units.LinearVelocity;
+import jef.core.movement.AngularVelocity;
+import jef.core.movement.LinearVelocity;
 
 public class AngularImpact extends IndexedCalculator
 {
@@ -31,15 +31,22 @@ public class AngularImpact extends IndexedCalculator
 		// index is incident angle / 10.
 		// value is w2 / w1 rad/s
 		obliqueTopspin = new double []
-		{ 1.7 * -17, 2.1 * -17, 2.6 * -17, 2.7 * -17, 2.9 * -17, 3.2 * -17, 3.1 * -17, 3.0 * -17, 2.8 * -17, 2.6 * -17,
-				2.4 * -17, 1.8 * -17, 1.4 * -17, 1.0 * -17, 1.2 * -17, 1.5 * -17, 1.7 * -17, 2.1 * -17 };
+				{ 1.9 * 17, 2.3 * 17, 2.6 * 17, 2.9 * 17, 3.2 * 17, 3.3 * 17, 3.2 * 17, 3.1 * 17, 2.8 * 17, 2.6 * 17, 2.3 * 17,
+						1.8 * 17, 1.4 * 17, 1.2 * 17, 0.9 * 17, 0.8 * 17, 1.1 * 17, 1.6 * 17, 1.9 * 17 };
 
 	}
 	
-	public AngularVelocity calculateAVAdjustment(final AngularVelocity av, final LinearVelocity lv)
+	public double calculateAVAdjustment(final AngularVelocity av, final LinearVelocity lv)
 	{
-		final double newVelocity = calculate(av, lv);
-		return new AngularVelocity(av.getCurrentAngleInRadians(), newVelocity);
+		double indexedValue = calculate(av, lv);
+
+		if (BallUtils.hasBackSpin(av, lv))
+			return Math.clamp(indexedValue / -17.0 * av.getRotation(), -30, 30);
+
+		if (BallUtils.hasTopSpin(av, lv))
+			return Math.clamp(indexedValue / 17.0 * av.getRotation(), -30, 30);
+		
+		return Math.clamp(indexedValue, -30, 30);
 	}
 
 }

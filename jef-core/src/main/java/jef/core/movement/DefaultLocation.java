@@ -1,69 +1,77 @@
-package jef.core.units;
+package jef.core.movement;
 
 import java.util.Objects;
 
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.util.Precision;
 
-public class Location
+public class DefaultLocation implements Location
 {
-	public static boolean withinEpsilon(double v1, double v2)
-	{
-		return Math.abs(v1 - v2) < EPSILON;
-	}
-	
-	public static final double EPSILON = .02;
-
 	private double x;
 	private double y;
 	private double z;
 
-	public Location()
+	public DefaultLocation()
 	{
 	}
 	
-	public Location(double x, double y, double z)
+	public DefaultLocation(double x, double y, double z)
 	{
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		this.x = Precision.round(x, 8);
+		this.y = Precision.round(y, 8);
+		this.z = Precision.round(z, 8);
+	}
+	
+	public DefaultLocation(Vector3D vector)
+	{
+		this(vector.getX(), vector.getY(), vector.getZ());
 	}
 
+	@Override
 	public double distanceBetween(Location loc)
 	{
 		return Math.sqrt(Math.pow(getX() - loc.getX(), 2) + Math.pow(getY() - loc.getY(), 2) + Math.pow(getZ() - loc.getZ(), 2));
 	}
 	
+	@Override
 	public boolean closeEnoughTo(Location loc, double distance)
 	{
 		return distanceBetween(loc) <= distance;
 	}
 	
+	@Override
 	public boolean closeEnoughTo(Location loc)
 	{
 		return closeEnoughTo(loc, EPSILON);
 	}
 	
+	@Override
 	public double angleTo(Location loc)
 	{
 		return Math.atan2(loc.getY() - getY(), loc.getX() - getX());
 	}
 	
-	public Location adjust(double x, double y, double z)
+	@Override
+	public DefaultLocation add(double x, double y, double z)
 	{
-		return new Location(this.x + x, this.y + y, this.z + z);
+		return new DefaultLocation(this.x + x, this.y + y, this.z + z);
 	}
 
-	public Location adjust(LinearVelocity lv)
+	@Override
+	public DefaultLocation add(LinearVelocity lv)
 	{
-		return adjust(lv.getX(), lv.getY(), lv.getZ());
+		return add(lv.getX(), lv.getY(), lv.getZ());
 	}
 
-	public Location adjust(Location loc)
+	@Override
+	public Location add(Location loc)
 	{
-		return adjust(loc.getX(), loc.getY(), loc.getZ());
+		return add(loc.getX(), loc.getY(), loc.getZ());
 	}
 
-	public Location set(Double x, Double y, Double z)
+	@Override
+	public Location newFrom(Double x, Double y, Double z)
 	{
 		if (x == null)
 			x = getX();
@@ -74,7 +82,7 @@ public class Location
 		if (z == null)
 			z = getZ();
 		
-		return new Location(x, y, z);
+		return new DefaultLocation(x, y, z);
 	}
 	
 	@Override
@@ -93,16 +101,19 @@ public class Location
 				&& Precision.equals(getZ(), other.getZ(), Location.EPSILON);
 	}
 
+	@Override
 	public double getX()
 	{
 		return x;
 	}
 
+	@Override
 	public double getY()
 	{
 		return y;
 	}
 
+	@Override
 	public double getZ()
 	{
 		return z;
@@ -112,6 +123,19 @@ public class Location
 	public int hashCode()
 	{
 		return Objects.hash(x, y, z);
+	}
+
+	
+	@Override
+	public Vector3D toVector3D()
+	{
+		return new Vector3D(x, y, z);
+	}
+
+	@Override
+	public Vector2D toVector2D()
+	{
+		return new Vector2D(x, y);
 	}
 
 	@Override

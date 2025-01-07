@@ -1,10 +1,10 @@
-package jef.core.physics.ball;
+package jef.core.movement.ball;
 
 import java.util.Arrays;
 
 import jef.core.BallUtils;
-import jef.core.units.AngularVelocity;
-import jef.core.units.LinearVelocity;
+import jef.core.movement.AngularVelocity;
+import jef.core.movement.LinearVelocity;
 
 public class IndexedCalculator
 {
@@ -55,12 +55,12 @@ public class IndexedCalculator
 
 	protected double calculatePhi(AngularVelocity av, LinearVelocity lv)
 	{
-		return Math.toDegrees(lv.movingLeft() ? Math.PI - av.getCurrentAngleInRadians() : av.getCurrentAngleInRadians());
+		return Math.toDegrees(lv.movingLeft() ? Math.PI - av.getOrientation() : av.getOrientation());
 	}
 	
 	protected double calculateTheta(LinearVelocity lv)
 	{
-		return 180 - Math.toDegrees(lv.getAltitude() + Math.PI);
+		return 180 - Math.toDegrees(lv.getElevation() + Math.PI);
 	}
 	
 	protected double[] buildIndex(final double impactAngleInDegrees)
@@ -106,7 +106,7 @@ public class IndexedCalculator
 		if (BallUtils.hasTopSpin(av, lv))
 			return (indexValue + indexValue(phi, obliqueTopspin)) / 2.0;
 
-		if (LinearVelocity.withinEpsilon(lv.getAltitude(), -Math.PI / 2))
+		if (LinearVelocity.equals(lv.getElevation(), -Math.PI / 2))
 			return indexValue(phi, verticalNoSpin);
 
 		return (indexValue + indexValue(phi, obliqueNoSpin)) / 2.0;

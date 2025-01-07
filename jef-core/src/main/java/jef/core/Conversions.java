@@ -2,7 +2,7 @@ package jef.core;
 
 import com.synerset.unitility.unitsystem.common.Distance;
 
-import jef.core.units.DUnits;
+import jef.core.movement.DUnits;
 
 public interface Conversions
 {

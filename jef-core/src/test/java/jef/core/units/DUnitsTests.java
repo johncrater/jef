@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import com.synerset.unitility.unitsystem.common.Distance;
 
+import jef.core.movement.DUnits;
+
 public class DUnitsTests
 {
 	@Test

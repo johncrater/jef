@@ -1,4 +1,4 @@
-package jef.core.steering;
+package jef.core.movement.player;
 
 public enum Speed
 {

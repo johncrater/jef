@@ -1,14 +1,13 @@
-package jef.core.physics.ball;
+package jef.core.movement.ball;
 
 import com.synerset.unitility.unitsystem.common.Mass;
 import com.synerset.unitility.unitsystem.common.Velocity;
 import com.synerset.unitility.unitsystem.mechanical.Force;
 
-import jef.core.BallUtils;
 import jef.core.Conversions;
-import jef.core.units.AngularVelocity;
-import jef.core.units.LinearVelocity;
-import jef.core.units.VUnits;
+import jef.core.movement.AngularVelocity;
+import jef.core.movement.LinearVelocity;
+import jef.core.movement.VUnits;
 
 public class Friction extends IndexedCalculator
 {
@@ -31,22 +30,34 @@ public class Friction extends IndexedCalculator
 
 	}
 
-	public AngularVelocity calculateAVAdjustment(final AngularVelocity av, final LinearVelocity lv)
+	public double calculateAVAdjustment(final AngularVelocity av, final LinearVelocity lv)
 	{
 		final double coefficientOfFriction = calculate(av, lv);
 
-		final double xyDistance = lv.getXYDistance();
-		if (!LinearVelocity.withinEpsilon(0, xyDistance))
-			return new AngularVelocity(0, (-1 * (xyDistance * coefficientOfFriction)) / xyDistance);
+		final double xySpeed = lv.getXYSpeed();
+		if (!LinearVelocity.equals(0, xySpeed))
+			return -1 * (xySpeed * coefficientOfFriction) / xySpeed;
 
-		return new AngularVelocity();
+		return 0;
 	}
 
 	public double calculateLVAdjustment(final AngularVelocity av, final LinearVelocity lv, final Mass mass)
 	{
 		final double coefficientOfFriction = calculate(av, lv);
 
-		final var currentVelocity = Velocity.of(lv.getDistance(), VUnits.YPS);
+		final var currentVelocity = Velocity.of(lv.getSpeed(), VUnits.YPS);
+
+		final var frictionForce = Force
+				.ofNewtons(mass.getInKilograms() * currentVelocity.getInMetersPerSecond() * coefficientOfFriction);
+
+		final double velocityReduction = Conversions
+				.metersToYards(frictionForce.div(mass.getInKilograms()).getInNewtons());
+		return -velocityReduction;
+	}
+
+	public double calculateLVSlidingFrictionAdjustment(final LinearVelocity lv, final Mass mass, double coefficientOfFriction)
+	{
+		final var currentVelocity = Velocity.of(lv.getSpeed(), VUnits.YPS);
 
 		final var frictionForce = Force
 				.ofNewtons(mass.getInKilograms() * currentVelocity.getInMetersPerSecond() * coefficientOfFriction);

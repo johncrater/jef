@@ -1,6 +1,14 @@
-package jef.core.units;
+package jef.core;
+
+import org.apache.commons.math3.geometry.euclidean.threed.Plane;
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import com.synerset.unitility.unitsystem.common.Distance;
+
+import jef.core.movement.DUnits;
+import jef.core.movement.DefaultLocation;
+import jef.core.movement.LinearVelocity;
+import jef.core.movement.Location;
 
 public class Field
 {
@@ -51,7 +59,8 @@ public class Field
 
 	public static Location midfield()
 	{
-		return new Location(FIELD_TOTAL_LENGTH / 2, FIELD_TOTAL_WIDTH / 2, 0.0);
+		return new DefaultLocation(FIELD_TOTAL_LENGTH / 2, FIELD_TOTAL_WIDTH / 2, 0.0);
 	}
 	
+	public static final Plane thePlane = new Plane(new Vector3D(0, 0, 1).normalize(), LinearVelocity.EPSILON);
 }

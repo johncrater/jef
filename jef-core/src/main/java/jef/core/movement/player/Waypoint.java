@@ -1,10 +1,10 @@
-package jef.core.steering;
+package jef.core.movement.player;
 
-import jef.core.units.Location;
+import jef.core.movement.Location;
 
 public class Waypoint
 {
-	public enum DestinationAction { hardStop, softStop, runThrough, angleForNextWaypoint }
+	public enum DestinationAction { fastStop, normalStop, slowStop, noStop}
 	
 	private Location destination;
 	private double maxSpeed;
@@ -50,6 +50,12 @@ public class Waypoint
 	public void setDestinationAction(DestinationAction destinationAction)
 	{
 		this.destinationAction = destinationAction;
+	}
+
+	@Override
+	public String toString()
+	{
+		return String.format("%s %3.1f %s", this.destination, this.maxSpeed, this.destinationAction);
 	}
 
 }
