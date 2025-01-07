@@ -4,8 +4,6 @@ import jef.core.movement.Moveable;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.Steerable;
-import jef.core.movement.player.Waypoint;
-import jef.core.movement.player.Waypoint.DestinationAction;
 
 public class TestPlayer extends TestMoveable implements Player, Steerable
 {
@@ -17,14 +15,12 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 	private final double massInKilograms = 100;
 	private double heightInMeters;
 
-	private Path path;
+	private Path path = new DefaultPath();
 
 	private double turningSpeed;
 
 	public TestPlayer()
 	{
-		this.path = new DefaultPath();
-		this.path.addWaypoint(new Waypoint(Field.midfield(), 10, DestinationAction.fastStop));
 	}
 
 	public void update(Moveable tracker)

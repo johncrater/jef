@@ -23,15 +23,15 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
-import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.DefaultLocation;
 import jef.core.movement.Location;
+import jef.core.movement.player.DefaultPath;
+import jef.core.movement.player.Path;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
@@ -146,7 +146,18 @@ public class PlayerTestViewer implements Runnable
 	{
 		player = new TestPlayer();
 		player.setNumber(44);
+		Path path = new DefaultPath();
+		path.addWaypoint(new Waypoint(Field.midfield(), 10, DestinationAction.fastStop));
+		player.setPath(path);
 		this.players.add(player);
+		
+		TestPlayer p = new TestPlayer();
+		p.setNumber(10);
+		p.setLoc(Field.midfield());
+		path = new DefaultPath();
+		path.addWaypoint(new Waypoint(Field.midfield(), 10, DestinationAction.fastStop));
+		p.setPath(path);
+		this.players.add(p);
 	}
 
 	private void createCanvas()
@@ -161,6 +172,7 @@ public class PlayerTestViewer implements Runnable
 
 		canvas.addPaintListener(e ->
 		{
+			Performance.drawTime.beginCycle();
 			try (TransformStack ts = new TransformStack(e.gc))
 			{
 				float scaleX = (float)(canvas.getClientArea().width / totalLength);
@@ -184,6 +196,7 @@ public class PlayerTestViewer implements Runnable
 			{
 				e1.printStackTrace();
 			}
+			Performance.drawTime.endCycle();
 		});
 		
 		canvas.addMouseListener(new MouseAdapter() 
@@ -256,16 +269,16 @@ public class PlayerTestViewer implements Runnable
 		Point extent = gc.textExtent(playerNumber);
 		
 		gc.drawText(playerNumber, p.x - extent.x / 2, p.y - extent.y  / 2);
-		
+
 		StringBuilder str = new StringBuilder();
-		str.append(String.format("Name            : %s %s\n", player.getFirstName(), player.getLastName()));
-		str.append(String.format("Location        : %s\n", player.getLoc()));
-		str.append(String.format("Linear velocity : %s\n", player.getLV()));
-		str.append(String.format("Angular velocity: %s\n", player.getAV()));
+		str.append(String.format("Name            : %s %s\n", this.player.getFirstName(), this.player.getLastName()));
+		str.append(String.format("Location        : %s\n", this.player.getLoc()));
+		str.append(String.format("Linear velocity : %s\n", this.player.getLV()));
+		str.append(String.format("Angular velocity: %s\n", this.player.getAV()));
 		str.append(String.format("\n"));
 		
-		for (Waypoint wp : player.getPath().getWaypoints())
-			str.append(String.format("       waypoint : %s - Dist: %.2f\n", wp, player.getLoc().distanceBetween(wp.getDestination())));
+		for (Waypoint wp : this.player.getPath().getWaypoints())
+			str.append(String.format("       waypoint : %s - Dist: %.2f\n", wp, this.player.getLoc().distanceBetween(wp.getDestination())));
 		
 		gc.setFont(playerDataFont);
 		gc.setForeground(yellow);
@@ -310,9 +323,7 @@ public class PlayerTestViewer implements Runnable
 		}
 		Performance.processTime.endCycle();
 		
-		Performance.drawTime.beginCycle();
 		canvas.redraw();
-		Performance.drawTime.endCycle();
 
 		this.lastMilliseconds = System.currentTimeMillis();
 		shell.getDisplay().asyncExec(this);
