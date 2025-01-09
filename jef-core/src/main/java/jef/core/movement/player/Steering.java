@@ -201,58 +201,58 @@ public class Steering
 	 * @param radiusInYards
 	 * @return
 	 */
-	private double calculateMaximumSpeedForRadiusTurn(final double radiusInYards, final double maximumSpeed)
-	{
-		double ret = 1;
-
-		if (radiusInYards <= 1.1)
-		{
-			ret = (radiusInYards / 1.1) * .4;
-		}
-		else if (radiusInYards <= 2.2)
-		{
-			ret = .4 + ((radiusInYards - 1.1) * .1);
-		}
-		else if (radiusInYards <= 3.3)
-		{
-			ret = .5 + ((radiusInYards - 2.2) * .1);
-		}
-		else if (radiusInYards <= 4.4)
-		{
-			ret = .6 + ((radiusInYards - 3.3) * .1);
-		}
-		else if (radiusInYards <= 5.5)
-		{
-			ret = .65 + ((radiusInYards - 4.4) * .05);
-		}
-		else if (radiusInYards <= 6.6)
-		{
-			ret = .70 + ((radiusInYards - 5.5) * .05);
-		}
-		else if (radiusInYards <= 7.7)
-		{
-			ret = .75 + ((radiusInYards - 6.6) * .05);
-		}
-		else if (radiusInYards <= 8.8)
-		{
-			ret = .80 + ((radiusInYards - 7.7) * .05);
-		}
-		else if (radiusInYards <= 9.9)
-		{
-			ret = .85 + ((radiusInYards - 8.8) * .05);
-		}
-		else if (radiusInYards <= 11)
-		{
-			ret = .90 + ((radiusInYards - 9.9) * .05);
-		}
-		else if (radiusInYards <= 12.1)
-		{
-			ret = .95 + ((radiusInYards - 11) * .05);
-		}
-
-		return ret * maximumSpeed;
-	}
-
+//	private double calculateMaximumSpeedForRadiusTurn(final double radiusInYards, final double maximumSpeed)
+//	{
+//		double ret = 1;
+//
+//		if (radiusInYards <= 1.1)
+//		{
+//			ret = (radiusInYards / 1.1) * .4;
+//		}
+//		else if (radiusInYards <= 2.2)
+//		{
+//			ret = .4 + ((radiusInYards - 1.1) * .1);
+//		}
+//		else if (radiusInYards <= 3.3)
+//		{
+//			ret = .5 + ((radiusInYards - 2.2) * .1);
+//		}
+//		else if (radiusInYards <= 4.4)
+//		{
+//			ret = .6 + ((radiusInYards - 3.3) * .1);
+//		}
+//		else if (radiusInYards <= 5.5)
+//		{
+//			ret = .65 + ((radiusInYards - 4.4) * .05);
+//		}
+//		else if (radiusInYards <= 6.6)
+//		{
+//			ret = .70 + ((radiusInYards - 5.5) * .05);
+//		}
+//		else if (radiusInYards <= 7.7)
+//		{
+//			ret = .75 + ((radiusInYards - 6.6) * .05);
+//		}
+//		else if (radiusInYards <= 8.8)
+//		{
+//			ret = .80 + ((radiusInYards - 7.7) * .05);
+//		}
+//		else if (radiusInYards <= 9.9)
+//		{
+//			ret = .85 + ((radiusInYards - 8.8) * .05);
+//		}
+//		else if (radiusInYards <= 11)
+//		{
+//			ret = .90 + ((radiusInYards - 9.9) * .05);
+//		}
+//		else if (radiusInYards <= 12.1)
+//		{
+//			ret = .95 + ((radiusInYards - 11) * .05);
+//		}
+//
+//		return ret * maximumSpeed;
+//	}
+//
 	private double calculateSpeed(final double elapsedTime)
 	{
 		double currentSpeed = 0;
@@ -330,26 +330,26 @@ public class Steering
 		return 12.1f;
 	}
 
-	private double calculateTurnSpeedAdjustment(final PlayerTracker tracker)
-	{
-		double turnSpeedAdjustment = 0;
-		
-		final double minTurnRadius = this.calculateTightestRadiusTurnForAtSpeed(tracker.getLV().getSpeed(),
-				this.getMaxSpeed());
-
-		// can we actually even make a turn at this speed
-		final double maxSpeedToMakeTurn = this.calculateMaximumSpeedForRadiusTurn(minTurnRadius, this.getMaxSpeed());
-		if (maxSpeedToMakeTurn < tracker.getLV().getSpeed())
-			return Math.max(maxSpeedToMakeTurn - (tracker.getLV().getSpeed()), Player.maximumDecelerationRate);
-
-		// if we still can't make the turn given the limitations of the waypoint's
-		// turnSpeed
-		// we will just have to try harder. Otherwise, we could loop for ever in a
-		// perpetual holding pattern
-		
-		return turnSpeedAdjustment;
-	}
-
+//	private double calculateTurnSpeedAdjustment(final PlayerTracker tracker)
+//	{
+//		double turnSpeedAdjustment = 0;
+//		
+//		final double minTurnRadius = this.calculateTightestRadiusTurnForAtSpeed(tracker.getLV().getSpeed(),
+//				this.getMaxSpeed());
+//
+//		// can we actually even make a turn at this speed
+//		final double maxSpeedToMakeTurn = this.calculateMaximumSpeedForRadiusTurn(minTurnRadius, this.getMaxSpeed());
+//		if (maxSpeedToMakeTurn < tracker.getLV().getSpeed())
+//			return Math.max(maxSpeedToMakeTurn - (tracker.getLV().getSpeed()), Player.maximumDecelerationRate);
+//
+//		// if we still can't make the turn given the limitations of the waypoint's
+//		// turnSpeed
+//		// we will just have to try harder. Otherwise, we could loop for ever in a
+//		// perpetual holding pattern
+//		
+//		return turnSpeedAdjustment;
+//	}
+//
 	private void coastToAStop(final PlayerTracker tracker)
 	{
 		// coast to a stop

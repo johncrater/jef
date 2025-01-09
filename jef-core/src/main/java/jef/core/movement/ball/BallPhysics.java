@@ -1,6 +1,7 @@
 package jef.core.movement.ball;
 
 import com.synerset.unitility.unitsystem.common.Area;
+import com.synerset.unitility.unitsystem.common.Distance;
 import com.synerset.unitility.unitsystem.common.Mass;
 import com.synerset.unitility.unitsystem.common.MassUnits;
 import com.synerset.unitility.unitsystem.common.Velocity;
@@ -29,12 +30,12 @@ public class BallPhysics
 	public static final Mass mass = Mass.of(14.5, MassUnits.OUNCE);
 	public static final Density density = Density.ofKilogramPerCubicMeter(.1);
 	public static final Area areaOfTheMajorAxis = Area
-			.ofSquareInches(((PhysicsBallBase.lengthOfTheMajorAxis.getInInches() / 2) * Math.PI
-					* PhysicsBallBase.lengthOfTheMinorAxis.getInInches()) / 2);
+			.ofSquareInches(((Distance.ofInches(11.25f).getInInches() / 2) * Math.PI
+					* Distance.ofInches(6.70f).getInInches()) / 2);
 	public static final Area areaOfTheMinorAxis = Area
-			.ofSquareInches(Math.PI * PhysicsBallBase.lengthOfTheMinorAxis.getInInches());
+			.ofSquareInches(Math.PI * Distance.ofInches(6.70f).getInInches());
 	public static final double dragCoefficientSpiral = .19f;
-	public static final double dragCoefficientEndOverEnd = (.75f + PhysicsBallBase.dragCoefficientSpiral) / 2;
+	public static final double dragCoefficientEndOverEnd = (.75f + (double) .19f) / 2;
 
 	private Friction friction = new Friction();
 	private LinearImpact linearImpact = new LinearImpact();

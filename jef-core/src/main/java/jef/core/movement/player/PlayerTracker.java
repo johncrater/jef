@@ -2,13 +2,10 @@ package jef.core.movement.player;
 
 
 
-import java.util.List;
-
 import org.apache.commons.math3.geometry.euclidean.twod.SubLine;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
 import jef.core.Player;
-import jef.core.movement.Collision;
 import jef.core.movement.Location;
 import jef.core.movement.Tracker;
 

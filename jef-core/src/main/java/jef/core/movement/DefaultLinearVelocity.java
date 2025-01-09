@@ -1,6 +1,5 @@
 package jef.core.movement;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
