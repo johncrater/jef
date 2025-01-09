@@ -78,7 +78,7 @@ public class Steering
 			// calculate where we are in the acceleration cycle
 			double elapsedTime = this
 					.calculateElapsedTime((tracker.getLV().getSpeed() + speedAdjustment) / this.getMaxSpeed());
-			elapsedTime += tracker.getRemainingTime();
+			elapsedTime += tracker.getRemainingTime() * tracker.getAccelerationCoefficient();
 			double newSpeed = this.calculateSpeed(elapsedTime);
 			newSpeed *= this.getMaxSpeed();
 			newSpeed = Math.min(newSpeed, this.steerable.getDesiredSpeed());
@@ -137,30 +137,11 @@ public class Steering
 		return decelerationAdjustment;
 	}
 
-	private double calculateDistanceNeededToCompleteTurn(final double angle, final double speed,
-			final double maximumSpeed)
-	{
-		// angle could be negative. But we are only interested in abs value
-		final double minTurnRadius = this.calculateTightestRadiusTurnForAtSpeed(speed, maximumSpeed);
-		return Math.abs(minTurnRadius * angle);
-	}
-
 	private double calculateDistanceNeededToCompleteTurn(final PlayerTracker tracker, final double newAngle)
 	{
 		final double minTurnRadius = this.calculateTightestRadiusTurnForAtSpeed(tracker.getLV().getSpeed(),
-				this.getMaxSpeed());
-		double distanceNeededToCompleteTurn = Math.abs(minTurnRadius * newAngle);
-
-		if ((distanceNeededToCompleteTurn > 0)
-				&& (distanceNeededToCompleteTurn > tracker.getLoc().distanceBetween(this.getDestination())))
-		{
-//			this.buildMessage(String.format("%-25s: %s", "Turn Speed Adj.", String.format("%3.2f %s", tracker.getPctRemaining(), lvAccumulator)));
-
-			distanceNeededToCompleteTurn = this.calculateDistanceNeededToCompleteTurn(newAngle,
-					tracker.getLV().getSpeed(), this.getMaxSpeed());
-		}
-
-		return distanceNeededToCompleteTurn;
+				this.getMaxSpeed()) / tracker.getAccelerationCoefficient();
+		return  Math.abs(minTurnRadius * newAngle);
 	}
 
 	private double calculateElapsedTime(final double pctOfMaxSpeed)
@@ -353,14 +334,14 @@ public class Steering
 	private void coastToAStop(final PlayerTracker tracker)
 	{
 		// coast to a stop
-		tracker.moveRemaining(Player.normalDecelerationRate);
+		tracker.moveRemaining(Player.normalDecelerationRate * tracker.getAccelerationCoefficient());
 		this.buildMessage(String.format("%-25s: %s", "Coasting To Stop",
 				String.format("%3.2f %s %s", tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
 	}
 
 	private double decelerate(final PlayerTracker tracker, final double finalVelocity, final double distanceRemaining)
 	{
-		final double decelerationRate = switch (tracker.getPath().getCurrentWaypoint().getDestinationAction())
+		final double decelerationRate = tracker.getAccelerationCoefficient() * switch (tracker.getPath().getCurrentWaypoint().getDestinationAction())
 		{
 			case fastStop -> Player.maximumDecelerationRate;
 			case normalStop -> Player.normalDecelerationRate;
@@ -410,7 +391,7 @@ public class Steering
 		// we use normal deceleration rate since we are out of control and it takes
 		// control to decelerate
 		// at the fasted rate
-		double adjustment = Player.normalDecelerationRate;
+		double adjustment = Player.normalDecelerationRate * tracker.getAccelerationCoefficient();
 		final double adjustedSpeed = tracker.calculateAdjustedSpeed(adjustment);
 		if (adjustedSpeed > this.getMaxSpeed())
 		{
@@ -445,7 +426,7 @@ public class Steering
 			
 			if (distanceUsed < distanceNeededToCompleteTurn)
 			{
-				turnSpeedAdjustment = Player.maximumDecelerationRate;
+				turnSpeedAdjustment = Player.maximumDecelerationRate * tracker.getAccelerationCoefficient();
 				this.buildMessage(String.format("%-25s: \t%4f", "Turn Speed Adjustment", turnSpeedAdjustment));
 			}
 			
