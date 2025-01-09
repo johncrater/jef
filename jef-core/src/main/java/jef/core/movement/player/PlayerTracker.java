@@ -2,14 +2,12 @@ package jef.core.movement.player;
 
 
 
-import java.util.List;
-
 import org.apache.commons.math3.geometry.euclidean.twod.SubLine;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
 import jef.core.Player;
-import jef.core.movement.Collision;
 import jef.core.movement.Location;
+import jef.core.movement.Posture;
 import jef.core.movement.Tracker;
 
 public class PlayerTracker extends Tracker implements Player
@@ -71,6 +69,36 @@ public class PlayerTracker extends Tracker implements Player
 	public String getLastName()
 	{
 		return player.getLastName();
+	}
+
+	@Override
+	public double getSpeed(Type type)
+	{
+		return player.getSpeed(type);
+	}
+
+	@Override
+	public void setPath(Path path)
+	{
+		player.setPath(path);
+	}
+
+	@Override
+	public Posture getPosture()
+	{
+		return player.getPosture();
+	}
+
+	@Override
+	public double getAccelerationCoefficient()
+	{
+		return player.getAccelerationCoefficient();
+	}
+
+	@Override
+	public void setPosture(Posture posture)
+	{
+		player.setPosture(posture);
 	}
 
 	@Override

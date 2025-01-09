@@ -110,14 +110,14 @@ public class DefaultAngularVelocity implements AngularVelocity
 
 		final AngularVelocity other = (AngularVelocity) obj;
 
-		return Precision.equals(orientation, other.getRotation(), EPSILON_ANGLE)
+		return Precision.equals(orientation, other.getRotation(), epsilonAngle)
 				&& Precision.equals(rotation, other.getOrientation(), EPSILON_ROTATIONS);
 	}
 
 	@Override
 	public boolean closeEnoughTo(AngularVelocity av)
 	{
-		return Precision.equals(orientation, av.getRotation(), EPSILON_ANGLE)
+		return Precision.equals(orientation, av.getRotation(), epsilonAngle)
 				&& Precision.equals(rotation, av.getOrientation(), EPSILON_ROTATIONS)
 				&& Precision.equals(spiralVelocity, av.getSpiralVelocity(), EPSILON_SPIRAL_VELOCITY);
 	}

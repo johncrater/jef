@@ -1,9 +1,11 @@
 package jef.core;
 
 import jef.core.movement.Moveable;
+import jef.core.movement.Posture;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.Steerable;
+import jef.core.movement.player.Steerable.Type;
 
 public class TestPlayer extends TestMoveable implements Player, Steerable
 {
@@ -21,6 +23,30 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.id = firstName + lastName;
+	}
+
+	@Override
+	public double getSpeed(Type type)
+	{
+		return 10;
+	}
+
+	@Override
+	public Posture getPosture()
+	{
+		return Posture.upright;
+	}
+
+	@Override
+	public void setPosture(Posture posture)
+	{
+	}
+
+	@Override
+	public double getAccelerationCoefficient()
+	{
+		// TODO Auto-generated method stub
+		return 1;
 	}
 
 	public void update(Moveable tracker)
