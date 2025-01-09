@@ -97,7 +97,7 @@ public class BallTracker extends Tracker
 		// if the ball is not moving and it is sitting within EPSILON of the ground, we
 		// consider it stopped. It might be not moving but above ground when it reaches
 		// apogee. That is why we check for close to the ground
-		if (Location.withinEpsilon(0, getLoc().getZ()) && getLV().isNotMoving())
+		if (Location.closeEnoughTo(0, getLoc().getZ()) && getLV().isNotMoving())
 		{
 			setLV(getLV().newFrom(0.0, null, null));
 			setAV(new DefaultAngularVelocity());

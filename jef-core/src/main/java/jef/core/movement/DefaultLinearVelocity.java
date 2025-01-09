@@ -25,34 +25,47 @@ public class DefaultLinearVelocity implements LinearVelocity
 	
 	public DefaultLinearVelocity(double elevation, double azimuth, double speed)
 	{
+		// sometimes, for legitimate reasons, one of the these can come up NaN.
+		
+		if (Double.isNaN(elevation))
+			elevation = 0;
+		
+		if (Double.isNaN(azimuth))
+			azimuth = 0;
+		
+		if (Double.isNaN(speed))
+			speed = 0;
+		
+		if (speed < 0)
+		{
+			azimuth += Math.PI;
+			elevation *= -1;
+			speed *= -1;
+		}
+		
+		azimuth = MathUtils.normalizeAngle(azimuth, 0.0);
+		
+		elevation = MathUtils.normalizeAngle(elevation, 0.0);
+		
+		if (elevation > Math.PI / 2)
+		{
+			elevation = Math.PI - elevation;
+			azimuth += Math.PI;
+		}
+		
+		if (elevation < -Math.PI / 2)
+		{
+			elevation = Math.PI + elevation;
+			azimuth -= Math.PI;
+		}
+
+		azimuth = MathUtils.normalizeAngle(azimuth, 0.0);
+
 		this.elevation = elevation;
 		this.azimuth = azimuth;
 		this.speed = speed;
 		
-		if (this.speed < 0)
-		{
-			this.azimuth += Math.PI;
-			this.elevation *= -1;
-			this.speed *= -1;
-		}
-		
-		this.azimuth = MathUtils.normalizeAngle(this.azimuth, 0.0);
-		
-		this.elevation = MathUtils.normalizeAngle(this.elevation, 0.0);
-		
-		if (this.elevation > Math.PI / 2)
-		{
-			this.elevation = Math.PI - this.elevation;
-			this.azimuth += Math.PI;
-		}
-		
-		if (this.elevation < -Math.PI / 2)
-		{
-			this.elevation = Math.PI + this.elevation;
-			this.azimuth -= Math.PI;
-		}
-
-		this.azimuth = MathUtils.normalizeAngle(this.azimuth, 0.0);
+		assert Double.isNaN(this.elevation) == false && Double.isNaN(this.azimuth) == false && Double.isNaN(this.speed) == false;
 		assert this.speed >= 0 && this.elevation >= -Math.PI / 2 && this.elevation <= Math.PI / 2;
 	}
 
@@ -87,9 +100,17 @@ public class DefaultLinearVelocity implements LinearVelocity
 
 		final LinearVelocity other = (LinearVelocity) obj;
 
-		return Precision.equals(this.getElevation(), other.getElevation(), LinearVelocity.EPSILON)
-				&& Precision.equals(this.getAzimuth(), other.getAzimuth(), LinearVelocity.EPSILON)
-				&& Precision.equals(this.getSpeed(), other.getSpeed(), LinearVelocity.EPSILON);
+		return this.getElevation() == other.getElevation()
+				&& this.getAzimuth() == other.getAzimuth()
+				&& this.getSpeed() == other.getSpeed();
+	}
+
+	@Override
+	public boolean closeEnoughTo(LinearVelocity lv)
+	{
+		return Precision.equals(this.getElevation(), lv.getElevation(), LinearVelocity.EPSILON)
+				&& Precision.equals(this.getAzimuth(), lv.getAzimuth(), LinearVelocity.EPSILON)
+				&& Precision.equals(this.getSpeed(), lv.getSpeed(), LinearVelocity.EPSILON);
 	}
 
 	@Override

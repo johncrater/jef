@@ -1,4 +1,4 @@
-package jef.core.units;
+package jef.core.movement;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

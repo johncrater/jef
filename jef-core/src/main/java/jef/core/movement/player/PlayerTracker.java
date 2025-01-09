@@ -2,41 +2,86 @@ package jef.core.movement.player;
 
 
 
-import org.apache.commons.math3.geometry.euclidean.twod.Line;
+import java.util.List;
+
 import org.apache.commons.math3.geometry.euclidean.twod.SubLine;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 
-import jef.core.movement.AngularVelocity;
-import jef.core.movement.LinearVelocity;
+import jef.core.Player;
+import jef.core.movement.Collision;
 import jef.core.movement.Location;
-import jef.core.movement.Moveable;
 import jef.core.movement.Tracker;
 
-public class PlayerTracker extends Tracker
+public class PlayerTracker extends Tracker implements Player
 {
-	private Path path;
+	private Player player;
 
-	public PlayerTracker(Path path, double timeInterval)
+	public PlayerTracker(PlayerTracker tracker)
 	{
-		super(timeInterval);
-		this.path = path;
+		super(tracker);
+		this.player = tracker.getPlayer();
+	}
+	
+	public PlayerTracker(Player player, double timeInterval)
+	{
+		super(player, timeInterval);
+		this.player = player;
 	}
 
-	public PlayerTracker(Path path, LinearVelocity lv, Location loc, AngularVelocity av, double timeInterval)
+	public Player getPlayer()
 	{
-		super(lv, loc, av, timeInterval);
-		this.path = path;
+		return this.player;
+	}
+	
+	@Override
+	public double getMaxSpeed()
+	{
+		return player.getMaxSpeed();
 	}
 
-	public PlayerTracker(Path path, Moveable moveable, double timeInterval)
+	@Override
+	public double getDesiredSpeed()
 	{
-		super(moveable, timeInterval);
-		this.path = path;
+		Waypoint wp = player.getPath().getCurrentWaypoint();
+		if (wp == null)
+			return 0;
+		
+		return wp.getMaxSpeed();
+	}
+
+	@Override
+	public double getMassInKilograms()
+	{
+		return player.getMassInKilograms();
+	}
+
+	@Override
+	public String getId()
+	{
+		return player.getId();
+	}
+
+	@Override
+	public String getFirstName()
+	{
+		return player.getFirstName();
+	}
+
+	@Override
+	public String getLastName()
+	{
+		return player.getLastName();
+	}
+
+	@Override
+	public double getHeightInMeters()
+	{
+		return player.getHeightInMeters();
 	}
 
 	public Path getPath()
 	{
-		return this.path;
+		return this.player.getPath();
 	}
 
 	public boolean hasPastDestination()

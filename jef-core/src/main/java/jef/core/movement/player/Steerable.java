@@ -1,9 +1,10 @@
 package jef.core.movement.player;
 
-public interface Steerable
+import jef.core.movement.Moveable;
+
+public interface Steerable extends Moveable
 {
 	public double getMaxSpeed();
 	public double getDesiredSpeed();
-	public double getTurningSpeed();
 	public Path getPath();
 }

@@ -10,17 +10,17 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 	private String id;
 	private String firstName;
 	private String lastName;
-	private int number;
 
 	private final double massInKilograms = 100;
 	private double heightInMeters;
 
 	private Path path = new DefaultPath();
 
-	private double turningSpeed;
-
-	public TestPlayer()
+	public TestPlayer(String firstName, String lastName)
 	{
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.id = firstName + lastName;
 	}
 
 	public void update(Moveable tracker)
@@ -67,21 +67,9 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 	}
 
 	@Override
-	public int getNumber()
-	{
-		return this.number;
-	}
-
-	@Override
 	public Path getPath()
 	{
 		return this.path;
-	}
-
-	@Override
-	public double getTurningSpeed()
-	{
-		return 4;
 	}
 
 	public void setFirstName(final String firstName)
@@ -104,19 +92,9 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 		this.lastName = lastName;
 	}
 
-	public void setNumber(final int number)
-	{
-		this.number = number;
-	}
-
 	public void setPath(final Path path)
 	{
 		this.path = path;
-	}
-
-	public void setTurningSpeed(final double turningSpeed)
-	{
-		this.turningSpeed = turningSpeed;
 	}
 
 	@Override

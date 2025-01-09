@@ -2,11 +2,13 @@ package jef.core.movement.player;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.math3.util.MathUtils;
 
 import jef.core.Player;
+import jef.core.movement.Collision;
 import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
@@ -27,12 +29,18 @@ public class Steering
 		this.steerable = steerable;
 	}
 
-	public void next(final PlayerTracker tracker)
+	public void next(final PlayerTracker tracker, List<Collision> collisions)
 	{
 		if ((tracker.getPath().getCurrentWaypoint() == null
 				|| tracker.getLoc().closeEnoughTo(this.getDestination())) && tracker.getLV().isNotMoving())
+		{
+			tracker.setLV(new DefaultLinearVelocity());
 			return;
-
+		}
+		
+		if (collisions == null)
+			collisions = Collections.emptyList();
+		
 		this.baos = new ByteArrayOutputStream();
 		this.out = new PrintStream(this.baos);
 
@@ -90,7 +98,7 @@ public class Steering
 			{
 				this.buildMessage(String.format("%-25s: %s", "Destination Reached",
 						String.format("%3.2f %s %s", tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
-				this.next(tracker);
+				this.next(tracker, collisions);
 			}
 			else
 			{
@@ -420,7 +428,7 @@ public class Steering
 	{
 		final double distanceNeededToCompleteTurn = this.calculateDistanceNeededToCompleteTurn(tracker,
 				angleAdjustment);
-		if (!LinearVelocity.equals(0, distanceNeededToCompleteTurn))
+		if (!LinearVelocity.closeEnoughTo(0, distanceNeededToCompleteTurn))
 		{
 			this.buildMessage(String.format("%-25s: \t%4f", "Turning Distance", distanceNeededToCompleteTurn));
 
