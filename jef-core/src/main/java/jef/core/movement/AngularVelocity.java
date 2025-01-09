@@ -3,7 +3,7 @@ package jef.core.movement;
 /* @formatter:off */
 public interface AngularVelocity
 {
-	public static final double EPSILON_ANGLE = .02;
+	public static final double epsilonAngle = .02;
 	public static final double EPSILON_ROTATIONS = .02;
 	public static final double EPSILON_SPIRAL_VELOCITY = .02;
 
