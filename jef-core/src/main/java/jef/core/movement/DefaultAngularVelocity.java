@@ -115,6 +115,14 @@ public class DefaultAngularVelocity implements AngularVelocity
 	}
 
 	@Override
+	public boolean closeEnoughTo(AngularVelocity av)
+	{
+		return Precision.equals(orientation, av.getRotation(), EPSILON_ANGLE)
+				&& Precision.equals(rotation, av.getOrientation(), EPSILON_ROTATIONS)
+				&& Precision.equals(spiralVelocity, av.getSpiralVelocity(), EPSILON_SPIRAL_VELOCITY);
+	}
+
+	@Override
 	public int hashCode()
 	{
 		return Objects.hash(this.orientation, this.rotation);

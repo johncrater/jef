@@ -106,7 +106,7 @@ public class IndexedCalculator
 		if (BallUtils.hasTopSpin(av, lv))
 			return (indexValue + indexValue(phi, obliqueTopspin)) / 2.0;
 
-		if (LinearVelocity.equals(lv.getElevation(), -Math.PI / 2))
+		if (LinearVelocity.closeEnoughTo(lv.getElevation(), -Math.PI / 2))
 			return indexValue(phi, verticalNoSpin);
 
 		return (indexValue + indexValue(phi, obliqueNoSpin)) / 2.0;

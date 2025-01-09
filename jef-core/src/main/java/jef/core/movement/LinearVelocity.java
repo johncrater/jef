@@ -8,7 +8,7 @@ public interface LinearVelocity
 {
 	public static final double EPSILON = .02;
 
-	public static boolean equals(final double v1, final double v2)
+	public static boolean closeEnoughTo(final double v1, final double v2)
 	{
 		return Precision.equals(v1, v2, LinearVelocity.EPSILON);
 	}
@@ -37,6 +37,8 @@ public interface LinearVelocity
 	public boolean movingLeft();
 	public boolean movingRight();
 
+	public boolean closeEnoughTo(LinearVelocity lv);
+	
 	public Vector3D toVector3D();
 
 }

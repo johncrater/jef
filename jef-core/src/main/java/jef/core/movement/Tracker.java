@@ -15,6 +15,11 @@ public class Tracker implements Moveable
 	private double pctRemaining;
 	private final double timeInterval;
 
+	public Tracker(Tracker tracker)
+	{
+		this(tracker.getLV(), tracker.getLoc(), tracker.getAV(), tracker.getTimeInterval());
+	}
+	
 	public Tracker(final double timeInterval)
 	{
 		this(new DefaultLinearVelocity(), new DefaultLocation(), new DefaultAngularVelocity(), timeInterval);

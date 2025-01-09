@@ -96,9 +96,7 @@ public class DefaultLocation implements Location
 
 		final Location other = (Location) obj;
 
-		return Precision.equals(getX(), other.getX(), Location.EPSILON)
-				&& Precision.equals(getY(), other.getY(), Location.EPSILON)
-				&& Precision.equals(getZ(), other.getZ(), Location.EPSILON);
+		return getX() == other.getX() && getY() == other.getY() && getZ() == other.getZ();
 	}
 
 	@Override

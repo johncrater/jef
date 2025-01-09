@@ -3,8 +3,9 @@ package jef.core;
 import com.synerset.unitility.unitsystem.common.Velocity;
 
 import jef.core.movement.VUnits;
+import jef.core.movement.player.Steerable;
 
-public interface Player 
+public interface Player extends Steerable
 {
 	// deceleration is in YPY^2. It is not a velocity
 	public static final double maximumDecelerationRate = (double) Velocity.ofMetersPerSecond(-6).getInUnit(VUnits.YPS);
@@ -26,5 +27,4 @@ public interface Player
 	public String getFirstName();
 	public String getLastName();
 	public double getHeightInMeters();
-	public int getNumber();
 }

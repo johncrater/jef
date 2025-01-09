@@ -5,6 +5,7 @@ public interface AngularVelocity
 {
 	public static final double EPSILON_ANGLE = .02;
 	public static final double EPSILON_ROTATIONS = .02;
+	public static final double EPSILON_SPIRAL_VELOCITY = .02;
 
 	public boolean isNotRotating();
 
@@ -20,4 +21,6 @@ public interface AngularVelocity
 
 	public AngularVelocity newFrom(Double currentAngle, Double rotationalVelocity, Double spiralVelocity);
 	public AngularVelocity multiply(double value);
+	
+	public boolean closeEnoughTo(AngularVelocity av);
 }

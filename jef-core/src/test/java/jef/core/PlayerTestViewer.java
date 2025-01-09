@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -28,8 +30,13 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
+import jef.core.movement.Collision;
+import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.DefaultLocation;
+import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
+import jef.core.movement.index.DefaultLocationIndex;
+import jef.core.movement.index.LocationIndex;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.PlayerTracker;
@@ -39,7 +46,7 @@ import jef.core.movement.player.Waypoint.DestinationAction;
 
 public class PlayerTestViewer implements Runnable
 {
-	private static final double TIMER_INTERVAL = .05f;
+	private static final double TIMER_INTERVAL = .04;
 	private static final double totalLength = Conversions.yardsToInches(125);
 	private static final double totalWidth = Conversions.yardsToInches(54 + 5);
 	private static final double totalHeight = Conversions.yardsToInches(50);
@@ -61,8 +68,9 @@ public class PlayerTestViewer implements Runnable
 	private Image field;
 
 	private TestPlayer player;
-	private List<TestPlayer> players = new ArrayList<TestPlayer>();
+	private Map<String, TestPlayer> players = new HashMap<>();
 	private DestinationAction nextDestinationAction = DestinationAction.fastStop;
+	private LocationIndex index = new DefaultLocationIndex(TIMER_INTERVAL, (int)(2 / TIMER_INTERVAL));  // two seconds
 	
 	public PlayerTestViewer()
 	{
@@ -144,20 +152,18 @@ public class PlayerTestViewer implements Runnable
 
 	private void createPlayers()
 	{
-		player = new TestPlayer();
-		player.setNumber(44);
+		player = new TestPlayer("Chuck", "Foreman");
 		Path path = new DefaultPath();
 		path.addWaypoint(new Waypoint(Field.midfield(), 10, DestinationAction.fastStop));
 		player.setPath(path);
-		this.players.add(player);
+		this.players.put(player.getId(), player);
 		
-		TestPlayer p = new TestPlayer();
-		p.setNumber(10);
+		TestPlayer p = new TestPlayer("Fran", "Tarkenton");
 		p.setLoc(Field.midfield());
 		path = new DefaultPath();
 		path.addWaypoint(new Waypoint(Field.midfield(), 10, DestinationAction.fastStop));
 		p.setPath(path);
-		this.players.add(p);
+		this.players.put(p.getId(), p);
 	}
 
 	private void createCanvas()
@@ -183,12 +189,10 @@ public class PlayerTestViewer implements Runnable
 				
 				e.gc.drawImage(field, 0, 0);
 				
-				for (TestPlayer player : players)
+				for (TestPlayer player : players.values())
 				{
 					drawPlayer(e.gc, player);
 				}
-				
-				player = players.getFirst();
 
 				drawPerformance(e.gc);
 			}
@@ -265,7 +269,7 @@ public class PlayerTestViewer implements Runnable
 		Point p = locationToPoint(player.getLoc());
 		gc.fillOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
 
-		String playerNumber = "" + player.getNumber();
+		String playerNumber = "" + player.getFirstName().charAt(0) + player.getLastName().charAt(0);
 		Point extent = gc.textExtent(playerNumber);
 		
 		gc.drawText(playerNumber, p.x - extent.x / 2, p.y - extent.y  / 2);
@@ -309,24 +313,72 @@ public class PlayerTestViewer implements Runnable
 		Performance.cycleTime.endCycle();
 		Performance.cycleTime.beginCycle();
 		Performance.processTime.beginCycle();
-		for (TestPlayer player : players)
+		
+		try
 		{
-			Steering steering = new Steering(player);
-			PlayerTracker tracker = new PlayerTracker(player.getPath(), player, TIMER_INTERVAL);
-
-			steering.next(tracker);
+			for (TestPlayer player : players.values())
+				this.index.update(player);
 			
-			player.setLV(tracker.getLV());
-			player.setAV(tracker.getAV());
-			player.setLoc(tracker.getLoc());
-			player.setPath(tracker.getPath());
+			List<Collision> collisions = this.index.getCollisions(0);
+			for (Collision collision : collisions)
+				handleCollision(collision);
+			
+			for (TestPlayer player : players.values())
+			{
+				Steering steering = new Steering(player);
+				PlayerTracker tracker = new PlayerTracker(player, TIMER_INTERVAL);
+
+				List<Collision> playerCollisions = collisions.stream()
+						.filter(c -> c.getOccupier1().getId().equals(player) || c.getOccupier2().getId().equals(player))
+						.toList();
+				
+				steering.next(tracker, playerCollisions);
+				
+				player.setLV(tracker.getLV());
+				player.setAV(tracker.getAV());
+				player.setLoc(tracker.getLoc());
+				player.setPath(tracker.getPath());
+			}
+
+			this.index.advance();
+			
+			Performance.processTime.endCycle();
 		}
-		Performance.processTime.endCycle();
+		catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		canvas.redraw();
 
 		this.lastMilliseconds = System.currentTimeMillis();
 		shell.getDisplay().asyncExec(this);
+	}
+
+	private void handleCollision(Collision collision)
+	{
+		Player p1 = collision.getOccupier1();
+		Player p2 = collision.getOccupier2();
+		
+		// m1 * v1 + m2 * v2 = (m1 + m2) * Vf
+		// Vf = (m1 * v1 + m2 * v2) / (m1 + m2);
+		double p1Mvx = p1.getMassInKilograms() * p1.getLV().getX();
+		double p2Mvx = p2.getMassInKilograms() * p2.getLV().getX();
+		double vxF = (p1Mvx + p2Mvx) / (p1.getMassInKilograms() + p2.getMassInKilograms());
+		
+		double p1Mvy = p1.getMassInKilograms() * p1.getLV().getY();
+		double p2Mvy = p2.getMassInKilograms() * p2.getLV().getY();
+		double vyF = (p1Mvy + p2Mvy) / (p1.getMassInKilograms() + p2.getMassInKilograms());
+
+		Player player1 = players.get(p1.getId());
+		Player player2 = players.get(p2.getId());
+		
+		LinearVelocity lv1 = new DefaultLinearVelocity(new Vector3D(vxF, vyF, 0));
+		LinearVelocity lv2 = new DefaultLinearVelocity(new Vector3D(vxF, vyF, 0));
+		
+		player1.setLV(lv1);
+		player2.setLV(lv2);
 	}
 
 	double cycleRate = Performance.cycleTime.getFrameRate();

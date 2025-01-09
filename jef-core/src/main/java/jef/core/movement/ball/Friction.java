@@ -35,7 +35,7 @@ public class Friction extends IndexedCalculator
 		final double coefficientOfFriction = calculate(av, lv);
 
 		final double xySpeed = lv.getXYSpeed();
-		if (!LinearVelocity.equals(0, xySpeed))
+		if (!LinearVelocity.closeEnoughTo(0, xySpeed))
 			return -1 * (xySpeed * coefficientOfFriction) / xySpeed;
 
 		return 0;

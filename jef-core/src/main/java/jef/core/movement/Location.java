@@ -8,7 +8,7 @@ public interface Location
 {
 	public static final double EPSILON = .02;
 
-	public static boolean withinEpsilon(double v1, double v2)
+	public static boolean closeEnoughTo(double v1, double v2)
 	{
 		return Math.abs(v1 - v2) < EPSILON;
 	}
