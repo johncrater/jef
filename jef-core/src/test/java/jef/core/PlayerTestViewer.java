@@ -1,13 +1,20 @@
 package jef.core;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import javax.imageio.ImageIO;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.eclipse.swt.SWT;
@@ -20,14 +27,18 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import jef.core.movement.Collision;
@@ -66,6 +77,9 @@ public class PlayerTestViewer implements Runnable
 	private Canvas canvas;
 	private long lastMilliseconds;
 	private Image field;
+	private Image playerImage;
+	private GIFMarkup player1Gif;
+	private boolean pause;
 
 	private TestPlayer player;
 	private Map<String, TestPlayer> players = new HashMap<>();
@@ -81,13 +95,13 @@ public class PlayerTestViewer implements Runnable
 		this.lastMilliseconds = System.currentTimeMillis();
 
 		shell.setLayout(new GridLayout(1, false));
+
+		createPlayers();
 		createButtons();
 		createCanvas();
 
 		playerFont = new Font(shell.getDisplay(), playerFontData);
 		playerDataFont = new Font(shell.getDisplay(), playerDataFontData);
-		
-		createPlayers();
 		
 		try
 		{
@@ -148,22 +162,44 @@ public class PlayerTestViewer implements Runnable
 			
 		});
 		
+		for (TestPlayer p : this.players.values())
+		{
+			Button b = new Button(c, SWT.PUSH);
+			b.setText("" + p.getFirstName().charAt(0) + p.getLastName().charAt(0));
+			b.setData(p);
+			b.addSelectionListener(new SelectionAdapter() 
+			{
+				@Override
+				public void widgetSelected(SelectionEvent e)
+				{
+					player = (TestPlayer)b.getData();
+				}				
+			});
+		}
 	}
 
 	private void createPlayers()
 	{
 		player = new TestPlayer("Chuck", "Foreman");
 		Path path = new DefaultPath();
-		path.addWaypoint(new Waypoint(Field.midfield(), 10, DestinationAction.fastStop));
+		path.addWaypoint(new Waypoint(Field.MIDFIELD, 10, DestinationAction.fastStop));
 		player.setPath(path);
 		this.players.put(player.getId(), player);
 		
 		TestPlayer p = new TestPlayer("Fran", "Tarkenton");
-		p.setLoc(Field.midfield());
+		p.setLoc(Field.MIDFIELD);
 		path = new DefaultPath();
-		path.addWaypoint(new Waypoint(Field.midfield(), 10, DestinationAction.fastStop));
+		path.addWaypoint(new Waypoint(Field.MIDFIELD, 10, DestinationAction.fastStop));
 		p.setPath(path);
 		this.players.put(p.getId(), p);
+	}
+
+	public static int colorStringToColor(String colorString)
+	{
+		if (colorString == null)
+			return 0;
+
+		return Integer.parseInt(colorString.substring(1), 16);
 	}
 
 	private void createCanvas()
@@ -175,7 +211,72 @@ public class PlayerTestViewer implements Runnable
 		
 		field = new Image(shell.getDisplay(),
 				this.getClass().getResourceAsStream("/field-4500x2124.png"));
+		
+//		playerImage= new Image(shell.getDisplay(), this.getClass().getResourceAsStream("/Blocker-72x72-Top.png"));
+		
+		int helmetColor = colorStringToColor("#ED1C24");
+		int helmetStripe = colorStringToColor("#22B14C");
+		int shirt = colorStringToColor("#880015");
+		int pants = colorStringToColor("#00A2E8");
+		int socks = colorStringToColor("#FF7F27");
+		int skin = colorStringToColor("#FFAEC9");
+		
+		try
+		{
+			// #ED1C24 Helmet
+			// #22B14C Helmet stripe
+			// #880015 shirt
+			// #00A2E8 pants
+			// #FF7F27 socks
+			// #FFAEC9 skin
+			BufferedImage bi = ImageIO.read(this.getClass().getResourceAsStream("/Steeler-72x72.png"));
+			for (int x = 0; x < bi.getWidth(); x++)
+			{
+				for (int y = 0; y < bi.getHeight(); y++)
+				{
+					int rgb = bi.getRGB(x, y);
+					System.out.println(String.format("(%d, %d) - %8X", x, y, rgb));
+					if ((rgb  & 0x00FFFFFF) == helmetColor)
+					{
+						bi.setRGB(x, y, 0xFF4F2683);
+					}
+					else if ((rgb  & 0x00FFFFFF) == helmetStripe)
+					{
+						bi.setRGB(x, y, 0xFF4F2683);
+					}
+					else if ((rgb  & 0x00FFFFFF) == shirt)
+					{
+						bi.setRGB(x, y, 0xFF4F2683);
+					}
+					else if ((rgb  & 0x00FFFFFF) == pants)
+					{
+						bi.setRGB(x, y, 0xFFFFFFFF);
+					}
+					else if ((rgb  & 0x00FFFFFF) == socks)
+					{
+						bi.setRGB(x, y, 0xFFFFFFFF);
+					}
+					else if ((rgb  & 0x00FFFFFF) == skin)
+					{
+						bi.setRGB(x, y, 0xFF6C5A57);
+					}
+				}
+			}
+			
+			ByteArrayOutputStream os = new ByteArrayOutputStream();
+			ImageIO.write(bi, "png", os);                          				
+			InputStream is = new ByteArrayInputStream(os.toByteArray());			
+			playerImage= new Image(shell.getDisplay(), is);
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
+		ImageLoader imageLoader = new ImageLoader();
+		imageLoader.load(this.getClass().getResourceAsStream("/untitled.gif"));
+		this.player1Gif = new GIFMarkup(imageLoader);
 		canvas.addPaintListener(e ->
 		{
 			Performance.drawTime.beginCycle();
@@ -226,6 +327,7 @@ public class PlayerTestViewer implements Runnable
 					p.y = (int)(totalWidth - p.y);
 					Location loc = pointToLocation(p);
 					
+					player.getPath().clear();
 					player.getPath().addWaypoint(new Waypoint(loc, player.getDesiredSpeed(), nextDestinationAction));
 				}
 				catch (Exception e1)
@@ -243,6 +345,17 @@ public class PlayerTestViewer implements Runnable
 	public void messageLoop()
 	{
 		shell.open();
+
+		shell.getDisplay().addFilter(SWT.KeyUp, new Listener()
+		{
+			@Override
+			public void handleEvent(final Event event)
+			{
+				if (event.character == ' ')
+					pause = !pause;
+			}
+		});
+
 		run();
 
 		Performance.cycleTime.beginCycle();
@@ -260,10 +373,19 @@ public class PlayerTestViewer implements Runnable
 
 	private void drawPlayer(GC gc, TestPlayer player)
 	{
-		int offset = (int) Conversions.yardsToInches(Player.size / 2);
+		int offset = (int) Conversions.yardsToInches(Player.size * 3.0 / 4.0);
 
-		gc.setForeground(shell.getDisplay().getSystemColor(SWT.COLOR_WHITE));
-		gc.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+		if (player == this.player)
+		{
+			gc.setForeground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+			gc.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+		}
+		else
+		{
+			gc.setForeground(shell.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+			gc.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
+		}
+		
 		gc.setFont(playerFont);
 		
 		Point p = locationToPoint(player.getLoc());
@@ -274,6 +396,22 @@ public class PlayerTestViewer implements Runnable
 		
 		gc.drawText(playerNumber, p.x - extent.x / 2, p.y - extent.y  / 2);
 
+//		try (TransformStack ts = new TransformStack(gc))
+//		{
+//			ts.translate(p.x, p.y);
+//			ts.rotate(Angle.ofDegrees(-90 + Math.toDegrees(player.getAV().getOrientation())));
+//			ts.set();
+//	
+//			this.player1Gif.setDisplayPoint(p);
+//			this.player1Gif.draw(gc);
+////			gc.drawImage(playerImage, -playerImage.getImageData().width / 2, -playerImage.getImageData().width / 2);
+//		}
+//		catch (Exception e)
+//		{
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
 		StringBuilder str = new StringBuilder();
 		str.append(String.format("Name            : %s %s\n", this.player.getFirstName(), this.player.getLastName()));
 		str.append(String.format("Location        : %s\n", this.player.getLoc()));
@@ -286,6 +424,7 @@ public class PlayerTestViewer implements Runnable
 		
 		gc.setFont(playerDataFont);
 		gc.setForeground(yellow);
+		gc.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
 		gc.drawText(str.toString(), 3000, 20);
 	}
 
@@ -314,40 +453,43 @@ public class PlayerTestViewer implements Runnable
 		Performance.cycleTime.beginCycle();
 		Performance.processTime.beginCycle();
 		
-		try
+		if (!pause)
 		{
-			for (TestPlayer player : players.values())
-				this.index.update(player);
-			
-			List<Collision> collisions = this.index.getCollisions(0);
-			for (Collision collision : collisions)
-				handleCollision(collision);
-			
-			for (TestPlayer player : players.values())
+			try
 			{
-				Steering steering = new Steering(player);
-				PlayerTracker tracker = new PlayerTracker(player, TIMER_INTERVAL);
-
-				List<Collision> playerCollisions = collisions.stream()
-						.filter(c -> c.getOccupier1().getId().equals(player) || c.getOccupier2().getId().equals(player))
-						.toList();
+				for (TestPlayer player : players.values())
+					this.index.update(player);
 				
-				steering.next(tracker, playerCollisions);
+				List<Collision> collisions = this.index.getCollisions(0);
+				for (Collision collision : collisions)
+					handleCollision(collision);
 				
-				player.setLV(tracker.getLV());
-				player.setAV(tracker.getAV());
-				player.setLoc(tracker.getLoc());
-				player.setPath(tracker.getPath());
+				for (TestPlayer player : players.values())
+				{
+					Steering steering = new Steering(player);
+					PlayerTracker tracker = new PlayerTracker(player, TIMER_INTERVAL);
+	
+					List<Collision> playerCollisions = collisions.stream()
+							.filter(c -> c.getOccupier1().getId().equals(player) || c.getOccupier2().getId().equals(player))
+							.toList();
+					
+					steering.next(tracker, playerCollisions);
+					
+					player.setLV(tracker.getLV());
+					player.setAV(tracker.getAV());
+					player.setLoc(tracker.getLoc());
+					player.setPath(tracker.getPath());
+				}
+	
+				this.index.advance();
+				
+				Performance.processTime.endCycle();
 			}
-
-			this.index.advance();
-			
-			Performance.processTime.endCycle();
-		}
-		catch (Exception e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			catch (Exception e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		canvas.redraw();

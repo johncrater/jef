@@ -33,5 +33,6 @@ public enum Posture
 	// a player is transitioning from onTheGround to upright. During this transition, the
 	// player cannot move, kick, pass. They may block or tackling can reduced
 	// effectiveness.
-	standingUp,
+	standingUp;
+
 }

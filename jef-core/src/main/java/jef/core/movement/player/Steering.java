@@ -390,7 +390,10 @@ public class Steering
 
 		// we use normal deceleration rate since we are out of control and it takes
 		// control to decelerate
-		// at the fasted rate
+		// at the fastest rate
+		
+		
+		
 		double adjustment = Player.normalDecelerationRate * tracker.getAccelerationCoefficient();
 		final double adjustedSpeed = tracker.calculateAdjustedSpeed(adjustment);
 		if (adjustedSpeed > this.getMaxSpeed())

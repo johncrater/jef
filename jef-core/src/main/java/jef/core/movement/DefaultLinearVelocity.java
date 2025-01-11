@@ -239,4 +239,14 @@ public class DefaultLinearVelocity implements LinearVelocity
 		
 		return new Vector3D(getAzimuth(), getElevation()).scalarMultiply(d);
 	}
+
+	@Override
+	public Vector2D toVector2D()
+	{
+		double d = getSpeed();
+		if (d == 0)
+			d = Double.MIN_VALUE;
+		
+		return new Vector2D(getX(), getY());
+	}
 }

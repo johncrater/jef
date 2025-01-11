@@ -63,4 +63,18 @@ public class TestBall implements Football
 		this.location = location;
 	}
 
+	@Override
+	public Player getPlayerInPossession()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setPlayerInPossession()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
 }

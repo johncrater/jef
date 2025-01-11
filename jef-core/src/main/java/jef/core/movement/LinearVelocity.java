@@ -1,6 +1,7 @@
 package jef.core.movement;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.util.Precision;
 
 /* @formatter:off */
@@ -40,5 +41,6 @@ public interface LinearVelocity
 	public boolean closeEnoughTo(LinearVelocity lv);
 	
 	public Vector3D toVector3D();
+	public Vector2D toVector2D();
 
 }

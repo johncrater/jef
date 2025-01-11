@@ -7,8 +7,10 @@ import com.synerset.unitility.unitsystem.common.Distance;
 
 import jef.core.movement.DUnits;
 import jef.core.movement.DefaultLocation;
+import jef.core.movement.LineSegment;
 import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
+import jef.core.pathfinding.Direction;
 
 public class Field
 {
@@ -22,8 +24,7 @@ public class Field
 	public static final float FIELD_LINE_WIDTH = 3f / 36.0f;
 
 	// pre 1972 hash marks
-	public static final float FIELD_HASH_MARK_INDENT = (float) Distance.of(20, DUnits.YARD)
-			.getInUnit(DUnits.YARD);
+	public static final float FIELD_HASH_MARK_INDENT = (float) Distance.of(20, DUnits.YARD).getInUnit(DUnits.YARD);
 
 	// post 1972 hash marks
 //	public static final float FIELD_HASH_MARK_INDENT = (float) Distance.ofFeet(70).plus(Distance.ofInches(9))
@@ -31,8 +32,7 @@ public class Field
 
 	public static final float FIELD_HASH_MARK_LENGTH = 1f;
 	public static final float FIELD_YARDLINE_DISTANCE_FROM_SIDELINE = 9f;
-	public static final float FIELD_TOTAL_LENGTH = FIELD_PLAYABLE_LENGTH
-			+ (2f * FIELD_BORDER_WIDTH);
+	public static final float FIELD_TOTAL_LENGTH = FIELD_PLAYABLE_LENGTH + (2f * FIELD_BORDER_WIDTH);
 	public static final float FIELD_TOTAL_WIDTH = FIELD_PLAYABLE_WIDTH + (2f * FIELD_BORDER_WIDTH);
 	public static final float FIELD_NEUTRAL_ZONE_LENGTH = 11f / 36.0f;
 
@@ -57,10 +57,34 @@ public class Field
 	public static final float STADIUM_ORIGIN_X = -Math.round(FIELD_TOTAL_WIDTH * .25f);
 	public static final float STADIUM_ORIGIN_Y = -Math.round(FIELD_TOTAL_LENGTH * .25f);
 
-	public static Location midfield()
-	{
-		return new DefaultLocation(FIELD_TOTAL_LENGTH / 2, FIELD_TOTAL_WIDTH / 2, 0.0);
-	}
-	
 	public static final Plane thePlane = new Plane(new Vector3D(0, 0, 1).normalize(), LinearVelocity.EPSILON);
+
+	public static final LineSegment WEST_END_ZONE = new LineSegment(
+			new DefaultLocation(FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH, FIELD_BORDER_WIDTH),
+			new DefaultLocation(FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH, FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH));
+
+	public static final LineSegment EAST_END_ZONE = new LineSegment(
+			new DefaultLocation(FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH), FIELD_BORDER_WIDTH),
+			new DefaultLocation(FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH), FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH));
+
+	public static final LineSegment NORTH_SIDELINE = new LineSegment(
+			new DefaultLocation(FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH, FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH),
+			new DefaultLocation(FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH), FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH));
+
+	public static final LineSegment SOUTH_SIDELINE = new LineSegment(
+			new DefaultLocation(FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH, FIELD_BORDER_WIDTH),
+			new DefaultLocation(FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH), FIELD_BORDER_WIDTH));
+
+	public static final Location MIDFIELD = new DefaultLocation(FIELD_TOTAL_LENGTH / 2, FIELD_TOTAL_WIDTH / 2, 0.0);
+	
+	public static double yardLine(double yardLine, Direction direction)
+	{
+		double ret = FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH + yardLine;
+		if (direction == Direction.west)
+			ret = FIELD_PLAYABLE_LENGTH - ret;
+
+		return ret;
+	}
+
+
 }

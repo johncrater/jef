@@ -97,9 +97,9 @@ public class TransformStack implements AutoCloseable
 		this.currentTransform.rotate((float) -angle.getInDegrees());
 	}
 
-	public void rotate(float angle)
+	public void rotate(double angle)
 	{
-		this.currentTransform.rotate(angle);
+		this.currentTransform.rotate((float)Math.toDegrees(angle));
 	}
 
 	public void scale(float scaleX, float scaleY)

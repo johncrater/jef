@@ -16,6 +16,12 @@ public class DefaultPath implements Iterable<Waypoint>, Path
 	{
 	}
 
+	public DefaultPath(Waypoint...waypoints)
+	{
+		for (Waypoint wp : waypoints)
+			addWaypoint(wp);
+	}
+	
 	@Override
 	public void addWaypoint(Waypoint waypoint)
 	{

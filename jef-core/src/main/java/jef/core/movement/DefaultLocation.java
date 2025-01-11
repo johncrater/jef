@@ -16,6 +16,13 @@ public class DefaultLocation implements Location
 	{
 	}
 	
+	public DefaultLocation(double x, double y)
+	{
+		this.x = Precision.round(x, 8);
+		this.y = Precision.round(y, 8);
+		this.z = 0;
+	}
+	
 	public DefaultLocation(double x, double y, double z)
 	{
 		this.x = Precision.round(x, 8);
