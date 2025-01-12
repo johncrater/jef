@@ -1,6 +1,7 @@
 package jef.core.movement.ball;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Line;
+import org.apache.commons.math3.geometry.euclidean.threed.Plane;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
 import jef.core.Field;
@@ -14,6 +15,7 @@ import jef.core.movement.Tracker;
 
 public class BallTracker extends Tracker
 {
+	public static final Plane thePlane = new Plane(new Vector3D(0, 0, 1).normalize(), LinearVelocity.EPSILON);
 
 	public BallTracker(double timeInterval)
 	{
@@ -54,7 +56,7 @@ public class BallTracker extends Tracker
 			double zSpeed = getLoc().distanceBetween(locTmp);
 			Vector3D loc3D = getLoc().toVector3D();
 			Line line = new Line(loc3D, locTmp.toVector3D(), Location.EPSILON);
-			Vector3D intersection = Field.thePlane.intersection(line);
+			Vector3D intersection = thePlane.intersection(line);
 
 			// make sure we are at absolute 0
 			intersection = new Vector3D(intersection.getX(), intersection.getY(), 0);

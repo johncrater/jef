@@ -113,8 +113,8 @@ public class Steering
 
 	private void buildMessage(final String msg)
 	{
-		System.out.println(msg);
-		this.out.println(msg);
+//		System.out.println(msg);
+//		this.out.println(msg);
 	}
 
 	private double calculateAngleOfTurn(final Location loc, final Location destination, final double currentAngle)

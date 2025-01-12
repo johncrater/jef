@@ -2,6 +2,7 @@ package jef.core.movement;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
+import org.locationtech.jts.geom.Coordinate;
 
 /* @formatter:off */
 public interface Location
@@ -32,4 +33,5 @@ public interface Location
 
 	public Vector3D toVector3D();
 	public Vector2D toVector2D();
+	public Coordinate toCoordinate();
 }

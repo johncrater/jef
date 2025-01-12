@@ -1,8 +1,12 @@
 package jef.core;
 
+import org.locationtech.jts.algorithm.Angle;
+import org.locationtech.jts.geom.LineSegment;
+
 import com.synerset.unitility.unitsystem.common.Distance;
 
 import jef.core.movement.DUnits;
+import jef.core.movement.Location;
 
 public interface Conversions
 {
@@ -33,13 +37,11 @@ public interface Conversions
 
     public static double normalizeAngle(double angle) 
     {
-        angle = angle % (2 * Math.PI); // Normalize to the range -2PI to 2PI
-
-        if (angle > Math.PI) {
-            angle -= 2 * Math.PI;
-        } else if (angle < -Math.PI) {
-            angle += 2 * Math.PI;
-        }
-
-        return angle;
-    }}
+        return Angle.normalize(angle);
+    }
+    
+    public static LineSegment toLineSegment(Location loc1, Location loc2)
+    {
+    	return new LineSegment(loc1.toCoordinate(), loc2.toCoordinate());
+    }
+}

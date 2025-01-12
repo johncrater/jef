@@ -2,12 +2,12 @@ package jef.core;
 
 import org.apache.commons.math3.geometry.euclidean.threed.Plane;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
+import org.locationtech.jts.geom.LineSegment;
 
 import com.synerset.unitility.unitsystem.common.Distance;
 
 import jef.core.movement.DUnits;
 import jef.core.movement.DefaultLocation;
-import jef.core.movement.LineSegment;
 import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
 import jef.core.pathfinding.Direction;
@@ -57,23 +57,21 @@ public class Field
 	public static final float STADIUM_ORIGIN_X = -Math.round(FIELD_TOTAL_WIDTH * .25f);
 	public static final float STADIUM_ORIGIN_Y = -Math.round(FIELD_TOTAL_LENGTH * .25f);
 
-	public static final Plane thePlane = new Plane(new Vector3D(0, 0, 1).normalize(), LinearVelocity.EPSILON);
-
 	public static final LineSegment WEST_END_ZONE = new LineSegment(
-			new DefaultLocation(FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH, FIELD_BORDER_WIDTH),
-			new DefaultLocation(FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH, FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH));
+			new DefaultLocation(FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH, FIELD_BORDER_WIDTH).toCoordinate(),
+			new DefaultLocation(FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH, FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH).toCoordinate());
 
 	public static final LineSegment EAST_END_ZONE = new LineSegment(
-			new DefaultLocation(FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH), FIELD_BORDER_WIDTH),
-			new DefaultLocation(FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH), FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH));
+			new DefaultLocation(FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH), FIELD_BORDER_WIDTH).toCoordinate(),
+			new DefaultLocation(FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH), FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH).toCoordinate());
 
 	public static final LineSegment NORTH_SIDELINE = new LineSegment(
-			new DefaultLocation(FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH, FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH),
-			new DefaultLocation(FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH), FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH));
+			new DefaultLocation(FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH, FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH).toCoordinate(),
+			new DefaultLocation(FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH), FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH).toCoordinate());
 
 	public static final LineSegment SOUTH_SIDELINE = new LineSegment(
-			new DefaultLocation(FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH, FIELD_BORDER_WIDTH),
-			new DefaultLocation(FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH), FIELD_BORDER_WIDTH));
+			new DefaultLocation(FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH, FIELD_BORDER_WIDTH).toCoordinate(),
+			new DefaultLocation(FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH), FIELD_BORDER_WIDTH).toCoordinate());
 
 	public static final Location MIDFIELD = new DefaultLocation(FIELD_TOTAL_LENGTH / 2, FIELD_TOTAL_WIDTH / 2, 0.0);
 	

@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.util.Precision;
+import org.locationtech.jts.geom.Coordinate;
 
 public class DefaultLocation implements Location
 {
@@ -15,83 +16,74 @@ public class DefaultLocation implements Location
 	public DefaultLocation()
 	{
 	}
-	
-	public DefaultLocation(double x, double y)
+
+	public DefaultLocation(final double x, final double y)
 	{
 		this.x = Precision.round(x, 8);
 		this.y = Precision.round(y, 8);
 		this.z = 0;
 	}
-	
-	public DefaultLocation(double x, double y, double z)
+
+	public DefaultLocation(final double x, final double y, final double z)
 	{
 		this.x = Precision.round(x, 8);
 		this.y = Precision.round(y, 8);
 		this.z = Precision.round(z, 8);
 	}
-	
-	public DefaultLocation(Vector3D vector)
+
+	public DefaultLocation(final Vector3D vector)
 	{
 		this(vector.getX(), vector.getY(), vector.getZ());
 	}
 
-	@Override
-	public double distanceBetween(Location loc)
+	public DefaultLocation(final Coordinate coordinate)
 	{
-		return Math.sqrt(Math.pow(getX() - loc.getX(), 2) + Math.pow(getY() - loc.getY(), 2) + Math.pow(getZ() - loc.getZ(), 2));
+		this(coordinate.getX(), coordinate.getY(), coordinate.getZ());
 	}
-	
+
 	@Override
-	public boolean closeEnoughTo(Location loc, double distance)
-	{
-		return distanceBetween(loc) <= distance;
-	}
-	
-	@Override
-	public boolean closeEnoughTo(Location loc)
-	{
-		return closeEnoughTo(loc, EPSILON);
-	}
-	
-	@Override
-	public double angleTo(Location loc)
-	{
-		return Math.atan2(loc.getY() - getY(), loc.getX() - getX());
-	}
-	
-	@Override
-	public DefaultLocation add(double x, double y, double z)
+	public DefaultLocation add(final double x, final double y, final double z)
 	{
 		return new DefaultLocation(this.x + x, this.y + y, this.z + z);
 	}
 
 	@Override
-	public DefaultLocation add(LinearVelocity lv)
+	public DefaultLocation add(final LinearVelocity lv)
 	{
-		return add(lv.getX(), lv.getY(), lv.getZ());
+		return this.add(lv.getX(), lv.getY(), lv.getZ());
 	}
 
 	@Override
-	public Location add(Location loc)
+	public Location add(final Location loc)
 	{
-		return add(loc.getX(), loc.getY(), loc.getZ());
+		return this.add(loc.getX(), loc.getY(), loc.getZ());
 	}
 
 	@Override
-	public Location newFrom(Double x, Double y, Double z)
+	public double angleTo(final Location loc)
 	{
-		if (x == null)
-			x = getX();
-		
-		if (y == null)
-			y = getY();
-		
-		if (z == null)
-			z = getZ();
-		
-		return new DefaultLocation(x, y, z);
+		return Math.atan2(loc.getY() - this.getY(), loc.getX() - this.getX());
 	}
-	
+
+	@Override
+	public boolean closeEnoughTo(final Location loc)
+	{
+		return this.closeEnoughTo(loc, Location.EPSILON);
+	}
+
+	@Override
+	public boolean closeEnoughTo(final Location loc, final double distance)
+	{
+		return this.distanceBetween(loc) <= distance;
+	}
+
+	@Override
+	public double distanceBetween(final Location loc)
+	{
+		return Math.sqrt(Math.pow(this.getX() - loc.getX(), 2) + Math.pow(this.getY() - loc.getY(), 2)
+				+ Math.pow(this.getZ() - loc.getZ(), 2));
+	}
+
 	@Override
 	public boolean equals(final Object obj)
 	{
@@ -103,50 +95,76 @@ public class DefaultLocation implements Location
 
 		final Location other = (Location) obj;
 
-		return getX() == other.getX() && getY() == other.getY() && getZ() == other.getZ();
+		return (this.getX() == other.getX()) && (this.getY() == other.getY()) && (this.getZ() == other.getZ());
 	}
 
 	@Override
 	public double getX()
 	{
-		return x;
+		return this.x;
 	}
 
 	@Override
 	public double getY()
 	{
-		return y;
+		return this.y;
 	}
 
 	@Override
 	public double getZ()
 	{
-		return z;
+		return this.z;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(x, y, z);
-	}
-
-	
-	@Override
-	public Vector3D toVector3D()
-	{
-		return new Vector3D(x, y, z);
+		return Objects.hash(this.x, this.y, this.z);
 	}
 
 	@Override
-	public Vector2D toVector2D()
+	public Location newFrom(Double x, Double y, Double z)
 	{
-		return new Vector2D(x, y);
+		if (x == null)
+		{
+			x = this.getX();
+		}
+
+		if (y == null)
+		{
+			y = this.getY();
+		}
+
+		if (z == null)
+		{
+			z = this.getZ();
+		}
+
+		return new DefaultLocation(x, y, z);
+	}
+
+	@Override
+	public Coordinate toCoordinate()
+	{
+		return new Coordinate(this.getX(), this.getY(), this.getZ());
 	}
 
 	@Override
 	public String toString()
 	{
 		return String.format("(%6.2f, %5.2f, %5.2f)", this.x, this.y, this.z);
+	}
+
+	@Override
+	public Vector2D toVector2D()
+	{
+		return new Vector2D(this.x, this.y);
+	}
+
+	@Override
+	public Vector3D toVector3D()
+	{
+		return new Vector3D(this.x, this.y, this.z);
 	}
 
 }

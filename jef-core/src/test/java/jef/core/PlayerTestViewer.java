@@ -54,6 +54,10 @@ import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
+import jef.core.pathfinding.Direction;
+import jef.core.pathfinding.InterceptPlayer;
+import jef.core.pathfinding.Pathfinder;
+import jef.core.pathfinding.RunForGlory;
 
 public class PlayerTestViewer implements Runnable
 {
@@ -83,9 +87,10 @@ public class PlayerTestViewer implements Runnable
 
 	private TestPlayer player;
 	private Map<String, TestPlayer> players = new HashMap<>();
+	private Map<String, Pathfinder> pathfinders = new HashMap<>();
 	private DestinationAction nextDestinationAction = DestinationAction.fastStop;
-	private LocationIndex index = new DefaultLocationIndex(TIMER_INTERVAL, (int)(2 / TIMER_INTERVAL));  // two seconds
-	
+	private LocationIndex index = new DefaultLocationIndex(TIMER_INTERVAL, (int) (2 / TIMER_INTERVAL)); // two seconds
+
 	public PlayerTestViewer()
 	{
 		this.shell = new Shell();
@@ -102,7 +107,7 @@ public class PlayerTestViewer implements Runnable
 
 		playerFont = new Font(shell.getDisplay(), playerFontData);
 		playerDataFont = new Font(shell.getDisplay(), playerDataFontData);
-		
+
 		try
 		{
 			final FileInputStream fis = new FileInputStream(new File("FieldTestViewer.props"));
@@ -146,12 +151,12 @@ public class PlayerTestViewer implements Runnable
 		Composite c = new Composite(shell, SWT.NONE);
 		c.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL));
 		c.setLayout(new FillLayout(SWT.HORIZONTAL));
-		
+
 		Combo combo = new Combo(c, SWT.DROP_DOWN);
 		for (DestinationAction action : Waypoint.DestinationAction.values())
 			combo.add(action.name(), action.ordinal());
-		
-		combo.addSelectionListener(new SelectionAdapter() 
+
+		combo.addSelectionListener(new SelectionAdapter()
 		{
 
 			@Override
@@ -159,21 +164,55 @@ public class PlayerTestViewer implements Runnable
 			{
 				nextDestinationAction = DestinationAction.values()[combo.getSelectionIndex()];
 			}
-			
+
 		});
-		
+
+		Button testButton = new Button(c, SWT.PUSH);
+		testButton.setText("Run For Glory");
+		testButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				pathfinders.put(player.getId(), new RunForGlory(player, Direction.west));
+			}
+		});
+
+		testButton = new Button(c, SWT.PUSH);
+		testButton.setText("Intercept");
+		testButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				pathfinders.put(player.getId(), new InterceptPlayer(player,
+						players.values().stream().filter(p -> p != player).findFirst().orElse(null), Direction.west));
+			}
+		});
+
+		testButton = new Button(c, SWT.PUSH);
+		testButton.setText("Stop");
+		testButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				pathfinders.put(player.getId(), null);
+			}
+		});
+
 		for (TestPlayer p : this.players.values())
 		{
 			Button b = new Button(c, SWT.PUSH);
 			b.setText("" + p.getFirstName().charAt(0) + p.getLastName().charAt(0));
 			b.setData(p);
-			b.addSelectionListener(new SelectionAdapter() 
+			b.addSelectionListener(new SelectionAdapter()
 			{
 				@Override
 				public void widgetSelected(SelectionEvent e)
 				{
-					player = (TestPlayer)b.getData();
-				}				
+					player = (TestPlayer) b.getData();
+				}
 			});
 		}
 	}
@@ -185,7 +224,7 @@ public class PlayerTestViewer implements Runnable
 		path.addWaypoint(new Waypoint(Field.MIDFIELD, 10, DestinationAction.fastStop));
 		player.setPath(path);
 		this.players.put(player.getId(), player);
-		
+
 		TestPlayer p = new TestPlayer("Fran", "Tarkenton");
 		p.setLoc(Field.MIDFIELD);
 		path = new DefaultPath();
@@ -208,19 +247,18 @@ public class PlayerTestViewer implements Runnable
 		canvas.setLayoutData(new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.FILL_VERTICAL));
 		canvas.setBackground(black);
 		canvas.layout(true);
-		
-		field = new Image(shell.getDisplay(),
-				this.getClass().getResourceAsStream("/field-4500x2124.png"));
-		
+
+		field = new Image(shell.getDisplay(), this.getClass().getResourceAsStream("/field-4500x2124.png"));
+
 //		playerImage= new Image(shell.getDisplay(), this.getClass().getResourceAsStream("/Blocker-72x72-Top.png"));
-		
+
 		int helmetColor = colorStringToColor("#ED1C24");
 		int helmetStripe = colorStringToColor("#22B14C");
 		int shirt = colorStringToColor("#880015");
 		int pants = colorStringToColor("#00A2E8");
 		int socks = colorStringToColor("#FF7F27");
 		int skin = colorStringToColor("#FFAEC9");
-		
+
 		try
 		{
 			// #ED1C24 Helmet
@@ -235,38 +273,38 @@ public class PlayerTestViewer implements Runnable
 				for (int y = 0; y < bi.getHeight(); y++)
 				{
 					int rgb = bi.getRGB(x, y);
-					System.out.println(String.format("(%d, %d) - %8X", x, y, rgb));
-					if ((rgb  & 0x00FFFFFF) == helmetColor)
+//					System.out.println(String.format("(%d, %d) - %8X", x, y, rgb));
+					if ((rgb & 0x00FFFFFF) == helmetColor)
 					{
 						bi.setRGB(x, y, 0xFF4F2683);
 					}
-					else if ((rgb  & 0x00FFFFFF) == helmetStripe)
+					else if ((rgb & 0x00FFFFFF) == helmetStripe)
 					{
 						bi.setRGB(x, y, 0xFF4F2683);
 					}
-					else if ((rgb  & 0x00FFFFFF) == shirt)
+					else if ((rgb & 0x00FFFFFF) == shirt)
 					{
 						bi.setRGB(x, y, 0xFF4F2683);
 					}
-					else if ((rgb  & 0x00FFFFFF) == pants)
+					else if ((rgb & 0x00FFFFFF) == pants)
 					{
 						bi.setRGB(x, y, 0xFFFFFFFF);
 					}
-					else if ((rgb  & 0x00FFFFFF) == socks)
+					else if ((rgb & 0x00FFFFFF) == socks)
 					{
 						bi.setRGB(x, y, 0xFFFFFFFF);
 					}
-					else if ((rgb  & 0x00FFFFFF) == skin)
+					else if ((rgb & 0x00FFFFFF) == skin)
 					{
 						bi.setRGB(x, y, 0xFF6C5A57);
 					}
 				}
 			}
-			
+
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
-			ImageIO.write(bi, "png", os);                          				
-			InputStream is = new ByteArrayInputStream(os.toByteArray());			
-			playerImage= new Image(shell.getDisplay(), is);
+			ImageIO.write(bi, "png", os);
+			InputStream is = new ByteArrayInputStream(os.toByteArray());
+			playerImage = new Image(shell.getDisplay(), is);
 		}
 		catch (IOException e)
 		{
@@ -282,14 +320,14 @@ public class PlayerTestViewer implements Runnable
 			Performance.drawTime.beginCycle();
 			try (TransformStack ts = new TransformStack(e.gc))
 			{
-				float scaleX = (float)(canvas.getClientArea().width / totalLength);
-				float scaleY = (float)(canvas.getClientArea().height / totalWidth);
+				float scaleX = (float) (canvas.getClientArea().width / totalLength);
+				float scaleY = (float) (canvas.getClientArea().height / totalWidth);
 				float scale = Math.min(scaleX, scaleY);
 				ts.scale(scale, scale);
 				ts.set();
-				
+
 				e.gc.drawImage(field, 0, 0);
-				
+
 				for (TestPlayer player : players.values())
 				{
 					drawPlayer(e.gc, player);
@@ -303,30 +341,30 @@ public class PlayerTestViewer implements Runnable
 			}
 			Performance.drawTime.endCycle();
 		});
-		
-		canvas.addMouseListener(new MouseAdapter() 
+
+		canvas.addMouseListener(new MouseAdapter()
 		{
 
 			@Override
 			public void mouseUp(MouseEvent e)
 			{
 				super.mouseUp(e);
-				
+
 				Point p = new Point(e.x, e.y);
-				
+
 				GC gc = new GC(shell.getDisplay());
 				try (TransformStack ts = new TransformStack(gc))
 				{
-					float scaleX = (float)(canvas.getClientArea().width / totalLength);
-					float scaleY = (float)(canvas.getClientArea().height / totalWidth);
+					float scaleX = (float) (canvas.getClientArea().width / totalLength);
+					float scaleY = (float) (canvas.getClientArea().height / totalWidth);
 					float scale = Math.min(scaleX, scaleY);
 					ts.scale(1 / scale, 1 / scale);
 					ts.set();
 
 					p = ts.transform(p);
-					p.y = (int)(totalWidth - p.y);
+					p.y = (int) (totalWidth - p.y);
 					Location loc = pointToLocation(p);
-					
+
 					player.getPath().clear();
 					player.getPath().addWaypoint(new Waypoint(loc, player.getDesiredSpeed(), nextDestinationAction));
 				}
@@ -335,10 +373,10 @@ public class PlayerTestViewer implements Runnable
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
+
 				gc.dispose();
 			}
-			
+
 		});
 	}
 
@@ -385,16 +423,16 @@ public class PlayerTestViewer implements Runnable
 			gc.setForeground(shell.getDisplay().getSystemColor(SWT.COLOR_WHITE));
 			gc.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
 		}
-		
+
 		gc.setFont(playerFont);
-		
+
 		Point p = locationToPoint(player.getLoc());
 		gc.fillOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
 
 		String playerNumber = "" + player.getFirstName().charAt(0) + player.getLastName().charAt(0);
 		Point extent = gc.textExtent(playerNumber);
-		
-		gc.drawText(playerNumber, p.x - extent.x / 2, p.y - extent.y  / 2);
+
+		gc.drawText(playerNumber, p.x - extent.x / 2, p.y - extent.y / 2);
 
 //		try (TransformStack ts = new TransformStack(gc))
 //		{
@@ -418,10 +456,11 @@ public class PlayerTestViewer implements Runnable
 		str.append(String.format("Linear velocity : %s\n", this.player.getLV()));
 		str.append(String.format("Angular velocity: %s\n", this.player.getAV()));
 		str.append(String.format("\n"));
-		
+
 		for (Waypoint wp : this.player.getPath().getWaypoints())
-			str.append(String.format("       waypoint : %s - Dist: %.2f\n", wp, this.player.getLoc().distanceBetween(wp.getDestination())));
-		
+			str.append(String.format("       waypoint : %s - Dist: %.2f\n", wp,
+					this.player.getLoc().distanceBetween(wp.getDestination())));
+
 		gc.setFont(playerDataFont);
 		gc.setForeground(yellow);
 		gc.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
@@ -439,7 +478,7 @@ public class PlayerTestViewer implements Runnable
 	{
 		return new DefaultLocation(Conversions.inchesToYards(p.x), Conversions.inchesToYards(p.y), 0.0);
 	}
-	
+
 	public void run()
 	{
 		final long interval = System.currentTimeMillis() - this.lastMilliseconds;
@@ -452,37 +491,45 @@ public class PlayerTestViewer implements Runnable
 		Performance.cycleTime.endCycle();
 		Performance.cycleTime.beginCycle();
 		Performance.processTime.beginCycle();
-		
+
 		if (!pause)
 		{
 			try
 			{
 				for (TestPlayer player : players.values())
 					this.index.update(player);
-				
+
 				List<Collision> collisions = this.index.getCollisions(0);
 				for (Collision collision : collisions)
 					handleCollision(collision);
-				
+
 				for (TestPlayer player : players.values())
 				{
+					Pathfinder pf = this.pathfinders.get(player.getId());
+					if (pf != null)
+					{
+						Path path = pf.findPath();
+						if (path != null)
+							player.setPath(path);
+					}
+
 					Steering steering = new Steering(player);
 					PlayerTracker tracker = new PlayerTracker(player, TIMER_INTERVAL);
-	
-					List<Collision> playerCollisions = collisions.stream()
-							.filter(c -> c.getOccupier1().getId().equals(player) || c.getOccupier2().getId().equals(player))
+
+					List<Collision> playerCollisions = collisions.stream().filter(
+							c -> c.getOccupier1().getId().equals(player) || c.getOccupier2().getId().equals(player))
 							.toList();
-					
+
 					steering.next(tracker, playerCollisions);
-					
+
 					player.setLV(tracker.getLV());
 					player.setAV(tracker.getAV());
 					player.setLoc(tracker.getLoc());
 					player.setPath(tracker.getPath());
 				}
-	
+
 				this.index.advance();
-				
+
 				Performance.processTime.endCycle();
 			}
 			catch (Exception e)
@@ -491,7 +538,7 @@ public class PlayerTestViewer implements Runnable
 				e.printStackTrace();
 			}
 		}
-		
+
 		canvas.redraw();
 
 		this.lastMilliseconds = System.currentTimeMillis();
@@ -502,23 +549,23 @@ public class PlayerTestViewer implements Runnable
 	{
 		Player p1 = collision.getOccupier1();
 		Player p2 = collision.getOccupier2();
-		
+
 		// m1 * v1 + m2 * v2 = (m1 + m2) * Vf
 		// Vf = (m1 * v1 + m2 * v2) / (m1 + m2);
 		double p1Mvx = p1.getMassInKilograms() * p1.getLV().getX();
 		double p2Mvx = p2.getMassInKilograms() * p2.getLV().getX();
 		double vxF = (p1Mvx + p2Mvx) / (p1.getMassInKilograms() + p2.getMassInKilograms());
-		
+
 		double p1Mvy = p1.getMassInKilograms() * p1.getLV().getY();
 		double p2Mvy = p2.getMassInKilograms() * p2.getLV().getY();
 		double vyF = (p1Mvy + p2Mvy) / (p1.getMassInKilograms() + p2.getMassInKilograms());
 
 		Player player1 = players.get(p1.getId());
 		Player player2 = players.get(p2.getId());
-		
+
 		LinearVelocity lv1 = new DefaultLinearVelocity(new Vector3D(vxF, vyF, 0));
 		LinearVelocity lv2 = new DefaultLinearVelocity(new Vector3D(vxF, vyF, 0));
-		
+
 		player1.setLV(lv1);
 		player2.setLV(lv2);
 	}
@@ -559,7 +606,8 @@ public class PlayerTestViewer implements Runnable
 		StringBuilder msg = new StringBuilder();
 		msg.append(String.format("Tick Count  : %d\n", Performance.processTime.getTickCount()));
 		msg.append(String.format("Frame Rate  : %.1f fps\n", cycleRate));
-		msg.append(String.format("Process Rate: %.1f%% (%.1f ns)\n", processRate * 100 / cycleTimePerFrame, processRate));
+		msg.append(
+				String.format("Process Rate: %.1f%% (%.1f ns)\n", processRate * 100 / cycleTimePerFrame, processRate));
 		msg.append(String.format("Draw Rate   : %.1f%% (%.1f ns)\n", drawRate * 100 / cycleTimePerFrame, drawRate));
 		msg.append(String.format("Other Rate  : %.1f%%\n", otherRate * 100 / cycleTimePerFrame));
 		msg.append("\n");
@@ -567,7 +615,7 @@ public class PlayerTestViewer implements Runnable
 		msg.append(String.format("Total Memory: %d MB\n", totalMemory / 1000000));
 		msg.append(String.format("Free Memory : %d MB \n", freeMemory / 1000000));
 		msg.append("\n");
-		
+
 		gc.drawText(msg.toString(), 10, 10, false);
 	}
 
