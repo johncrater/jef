@@ -1,9 +1,7 @@
 package jef.core.movement.player;
 
-import org.apache.commons.math3.geometry.euclidean.twod.SubLine;
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
-
 import jef.core.Player;
+import jef.core.geometry.Line;
 import jef.core.movement.DefaultAngularVelocity;
 import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
@@ -135,20 +133,14 @@ public class PlayerTracker extends Tracker implements Player
 
 	public boolean hasPastDestination()
 	{
-		final Vector2D origin = this.getStartingLoc().toVector2D();
-		final Vector2D dest = this.getPath().getCurrentWaypoint().getDestination().toVector2D();
+		final Location origin = this.getStartingLoc();
+		final Location dest = this.getPath().getCurrentWaypoint().getDestination();
 
-		final Vector2D slopeVector = dest.subtract(origin);
-		final Vector2D antiSlopVector = new Vector2D(slopeVector.getY(), slopeVector.getX() * -1);
-
-		final Vector2D perpVector = dest.add(antiSlopVector);
-
-		final SubLine perpLine = new SubLine(this.getPath().getCurrentWaypoint().getDestination().toVector2D(),
-				perpVector, Location.EPSILON);
-
-		final SubLine currentLine = new SubLine(this.getStartingLoc().toVector2D(), this.getLoc().toVector2D(),
-				Location.EPSILON);
-		final Vector2D intersection = perpLine.intersection(currentLine, true);
+		Line line = new Line(origin, dest);
+		Line perpLine = line.getPerpendicularLine(dest);
+		
+		final Line currentLine = new Line(this.getStartingLoc(), this.getLoc());
+		final Location intersection = perpLine.intersects(currentLine);
 
 		return intersection != null;
 	}
@@ -173,7 +165,7 @@ public class PlayerTracker extends Tracker implements Player
 	 */
 	public void turn(final double angleAdjustment)
 	{
-		this.setLV(this.getLV().newFrom(null, this.getLV().getAzimuth() + angleAdjustment, null));
+		this.setLV(this.getLV().newFrom(this.getLV().getAzimuth() + angleAdjustment, null, null));
 		this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
 	}
 

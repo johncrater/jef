@@ -13,7 +13,7 @@ class DefaultLocationIndexTest
 		DefaultLocationIndex index = new DefaultLocationIndex(.05, 20);
 		
 		TestPlayer player = new TestPlayer("Fran", "Tarkenton");
-		player.setLV(new DefaultLinearVelocity(10, 10, 0));
+		player.setLV(new DefaultLinearVelocity((double) 10, (double) 10, (double) 0));
 		index.update(player);
 	}
 }

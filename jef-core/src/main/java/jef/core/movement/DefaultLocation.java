@@ -2,61 +2,36 @@ package jef.core.movement;
 
 import java.util.Objects;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
-import org.apache.commons.math3.util.Precision;
-import org.locationtech.jts.geom.Coordinate;
+import jef.core.geometry.Vector;
 
 public class DefaultLocation implements Location
 {
-	private double x;
-	private double y;
-	private double z;
+	private final Vector v;
 
 	public DefaultLocation()
 	{
+		this(0, 0, 0);
 	}
 
 	public DefaultLocation(final double x, final double y)
 	{
-		this.x = Precision.round(x, 8);
-		this.y = Precision.round(y, 8);
-		this.z = 0;
+		this(x, y, 0);
 	}
 
 	public DefaultLocation(final double x, final double y, final double z)
 	{
-		this.x = Precision.round(x, 8);
-		this.y = Precision.round(y, 8);
-		this.z = Precision.round(z, 8);
+		this.v = Vector.fromCartesianCoordinates(x, y, z);
 	}
 
-	public DefaultLocation(final Vector3D vector)
+	public DefaultLocation(final Vector v)
 	{
-		this(vector.getX(), vector.getY(), vector.getZ());
-	}
-
-	public DefaultLocation(final Coordinate coordinate)
-	{
-		this(coordinate.getX(), coordinate.getY(), coordinate.getZ());
+		this.v = v;
 	}
 
 	@Override
-	public DefaultLocation add(final double x, final double y, final double z)
+	public Location add(final LinearVelocity lv)
 	{
-		return new DefaultLocation(this.x + x, this.y + y, this.z + z);
-	}
-
-	@Override
-	public DefaultLocation add(final LinearVelocity lv)
-	{
-		return this.add(lv.getX(), lv.getY(), lv.getZ());
-	}
-
-	@Override
-	public Location add(final Location loc)
-	{
-		return this.add(loc.getX(), loc.getY(), loc.getZ());
+		return new DefaultLocation(this.v.add(lv.toVector()));
 	}
 
 	@Override
@@ -68,13 +43,7 @@ public class DefaultLocation implements Location
 	@Override
 	public boolean closeEnoughTo(final Location loc)
 	{
-		return this.closeEnoughTo(loc, Location.EPSILON);
-	}
-
-	@Override
-	public boolean closeEnoughTo(final Location loc, final double distance)
-	{
-		return this.distanceBetween(loc) <= distance;
+		return Location.EPSILON.eqZero(this.distanceBetween(loc));
 	}
 
 	@Override
@@ -101,25 +70,25 @@ public class DefaultLocation implements Location
 	@Override
 	public double getX()
 	{
-		return this.x;
+		return this.v.getX();
 	}
 
 	@Override
 	public double getY()
 	{
-		return this.y;
+		return this.v.getY();
 	}
 
 	@Override
 	public double getZ()
 	{
-		return this.z;
+		return this.v.getZ();
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(this.x, this.y, this.z);
+		return Objects.hash(this.getX(), this.getY(), this.getZ());
 	}
 
 	@Override
@@ -144,27 +113,14 @@ public class DefaultLocation implements Location
 	}
 
 	@Override
-	public Coordinate toCoordinate()
-	{
-		return new Coordinate(this.getX(), this.getY(), this.getZ());
-	}
-
-	@Override
 	public String toString()
 	{
-		return String.format("(%6.2f, %5.2f, %5.2f)", this.x, this.y, this.z);
+		return String.format("(%6.2f, %5.2f, %5.2f)", this.getX(), this.getY(), this.getZ());
 	}
 
 	@Override
-	public Vector2D toVector2D()
+	public Vector toVector()
 	{
-		return new Vector2D(this.x, this.y);
+		return this.v;
 	}
-
-	@Override
-	public Vector3D toVector3D()
-	{
-		return new Vector3D(this.x, this.y, this.z);
-	}
-
 }

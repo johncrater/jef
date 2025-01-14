@@ -9,6 +9,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +18,6 @@ import java.util.Properties;
 
 import javax.imageio.ImageIO;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -41,6 +42,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
+import jef.core.geometry.Vector;
 import jef.core.movement.Collision;
 import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.DefaultLocation;
@@ -55,6 +57,7 @@ import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
 import jef.core.pathfinding.Direction;
+import jef.core.pathfinding.EvadeInterceptors;
 import jef.core.pathfinding.InterceptPlayer;
 import jef.core.pathfinding.Pathfinder;
 import jef.core.pathfinding.RunForGlory;
@@ -187,6 +190,18 @@ public class PlayerTestViewer implements Runnable
 			{
 				pathfinders.put(player.getId(), new InterceptPlayer(player,
 						players.values().stream().filter(p -> p != player).findFirst().orElse(null), Direction.west));
+			}
+		});
+
+		testButton = new Button(c, SWT.PUSH);
+		testButton.setText("Evade");
+		testButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				pathfinders.put(player.getId(), new EvadeInterceptors(player, new ArrayList<Player>(
+						players.values().stream().filter(p -> p != player).toList()), Collections.emptyList(), Direction.west));
 			}
 		});
 
@@ -327,7 +342,6 @@ public class PlayerTestViewer implements Runnable
 				ts.set();
 
 				e.gc.drawImage(field, 0, 0);
-
 				for (TestPlayer player : players.values())
 				{
 					drawPlayer(e.gc, player);
@@ -563,8 +577,8 @@ public class PlayerTestViewer implements Runnable
 		Player player1 = players.get(p1.getId());
 		Player player2 = players.get(p2.getId());
 
-		LinearVelocity lv1 = new DefaultLinearVelocity(new Vector3D(vxF, vyF, 0));
-		LinearVelocity lv2 = new DefaultLinearVelocity(new Vector3D(vxF, vyF, 0));
+		LinearVelocity lv1 = new DefaultLinearVelocity(Vector.fromCartesianCoordinates(vxF, vyF, 0));
+		LinearVelocity lv2 = new DefaultLinearVelocity(Vector.fromCartesianCoordinates(vxF, vyF, 0));
 
 		player1.setLV(lv1);
 		player2.setLV(lv2);

@@ -143,7 +143,7 @@ public class BallTestViewer implements Runnable
 				double thetaInDegrees = Double.parseDouble(theta.getText());
 				double speedInYPS = Double.parseDouble(speed.getText());
 				double azimuthInRadians = Double.parseDouble(azimuth.getText());
-				BallTestViewer.ball.setLV(new DefaultLinearVelocity(Math.toRadians(thetaInDegrees), azimuthInRadians, speedInYPS));
+				BallTestViewer.ball.setLV(new DefaultLinearVelocity(azimuthInRadians, Math.toRadians(thetaInDegrees), speedInYPS));
 
 				double phiInDegrees = Double.parseDouble(phi.getText());
 				double omegaInRadiansPerSecond = Double.parseDouble(omega.getText());

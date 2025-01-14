@@ -1,8 +1,7 @@
 package jef.core.pathfinding;
 
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
-
 import jef.core.Player;
+import jef.core.geometry.Vector;
 import jef.core.movement.DefaultLocation;
 import jef.core.movement.Location;
 import jef.core.movement.player.DefaultPath;
@@ -27,21 +26,20 @@ public class InterceptPlayer implements Pathfinder
 	public Path findPath()
 	{
 		// 0 = (vt^2 - vi^2) * t^2 + 2 * (st - si) * vt * t + (st - si)2;
-		Vector2D st = target.getLoc().toVector2D();  // target starting point
-		Vector2D si = player.getLoc().toVector2D();  // interceptor starting point
-		Vector2D vt = target.getLV().toVector2D(); // target linear velocity
-//		double vi = player.getLV().getSpeed();  // interceptor speed
-		double vi = player.getMaxSpeed();  // interceptor speed
+		Vector st = target.getLoc().toVector();  // target starting point
+		Vector si = player.getLoc().toVector();  // interceptor starting point
+		Vector vt = target.getLV().toVector(); // target linear velocity
+		double vi = player.getMaxSpeed();  // interceptor max speed
 		
-		double a = vt.dotProduct(vt) - Math.pow(vi,  2);
-		double b = 2 * st.subtract(si).dotProduct(vt);
-		double c = st.subtract(si).dotProduct(st.subtract(si));
+		double a = vt.dot(vt) - Math.pow(vi,  2);
+		double b = 2 * st.subtract(si).dot(vt);
+		double c = st.subtract(si).dot(st.subtract(si));
 		
 		double tplus = (-b + Math.sqrt(Math.pow(b, 2) - 4 * a * c)) / (2 * a);
 		double tminus = (-b - Math.sqrt(Math.pow(b, 2) - 4 * a * c)) / (2 * a);
 		
-		Vector2D xplus = st.add(vt.scalarMultiply(tplus));
-		Vector2D xminus = st.add(vt.scalarMultiply(tminus));
+		Vector xplus = st.add(vt.multiply(tplus));
+		Vector xminus = st.add(vt.multiply(tminus));
 
 		Location interceptionPoint = null;
 		if (direction == Direction.east)

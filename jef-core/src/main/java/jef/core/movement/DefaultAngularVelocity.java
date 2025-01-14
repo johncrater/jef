@@ -2,7 +2,7 @@ package jef.core.movement;
 
 import java.util.Objects;
 
-import org.apache.commons.math3.util.Precision;
+import org.apache.commons.numbers.core.Precision;
 
 import jef.core.Conversions;
 

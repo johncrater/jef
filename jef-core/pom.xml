@@ -32,23 +32,32 @@
 			<scope>system</scope>
 			<systemPath>${swt-systemPath}</systemPath>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.synerset/unitility-core -->
 		<dependency>
 			<groupId>com.synerset</groupId>
 			<artifactId>unitility-core</artifactId>
 			<version>2.4.2</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.locationtech.jts/jts-core -->
-		<dependency>
-			<groupId>org.locationtech.jts</groupId>
-			<artifactId>jts-core</artifactId>
-			<version>1.20.0</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.apache.commons</groupId>-->
+<!--			<artifactId>commons-geometry-euclidean</artifactId>-->
+<!--			<version>1.0</version>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-math3</artifactId>
-			<version>3.6.1</version>
+			<artifactId>commons-numbers-core</artifactId>
+			<version>1.2</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.locationtech.jts/jts-core -->
+		<!--		<dependency>-->
+		<!--			<groupId>org.locationtech.jts</groupId>-->
+		<!--			<artifactId>jts-core</artifactId>-->
+		<!--			<version>1.20.0</version>-->
+		<!--		</dependency>-->
+		<!--				<dependency>-->
+		<!--					<groupId>org.apache.commons</groupId>-->
+		<!--					<artifactId>commons-math3</artifactId>-->
+		<!--					<version>3.6.1</version>-->
+		<!--				</dependency>-->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>

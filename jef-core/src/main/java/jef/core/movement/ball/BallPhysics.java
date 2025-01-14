@@ -65,7 +65,7 @@ public class BallPhysics
 		if (tracker.getLoc().getZ() == 0 && LinearVelocity.closeEnoughTo(0, tracker.getLV().getElevation()))
 		{
 			// we are rolling on the ground
-			tracker.setLV(tracker.getLV().newFrom(0.0, null, null));
+			tracker.setLV(tracker.getLV().newFrom(null, 0.0, null));
 
 			// sliding friction is different from rebounding friction. So we use a different constant
 			double frictionAdjustment = friction.calculateLVSlidingFrictionAdjustment(tracker.getLV().add(accumulatedLV), mass, coefficientOfSlidingFriction);
@@ -116,7 +116,7 @@ public class BallPhysics
 
 	public LinearVelocity calculateGravityAdjustment()
 	{
-		return new DefaultLinearVelocity(-Math.PI / 2, 0, gravity.getInUnit(VUnits.YPS));
+		return new DefaultLinearVelocity((double) 0, -Math.PI / 2, gravity.getInUnit(VUnits.YPS));
 	}
 
 	private static Force calculateDragForce(Velocity velocity, final double dragCoefficient, final Density ofAir,

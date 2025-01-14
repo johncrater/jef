@@ -1,13 +1,10 @@
 package jef.core.movement.ball;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Line;
-import org.apache.commons.math3.geometry.euclidean.threed.Plane;
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
 
-import jef.core.Field;
+import jef.core.geometry.Line;
+import jef.core.geometry.Plane;
 import jef.core.movement.AngularVelocity;
 import jef.core.movement.DefaultAngularVelocity;
-import jef.core.movement.DefaultLocation;
 import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
 import jef.core.movement.Moveable;
@@ -15,8 +12,6 @@ import jef.core.movement.Tracker;
 
 public class BallTracker extends Tracker
 {
-	public static final Plane thePlane = new Plane(new Vector3D(0, 0, 1).normalize(), LinearVelocity.EPSILON);
-
 	public BallTracker(double timeInterval)
 	{
 		super(timeInterval);
@@ -54,19 +49,18 @@ public class BallTracker extends Tracker
 		if (locTmp.getZ() < 0)
 		{
 			double zSpeed = getLoc().distanceBetween(locTmp);
-			Vector3D loc3D = getLoc().toVector3D();
-			Line line = new Line(loc3D, locTmp.toVector3D(), Location.EPSILON);
-			Vector3D intersection = thePlane.intersection(line);
+			Line line = new Line(getLoc(), locTmp);
+			Location intersection = line.intersects(Plane.THE_FIELD);
 
 			// make sure we are at absolute 0
-			intersection = new Vector3D(intersection.getX(), intersection.getY(), 0);
+			intersection = intersection.newFrom(null, null, 0.0);
 
-			double distanceAboveGround = loc3D.distance(intersection);
+			double distanceAboveGround = getLoc().distanceBetween(intersection);
 			double pctAboveGround = distanceAboveGround / zSpeed;
 
 			this.setLV(this.getLV().add(lvAdjustment.multiply(getRemainingTime()).multiply(pctAboveGround)));
 
-			this.setLoc(new DefaultLocation(intersection));
+			this.setLoc(intersection);
 			this.setPctRemaining(1 - pctAboveGround);
 
 			this.applyAngularVelocity();
@@ -92,7 +86,7 @@ public class BallTracker extends Tracker
 		if (getLoc().getZ() <= 0)
 		{
 			setLoc(getLoc().newFrom(null, null, 0.0));
-			setLV(getLV().newFrom(0.0, null, null));
+			setLV(getLV().newFrom(null, 0.0, null));
 			setAV(new DefaultAngularVelocity());
 		}
 		
@@ -101,13 +95,13 @@ public class BallTracker extends Tracker
 		// apogee. That is why we check for close to the ground
 		if (Location.closeEnoughTo(0, getLoc().getZ()) && getLV().isNotMoving())
 		{
-			setLV(getLV().newFrom(0.0, null, null));
+			setLV(getLV().newFrom(null, 0.0, null));
 			setAV(new DefaultAngularVelocity());
 		}
 
 		if (getLoc().getZ() == 0 && getLV().getElevation() < 0)
 		{
-			setLV(getLV().newFrom(0.0, null, null));
+			setLV(getLV().newFrom(null, 0.0, null));
 			setAV(new DefaultAngularVelocity());
 		}
 	}

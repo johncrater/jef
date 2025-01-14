@@ -2,90 +2,68 @@ package jef.core.movement;
 
 import java.util.Objects;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
-import org.apache.commons.math3.util.MathUtils;
-import org.apache.commons.math3.util.Precision;
+import jef.core.geometry.Vector;
 
 public class DefaultLinearVelocity implements LinearVelocity
 {
-	private double elevation;
-	private double azimuth;
-	private double speed;
+	private final Vector v;
 
 	public DefaultLinearVelocity()
 	{
+		this.v = new Vector();
 	}
 
-	public DefaultLinearVelocity(Vector3D vector)
-	{
-		this(vector.getDelta(), vector.getAlpha(), vector.getNorm());
-	}
-	
-	public DefaultLinearVelocity(double elevation, double azimuth, double speed)
+	public DefaultLinearVelocity(double azimuth, double elevation, double speed)
 	{
 		// sometimes, for legitimate reasons, one of the these can come up NaN.
-		
+
 		if (Double.isNaN(elevation))
+		{
 			elevation = 0;
-		
+		}
+
 		if (Double.isNaN(azimuth))
+		{
 			azimuth = 0;
-		
+		}
+
 		if (Double.isNaN(speed))
+		{
 			speed = 0;
-		
-		if (speed < 0)
-		{
-			azimuth += Math.PI;
-			elevation *= -1;
-			speed *= -1;
-		}
-		
-		azimuth = MathUtils.normalizeAngle(azimuth, 0.0);
-		
-		elevation = MathUtils.normalizeAngle(elevation, 0.0);
-		
-		if (elevation > Math.PI / 2)
-		{
-			elevation = Math.PI - elevation;
-			azimuth += Math.PI;
-		}
-		
-		if (elevation < -Math.PI / 2)
-		{
-			elevation = Math.PI + elevation;
-			azimuth -= Math.PI;
 		}
 
-		azimuth = MathUtils.normalizeAngle(azimuth, 0.0);
+		this.v = Vector.fromPolarCoordinates(azimuth, elevation, speed);
+	}
 
-		this.elevation = elevation;
-		this.azimuth = azimuth;
-		this.speed = speed;
-		
-		assert Double.isNaN(this.elevation) == false && Double.isNaN(this.azimuth) == false && Double.isNaN(this.speed) == false;
-		assert this.speed >= 0 && this.elevation >= -Math.PI / 2 && this.elevation <= Math.PI / 2;
+	public DefaultLinearVelocity(final Vector v)
+	{
+		this.v = v;
 	}
 
 	@Override
 	public LinearVelocity add(final double speed)
 	{
-		return new DefaultLinearVelocity(getElevation(), getAzimuth(), speed == Double.MIN_VALUE ? speed : getSpeed() + speed);
-	}
-
-	@Override
-	public LinearVelocity add(final double elevation, final double azimuth, final double speed)
-	{
-		Vector3D toVector = toVector3D().add(speed, new Vector3D(azimuth, elevation));
-		return new DefaultLinearVelocity(toVector);
+		return new DefaultLinearVelocity(this.getAzimuth(), this.getElevation(), speed == Double.MIN_VALUE ? speed : this.getSpeed() + speed);
 	}
 
 	@Override
 	public LinearVelocity add(final LinearVelocity lv)
 	{
-		Vector3D toVector = lv.toVector3D().add(toVector3D());
-		return new DefaultLinearVelocity(toVector);
+		return new DefaultLinearVelocity(this.v.add(Vector.fromPolarCoordinates(lv.getAzimuth(), lv.getElevation(), lv.getSpeed())));
+	}
+
+	@Override
+	public boolean closeEnoughTo(final LinearVelocity lv)
+	{
+		return LinearVelocity.EPSILON.eq(this.getElevation(), lv.getElevation())
+				&& LinearVelocity.EPSILON.eq(this.getAzimuth(), lv.getAzimuth())
+				&& LinearVelocity.EPSILON.eq(this.getSpeed(), lv.getSpeed());
+	}
+
+	@Override
+	public double dotProduct(final LinearVelocity lv)
+	{
+		return (this.getX() * lv.getX()) + (this.getY() * lv.getY()) + (this.getZ() * lv.getZ());
 	}
 
 	@Override
@@ -99,71 +77,62 @@ public class DefaultLinearVelocity implements LinearVelocity
 
 		final LinearVelocity other = (LinearVelocity) obj;
 
-		return this.getElevation() == other.getElevation()
-				&& this.getAzimuth() == other.getAzimuth()
-				&& this.getSpeed() == other.getSpeed();
-	}
-
-	@Override
-	public boolean closeEnoughTo(LinearVelocity lv)
-	{
-		return Precision.equals(this.getElevation(), lv.getElevation(), LinearVelocity.EPSILON)
-				&& Precision.equals(this.getAzimuth(), lv.getAzimuth(), LinearVelocity.EPSILON)
-				&& Precision.equals(this.getSpeed(), lv.getSpeed(), LinearVelocity.EPSILON);
-	}
-
-	@Override
-	public double getElevation()
-	{
-		return this.elevation;
+		return (this.getElevation() == other.getElevation()) && (this.getAzimuth() == other.getAzimuth())
+				&& (this.getSpeed() == other.getSpeed());
 	}
 
 	@Override
 	public double getAzimuth()
 	{
-		return this.azimuth;
+		return this.v.getAzimuth();
+	}
+
+	@Override
+	public double getElevation()
+	{
+		return this.v.getElevation();
 	}
 
 	@Override
 	public double getSpeed()
 	{
-		return this.speed;
+		return this.v.getDistance();
 	}
 
 	@Override
 	public double getX()
 	{
-		return toVector3D().getX();
+		return this.v.getX();
 	}
 
 	@Override
 	public double getXYSpeed()
 	{
-		return new Vector2D(getX(), getY()).getNorm();
+		return this.getX() * this.getY();
 	}
 
 	@Override
 	public double getXZSpeed()
 	{
-		return new Vector2D(getX(), getZ()).getNorm();
+		return this.getX() * this.getZ();
 	}
 
 	@Override
 	public double getY()
 	{
-		return toVector3D().getY();
+		return this.v.getY();
 	}
 
 	@Override
 	public double getYZSpeed()
 	{
-		return new Vector2D(getY(), getZ()).getNorm();
+		return this.getY() * this.getZ();
 	}
 
 	@Override
 	public double getZ()
 	{
-		return toVector3D().getZ();
+		return v.getZ();
 	}
 
 	@Override
@@ -175,7 +144,7 @@ public class DefaultLinearVelocity implements LinearVelocity
 	@Override
 	public boolean isNotMoving()
 	{
-		return this.getSpeed() < LinearVelocity.EPSILON;
+		return LinearVelocity.EPSILON.eqZero(this.getSpeed());
 	}
 
 	@Override
@@ -193,34 +162,46 @@ public class DefaultLinearVelocity implements LinearVelocity
 	@Override
 	public LinearVelocity multiply(final double scalar)
 	{
-		return new DefaultLinearVelocity(getElevation(), getAzimuth(), getSpeed() * scalar);
+		return new DefaultLinearVelocity(this.getAzimuth(), this.getElevation(), this.getSpeed() * scalar);
+	}
+
+	@Override
+	public LinearVelocity negate()
+	{
+		return new DefaultLinearVelocity(-this.getAzimuth(), -this.getElevation(), this.getSpeed());
+	}
+
+	@Override
+	public LinearVelocity newFrom(Double azimuth, Double elevation, Double speed)
+	{
+		if (elevation == null)
+		{
+			elevation = this.getElevation();
+		}
+
+		if (azimuth == null)
+		{
+			azimuth = this.getAzimuth();
+		}
+
+		if (speed == null)
+		{
+			speed = this.getSpeed();
+		}
+
+		return new DefaultLinearVelocity(azimuth, elevation, speed);
 	}
 
 	@Override
 	public LinearVelocity normalize()
 	{
-		return new DefaultLinearVelocity(toVector3D().normalize());
-	}
-
-	@Override
-	public LinearVelocity newFrom(Double elevation, Double azimuth, Double speed)
-	{
-		if (elevation == null)
-			elevation = this.getElevation();
-
-		if (azimuth == null)
-			azimuth = this.getAzimuth();
-
-		if (speed == null)
-			speed = this.getSpeed();
-
-		return new DefaultLinearVelocity(elevation, azimuth, speed);
+		return new DefaultLinearVelocity(this.v.normalize());
 	}
 
 	@Override
 	public LinearVelocity subtract(final LinearVelocity lv)
 	{
-		return new DefaultLinearVelocity(toVector3D().subtract(lv.toVector3D()));
+		return this.add(lv.negate());
 	}
 
 	@Override
@@ -229,24 +210,11 @@ public class DefaultLinearVelocity implements LinearVelocity
 		return String.format("(%3.0f\u00B0, %3.0f\u00B0, %7.3f y/s)", Math.toDegrees(this.getElevation()),
 				Math.toDegrees(this.getAzimuth()), this.getSpeed());
 	}
-	
-	@Override
-	public Vector3D toVector3D()
-	{
-		double d = getSpeed();
-		if (d == 0)
-			d = Double.MIN_VALUE;
-		
-		return new Vector3D(getAzimuth(), getElevation()).scalarMultiply(d);
-	}
 
 	@Override
-	public Vector2D toVector2D()
+	public Vector toVector()
 	{
-		double d = getSpeed();
-		if (d == 0)
-			d = Double.MIN_VALUE;
-		
-		return new Vector2D(getX(), getY());
+		return this.v;
 	}
+
 }

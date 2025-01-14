@@ -5,8 +5,7 @@ import java.io.PrintStream;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.math3.util.MathUtils;
-
+import jef.core.Conversions;
 import jef.core.Player;
 import jef.core.movement.Collision;
 import jef.core.movement.DefaultLinearVelocity;
@@ -87,7 +86,7 @@ public class Steering
 			speedAdjustment += (newSpeed - startingSpeed) / tracker.getRemainingTime();
 		}
 
-		tracker.move(new DefaultLinearVelocity(0.0, newAngle, speedAdjustment), null);
+		tracker.move(new DefaultLinearVelocity(newAngle, 0.0, speedAdjustment), null);
 
 		if (this.destinationReached(tracker) || (tracker.hasPastDestination()
 				&& tracker.getPath().getCurrentWaypoint().getDestinationAction() == DestinationAction.noStop))
@@ -121,7 +120,7 @@ public class Steering
 	{
 		final double desiredAngle = loc.angleTo(destination);
 		final double angularDiff = desiredAngle - currentAngle;
-		return MathUtils.normalizeAngle(angularDiff, 0.0);
+		return Conversions.normalizeAngle(angularDiff);
 	}
 
 	private double calculateDecelerationAdjustment(final PlayerTracker tracker)
