@@ -2,6 +2,7 @@ package jef.core.movement;
 
 import java.util.Objects;
 
+import jef.core.Field;
 import jef.core.geometry.Vector;
 
 public class DefaultLocation implements Location
@@ -26,6 +27,18 @@ public class DefaultLocation implements Location
 	public DefaultLocation(final Vector v)
 	{
 		this.v = v;
+	}
+
+	@Override
+	public boolean isInPlayableArea()
+	{
+		if (getX() < 0 || getX() > Field.FIELD_TOTAL_LENGTH)
+			return false;
+		
+		if (getY() < 0 || getY() > Field.FIELD_TOTAL_WIDTH)
+			return false;
+			
+		return true;
 	}
 
 	@Override

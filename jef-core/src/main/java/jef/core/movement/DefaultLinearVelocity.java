@@ -47,6 +47,12 @@ public class DefaultLinearVelocity implements LinearVelocity
 	}
 
 	@Override
+	public LinearVelocity add(double azimuth, double elevation, double speed)
+	{
+		return new DefaultLinearVelocity(getAzimuth() + azimuth, getElevation() + elevation, getSpeed() + speed);
+	}
+
+	@Override
 	public LinearVelocity add(final LinearVelocity lv)
 	{
 		return new DefaultLinearVelocity(this.v.add(Vector.fromPolarCoordinates(lv.getAzimuth(), lv.getElevation(), lv.getSpeed())));
@@ -207,8 +213,8 @@ public class DefaultLinearVelocity implements LinearVelocity
 	@Override
 	public String toString()
 	{
-		return String.format("(%3.0f\u00B0, %3.0f\u00B0, %7.3f y/s)", Math.toDegrees(this.getElevation()),
-				Math.toDegrees(this.getAzimuth()), this.getSpeed());
+		return String.format("(%3.0f\u00B0, %3.0f\u00B0, %7.3f y/s)", Math.toDegrees(this.getAzimuth()),
+				Math.toDegrees(this.getElevation()), this.getSpeed());
 	}
 
 	@Override

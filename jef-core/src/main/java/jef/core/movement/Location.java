@@ -27,4 +27,6 @@ public interface Location
 	public double getZ();
 	
 	public Vector toVector();
+	
+	public boolean isInPlayableArea();
 }

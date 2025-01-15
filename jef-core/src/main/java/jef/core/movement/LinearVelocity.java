@@ -15,6 +15,7 @@ public interface LinearVelocity
 	}
 
 	public LinearVelocity add(double speed);
+	public LinearVelocity add(double azimuth, double elevation, double speed);
 	public LinearVelocity add(LinearVelocity lv);
 	public LinearVelocity subtract(LinearVelocity lv);
 	public LinearVelocity multiply(double scalar);

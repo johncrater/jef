@@ -10,6 +10,7 @@ import java.util.Set;
 import jef.core.Field;
 import jef.core.Player;
 import jef.core.geometry.Line;
+import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.Path;
@@ -41,7 +42,7 @@ public class EvadeInterceptors implements Pathfinder
 	@Override
 	public Path findPath(final double maximumTimeToSpend)
 	{
-		final var segments = this.getBoundingLines(player, interceptors);
+		final HashSet<Line> segments = this.getBoundingLines(player, interceptors);
 		segments.addAll(
 				Arrays.asList(Field.EAST_END_ZONE, Field.WEST_END_ZONE, Field.NORTH_SIDELINE, Field.SOUTH_SIDELINE));
 
@@ -107,8 +108,8 @@ public class EvadeInterceptors implements Pathfinder
 			final Line lsToPoi = new Line(player.getLoc(), l);
 			for (final Line ls : boundingLines)
 			{
-				final Location poi = lsToPoi.intersects(ls);
-				if ((poi == null) || poi.closeEnoughTo(l))
+				final Location poi = lsToPoi.xyIntersection(ls);
+				if (poi == null || poi.isInPlayableArea() == false || ls.intersects(poi) == false || lsToPoi.intersects(poi) == false || poi.closeEnoughTo(l))
 					continue;
 
 				ret.add(l);
@@ -146,9 +147,12 @@ public class EvadeInterceptors implements Pathfinder
 			}
 
 			final Line seg = new Line(p1.getLoc(), p.getLoc());
+			LinearVelocity segLV = seg.getDirection();
 			Location pointAlong = seg.getPoint(ratio);
-			return new Line(pointAlong, seg.getLoc1());
-		}).toList());
+			
+			// make it longer than field distances and then chop it down to size to make sure it fits
+			return new Line(pointAlong.add(segLV.add(-Math.PI / 2, 0, 200)), pointAlong.add(segLV.add(Math.PI / 2, 0, 200))).restrictToPlayableArea();
+		}).filter(l -> l != null).toList());
 	}
 
 	private Set<Line> splitLines(final Set<Line> segments)
@@ -167,8 +171,8 @@ public class EvadeInterceptors implements Pathfinder
 				if (s1.equals(s2))
 					continue;
 
-				final Location intersection = s1.intersects(s2);
-				if (intersection != null)
+				final Location intersection = s1.xyIntersection(s2);
+				if (intersection != null && s1.intersects(intersection) && s2.intersects(intersection))
 				{
 					if (intersection.equals(s1.getLoc1()) || intersection.equals(s1.getLoc2()))
 						continue;

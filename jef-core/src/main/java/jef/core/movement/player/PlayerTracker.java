@@ -140,7 +140,7 @@ public class PlayerTracker extends Tracker implements Player
 		Line perpLine = line.getPerpendicularLine(dest);
 		
 		final Line currentLine = new Line(this.getStartingLoc(), this.getLoc());
-		final Location intersection = perpLine.intersects(currentLine);
+		final Location intersection = perpLine.xyIntersection(currentLine);
 
 		return intersection != null;
 	}
