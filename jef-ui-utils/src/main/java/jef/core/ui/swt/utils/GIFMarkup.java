@@ -1,4 +1,5 @@
-package jef.core;
+package jef.core.ui.swt.utils;
+
 
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -6,9 +7,7 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.graphics.Point;
 
-import jef.core.movement.Location;
-
-class GIFMarkup
+public class GIFMarkup
 {
 	private int imageNumber = 0;
 	private ImageLoader loader;

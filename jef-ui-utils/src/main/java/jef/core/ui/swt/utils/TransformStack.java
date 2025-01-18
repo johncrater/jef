@@ -1,4 +1,5 @@
-package jef.core;
+package jef.core.ui.swt.utils;
+
 
 import java.util.Stack;
 
@@ -6,7 +7,6 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Transform;
 
-import com.synerset.unitility.unitsystem.common.Angle;
 
 public class TransformStack implements AutoCloseable
 {
@@ -86,17 +86,12 @@ public class TransformStack implements AutoCloseable
 		gc.getTransform(currentTransform);
 	}
 
-	public void rotateAroundZ(float x, float y, Angle angle)
+	public void rotateAroundZ(float x, float y, double angle)
 	{
 		translate(x, y);
 		rotate(angle);
 	}
 	
-	public void rotate(Angle angle)
-	{
-		this.currentTransform.rotate((float) -angle.getInDegrees());
-	}
-
 	public void rotate(double angle)
 	{
 		this.currentTransform.rotate((float)Math.toDegrees(angle));

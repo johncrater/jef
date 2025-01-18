@@ -23,7 +23,7 @@ public class BallUtils
 								&& av.getOrientation() < -Math.PI / 2)))));
 	}
 
-	public static boolean isBackwarAngle(AngularVelocity av, LinearVelocity lv)
+	public static boolean isBackwardAngle(AngularVelocity av, LinearVelocity lv)
 	{
 		return isForwardAngle(av, lv) == false && av.getRotation() != 0;
 	}

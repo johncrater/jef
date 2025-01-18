@@ -1,7 +1,6 @@
 package jef.core.movement.player;
 
 import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,7 +20,6 @@ public class Steering
 	private final Steerable steerable;
 
 	private ByteArrayOutputStream baos;
-	private PrintStream out;
 
 	public Steering(final Steerable steerable)
 	{
@@ -41,7 +39,6 @@ public class Steering
 			collisions = Collections.emptyList();
 		
 		this.baos = new ByteArrayOutputStream();
-		this.out = new PrintStream(this.baos);
 
 		this.buildMessage(String.format("%-25s: %s", "Initial",
 				String.format("%3.2f %s %s", tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));

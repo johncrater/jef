@@ -1,4 +1,5 @@
-package jef.core;
+package jef.core.tests;
+
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,12 +32,16 @@ import org.eclipse.swt.widgets.Text;
 
 import com.synerset.unitility.unitsystem.common.Angle;
 
+import jef.core.Conversions;
+import jef.core.Football;
+import jef.core.Performance;
 import jef.core.movement.DefaultAngularVelocity;
 import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.DefaultLocation;
 import jef.core.movement.Location;
 import jef.core.movement.ball.BallPhysics;
 import jef.core.movement.ball.BallTracker;
+import jef.core.ui.swt.utils.TransformStack;
 
 public class BallTestViewer implements Runnable
 {
@@ -271,7 +276,7 @@ public class BallTestViewer implements Runnable
 				try (TransformStack ts2 = new TransformStack(e.gc))
 				{
 					ts2.translate(xy.x, xy.y);
-					ts2.rotate(Angle.ofRadians(ball.getAV().getOrientation() * -1));
+					ts2.rotate(ball.getAV().getOrientation() * -1);
 					ts2.set();
 					e.gc.drawImage(BallTestViewer.footballSmall, -17, -17);
 				}
@@ -308,7 +313,7 @@ public class BallTestViewer implements Runnable
 			{
 				ts.translate(canvasXZ.getBounds().width - 400, canvasXZ.getBounds().y + 200);
 				ts.scale(.15f, .15f);
-				ts.rotate(Angle.ofRadians(Math.PI / 2.0 + ball.getAV().getOrientation()));
+				ts.rotate(Math.PI / 2.0 + ball.getAV().getOrientation());
 				ts.set();
 				
 				e.gc.drawImage(BallTestViewer.footballBig, (int)(-footballBig.getImageData().width / 2.0) + 1, (int)(-footballBig.getImageData().height / 2.0) + 1);

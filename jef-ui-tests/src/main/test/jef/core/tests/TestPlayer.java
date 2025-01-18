@@ -1,5 +1,7 @@
-package jef.core;
+package jef.core.tests;
 
+
+import jef.core.Player;
 import jef.core.movement.Moveable;
 import jef.core.movement.Posture;
 import jef.core.movement.player.DefaultPath;
@@ -12,6 +14,7 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 	private String id;
 	private String firstName;
 	private String lastName;
+	private double maxSpeed;
 
 	private final double massInKilograms = 100;
 	private double heightInMeters;
@@ -25,10 +28,15 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 		this.id = firstName + lastName;
 	}
 
+	public void setMaxSpeed(double maxSpeed)
+	{
+		this.maxSpeed = maxSpeed;
+	}
+
 	@Override
 	public double getSpeed(Type type)
 	{
-		return 10;
+		return getMaxSpeed();
 	}
 
 	@Override
@@ -89,7 +97,7 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 	@Override
 	public double getMaxSpeed()
 	{
-		return 15;
+		return this.maxSpeed;
 	}
 
 	@Override
@@ -126,6 +134,6 @@ public class TestPlayer extends TestMoveable implements Player, Steerable
 	@Override
 	public double getDesiredSpeed()
 	{
-		return 10;
+		return this.maxSpeed;
 	}
 }

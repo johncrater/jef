@@ -8,11 +8,11 @@
 	</properties>
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>jef</groupId>
-	<artifactId>jef-core</artifactId>
+	<groupId>jef-ui-tests</groupId>
+	<artifactId>jef-ui-tests</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<build>
-		<sourceDirectory>src</sourceDirectory>
+		<testSourceDirectory>src/main/test</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -33,25 +33,14 @@
 			<systemPath>${swt-systemPath}</systemPath>
 		</dependency>
 		<dependency>
-			<groupId>com.synerset</groupId>
-			<artifactId>unitility-core</artifactId>
-			<version>2.4.2</version>
+			<groupId>jef</groupId>
+			<artifactId>jef-core</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>com.badlogicgames.gdx</groupId>
-			<artifactId>gdx-ai</artifactId>
-			<version>1.8.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-numbers-core</artifactId>
-			<version>1.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-			<version>5.11.3</version>
-			<scope>test</scope>
+			<groupId>jef</groupId>
+			<artifactId>jef-ui-utils</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -2,7 +2,7 @@ package jef.core.movement.index;
 
 import org.junit.jupiter.api.Test;
 
-import jef.core.TestPlayer;
+import TestPlayer;
 import jef.core.movement.DefaultLinearVelocity;
 
 class DefaultLocationIndexTest

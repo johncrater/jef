@@ -47,7 +47,7 @@ public class InterceptPlayer implements Pathfinder
 		else
 			interceptionPoint = xminus.getX() < xplus.getX() ? new DefaultLocation(xminus.getX(), xminus.getY()) : new DefaultLocation(xplus.getX(), xplus.getY());
 			
-		System.out.println(interceptionPoint);
+//		System.out.println(interceptionPoint);
 		
 		// if target has no velocity, go straight for him
 		if (Double.isNaN(interceptionPoint.getX()) || Double.isNaN(interceptionPoint.getY()))

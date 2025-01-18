@@ -30,6 +30,12 @@ public class DefaultLocation implements Location
 	}
 
 	@Override
+	public Location add(double x, double y, double z)
+	{
+		return new DefaultLocation(getX() + x, getY() + y, getZ() + z);
+	}
+
+	@Override
 	public boolean isInPlayableArea()
 	{
 		if (getX() < 0 || getX() > Field.FIELD_TOTAL_LENGTH)
@@ -77,7 +83,7 @@ public class DefaultLocation implements Location
 
 		final Location other = (Location) obj;
 
-		return (this.getX() == other.getX()) && (this.getY() == other.getY()) && (this.getZ() == other.getZ());
+		return Location.EPSILON.eq(this.getX(), other.getX()) && Location.EPSILON.eq(this.getY(), other.getY()) && Location.EPSILON.eq(this.getZ(), other.getZ());
 	}
 
 	@Override

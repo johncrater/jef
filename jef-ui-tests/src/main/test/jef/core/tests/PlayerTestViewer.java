@@ -1,4 +1,5 @@
-package jef.core;
+package jef.core.tests;
+
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -42,6 +43,10 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
+import jef.core.Conversions;
+import jef.core.Field;
+import jef.core.Performance;
+import jef.core.Player;
 import jef.core.geometry.Vector;
 import jef.core.movement.Collision;
 import jef.core.movement.DefaultLinearVelocity;
@@ -56,11 +61,14 @@ import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
+import jef.core.pathfinding.BlockingEscort;
 import jef.core.pathfinding.Direction;
 import jef.core.pathfinding.EvadeInterceptors;
 import jef.core.pathfinding.InterceptPlayer;
 import jef.core.pathfinding.Pathfinder;
 import jef.core.pathfinding.RunForGlory;
+import jef.core.ui.swt.utils.GIFMarkup;
+import jef.core.ui.swt.utils.TransformStack;
 
 public class PlayerTestViewer implements Runnable
 {
@@ -90,6 +98,9 @@ public class PlayerTestViewer implements Runnable
 
 	private TestPlayer player;
 	private Map<String, TestPlayer> players = new HashMap<>();
+	private TestPlayer runner;
+	private Map<String, Player> defenders = new HashMap<>();
+	private Map<String, Player> blockers = new HashMap<>();
 	private Map<String, Pathfinder> pathfinders = new HashMap<>();
 	private DestinationAction nextDestinationAction = DestinationAction.fastStop;
 	private LocationIndex index = new DefaultLocationIndex(TIMER_INTERVAL, (int) (2 / TIMER_INTERVAL)); // two seconds
@@ -206,6 +217,19 @@ public class PlayerTestViewer implements Runnable
 		});
 
 		testButton = new Button(c, SWT.PUSH);
+		testButton.setText("Test");
+		testButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(SelectionEvent e)
+			{
+				defenders.values().forEach(p -> pathfinders.put(p.getId(), new InterceptPlayer(p, runner, Direction.west)));
+				blockers.values().forEach(p -> pathfinders.put(p.getId(), new BlockingEscort(runner, defenders.values(), Direction.west)));
+				pathfinders.put(player.getId(), new EvadeInterceptors(runner, defenders.values(), blockers.values(), Direction.west));
+			}
+		});
+
+		testButton = new Button(c, SWT.PUSH);
 		testButton.setText("Stop");
 		testButton.addSelectionListener(new SelectionAdapter()
 		{
@@ -236,16 +260,38 @@ public class PlayerTestViewer implements Runnable
 	{
 		player = new TestPlayer("Chuck", "Foreman");
 		Path path = new DefaultPath();
-		path.addWaypoint(new Waypoint(Field.MIDFIELD, 10, DestinationAction.fastStop));
 		player.setPath(path);
+		player.setMaxSpeed(12);
+		path.addWaypoint(new Waypoint(Field.MIDFIELD, player.getMaxSpeed(), DestinationAction.fastStop));
 		this.players.put(player.getId(), player);
+		this.runner = player;
 
-		TestPlayer p = new TestPlayer("Fran", "Tarkenton");
+		TestPlayer p = new TestPlayer("Carl", "Eller");
 		p.setLoc(Field.MIDFIELD);
 		path = new DefaultPath();
-		path.addWaypoint(new Waypoint(Field.MIDFIELD, 10, DestinationAction.fastStop));
+		p.setMaxSpeed(10);
+		path.addWaypoint(new Waypoint(p.getLoc(), p.getMaxSpeed(), DestinationAction.fastStop));
 		p.setPath(path);
 		this.players.put(p.getId(), p);
+		this.defenders.put(p.getId(), p);
+
+		p = new TestPlayer("Ron", "Yary");
+		p.setLoc(Field.MIDFIELD.add(-10, 10, 0));
+		p.setMaxSpeed(10);
+		path = new DefaultPath();
+		path.addWaypoint(new Waypoint(p.getLoc(), p.getMaxSpeed(), DestinationAction.fastStop));
+		p.setPath(path);
+		this.players.put(p.getId(), p);
+		this.blockers.put(p.getId(), p);
+
+		p = new TestPlayer("Alan", "Page");
+		p.setLoc(Field.MIDFIELD.add(-10, 0, 0));
+		p.setMaxSpeed(10);
+		path = new DefaultPath();
+		path.addWaypoint(new Waypoint(p.getLoc(), p.getMaxSpeed(), DestinationAction.fastStop));
+		p.setPath(path);
+		this.players.put(p.getId(), p);
+		this.defenders.put(p.getId(), p);
 	}
 
 	public static int colorStringToColor(String colorString)
@@ -637,5 +683,4 @@ public class PlayerTestViewer implements Runnable
 	{
 		new PlayerTestViewer().messageLoop();
 	}
-
 }

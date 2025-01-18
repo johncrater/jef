@@ -19,6 +19,7 @@ public interface Location
 	public double angleTo(Location loc);
 
 	public Location add(LinearVelocity lv);
+	public Location add(double x, double y, double z);
 
 	public Location newFrom(Double x, Double y, Double z);
 

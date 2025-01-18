@@ -66,6 +66,11 @@ public class Field
 			new DefaultLocation(FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH, FIELD_BORDER_WIDTH),
 			new DefaultLocation(FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH), FIELD_BORDER_WIDTH));
 
+	public static final double WEST_END_ZONE_X = FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH;
+	public static final double EAST_END_ZONE_X = FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH);
+	public static final double SOUTH_SIDELINE_Y = FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH;
+	public static final double NORTH_SIDELINE_Y = FIELD_BORDER_WIDTH;
+	
 	public static final Location MIDFIELD = new DefaultLocation(FIELD_TOTAL_LENGTH / 2, FIELD_TOTAL_WIDTH / 2, 0.0);
 	
 	public static double yardLine(double yardLine, Direction direction)

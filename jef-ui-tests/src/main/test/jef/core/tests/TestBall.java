@@ -1,5 +1,8 @@
-package jef.core;
+package jef.core.tests;
 
+
+import jef.core.Football;
+import jef.core.Player;
 import jef.core.movement.AngularVelocity;
 import jef.core.movement.DefaultAngularVelocity;
 import jef.core.movement.DefaultLinearVelocity;
