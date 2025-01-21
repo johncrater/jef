@@ -52,7 +52,7 @@ class LocationIndexEntry
 		
 		if (obj instanceof PlayerTracker)
 		{
-			assert ((PlayerTracker) obj).getId().equals(player.getId());
+			assert ((PlayerTracker) obj).getPlayerID().equals(player.getPlayerID());
 			this.occupiers[index] = null;
 			occupierCount -= 1;
 			assert occupierCount >= 0;
@@ -83,7 +83,7 @@ class LocationIndexEntry
 		else if (obj instanceof PlayerTracker)
 		{
 			PlayerTracker pObj = (PlayerTracker) obj;
-			if (pObj.getId().equals(player.getId()) == false)
+			if (pObj.getPlayerID().equals(player.getPlayerID()) == false)
 			{
 				Set<PlayerTracker> set = new HashSet<PlayerTracker>();
 				set.add(player);

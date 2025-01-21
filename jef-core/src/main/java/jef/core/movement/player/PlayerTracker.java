@@ -1,6 +1,10 @@
 package jef.core.movement.player;
 
+import java.util.List;
+
 import jef.core.Player;
+import jef.core.PlayerPosition;
+import jef.core.PlayerRatings;
 import jef.core.geometry.Line;
 import jef.core.movement.DefaultAngularVelocity;
 import jef.core.movement.LinearVelocity;
@@ -63,6 +67,18 @@ public class PlayerTracker extends Tracker implements Player
 	}
 
 	@Override
+	public int getAge()
+	{
+		return this.player.getAge();
+	}
+
+	@Override
+	public PlayerPosition getCurrentPosition()
+	{
+		return this.player.getCurrentPosition();
+	}
+
+	@Override
 	public double getDesiredSpeed()
 	{
 		final Waypoint wp = this.player.getPath().getCurrentWaypoint();
@@ -79,15 +95,9 @@ public class PlayerTracker extends Tracker implements Player
 	}
 
 	@Override
-	public double getHeightInMeters()
+	public int getHeight()
 	{
-		return this.player.getHeightInMeters();
-	}
-
-	@Override
-	public String getId()
-	{
-		return this.player.getId();
+		return this.player.getHeight();
 	}
 
 	@Override
@@ -97,15 +107,15 @@ public class PlayerTracker extends Tracker implements Player
 	}
 
 	@Override
-	public double getMassInKilograms()
-	{
-		return this.player.getMassInKilograms();
-	}
-
-	@Override
 	public double getMaxSpeed()
 	{
 		return this.player.getMaxSpeed();
+	}
+
+	@Override
+	public int getNumber()
+	{
+		return this.player.getNumber();
 	}
 
 	@Override
@@ -120,15 +130,63 @@ public class PlayerTracker extends Tracker implements Player
 	}
 
 	@Override
+	public String getPlayerID()
+	{
+		return this.player.getPlayerID();
+	}
+
+	@Override
+	public List<PlayerPosition> getPositions()
+	{
+		return this.player.getPositions();
+	}
+
+	@Override
 	public Posture getPosture()
 	{
 		return this.player.getPosture();
 	}
 
 	@Override
-	public double getSpeed(final Type type)
+	public PlayerPosition getPrimaryPosition()
 	{
-		return this.player.getSpeed(type);
+		return this.player.getPrimaryPosition();
+	}
+
+	@Override
+	public PlayerRatings getRatings()
+	{
+		return this.player.getRatings();
+	}
+
+	@Override
+	public PlayerPosition getSecondaryPosition()
+	{
+		return this.player.getSecondaryPosition();
+	}
+
+	@Override
+	public SpeedMatrix getSpeedMatrix()
+	{
+		return this.player.getSpeedMatrix();
+	}
+
+	@Override
+	public PlayerPosition getTertiaryPosition()
+	{
+		return this.player.getTertiaryPosition();
+	}
+
+	@Override
+	public int getWeight()
+	{
+		return this.player.getWeight();
+	}
+
+	@Override
+	public boolean hasBall()
+	{
+		return this.player.hasBall();
 	}
 
 	public boolean hasPastDestination()
@@ -136,13 +194,92 @@ public class PlayerTracker extends Tracker implements Player
 		final Location origin = this.getStartingLoc();
 		final Location dest = this.getPath().getCurrentWaypoint().getDestination();
 
-		Line line = new Line(origin, dest);
-		Line perpLine = line.getPerpendicularLine(dest);
-		
+		final Line line = new Line(origin, dest);
+		final Line perpLine = line.getPerpendicularLine(dest);
+
 		final Line currentLine = new Line(this.getStartingLoc(), this.getLoc());
 		final Location intersection = perpLine.xyIntersection(currentLine);
 
 		return intersection != null;
+	}
+
+	@Override
+	public double move()
+	{
+		final double ret = super.move();
+
+		// when LV = 0, azimuth becomes 0 also and we don't want to change AV
+		// orientation in that case
+		if (this.getLV().getSpeed() > 0)
+		{
+			this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
+		}
+
+		return ret;
+	}
+
+	@Override
+	public double move(final LinearVelocity lvAdjustment, final Double maximumDistance)
+	{
+		final double ret = super.move(lvAdjustment, maximumDistance);
+
+		// when LV = 0, azimuth becomes 0 also and we don't want to change AV
+		// orientation in that case
+		if (this.getLV().getSpeed() > 0)
+		{
+			this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
+		}
+
+		return ret;
+	}
+
+	@Override
+	public void moveRemaining(final double speedAdjustment)
+	{
+		super.moveRemaining(speedAdjustment);
+
+		// when LV = 0, azimuth becomes 0 also and we don't want to change AV
+		// orientation in that case
+		if (this.getLV().getSpeed() > 0)
+		{
+			this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
+		}
+	}
+
+	@Override
+	public void setAge(final int age)
+	{
+		this.player.setAge(age);
+	}
+
+	@Override
+	public void setFirstName(final String firstName)
+	{
+		this.player.setFirstName(firstName);
+	}
+
+	@Override
+	public void setHasBall(final boolean hasBall)
+	{
+		this.player.setHasBall(hasBall);
+	}
+
+	@Override
+	public void setHeight(final int height)
+	{
+		this.player.setHeight(height);
+	}
+
+	@Override
+	public void setLastName(final String lastName)
+	{
+		this.player.setLastName(lastName);
+	}
+
+	@Override
+	public void setNumber(final int number)
+	{
+		this.player.setNumber(number);
 	}
 
 	@Override
@@ -157,6 +294,18 @@ public class PlayerTracker extends Tracker implements Player
 		this.player.setPosture(posture);
 	}
 
+	@Override
+	public void setSpeedMatrix(final SpeedMatrix matrix)
+	{
+		this.player.setSpeedMatrix(matrix);
+	}
+
+	@Override
+	public void setWeight(final int weight)
+	{
+		this.player.setWeight(weight);
+	}
+
 	/**
 	 * Simply adjust the linear velocity to point in the direction created by adding
 	 * the adjustment to the current velocity
@@ -166,30 +315,13 @@ public class PlayerTracker extends Tracker implements Player
 	public void turn(final double angleAdjustment)
 	{
 		this.setLV(this.getLV().newFrom(this.getLV().getAzimuth() + angleAdjustment, null, null));
-		this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
-	}
 
-	@Override
-	public double move()
-	{
-		double ret = super.move();
-		this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
-		return ret;
-	}
-
-	@Override
-	public double move(LinearVelocity lvAdjustment, Double maximumDistance)
-	{
-		double ret = super.move(lvAdjustment, maximumDistance);
-		this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
-		return ret;
-	}
-
-	@Override
-	public void moveRemaining(double speedAdjustment)
-	{
-		super.moveRemaining(speedAdjustment);
-		this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
+		// when LV = 0, azimuth becomes 0 also and we don't want to change AV
+		// orientation in that case
+		if (this.getLV().getSpeed() > 0)
+		{
+			this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
+		}
 	}
 
 }

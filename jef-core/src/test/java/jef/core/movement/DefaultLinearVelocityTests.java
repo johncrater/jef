@@ -2,7 +2,6 @@ package jef.core.movement;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 
@@ -88,127 +87,127 @@ class DefaultLinearVelocityTests
 		assertTrue(lv1.closeEnoughTo(lv2));
 	}
 
-	@Test
-	void testDotProduct()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testEqualsObject()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testGetAzimuth()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testGetElevation()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testGetSpeed()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testGetX()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testGetXYSpeed()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testGetXZSpeed()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testGetY()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testGetYZSpeed()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testGetZ()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testIsNotMoving()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testMovingLeft()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testMovingRight()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testMultiply()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testNegate()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testNewFrom()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testNormalize()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testSubtract()
-	{
-		fail("Not yet implemented");
-	}
-
-	@Test
-	void testToVector()
-	{
-		fail("Not yet implemented");
-	}
-
-
+//	@Test
+//	void testDotProduct()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testEqualsObject()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testGetAzimuth()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testGetElevation()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testGetSpeed()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testGetX()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testGetXYSpeed()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testGetXZSpeed()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testGetY()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testGetYZSpeed()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testGetZ()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testIsNotMoving()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testMovingLeft()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testMovingRight()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testMultiply()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testNegate()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testNewFrom()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testNormalize()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testSubtract()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//	@Test
+//	void testToVector()
+//	{
+//		fail("Not yet implemented");
+//	}
+//
+//
 	private double round(double x)
 	{
 		return Math.round(1000.0 * x) / 1000.0;

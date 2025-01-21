@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import jef.core.Player;
-import jef.core.movement.Collision;
+import jef.core.collisions.Collision;
 import jef.core.movement.DefaultLocation;
 import jef.core.movement.Location;
 import jef.core.movement.player.PlayerTracker;
@@ -86,7 +86,7 @@ public class DefaultLocationIndex implements LocationIndex
 		final int tick = 0;
 		PlayerTracker tracker = new PlayerTracker(player, this.getTimeInterval());
 
-		PlayerIndexEntry entry = this.idToIndexEntry.get(player.getId());
+		PlayerIndexEntry entry = this.idToIndexEntry.get(player.getPlayerID());
 		final Player currentTracker = entry.getPlayerTracker(tick);
 
 		if (currentTracker != null)
@@ -119,7 +119,7 @@ public class DefaultLocationIndex implements LocationIndex
 
 	private void clearEntries(Player player)
 	{
-		PlayerIndexEntry entry = this.idToIndexEntry.get(player.getId());
+		PlayerIndexEntry entry = this.idToIndexEntry.get(player.getPlayerID());
 		for (int i = 0; i < this.numberOfTicks; i++)
 		{
 			Location loc = this.toCanonicalLocation(entry.getPlayerTracker(i).getLoc());
@@ -135,11 +135,11 @@ public class DefaultLocationIndex implements LocationIndex
 	
 	private void initEntries(Player player)
 	{
-		PlayerIndexEntry entry = this.idToIndexEntry.get(player.getId());
+		PlayerIndexEntry entry = this.idToIndexEntry.get(player.getPlayerID());
 		if (entry == null)
 		{
-			entry = new PlayerIndexEntry(player.getId(), this.getNumTicks());
-			this.idToIndexEntry.put(player.getId(), entry);
+			entry = new PlayerIndexEntry(player.getPlayerID(), this.getNumTicks());
+			this.idToIndexEntry.put(player.getPlayerID(), entry);
 		}
 	}
 	

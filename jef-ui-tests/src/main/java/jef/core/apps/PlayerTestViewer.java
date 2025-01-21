@@ -1,5 +1,4 @@
-package jef.core.tests;
-
+package jef.core.apps;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -44,20 +43,24 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import jef.core.Conversions;
+import jef.core.DefaultPlayer;
 import jef.core.Field;
 import jef.core.Performance;
 import jef.core.Player;
-import jef.core.geometry.Vector;
-import jef.core.movement.Collision;
-import jef.core.movement.DefaultLinearVelocity;
+import jef.core.PlayerPosition;
+import jef.core.collisions.Collision;
+import jef.core.collisions.CollisionResolution;
+import jef.core.collisions.CollisionResolver;
 import jef.core.movement.DefaultLocation;
-import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
+import jef.core.movement.Posture;
 import jef.core.movement.index.DefaultLocationIndex;
 import jef.core.movement.index.LocationIndex;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.PlayerTracker;
+import jef.core.movement.player.SpeedMatrix;
+import jef.core.movement.player.SpeedMatrix.SpeedType;
 import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
@@ -96,9 +99,9 @@ public class PlayerTestViewer implements Runnable
 	private GIFMarkup player1Gif;
 	private boolean pause;
 
-	private TestPlayer player;
-	private Map<String, TestPlayer> players = new HashMap<>();
-	private TestPlayer runner;
+	private DefaultPlayer player;
+	private Map<String, DefaultPlayer> players = new HashMap<>();
+	private DefaultPlayer runner;
 	private Map<String, Player> defenders = new HashMap<>();
 	private Map<String, Player> blockers = new HashMap<>();
 	private Map<String, Pathfinder> pathfinders = new HashMap<>();
@@ -188,7 +191,7 @@ public class PlayerTestViewer implements Runnable
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				pathfinders.put(player.getId(), new RunForGlory(player, Direction.west));
+				pathfinders.put(player.getPlayerID(), new RunForGlory(player, Direction.west));
 			}
 		});
 
@@ -199,7 +202,7 @@ public class PlayerTestViewer implements Runnable
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				pathfinders.put(player.getId(), new InterceptPlayer(player,
+				pathfinders.put(player.getPlayerID(), new InterceptPlayer(player,
 						players.values().stream().filter(p -> p != player).findFirst().orElse(null), Direction.west));
 			}
 		});
@@ -211,8 +214,10 @@ public class PlayerTestViewer implements Runnable
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				pathfinders.put(player.getId(), new EvadeInterceptors(player, new ArrayList<Player>(
-						players.values().stream().filter(p -> p != player).toList()), Collections.emptyList(), Direction.west));
+				pathfinders.put(player.getPlayerID(),
+						new EvadeInterceptors(player,
+								new ArrayList<Player>(players.values().stream().filter(p -> p != player).toList()),
+								Collections.emptyList(), Direction.west));
 			}
 		});
 
@@ -223,9 +228,12 @@ public class PlayerTestViewer implements Runnable
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				defenders.values().forEach(p -> pathfinders.put(p.getId(), new InterceptPlayer(p, runner, Direction.west)));
-				blockers.values().forEach(p -> pathfinders.put(p.getId(), new BlockingEscort(runner, defenders.values(), Direction.west)));
-				pathfinders.put(player.getId(), new EvadeInterceptors(runner, defenders.values(), blockers.values(), Direction.west));
+				defenders.values()
+						.forEach(p -> pathfinders.put(p.getPlayerID(), new InterceptPlayer(p, runner, Direction.west)));
+				blockers.values().forEach(p -> pathfinders.put(p.getPlayerID(),
+						new BlockingEscort(runner, defenders.values(), Direction.west)));
+				pathfinders.put(runner.getPlayerID(),
+						new EvadeInterceptors(runner, defenders.values(), blockers.values(), Direction.west));
 			}
 		});
 
@@ -236,11 +244,11 @@ public class PlayerTestViewer implements Runnable
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				pathfinders.put(player.getId(), null);
+				pathfinders.put(player.getPlayerID(), null);
 			}
 		});
 
-		for (TestPlayer p : this.players.values())
+		for (DefaultPlayer p : this.players.values())
 		{
 			Button b = new Button(c, SWT.PUSH);
 			b.setText("" + p.getFirstName().charAt(0) + p.getLastName().charAt(0));
@@ -250,7 +258,7 @@ public class PlayerTestViewer implements Runnable
 				@Override
 				public void widgetSelected(SelectionEvent e)
 				{
-					player = (TestPlayer) b.getData();
+					player = (DefaultPlayer) b.getData();
 				}
 			});
 		}
@@ -258,40 +266,57 @@ public class PlayerTestViewer implements Runnable
 
 	private void createPlayers()
 	{
-		player = new TestPlayer("Chuck", "Foreman");
+		
+		player = new DefaultPlayer();
+		player.setFirstName("Chuck");
+		player.setLastName("Foreman");
+		player.setLoc(new DefaultLocation(Field.yardLine(20, Direction.west), Field.MIDFIELD_Y, 0));
 		Path path = new DefaultPath();
 		player.setPath(path);
-		player.setMaxSpeed(12);
-		path.addWaypoint(new Waypoint(Field.MIDFIELD, player.getMaxSpeed(), DestinationAction.fastStop));
-		this.players.put(player.getId(), player);
+		player.setSpeedMatrix(new SpeedMatrix(11, 9, 6, 3));
+		path.addWaypoint(new Waypoint(player.getLoc(), player.getMaxSpeed(), DestinationAction.fastStop));
+		this.players.put(player.getPlayerID(), player);
 		this.runner = player;
+		this.runner.setHasBall(true);
+		player.setCurrentPosition(PlayerPosition.RB);
 
-		TestPlayer p = new TestPlayer("Carl", "Eller");
+		DefaultPlayer p = null;
+
+		p = new DefaultPlayer();
+		p.setFirstName("Carl");
+		p.setLastName("Eller");
 		p.setLoc(Field.MIDFIELD);
 		path = new DefaultPath();
-		p.setMaxSpeed(10);
+		p.setSpeedMatrix(new SpeedMatrix(10, 8, 6, 3));
 		path.addWaypoint(new Waypoint(p.getLoc(), p.getMaxSpeed(), DestinationAction.fastStop));
 		p.setPath(path);
-		this.players.put(p.getId(), p);
-		this.defenders.put(p.getId(), p);
+		this.players.put(p.getPlayerID(), p);
+		this.defenders.put(p.getPlayerID(), p);
+		p.setCurrentPosition(PlayerPosition.DE);
 
-		p = new TestPlayer("Ron", "Yary");
-		p.setLoc(Field.MIDFIELD.add(-10, 10, 0));
-		p.setMaxSpeed(10);
-		path = new DefaultPath();
-		path.addWaypoint(new Waypoint(p.getLoc(), p.getMaxSpeed(), DestinationAction.fastStop));
-		p.setPath(path);
-		this.players.put(p.getId(), p);
-		this.blockers.put(p.getId(), p);
-
-		p = new TestPlayer("Alan", "Page");
-		p.setLoc(Field.MIDFIELD.add(-10, 0, 0));
-		p.setMaxSpeed(10);
-		path = new DefaultPath();
-		path.addWaypoint(new Waypoint(p.getLoc(), p.getMaxSpeed(), DestinationAction.fastStop));
-		p.setPath(path);
-		this.players.put(p.getId(), p);
-		this.defenders.put(p.getId(), p);
+//		p = new DefaultPlayer();
+//		p.setFirstName("Ron");
+//		p.setLastName("Yary");
+//		p.setLoc(Field.MIDFIELD.add(-10, 10, 0));
+//		p.setSpeedMatrix(new SpeedMatrix(10, 8, 6, 3));
+//		path = new DefaultPath();
+//		path.addWaypoint(new Waypoint(p.getLoc(), p.getMaxSpeed(), DestinationAction.fastStop));
+//		p.setPath(path);
+//		this.players.put(p.getPlayerID(), p);
+//		this.blockers.put(p.getPlayerID(), p);
+//		p.setCurrentPosition(PlayerPosition.G);
+//
+//		p = new DefaultPlayer();
+//		p.setFirstName("Alan");
+//		p.setLastName("Page");
+//		p.setLoc(Field.MIDFIELD.add(-10, 0, 0));
+//		p.setSpeedMatrix(new SpeedMatrix(10, 8, 6, 3));
+//		path = new DefaultPath();
+//		path.addWaypoint(new Waypoint(p.getLoc(), p.getMaxSpeed(), DestinationAction.fastStop));
+//		p.setPath(path);
+//		this.players.put(p.getPlayerID(), p);
+//		this.defenders.put(p.getPlayerID(), p);
+//		p.setCurrentPosition(PlayerPosition.DT);
 	}
 
 	public static int colorStringToColor(String colorString)
@@ -388,7 +413,7 @@ public class PlayerTestViewer implements Runnable
 				ts.set();
 
 				e.gc.drawImage(field, 0, 0);
-				for (TestPlayer player : players.values())
+				for (DefaultPlayer player : players.values())
 				{
 					drawPlayer(e.gc, player);
 				}
@@ -426,7 +451,7 @@ public class PlayerTestViewer implements Runnable
 					Location loc = pointToLocation(p);
 
 					player.getPath().clear();
-					player.getPath().addWaypoint(new Waypoint(loc, player.getDesiredSpeed(), nextDestinationAction));
+					player.getPath().addWaypoint(new Waypoint(loc, player.getMaxSpeed(), nextDestinationAction));
 				}
 				catch (Exception e1)
 				{
@@ -469,7 +494,7 @@ public class PlayerTestViewer implements Runnable
 			}
 	}
 
-	private void drawPlayer(GC gc, TestPlayer player)
+	private void drawPlayer(GC gc, DefaultPlayer player)
 	{
 		int offset = (int) Conversions.yardsToInches(Player.size * 3.0 / 4.0);
 
@@ -489,6 +514,19 @@ public class PlayerTestViewer implements Runnable
 		Point p = locationToPoint(player.getLoc());
 		gc.fillOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
 
+		try (TransformStack ts = new TransformStack(gc))
+		{
+			ts.translate(p);
+			ts.rotate(-player.getAV().getOrientation());
+			ts.set();
+			
+			gc.fillPolygon(new int [] {0, -offset, 0, offset, 2 * offset, 0});
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		
 		String playerNumber = "" + player.getFirstName().charAt(0) + player.getLastName().charAt(0);
 		Point extent = gc.textExtent(playerNumber);
 
@@ -556,16 +594,29 @@ public class PlayerTestViewer implements Runnable
 		{
 			try
 			{
-				for (TestPlayer player : players.values())
+				for (DefaultPlayer player : players.values())
 					this.index.update(player);
 
 				List<Collision> collisions = this.index.getCollisions(0);
-				for (Collision collision : collisions)
-					handleCollision(collision);
+				collisions = collisions.stream()
+						.filter(c -> c.getOccupier1().getPlayerID().equals(player.getPlayerID())
+								|| c.getOccupier2().getPlayerID().equals(player.getPlayerID()))
+						.map(c -> new Collision(players.get(c.getOccupier1().getPlayerID()), players.get(c.getOccupier2().getPlayerID()),
+								c.getTickCountOfcollision()))
+						.toList();
 
-				for (TestPlayer player : players.values())
+				for (Collision collision : collisions)
 				{
-					Pathfinder pf = this.pathfinders.get(player.getId());
+					if (pathfinders.size() > 0)
+					{
+						CollisionResolver resolver = CollisionResolution.createResolution(collision);
+						resolver.resolveCollision();
+					}
+				}
+				
+				for (DefaultPlayer player : players.values())
+				{
+					Pathfinder pf = this.pathfinders.get(player.getPlayerID());
 					if (pf != null)
 					{
 						Path path = pf.findPath();
@@ -575,12 +626,7 @@ public class PlayerTestViewer implements Runnable
 
 					Steering steering = new Steering(player);
 					PlayerTracker tracker = new PlayerTracker(player, TIMER_INTERVAL);
-
-					List<Collision> playerCollisions = collisions.stream().filter(
-							c -> c.getOccupier1().getId().equals(player) || c.getOccupier2().getId().equals(player))
-							.toList();
-
-					steering.next(tracker, playerCollisions);
+					steering.next(tracker);
 
 					player.setLV(tracker.getLV());
 					player.setAV(tracker.getAV());
@@ -590,6 +636,12 @@ public class PlayerTestViewer implements Runnable
 
 				this.index.advance();
 
+				if (runner.getPosture() == Posture.onTheGround)
+				{
+					pathfinders.clear();
+//					players.values().forEach(p -> p.setPosture(Posture.upright));
+				}
+				
 				Performance.processTime.endCycle();
 			}
 			catch (Exception e)
@@ -603,31 +655,6 @@ public class PlayerTestViewer implements Runnable
 
 		this.lastMilliseconds = System.currentTimeMillis();
 		shell.getDisplay().asyncExec(this);
-	}
-
-	private void handleCollision(Collision collision)
-	{
-		Player p1 = collision.getOccupier1();
-		Player p2 = collision.getOccupier2();
-
-		// m1 * v1 + m2 * v2 = (m1 + m2) * Vf
-		// Vf = (m1 * v1 + m2 * v2) / (m1 + m2);
-		double p1Mvx = p1.getMassInKilograms() * p1.getLV().getX();
-		double p2Mvx = p2.getMassInKilograms() * p2.getLV().getX();
-		double vxF = (p1Mvx + p2Mvx) / (p1.getMassInKilograms() + p2.getMassInKilograms());
-
-		double p1Mvy = p1.getMassInKilograms() * p1.getLV().getY();
-		double p2Mvy = p2.getMassInKilograms() * p2.getLV().getY();
-		double vyF = (p1Mvy + p2Mvy) / (p1.getMassInKilograms() + p2.getMassInKilograms());
-
-		Player player1 = players.get(p1.getId());
-		Player player2 = players.get(p2.getId());
-
-		LinearVelocity lv1 = new DefaultLinearVelocity(Vector.fromCartesianCoordinates(vxF, vyF, 0));
-		LinearVelocity lv2 = new DefaultLinearVelocity(Vector.fromCartesianCoordinates(vxF, vyF, 0));
-
-		player1.setLV(lv1);
-		player2.setLV(lv2);
 	}
 
 	double cycleRate = Performance.cycleTime.getFrameRate();

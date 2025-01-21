@@ -1,33 +1,40 @@
-package jef.core.tests;
+package jef.core.movement;
 
 
-import jef.core.Football;
-import jef.core.Player;
 import jef.core.movement.AngularVelocity;
 import jef.core.movement.DefaultAngularVelocity;
 import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.DefaultLocation;
 import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
+import jef.core.movement.Moveable;
 
-public class TestBall implements Football
+public class TestMoveable implements Moveable
 {
 	private AngularVelocity angularVelocity;
 	private LinearVelocity linearVelocity;
 	private Location location;
-	
-	public TestBall(Location location, LinearVelocity linearVelocity, AngularVelocity angularVelocity)
+
+	public TestMoveable()
+	{
+		this.location = new DefaultLocation();
+		this.linearVelocity = new DefaultLinearVelocity();
+		this.angularVelocity = new DefaultAngularVelocity();
+	}
+
+	public TestMoveable(final Location location, final LinearVelocity linearVelocity,
+			final AngularVelocity angularVelocity)
 	{
 		this.location = location;
 		this.linearVelocity = linearVelocity;
 		this.angularVelocity = angularVelocity;
 	}
 
-	public TestBall()
+	public TestMoveable(final Moveable moveable)
 	{
-		this.location = new DefaultLocation();
-		this.linearVelocity = new DefaultLinearVelocity();
-		this.angularVelocity = new DefaultAngularVelocity();
+		this.location = moveable.getLoc();
+		this.linearVelocity = moveable.getLV();
+		this.angularVelocity = moveable.getAV();
 	}
 
 	@Override
@@ -49,35 +56,20 @@ public class TestBall implements Football
 	}
 
 	@Override
-	public void setAV(AngularVelocity angularVelocity)
+	public void setAV(final AngularVelocity angularVelocity)
 	{
 		this.angularVelocity = angularVelocity;
 	}
 
 	@Override
-	public void setLV(LinearVelocity lv)
+	public void setLV(final LinearVelocity lv)
 	{
 		this.linearVelocity = lv;
 	}
 
 	@Override
-	public void setLoc(Location location)
+	public void setLoc(final Location location)
 	{
 		this.location = location;
 	}
-
-	@Override
-	public Player getPlayerInPossession()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setPlayerInPossession()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
 }

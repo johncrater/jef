@@ -2,7 +2,7 @@ package jef.core.movement.index;
 
 import org.junit.jupiter.api.Test;
 
-import TestPlayer;
+import jef.core.DefaultPlayer;
 import jef.core.movement.DefaultLinearVelocity;
 
 class DefaultLocationIndexTest
@@ -12,7 +12,9 @@ class DefaultLocationIndexTest
 	{
 		DefaultLocationIndex index = new DefaultLocationIndex(.05, 20);
 		
-		TestPlayer player = new TestPlayer("Fran", "Tarkenton");
+		DefaultPlayer player = new DefaultPlayer();
+		player.setFirstName("Fran");
+		player.setLastName("Tarkenton");
 		player.setLV(new DefaultLinearVelocity((double) 10, (double) 10, (double) 0));
 		index.update(player);
 	}

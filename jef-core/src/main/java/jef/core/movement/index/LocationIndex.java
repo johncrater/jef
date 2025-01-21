@@ -3,7 +3,7 @@ package jef.core.movement.index;
 import java.util.List;
 
 import jef.core.Player;
-import jef.core.movement.Collision;
+import jef.core.collisions.Collision;
 import jef.core.movement.Location;
 
 public interface LocationIndex

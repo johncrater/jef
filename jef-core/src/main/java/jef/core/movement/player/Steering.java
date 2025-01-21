@@ -1,15 +1,17 @@
 package jef.core.movement.player;
 
-import java.io.ByteArrayOutputStream;
 import java.util.Collections;
 import java.util.List;
 
 import jef.core.Conversions;
 import jef.core.Player;
-import jef.core.movement.Collision;
+import jef.core.collisions.Collision;
+import jef.core.collisions.CollisionResolution;
+import jef.core.collisions.CollisionResolver;
 import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
+import jef.core.movement.Posture;
 import jef.core.movement.player.Waypoint.DestinationAction;
 
 public class Steering
@@ -19,14 +21,12 @@ public class Steering
 
 	private final Steerable steerable;
 
-	private ByteArrayOutputStream baos;
-
 	public Steering(final Steerable steerable)
 	{
 		this.steerable = steerable;
 	}
 
-	public void next(final PlayerTracker tracker, List<Collision> collisions)
+	public void next(final PlayerTracker tracker)
 	{
 		if ((tracker.getPath().getCurrentWaypoint() == null
 				|| tracker.getLoc().closeEnoughTo(this.getDestination())) && tracker.getLV().isNotMoving())
@@ -35,26 +35,42 @@ public class Steering
 			return;
 		}
 		
-		if (collisions == null)
-			collisions = Collections.emptyList();
-		
-		this.baos = new ByteArrayOutputStream();
-
 		this.buildMessage(String.format("%-25s: %s", "Initial",
 				String.format("%3.2f %s %s", tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
-
-		if (this.getWaypoints().size() == 0)
-		{
-			// coasting to a stop
-			this.coastToAStop(tracker);
-			return;
-		}
 
 		final double startingSpeed = tracker.getLV().getSpeed();
 		if (startingSpeed > this.getMaxSpeed())
 		{
 			// too fast
 			this.outOfControl(tracker);
+			return;
+		}
+
+		switch (tracker.getPosture())
+		{
+			case fallingDown:
+				tracker.setPosture(tracker.getPosture().adjustDown());
+				if (tracker.getPosture() == Posture.onTheGround)
+					tracker.setLV(tracker.getLV().newFrom(null, null, 0.0));
+				
+				return;
+			case onTheGround:
+				tracker.setPosture(tracker.getPosture().adjustUp());
+				return;
+			case standingUp:
+				tracker.setPosture(tracker.getPosture().adjustUp());
+				return;
+			case stumbling:
+				tracker.setPosture(tracker.getPosture().adjustUp());
+				return;
+			default:
+				break;
+		}
+		
+		if (this.getWaypoints().size() == 0)
+		{
+			// coasting to a stop
+			this.coastToAStop(tracker);
 			return;
 		}
 
@@ -94,7 +110,7 @@ public class Steering
 			{
 				this.buildMessage(String.format("%-25s: %s", "Destination Reached",
 						String.format("%3.2f %s %s", tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
-				this.next(tracker, collisions);
+				this.next(tracker);
 			}
 			else
 			{
@@ -110,7 +126,6 @@ public class Steering
 	private void buildMessage(final String msg)
 	{
 //		System.out.println(msg);
-//		this.out.println(msg);
 	}
 
 	private double calculateAngleOfTurn(final Location loc, final Location destination, final double currentAngle)
@@ -396,9 +411,14 @@ public class Steering
 		{
 			// we are falling. need to improve this
 			adjustment = -adjustedSpeed / 2;
+			tracker.setPosture(tracker.getPosture().adjustDown());
 		}
 
 		tracker.moveRemaining(adjustment);
+		
+		if (tracker.getPosture() == Posture.onTheGround)
+			tracker.setLV(tracker.getLV().newFrom(null, null, 0.0));
+		
 		this.buildMessage(String.format("%-25s: %s", "Out of Control",
 				String.format("%3.2f %s %s", tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
 	}

@@ -4,11 +4,11 @@ import com.synerset.unitility.unitsystem.common.Distance;
 
 import jef.core.movement.DUnits;
 
-public interface Conversions
+public class Conversions
 {
 	public static double yardsToMeters(double yards)
 	{
-		return Distance.of(yards,  DUnits.YARD).getInMeters();
+		return Distance.of(yards, DUnits.YARD).getInMeters();
 	}
 
 	public static double metersToYards(double meters)
@@ -31,17 +31,20 @@ public interface Conversions
 		return Math.round(value * 4.0) / 4.0;
 	}
 
-    public static double normalizeAngle(double angle) 
-    {
-        angle = angle % (2 * Math.PI); // Normalize to the range [-2π, 2π]
+	public static double normalizeAngle(double angle)
+	{
+		angle = angle % (2 * Math.PI); // Normalize to the range [-2π, 2π]
 
-        if (angle > Math.PI) {
-            angle -= 2 * Math.PI;
-        } else if (angle < -Math.PI) {
-            angle += 2 * Math.PI;
-        }
+		if (angle > Math.PI)
+		{
+			angle -= 2 * Math.PI;
+		}
+		else if (angle < -Math.PI)
+		{
+			angle += 2 * Math.PI;
+		}
 
-        return angle;
-    }
+		return angle;
+	}
 
 }

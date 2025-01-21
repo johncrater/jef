@@ -1,15 +1,18 @@
-package jef.core.movement;
+package jef.core.collisions;
 
 import java.util.Objects;
 
 import jef.core.Player;
+import jef.core.geometry.Vector;
+import jef.core.movement.DefaultLocation;
+import jef.core.movement.Location;
 
 public class Collision
 {
 	private Player occupier1;
 	private Player occupier2;
 	private int tickCountOfcollision;
-	
+
 	public Collision(Player occupier1, Player occupier2, int tickCountOfcollision)
 	{
 		super();
@@ -22,7 +25,28 @@ public class Collision
 	{
 		double distance = occupier1.getLoc().distanceBetween(occupier2.getLoc()) / 2;
 		double angle = occupier1.getLoc().angleTo(occupier2.getLoc());
-		return new DefaultLocation(occupier1.getLoc().getX() + distance * Math.cos(angle), occupier1.getLoc().getY() + distance * Math.sin(angle), 0);
+		return new DefaultLocation(occupier1.getLoc().getX() + distance * Math.cos(angle),
+				occupier1.getLoc().getY() + distance * Math.sin(angle), 0);
+	}
+
+	/**
+	 * @return The angle the player is moving relative to the other player when the
+	 *         impact occurs. 0 means they are moving directly into the other
+	 *         player.
+	 */
+	public double getOccupier1AngleOnImpact()
+	{
+		return occupier1.getLV().getAzimuth() - occupier1.getLoc().angleTo(occupier2.getLoc());
+	}
+
+	/**
+	 * @return The angle the player is moving relative to the other player when the
+	 *         impact occurs. 0 means they are moving directly into the other
+	 *         player.
+	 */
+	public double getOccupier2AngleOnImpact()
+	{
+		return occupier2.getLV().getAzimuth() - occupier2.getLoc().angleTo(occupier1.getLoc());
 	}
 
 	public Player getOccupier1()

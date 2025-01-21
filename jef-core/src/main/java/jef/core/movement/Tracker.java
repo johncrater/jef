@@ -222,9 +222,7 @@ public class Tracker implements Moveable
 		spin = Conversions.normalizeAngle(this.av.getOrientation() + (this.av.getRotation() * this.getRemainingTime()));
 
 		if ((this.av.getRotation() == 0) && (this.av.getSpiralVelocity() > 0))
-		{
 			spin = this.lv.getElevation();
-		}
 
 		this.av = new DefaultAngularVelocity(spin, this.av.getRotation(), this.av.getSpiralVelocity());
 	}

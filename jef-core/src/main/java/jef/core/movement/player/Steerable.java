@@ -5,11 +5,11 @@ import jef.core.movement.Posture;
 
 public interface Steerable extends Moveable
 {
-	public enum Type {sprint, run, jog, walk, stop};
-	
-	public double getSpeed(Type type);
+	public SpeedMatrix getSpeedMatrix();
 	public double getMaxSpeed();
 	public double getDesiredSpeed();
+	public void setSpeedMatrix(SpeedMatrix matrix);
+	
 	public Path getPath();
 	public void setPath(Path path);
 	public Posture getPosture();

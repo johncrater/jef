@@ -1,4 +1,4 @@
-package jef.core.pathfinding;
+  package jef.core.pathfinding;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import jef.core.Player;
+import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.Location;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.Path;
@@ -55,11 +56,13 @@ public class BlockingEscort implements Pathfinder
 			final var fromRunnerToDefender = runner.getLoc()
 					.angleTo(threats.get(0).getDefender().getLoc());
 			final var distanceFromRunnerToDefender = runner.getLoc().distanceBetween(threatLocation);
-			return runner.getLoc().add(fromRunnerToDefender,
-					Math.min(Player.PLAYER_STANDARD_BLOCKING_DISTANCE, distanceFromRunnerToDefender), 0);
+			return runner.getLoc().add(new DefaultLinearVelocity(fromRunnerToDefender, 0, distanceFromRunnerToDefender / 2.0));
 		}
-
-		return null;
+		else
+		{
+			double angle = direction == Direction.west ? 0 : Math.PI;
+			return runner.getLoc().add(new DefaultLinearVelocity(angle, 0, Player.PLAYER_BLOCKING_RANGE_MINIMAL));
+		}
 	}
 
 	private List<DefenderAssessment> assessThreats(final Player runner, final Location destination,

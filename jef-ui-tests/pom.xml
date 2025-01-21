@@ -42,5 +42,10 @@
 			<artifactId>jef-ui-utils</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>jef</groupId>
+			<artifactId>jef-history</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 </project>

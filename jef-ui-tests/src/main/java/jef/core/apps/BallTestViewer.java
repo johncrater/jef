@@ -1,4 +1,4 @@
-package jef.core.tests;
+package jef.core.apps;
 
 
 import java.io.File;
@@ -30,9 +30,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import com.synerset.unitility.unitsystem.common.Angle;
-
 import jef.core.Conversions;
+import jef.core.DefaultFootball;
 import jef.core.Football;
 import jef.core.Performance;
 import jef.core.movement.DefaultAngularVelocity;
@@ -90,7 +89,7 @@ public class BallTestViewer implements Runnable
 		BallTestViewer.footballSmall = new Image(BallTestViewer.shell.getDisplay(),
 				BallTestViewer.class.getResourceAsStream("/football-34x34.png"));
 
-		BallTestViewer.ball = new TestBall();
+		BallTestViewer.ball = new DefaultFootball();
 		BallTestViewer.ball.setLoc(new DefaultLocation(10.0, 27.0, 0.0));
 
 		final Composite c = new Composite(BallTestViewer.shell, SWT.NONE);

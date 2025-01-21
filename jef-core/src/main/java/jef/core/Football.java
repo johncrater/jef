@@ -11,5 +11,5 @@ public interface Football extends Moveable
 	public static final double lengthOfTheMinorAxis = Distance.ofInches(6.70f).getInUnit(DUnits.YARD);
 
 	public Player getPlayerInPossession();
-	public void setPlayerInPossession();
+	public void setPlayerInPossession(Player player);
 }

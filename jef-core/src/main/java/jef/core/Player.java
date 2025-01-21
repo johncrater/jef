@@ -1,11 +1,13 @@
 package jef.core;
 
+import java.util.List;
+
 import com.synerset.unitility.unitsystem.common.Velocity;
 
 import jef.core.movement.VUnits;
 import jef.core.movement.player.Steerable;
 
-public interface Player extends Steerable
+public interface Player extends Steerable, PlayerInfo
 {
 	// deceleration is in YPY^2. It is not a velocity
 	public static final double maximumDecelerationRate = (double) Velocity.ofMetersPerSecond(-6).getInUnit(VUnits.YPS);
@@ -53,9 +55,9 @@ public interface Player extends Steerable
 	public static final double PLAYER_AVG_HUMAN_VISUAL_REACTION_TIME = .200f;
 	public static final double PLAYER_AVG_HUMAN_AUDITORY_REACTION_TIME = .150f;
 
-	public double getMassInKilograms();
-	public String getId();
-	public String getFirstName();
-	public String getLastName();
-	public double getHeightInMeters();
+	public boolean hasBall();
+	public void setHasBall(boolean hasBall);
+	
+	public PlayerRatings getRatings();
+	public PlayerPosition getCurrentPosition();
 }

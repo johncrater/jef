@@ -51,7 +51,7 @@ public class DefenderAssessment
 
 	public double threatLevel()
 	{
-		return -1 * this.lvDistance;
+		return this.lvDistance;
 	}
 
 	@Override
