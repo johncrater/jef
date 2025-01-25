@@ -10,7 +10,7 @@ import java.util.Set;
 
 import jef.core.Field;
 import jef.core.Player;
-import jef.core.geometry.Line;
+import jef.core.geometry.LineSegment;
 import jef.core.movement.DefaultLocation;
 import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
@@ -54,14 +54,14 @@ public class EvadeInterceptors implements Pathfinder
 			return new DefaultPath(new Waypoint(endZone, this.player.getMaxSpeed(), DestinationAction.noStop));
 		}
 		
-		final HashSet<Line> segments = this.getBoundingLines(player, interceptors);
+		final HashSet<LineSegment> segments = this.getBoundingLines(player, interceptors);
 		segments.addAll(
 				Arrays.asList(Field.EAST_END_ZONE, Field.WEST_END_ZONE, Field.NORTH_SIDELINE, Field.SOUTH_SIDELINE));
 
 		for (final Player interceptor : this.interceptors)
 			segments.addAll(this.getBoundingLines(interceptor, this.blockers));
 
-		Set<Line> boundingLines = Collections.unmodifiableSet(this.splitLines(segments));
+		Set<LineSegment> boundingLines = Collections.unmodifiableSet(this.splitLines(segments));
 		Set<Location> locationsOfIntersection = Collections
 				.unmodifiableSet(this.getPointsOfIntersection(boundingLines));
 
@@ -99,7 +99,7 @@ public class EvadeInterceptors implements Pathfinder
 		}).toList();
 	}
 
-	private Set<Line> removeObsoleteLines(final Set<Location> reachableLocations, final Set<Line> boundingLines)
+	private Set<LineSegment> removeObsoleteLines(final Set<Location> reachableLocations, final Set<LineSegment> boundingLines)
 	{
 		return new HashSet<>(boundingLines.stream()
 				.filter(s -> reachableLocations.contains(s.getLoc1()) && reachableLocations.contains(s.getLoc2()))
@@ -107,14 +107,14 @@ public class EvadeInterceptors implements Pathfinder
 	}
 
 	private Set<Location> getReachableLocations(final Player player, final Set<Location> locationsOfIntersection,
-			final Set<Line> boundingLines)
+			final Set<LineSegment> boundingLines)
 	{
 		final var ret = new HashSet<Location>();
 
 		for (final Location l : locationsOfIntersection)
 		{
-			final Line lsToPoi = new Line(player.getLoc(), l);
-			for (final Line ls : boundingLines)
+			final LineSegment lsToPoi = new LineSegment(player.getLoc(), l);
+			for (final LineSegment ls : boundingLines)
 			{
 				final Location poi = lsToPoi.xyIntersection(ls);
 				if (poi == null || poi.isInPlayableArea() == false || ls.intersects(poi) == false
@@ -131,11 +131,11 @@ public class EvadeInterceptors implements Pathfinder
 		return tmp;
 	}
 
-	private HashSet<Location> getPointsOfIntersection(final Set<Line> boundingLines)
+	private HashSet<Location> getPointsOfIntersection(final Set<LineSegment> boundingLines)
 	{
 		final var ret = new HashSet<Location>();
 
-		for (final Line s : boundingLines)
+		for (final LineSegment s : boundingLines)
 		{
 			ret.add(s.getLoc1());
 			ret.add(s.getLoc2());
@@ -144,7 +144,7 @@ public class EvadeInterceptors implements Pathfinder
 		return ret;
 	}
 
-	private HashSet<Line> getBoundingLines(Player p1, Collection<Player> p2)
+	private HashSet<LineSegment> getBoundingLines(Player p1, Collection<Player> p2)
 	{
 		return new HashSet<>(p2.stream().map(p ->
 		{
@@ -155,29 +155,29 @@ public class EvadeInterceptors implements Pathfinder
 				ratio = this.player.getLV().getSpeed() / denom;
 			}
 
-			final Line seg = new Line(p1.getLoc(), p.getLoc());
+			final LineSegment seg = new LineSegment(p1.getLoc(), p.getLoc());
 			LinearVelocity segLV = seg.getDirection();
 			Location pointAlong = seg.getPoint(ratio);
 
 			// make it longer than field distances and then chop it down to size to make
 			// sure it fits
-			return new Line(pointAlong.add(segLV.add(-Math.PI / 2, 0, 200)),
-					pointAlong.add(segLV.add(Math.PI / 2, 0, 200))).restrictToPlayableArea();
+			return new LineSegment(pointAlong.add(segLV.add(-Math.PI / 2, 0, 200)),
+					pointAlong.add(segLV.add(Math.PI / 2, 0, 200))).restrictToBetweenEndZones();
 		}).filter(l -> l != null).toList());
 	}
 
-	private Set<Line> splitLines(final Set<Line> segments)
+	private Set<LineSegment> splitLines(final Set<LineSegment> segments)
 	{
 		final var segmentsQueue = new HashSet<>(segments);
-		final var ret = new HashSet<Line>();
+		final var ret = new HashSet<LineSegment>();
 
 		while (segmentsQueue.size() > 0)
 		{
-			Line s1 = segmentsQueue.iterator().next();
+			LineSegment s1 = segmentsQueue.iterator().next();
 			segmentsQueue.remove(s1);
 
 			boolean found = false;
-			for (final Line s2 : segments)
+			for (final LineSegment s2 : segments)
 			{
 				if (s1.equals(s2))
 					continue;
@@ -188,8 +188,8 @@ public class EvadeInterceptors implements Pathfinder
 					if (intersection.equals(s1.getLoc1()) || intersection.equals(s1.getLoc2()))
 						continue;
 
-					final var newS1 = new Line(s1.getLoc1(), intersection);
-					final var newS2 = new Line(s1.getLoc2(), intersection);
+					final var newS1 = new LineSegment(s1.getLoc1(), intersection);
+					final var newS2 = new LineSegment(s1.getLoc2(), intersection);
 
 					segmentsQueue.add(newS1);
 					segmentsQueue.add(newS2);

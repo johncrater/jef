@@ -13,6 +13,7 @@ public class Messages
 	private static final int ballPrefix 					= 0x00030000;
 	private static final int playerPrefix 					= 0x00040000;
 	private static final int scoreboardPrefix 				= 0x00050000;
+	private static final int debugPrefix 					= 0xFFFF0000;
 
 	// game messages
 	public static final int gameStarted 					= 1 | gamePrefix;
@@ -82,6 +83,10 @@ public class Messages
 	public static final int downChanged		 				= 6 | scoreboardPrefix;
 	public static final int lineOfScrimmageChanged			= 7 | scoreboardPrefix;
 	public static final int timeChanged		 				= 8 | scoreboardPrefix;
+	
+	// debug messages
+	public static final int drawLine						= 1 | debugPrefix;
+	public static final int drawLocation					= 2 | debugPrefix;
 	
 	public static <T> void dispatchEvent(List<T> listeners, Consumer<T> event)
 	{

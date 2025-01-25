@@ -3,6 +3,7 @@ package jef.core.movement;
 import org.apache.commons.numbers.core.Precision;
 
 import jef.core.geometry.Vector;
+import jef.core.pathfinding.Direction;
 
 /* @formatter:off */
 public interface Location
@@ -20,6 +21,9 @@ public interface Location
 
 	public Location add(LinearVelocity lv);
 	public Location add(double x, double y, double z);
+	public Location add(Location loc);
+	public Location subtract(Location loc);
+	public Location negate();
 
 	public Location newFrom(Double x, Double y, Double z);
 

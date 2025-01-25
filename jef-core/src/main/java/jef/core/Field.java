@@ -1,6 +1,6 @@
 package jef.core;
 
-import jef.core.geometry.Line;
+import jef.core.geometry.LineSegment;
 import jef.core.movement.DefaultLocation;
 import jef.core.movement.Location;
 import jef.core.pathfinding.Direction;
@@ -50,26 +50,26 @@ public class Field
 	public static final double STADIUM_ORIGIN_X = -Math.round(FIELD_TOTAL_WIDTH * .25f);
 	public static final double STADIUM_ORIGIN_Y = -Math.round(FIELD_TOTAL_LENGTH * .25f);
 
-	public static final Line WEST_END_ZONE = new Line(
+	public static final LineSegment WEST_END_ZONE = new LineSegment(
 			new DefaultLocation(FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH, FIELD_BORDER_WIDTH),
 			new DefaultLocation(FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH, FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH));
 
-	public static final Line EAST_END_ZONE = new Line(
+	public static final LineSegment EAST_END_ZONE = new LineSegment(
 			new DefaultLocation(FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH), FIELD_BORDER_WIDTH),
 			new DefaultLocation(FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH), FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH));
 
-	public static final Line NORTH_SIDELINE = new Line(
+	public static final LineSegment NORTH_SIDELINE = new LineSegment(
 			new DefaultLocation(FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH, FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH),
 			new DefaultLocation(FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH), FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH));
 
-	public static final Line SOUTH_SIDELINE = new Line(
+	public static final LineSegment SOUTH_SIDELINE = new LineSegment(
 			new DefaultLocation(FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH, FIELD_BORDER_WIDTH),
 			new DefaultLocation(FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH), FIELD_BORDER_WIDTH));
 
 	public static final double WEST_END_ZONE_X = FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH;
 	public static final double EAST_END_ZONE_X = FIELD_TOTAL_LENGTH - (FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH);
-	public static final double SOUTH_SIDELINE_Y = FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH;
-	public static final double NORTH_SIDELINE_Y = FIELD_BORDER_WIDTH;
+	public static final double NORTH_SIDELINE_Y = FIELD_BORDER_WIDTH + FIELD_PLAYABLE_WIDTH;
+	public static final double SOUTH_SIDELINE_Y = FIELD_BORDER_WIDTH;
 	
 	public static final double MIDFIELD_X = FIELD_TOTAL_LENGTH / 2;
 	public static final double MIDFIELD_Y = FIELD_TOTAL_WIDTH / 2;

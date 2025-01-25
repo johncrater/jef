@@ -1,4 +1,4 @@
-package jef.core.movement;
+package jef.core.geometry;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -111,6 +111,21 @@ class VectorTest
 		assertEquals(round(v2.getAzimuth()), round(v3.getAzimuth()));
 		assertEquals(round(v2.getElevation()), round(v3.getElevation()));
 		assertEquals(round(v2.getDistance()), round(v3.getDistance()));
+		
+		v1 = Vector.fromPolarCoordinates(Math.PI / 4, Math.PI / 4, -5);
+		assertEquals(round(-Math.PI * 3 / 4), round(v1.getAzimuth()));
+		assertEquals(round(-Math.PI / 4), round(v1.getElevation()));
+		assertEquals(round(5), round(v1.getDistance()));
+		
+		v1 = Vector.fromPolarCoordinates(Math.PI / 4, Math.PI * 3 / 4, 5);
+		assertEquals(round(- Math.PI * 3 / 4), round(v1.getAzimuth()));
+		assertEquals(round(Math.PI / 4), round(v1.getElevation()));
+		assertEquals(round(5), round(v1.getDistance()));
+		
+		v1 = Vector.fromPolarCoordinates(Math.PI / 4, - Math.PI * 3 / 4, 5);
+		assertEquals(round(- Math.PI * 3 / 4), round(v1.getAzimuth()));
+		assertEquals(round(-Math.PI / 4), round(v1.getElevation()));
+		assertEquals(round(5), round(v1.getDistance()));
 	}
 
 	@Test
@@ -250,6 +265,27 @@ class VectorTest
 		assertTrue(v1.equals(v2));
 	}
 
+	@Test
+	void testEquals()
+	{
+		Vector v1 = Vector.fromCartesianCoordinates(1, 1, 1);
+		assertTrue(v1.equals(v1));
+		assertFalse(v1.equals(null));
+		assertFalse(v1.equals(new Object()));
+		assertTrue(v1.equals(Vector.fromCartesianCoordinates(1, 1, 1)));
+	}
+	
+	@Test 
+	void testCrosssProduct()
+	{
+		Vector v1 = Vector.fromCartesianCoordinates(2, 3, 4);
+		Vector v2 = Vector.fromCartesianCoordinates(5, 6, 7);
+		
+		Vector v3 = v1.crossProduct(v2);
+		
+		assertEquals(Vector.fromCartesianCoordinates(-3, 6, -3), v3);
+	}
+	
 	private double round(double x)
 	{
 		return Math.round(1000.0 * x) / 1000.0;

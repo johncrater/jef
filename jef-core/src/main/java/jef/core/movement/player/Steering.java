@@ -1,13 +1,9 @@
 package jef.core.movement.player;
 
-import java.util.Collections;
 import java.util.List;
 
 import jef.core.Conversions;
 import jef.core.Player;
-import jef.core.collisions.Collision;
-import jef.core.collisions.CollisionResolution;
-import jef.core.collisions.CollisionResolver;
 import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
@@ -49,10 +45,10 @@ public class Steering
 		switch (tracker.getPosture())
 		{
 			case fallingDown:
-				tracker.setPosture(tracker.getPosture().adjustDown());
-				if (tracker.getPosture() == Posture.onTheGround)
-					tracker.setLV(tracker.getLV().newFrom(null, null, 0.0));
-				
+				if (tracker.getLV().isNotMoving())
+					tracker.setPosture(tracker.getPosture().adjustDown());
+				else
+					tracker.moveRemaining(Player.maximumDecelerationRate * tracker.getAccelerationCoefficient());
 				return;
 			case onTheGround:
 				tracker.setPosture(tracker.getPosture().adjustUp());
@@ -150,7 +146,7 @@ public class Steering
 
 	private double calculateDistanceNeededToCompleteTurn(final PlayerTracker tracker, final double newAngle)
 	{
-		final double minTurnRadius = this.calculateTightestRadiusTurnForAtSpeed(tracker.getLV().getSpeed(),
+		final double minTurnRadius = this.calculateTightestRadiusTurnAtSpeed(tracker.getLV().getSpeed(),
 				this.getMaxSpeed()) / tracker.getAccelerationCoefficient();
 		return  Math.abs(minTurnRadius * newAngle);
 	}
@@ -282,7 +278,7 @@ public class Steering
 	 * @param currentSpeed
 	 * @return
 	 */
-	private double calculateTightestRadiusTurnForAtSpeed(final double currentSpeed, final double maximumSpeed)
+	private double calculateTightestRadiusTurnAtSpeed(final double currentSpeed, final double maximumSpeed)
 	{
 		final double pctOfMaximumSpeed = currentSpeed / maximumSpeed;
 

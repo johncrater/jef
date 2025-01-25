@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import jef.core.Field;
 import jef.core.geometry.Vector;
+import jef.core.pathfinding.Direction;
 
 public class DefaultLocation implements Location
 {
@@ -36,14 +37,32 @@ public class DefaultLocation implements Location
 	}
 
 	@Override
+	public Location negate()
+	{
+		return new DefaultLocation(-getX(), -getY(), -getZ());
+	}
+
+	@Override
+	public Location add(Location loc)
+	{
+		return add(loc.getX(), loc.getY(), loc.getZ());
+	}
+
+	@Override
+	public Location subtract(Location loc)
+	{
+		return new DefaultLocation(getX() - loc.getX(), getY() - loc.getY(), getZ() - loc.getZ());
+	}
+
+	@Override
 	public boolean isInPlayableArea()
 	{
 		if (getX() < 0 || getX() > Field.FIELD_TOTAL_LENGTH)
 			return false;
-		
+
 		if (getY() < 0 || getY() > Field.FIELD_TOTAL_WIDTH)
 			return false;
-			
+
 		return true;
 	}
 
@@ -83,7 +102,8 @@ public class DefaultLocation implements Location
 
 		final Location other = (Location) obj;
 
-		return Location.EPSILON.eq(this.getX(), other.getX()) && Location.EPSILON.eq(this.getY(), other.getY()) && Location.EPSILON.eq(this.getZ(), other.getZ());
+		return Location.EPSILON.eq(this.getX(), other.getX()) && Location.EPSILON.eq(this.getY(), other.getY())
+				&& Location.EPSILON.eq(this.getZ(), other.getZ());
 	}
 
 	@Override
@@ -134,7 +154,7 @@ public class DefaultLocation implements Location
 	@Override
 	public String toString()
 	{
-		return String.format("(%6.2f, %5.2f, %5.2f)", this.getX(), this.getY(), this.getZ());
+		return String.format("(%6.2f, %5.2f, %5.2f)", this.getX() - Field.WEST_END_ZONE_X, this.getY() - Field.FIELD_BORDER_WIDTH, this.getZ());
 	}
 
 	@Override

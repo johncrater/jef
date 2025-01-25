@@ -5,7 +5,7 @@ import java.util.List;
 import jef.core.Player;
 import jef.core.PlayerPosition;
 import jef.core.PlayerRatings;
-import jef.core.geometry.Line;
+import jef.core.geometry.LineSegment;
 import jef.core.movement.DefaultAngularVelocity;
 import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
@@ -194,10 +194,10 @@ public class PlayerTracker extends Tracker implements Player
 		final Location origin = this.getStartingLoc();
 		final Location dest = this.getPath().getCurrentWaypoint().getDestination();
 
-		final Line line = new Line(origin, dest);
-		final Line perpLine = line.getPerpendicularLine(dest);
+		final LineSegment line = new LineSegment(origin, dest);
+		final LineSegment perpLine = line.getPerpendicularLine(dest, line.getLength());
 
-		final Line currentLine = new Line(this.getStartingLoc(), this.getLoc());
+		final LineSegment currentLine = new LineSegment(this.getStartingLoc(), this.getLoc());
 		final Location intersection = perpLine.xyIntersection(currentLine);
 
 		return intersection != null;

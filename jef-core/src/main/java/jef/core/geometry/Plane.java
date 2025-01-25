@@ -8,12 +8,12 @@ import jef.core.movement.Location;
 public class Plane
 {
 	public static final Plane THE_FIELD = new Plane(new DefaultLocation(),
-			new DefaultLinearVelocity(Vector.fromCartesianCoordinates(0, 0, 1)));
+			Vector.fromCartesianCoordinates(0, 0, 1));
 
 	private Location loc;
-	private LinearVelocity planeNormal;
+	private Vector planeNormal;
 
-	public Plane(Location loc, LinearVelocity planeNormal)
+	public Plane(Location loc, Vector planeNormal)
 	{
 		super();
 		this.loc = loc;
@@ -25,7 +25,7 @@ public class Plane
 		return this.loc;
 	}
 
-	public LinearVelocity getPlaneNormal()
+	public Vector getPlaneNormal()
 	{
 		return this.planeNormal;
 	}

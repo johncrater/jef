@@ -1,7 +1,9 @@
 package jef.core.movement.ball;
 
 
-import jef.core.geometry.Line;
+import javax.sound.sampled.Line;
+
+import jef.core.geometry.LineSegment;
 import jef.core.geometry.Plane;
 import jef.core.movement.AngularVelocity;
 import jef.core.movement.DefaultAngularVelocity;
@@ -49,7 +51,7 @@ public class BallTracker extends Tracker
 		if (locTmp.getZ() < 0)
 		{
 			double zSpeed = getLoc().distanceBetween(locTmp);
-			Line line = new Line(getLoc(), locTmp);
+			LineSegment line = new LineSegment(getLoc(), locTmp);
 			Location intersection = line.intersects(Plane.THE_FIELD);
 
 			// make sure we are at absolute 0

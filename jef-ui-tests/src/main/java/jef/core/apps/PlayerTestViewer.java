@@ -274,6 +274,7 @@ public class PlayerTestViewer implements Runnable
 		Path path = new DefaultPath();
 		player.setPath(path);
 		player.setSpeedMatrix(new SpeedMatrix(11, 9, 6, 3));
+		player.setWeight(215);
 		path.addWaypoint(new Waypoint(player.getLoc(), player.getMaxSpeed(), DestinationAction.fastStop));
 		this.players.put(player.getPlayerID(), player);
 		this.runner = player;
@@ -286,6 +287,7 @@ public class PlayerTestViewer implements Runnable
 		p.setFirstName("Carl");
 		p.setLastName("Eller");
 		p.setLoc(Field.MIDFIELD);
+		p.setWeight(280);
 		path = new DefaultPath();
 		p.setSpeedMatrix(new SpeedMatrix(10, 8, 6, 3));
 		path.addWaypoint(new Waypoint(p.getLoc(), p.getMaxSpeed(), DestinationAction.fastStop));
@@ -298,6 +300,7 @@ public class PlayerTestViewer implements Runnable
 //		p.setFirstName("Ron");
 //		p.setLastName("Yary");
 //		p.setLoc(Field.MIDFIELD.add(-10, 10, 0));
+//		p.setWeight(260);
 //		p.setSpeedMatrix(new SpeedMatrix(10, 8, 6, 3));
 //		path = new DefaultPath();
 //		path.addWaypoint(new Waypoint(p.getLoc(), p.getMaxSpeed(), DestinationAction.fastStop));
@@ -309,6 +312,7 @@ public class PlayerTestViewer implements Runnable
 //		p = new DefaultPlayer();
 //		p.setFirstName("Alan");
 //		p.setLastName("Page");
+//		p.setWeight(280);
 //		p.setLoc(Field.MIDFIELD.add(-10, 0, 0));
 //		p.setSpeedMatrix(new SpeedMatrix(10, 8, 6, 3));
 //		path = new DefaultPath();
@@ -632,6 +636,7 @@ public class PlayerTestViewer implements Runnable
 					player.setAV(tracker.getAV());
 					player.setLoc(tracker.getLoc());
 					player.setPath(tracker.getPath());
+					player.setPosture(tracker.getPosture());
 				}
 
 				this.index.advance();

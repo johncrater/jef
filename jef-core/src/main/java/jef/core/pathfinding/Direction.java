@@ -2,5 +2,5 @@ package jef.core.pathfinding;
 
 public enum Direction
 {
-	east, west
+	east, west, north, south
 }
