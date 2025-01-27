@@ -3,6 +3,7 @@ package jef.core.ui.swt.utils;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 
+import jef.core.Field;
 import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.Location;
 
@@ -58,7 +59,7 @@ public class UIUtils
 
 	public static void fillCircle(final GC gc, final Location l, final int radius)
 	{
-		gc.fillOval(yardsToPixels(l.getX()) - radius, yardsToPixels(l.getY()) - radius, radius * 2, radius * 2);
+		gc.fillOval(yardsToPixels(l.getX()) - radius, yardsToPixels(Field.FIELD_TOTAL_WIDTH - l.getY()) - radius, radius * 2, radius * 2);
 	}
 
 	public static int yardsToPixels(double yards)

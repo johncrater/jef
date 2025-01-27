@@ -51,6 +51,7 @@ import jef.core.PlayerPosition;
 import jef.core.collisions.Collision;
 import jef.core.collisions.CollisionResolution;
 import jef.core.collisions.CollisionResolver;
+import jef.core.movement.DefaultAngularVelocity;
 import jef.core.movement.DefaultLocation;
 import jef.core.movement.Location;
 import jef.core.movement.Posture;
@@ -60,16 +61,16 @@ import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.SpeedMatrix;
-import jef.core.movement.player.SpeedMatrix.SpeedType;
 import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
-import jef.core.pathfinding.BlockingEscort;
 import jef.core.pathfinding.Direction;
-import jef.core.pathfinding.EvadeInterceptors;
-import jef.core.pathfinding.InterceptPlayer;
 import jef.core.pathfinding.Pathfinder;
 import jef.core.pathfinding.RunForGlory;
+import jef.core.pathfinding.old.BlockNearestThreat;
+import jef.core.pathfinding.old.EvadeInterceptors;
+import jef.core.pathfinding.old.InterceptPlayer;
+import jef.core.ui.swt.utils.DebugMessageHandler;
 import jef.core.ui.swt.utils.GIFMarkup;
 import jef.core.ui.swt.utils.TransformStack;
 
@@ -108,6 +109,8 @@ public class PlayerTestViewer implements Runnable
 	private DestinationAction nextDestinationAction = DestinationAction.fastStop;
 	private LocationIndex index = new DefaultLocationIndex(TIMER_INTERVAL, (int) (2 / TIMER_INTERVAL)); // two seconds
 
+	private DebugMessageHandler debugMessageHandler = new DebugMessageHandler();
+	
 	public PlayerTestViewer()
 	{
 		this.shell = new Shell();
@@ -161,6 +164,7 @@ public class PlayerTestViewer implements Runnable
 				e1.printStackTrace();
 			}
 		});
+		
 	}
 
 	private void createButtons()
@@ -231,7 +235,9 @@ public class PlayerTestViewer implements Runnable
 				defenders.values()
 						.forEach(p -> pathfinders.put(p.getPlayerID(), new InterceptPlayer(p, runner, Direction.west)));
 				blockers.values().forEach(p -> pathfinders.put(p.getPlayerID(),
-						new BlockingEscort(runner, defenders.values(), Direction.west)));
+						new BlockNearestThreat(p, runner, defenders.values(), Direction.east)));
+//				blockers.values().forEach(p -> pathfinders.put(p.getPlayerID(),
+//						new BlockingEscort(p, runner, defenders.values(), Direction.west)));
 				pathfinders.put(runner.getPlayerID(),
 						new EvadeInterceptors(runner, defenders.values(), blockers.values(), Direction.west));
 			}
@@ -271,6 +277,7 @@ public class PlayerTestViewer implements Runnable
 		player.setFirstName("Chuck");
 		player.setLastName("Foreman");
 		player.setLoc(new DefaultLocation(Field.yardLine(20, Direction.west), Field.MIDFIELD_Y, 0));
+		player.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
 		Path path = new DefaultPath();
 		player.setPath(path);
 		player.setSpeedMatrix(new SpeedMatrix(11, 9, 6, 3));
@@ -299,7 +306,8 @@ public class PlayerTestViewer implements Runnable
 //		p = new DefaultPlayer();
 //		p.setFirstName("Ron");
 //		p.setLastName("Yary");
-//		p.setLoc(Field.MIDFIELD.add(-10, 10, 0));
+//		p.setLoc(Field.MIDFIELD.add(20, 5, 0));
+//		p.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
 //		p.setWeight(260);
 //		p.setSpeedMatrix(new SpeedMatrix(10, 8, 6, 3));
 //		path = new DefaultPath();
@@ -423,6 +431,8 @@ public class PlayerTestViewer implements Runnable
 				}
 
 				drawPerformance(e.gc);
+				
+				debugMessageHandler.draw(e.gc);
 			}
 			catch (Exception e1)
 			{
@@ -598,6 +608,8 @@ public class PlayerTestViewer implements Runnable
 		{
 			try
 			{
+				debugMessageHandler.clear();
+
 				for (DefaultPlayer player : players.values())
 					this.index.update(player);
 
@@ -623,12 +635,12 @@ public class PlayerTestViewer implements Runnable
 					Pathfinder pf = this.pathfinders.get(player.getPlayerID());
 					if (pf != null)
 					{
-						Path path = pf.findPath();
+						Path path = pf.getPath();
 						if (path != null)
 							player.setPath(path);
 					}
 
-					Steering steering = new Steering(player);
+					Steering steering = new Steering();
 					PlayerTracker tracker = new PlayerTracker(player, TIMER_INTERVAL);
 					steering.next(tracker);
 
@@ -711,8 +723,10 @@ public class PlayerTestViewer implements Runnable
 		gc.drawText(msg.toString(), 10, 10, false);
 	}
 
+	
 	public static void main(String[] args)
 	{
 		new PlayerTestViewer().messageLoop();
 	}
+
 }

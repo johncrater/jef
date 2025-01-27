@@ -2,6 +2,9 @@ package jef.core;
 
 public class Performance
 {
+	public static double desiredFrameRate = 24.0;
+	public static double frameInterval = 1.0 / desiredFrameRate;
+
 	private int COUNTS_TO_KEEP = 1000;
 	
 	private long [] times = new long[COUNTS_TO_KEEP];

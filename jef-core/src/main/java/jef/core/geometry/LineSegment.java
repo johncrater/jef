@@ -264,6 +264,62 @@ public class LineSegment
 		return null;
 	}
 
+	public LineSegment restrictToPlayableArea()
+	{
+		Location l1 = null;
+
+		Location l = this.loc1;
+		if (l.isInPlayableArea())
+			l1 = l;
+		
+		l = this.loc2;
+		if (l.isInPlayableArea())
+		{
+			if (l1 == null)
+				l1 = l;
+			else
+				return new LineSegment(l1, l);
+		}
+		
+		l = this.xyIntersection(Field.EAST_END_ZONE_BACK);
+		if (l != null && l.isInPlayableArea())
+		{
+			if (l1 == null)
+				l1 = l;
+			else
+				return new LineSegment(l1, l);
+		}
+		
+		l = this.xyIntersection(Field.WEST_END_ZONE_BACK);
+		if (l != null && l.isInPlayableArea())
+		{
+			if (l1 == null)
+				l1 = l;
+			else
+				return new LineSegment(l1, l);
+		}
+
+		l = this.xyIntersection(Field.NORTH_SIDELINE);
+		if (l != null && l.isInPlayableArea())
+		{
+			if (l1 == null)
+				l1 = l;
+			else
+				return new LineSegment(l1, l);
+		}
+
+		l = this.xyIntersection(Field.SOUTH_SIDELINE);
+		if (l != null && l.isInPlayableArea())
+		{
+			if (l1 == null)
+				l1 = l;
+			else
+				return new LineSegment(l1, l);
+		}
+
+		return null;
+	}
+	
 	@Override
 	public String toString()
 	{

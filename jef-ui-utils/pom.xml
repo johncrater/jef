@@ -31,5 +31,10 @@
 			<scope>system</scope>
 			<systemPath>${swt-systemPath}</systemPath>
 		</dependency>
+		<dependency>
+			<groupId>com.badlogicgames.gdx</groupId>
+			<artifactId>gdx-ai</artifactId>
+			<version>1.8.2</version>
+		</dependency>
 	</dependencies>
 </project>

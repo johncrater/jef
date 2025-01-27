@@ -31,6 +31,10 @@ public class Conversions
 		return Math.round(value * 4.0) / 4.0;
 	}
 
+	/**
+	 * @param angle
+	 * @return Normalize to the range [-π, π]
+	 */
 	public static double normalizeAngle(double angle)
 	{
 		angle = angle % (2 * Math.PI); // Normalize to the range [-2π, 2π]

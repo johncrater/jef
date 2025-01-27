@@ -1,16 +1,16 @@
 package jef.core.pathfinding;
 
-import java.util.List;
-
 import jef.core.Field;
 import jef.core.Player;
 import jef.core.movement.DefaultLocation;
 import jef.core.movement.player.DefaultPath;
-import jef.core.movement.player.Path;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
 
-public class RunForGlory implements Pathfinder
+/**
+ * Runner heads directly for the nearest part of the end zone
+ */
+public class RunForGlory extends AbstractPathfinder
 {
 	private Player runner;
 	private Direction direction;
@@ -23,15 +23,13 @@ public class RunForGlory implements Pathfinder
 	}
 
 	@Override
-	public Path findPath()
+	public boolean calculate()
 	{
-		return new DefaultPath(new Waypoint(new DefaultLocation(Field.yardLine(100, direction), runner.getLoc().getY()),
-					runner.getMaxSpeed(), DestinationAction.noStop));
-	}
+		long nanos = System.nanoTime();
+		setPath(new DefaultPath(new Waypoint(new DefaultLocation(Field.yardLine(100, direction), runner.getLoc().getY()),
+				runner.getMaxSpeed(), DestinationAction.noStop)));
 
-	@Override
-	public Path findPath(double maximumTimeToSpend)
-	{
-		return findPath();
+		useTime(System.nanoTime() - nanos);
+		return true;
 	}
 }

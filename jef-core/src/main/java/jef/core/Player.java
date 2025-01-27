@@ -34,13 +34,13 @@ public interface Player extends Steerable, PlayerInfo
 	public static final double PLAYER_TACKLE_RADIUS_HIGH_ODDS = size / 4;
 
 	// hold him off
-	public static final double PLAYER_BLOCKING_RANGE_MINIMAL = size / 2;
+	public static final double PLAYER_BLOCKING_RANGE_MAXIMUM = size * 3;
 
 	// push him
-	public static final double PLAYER_BLOCKING_RANGE_NORMAL = size / 3;
+	public static final double PLAYER_BLOCKING_RANGE_NORMAL = size * 2;
 
 	// slam into him
-	public static final double PLAYER_BLOCKING_RANGE_OPTIMAL = size / 4;
+	public static final double PLAYER_BLOCKING_RANGE_MINIMAL = size;
 
 	// standard distance to run with the runner while blocking
 	public static final double PLAYER_STANDARD_BLOCKING_DISTANCE = 3;

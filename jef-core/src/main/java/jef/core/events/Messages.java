@@ -85,8 +85,17 @@ public class Messages
 	public static final int timeChanged		 				= 8 | scoreboardPrefix;
 	
 	// debug messages
-	public static final int drawLine						= 1 | debugPrefix;
-	public static final int drawLocation					= 2 | debugPrefix;
+	public static final int drawInterceptorPath							= 1 	| debugPrefix;
+	public static final int drawInterceptorDestination					= 3 	| debugPrefix;
+	public static final int drawRunnerPath								= 4 	| debugPrefix;
+	public static final int drawRunnerDestination						= 5 	| debugPrefix;
+	public static final int drawEvasionBoundingSegments					= 6 	| debugPrefix;
+	public static final int drawEvasionIntersections					= 7 	| debugPrefix;
+	public static final int drawEvasionInterceptorReachableLocations	= 8 	| debugPrefix;
+	public static final int drawEvasionCommonReachableLocations			= 9 	| debugPrefix;
+	public static final int drawEvasionCommonReachableLines				= 10	| debugPrefix;
+	public static final int drawBlockerDestination						= 11	| debugPrefix;
+	public static final int drawBlockerPath								= 12	| debugPrefix;
 	
 	public static <T> void dispatchEvent(List<T> listeners, Consumer<T> event)
 	{

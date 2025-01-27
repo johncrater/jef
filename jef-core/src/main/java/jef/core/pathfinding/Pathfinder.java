@@ -2,8 +2,7 @@ package jef.core.pathfinding;
 
 import jef.core.movement.player.Path;
 
-public interface Pathfinder
+public interface Pathfinder extends IterativeCalculation
 {
-	public Path findPath();
-	public Path findPath(double maximumTimeToSpend);
+	public Path getPath();
 }
