@@ -1,8 +1,10 @@
 package jef.core;
 
 import com.synerset.unitility.unitsystem.common.Distance;
+import com.synerset.unitility.unitsystem.common.Velocity;
 
 import jef.core.movement.DUnits;
+import jef.core.movement.VUnits;
 
 public class Conversions
 {
@@ -49,6 +51,11 @@ public class Conversions
 		}
 
 		return angle;
+	}
+
+	public static double milesPerHourToYardsPerSecond(double d)
+	{
+		return Velocity.ofMilesPerHour(d).getInUnit(VUnits.YPS);
 	}
 
 }

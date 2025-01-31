@@ -11,18 +11,21 @@ import jef.core.movement.DefaultLocation;
 import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
 import jef.core.movement.Posture;
+import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.SpeedMatrix;
-import jef.core.movement.player.Waypoint;
 
 public class DefaultPlayer implements Player
 {
-	private Location loc;
 	private LinearVelocity lv;
+	private Location loc;
 	private AngularVelocity av;
-	private boolean hasBall;
+
+	private SpeedMatrix speedMatrix;
 	private Path path;
 	private Posture posture;
+	private double accelerationCoefficient;
+
 	private int weight;
 	private String id;
 	private String firstName;
@@ -31,90 +34,28 @@ public class DefaultPlayer implements Player
 	private int age;
 	private int number;
 
-	private SpeedMatrix speedMatrix;
 	private PlayerRatings ratings;
+
 	private PlayerPosition currentPosition;
 	private final List<PlayerPosition> positions = new ArrayList<>();
 
-	public DefaultPlayer(final Player player)
+	public DefaultPlayer(PlayerPosition currentPosition)
 	{
-		this.loc = player.getLoc();
-		this.lv = player.getLV();
-		this.av = player.getAV();
-		this.hasBall = player.hasBall();
-
-		this.speedMatrix = new SpeedMatrix(player.getSpeedMatrix());
-
-		this.path = player.getPath();
-		this.posture = player.getPosture();
-		this.weight = player.getWeight();
-		this.firstName = player.getFirstName();
-		this.lastName = player.getLastName();
-		this.height = player.getHeight();
-		this.age = player.getAge();
-		this.number = player.getNumber();
-		this.ratings = player.getRatings();
-		this.currentPosition = player.getCurrentPosition();
-		this.positions.clear();
-		this.positions.addAll(player.getPositions());
-	}
-
-	public DefaultPlayer()
-	{
-		this.loc = new DefaultLocation(0, 0, 0);
-		this.lv = new DefaultLinearVelocity();
 		this.av = new DefaultAngularVelocity();
-		this.hasBall = false;
+		this.lv = new DefaultLinearVelocity();
+		this.loc = new DefaultLocation();
+
 		this.posture = Posture.upright;
-	}
-
-	@Override
-	public double getAccelerationCoefficient()
-	{
-		return 1.0;
-	}
-
-	@Override
-	public void setSpeedMatrix(SpeedMatrix matrix)
-	{
-		this.speedMatrix = new SpeedMatrix(matrix);
+		this.path = new DefaultPath();
+		this.currentPosition = currentPosition;
+		this.speedMatrix = new SpeedMatrix(currentPosition);
+		this.accelerationCoefficient = 1.0;
 	}
 
 	@Override
 	public int getAge()
 	{
 		return this.age;
-	}
-
-	@Override
-	public AngularVelocity getAV()
-	{
-		return this.av;
-	}
-
-	@Override
-	public PlayerPosition getCurrentPosition()
-	{
-		return this.currentPosition;
-	}
-
-	@Override
-	public double getDesiredSpeed()
-	{
-		if (this.path != null)
-		{
-			final Waypoint wp = this.path.getCurrentWaypoint();
-			if (wp != null)
-				return wp.getMaxSpeed();
-		}
-
-		return this.speedMatrix.getJoggingSpeed();
-	}
-
-	@Override
-	public SpeedMatrix getSpeedMatrix()
-	{
-		return this.speedMatrix;
 	}
 
 	@Override
@@ -136,33 +77,9 @@ public class DefaultPlayer implements Player
 	}
 
 	@Override
-	public Location getLoc()
-	{
-		return this.loc;
-	}
-
-	@Override
-	public LinearVelocity getLV()
-	{
-		return this.lv;
-	}
-
-	@Override
-	public double getMaxSpeed()
-	{
-		return this.speedMatrix.getSprintingSpeed();
-	}
-
-	@Override
 	public int getNumber()
 	{
 		return this.number;
-	}
-
-	@Override
-	public Path getPath()
-	{
-		return this.path;
 	}
 
 	@Override
@@ -178,12 +95,6 @@ public class DefaultPlayer implements Player
 	public List<PlayerPosition> getPositions()
 	{
 		return Collections.unmodifiableList(this.positions);
-	}
-
-	@Override
-	public Posture getPosture()
-	{
-		return this.posture;
 	}
 
 	@Override
@@ -226,38 +137,15 @@ public class DefaultPlayer implements Player
 	}
 
 	@Override
-	public boolean hasBall()
-	{
-		return this.hasBall;
-	}
-
-	@Override
 	public void setAge(final int age)
 	{
 		this.age = age;
 	}
 
 	@Override
-	public void setAV(final AngularVelocity angularVelocity)
-	{
-		this.av = angularVelocity;
-	}
-
-	public void setCurrentPosition(final PlayerPosition currentPosition)
-	{
-		this.currentPosition = currentPosition;
-	}
-
-	@Override
 	public void setFirstName(final String firstName)
 	{
 		this.firstName = firstName;
-	}
-
-	@Override
-	public void setHasBall(final boolean hasBall)
-	{
-		this.hasBall = hasBall;
 	}
 
 	@Override
@@ -278,21 +166,104 @@ public class DefaultPlayer implements Player
 	}
 
 	@Override
-	public void setLoc(final Location location)
+	public void setNumber(final int number)
+	{
+		this.number = number;
+	}
+
+	public void setRatings(final PlayerRatings ratings)
+	{
+		this.ratings = ratings;
+	}
+
+	@Override
+	public void setWeight(final int weight)
+	{
+		this.weight = weight;
+	}
+
+	@Override
+	public AngularVelocity getAV()
+	{
+		return av;
+	}
+
+	@Override
+	public void setAV(AngularVelocity angularVelocity)
+	{
+		this.av = angularVelocity;
+	}
+
+	@Override
+	public Location getLoc()
+	{
+		return this.loc;
+	}
+
+	@Override
+	public void setLoc(Location location)
 	{
 		this.loc = location;
 	}
 
 	@Override
-	public void setLV(final LinearVelocity lv)
+	public LinearVelocity getLV()
+	{
+		return this.lv;
+	}
+
+	@Override
+	public void setLV(LinearVelocity lv)
 	{
 		this.lv = lv;
 	}
 
 	@Override
-	public void setNumber(final int number)
+	public PlayerPosition getCurrentPosition()
 	{
-		this.number = number;
+		return this.currentPosition;
+	}
+
+	@Override
+	public void setCurrentPosition(PlayerPosition pos)
+	{
+		this.currentPosition = pos;
+	}
+
+	@Override
+	public double getAccelerationCoefficient()
+	{
+		return this.accelerationCoefficient;
+	}
+
+	@Override
+	public double getMaxSpeed()
+	{
+		return this.speedMatrix.getSprintingSpeed();
+	}
+
+	@Override
+	public Path getPath()
+	{
+		return this.path;
+	}
+
+	@Override
+	public Posture getPosture()
+	{
+		return this.posture;
+	}
+
+	@Override
+	public SpeedMatrix getSpeedMatrix()
+	{
+		return this.speedMatrix;
+	}
+
+	@Override
+	public void setAccelerationCoefficient(final double coefficient)
+	{
+		this.accelerationCoefficient = coefficient;
 	}
 
 	@Override
@@ -307,14 +278,9 @@ public class DefaultPlayer implements Player
 		this.posture = posture;
 	}
 
-	public void setRatings(final PlayerRatings ratings)
-	{
-		this.ratings = ratings;
-	}
-
 	@Override
-	public void setWeight(final int weight)
+	public void setSpeedMatrix(final SpeedMatrix matrix)
 	{
-		this.weight = weight;
+		this.speedMatrix = matrix;
 	}
 }

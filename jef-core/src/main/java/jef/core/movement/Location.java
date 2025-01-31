@@ -32,5 +32,14 @@ public interface Location
 	
 	public Vector toVector();
 	
-	public boolean isInPlayableArea();
+	/**
+	 * @return true if the location is in bounds including in the end zones
+	 */
+	public boolean isInBounds();
+	
+	/**
+	 * @return true if the location is in bounds and in either one of the two end zones
+	 */
+	public boolean isInEndZone();
+	
 }

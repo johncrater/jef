@@ -74,12 +74,7 @@ public class DefaultFootball implements Football
 	@Override
 	public void setPlayerInPossession(Player player)
 	{
-		if (this.playerInPossession != null)
-			this.playerInPossession.setHasBall(false);
-
 		this.playerInPossession = player;
-		if (this.playerInPossession != null)
-			this.playerInPossession.setHasBall(true);
 	}
 
 }

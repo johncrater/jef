@@ -2,18 +2,17 @@ package jef.core.collisions;
 
 import java.util.Objects;
 
-import jef.core.Player;
-import jef.core.geometry.Vector;
 import jef.core.movement.DefaultLocation;
 import jef.core.movement.Location;
+import jef.core.movement.player.Steerable;
 
 public class Collision
 {
-	private Player occupier1;
-	private Player occupier2;
+	private Steerable occupier1;
+	private Steerable occupier2;
 	private int tickCountOfcollision;
 
-	public Collision(Player occupier1, Player occupier2, int tickCountOfcollision)
+	public Collision(Steerable occupier1, Steerable occupier2, int tickCountOfcollision)
 	{
 		super();
 		this.occupier1 = occupier1;
@@ -49,12 +48,12 @@ public class Collision
 		return occupier2.getLV().getAzimuth() - occupier2.getLoc().angleTo(occupier1.getLoc());
 	}
 
-	public Player getOccupier1()
+	public Steerable getOccupier1()
 	{
 		return this.occupier1;
 	}
 
-	public Player getOccupier2()
+	public Steerable getOccupier2()
 	{
 		return this.occupier2;
 	}

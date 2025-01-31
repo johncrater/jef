@@ -4,7 +4,6 @@ import java.util.Objects;
 
 import jef.core.Field;
 import jef.core.geometry.Vector;
-import jef.core.pathfinding.Direction;
 
 public class DefaultLocation implements Location
 {
@@ -55,15 +54,39 @@ public class DefaultLocation implements Location
 	}
 
 	@Override
-	public boolean isInPlayableArea()
+	public boolean isInBounds()
 	{
-		if (getX() < 0 || getX() > Field.FIELD_TOTAL_LENGTH)
+		if (getX() <= Field.WEST_END_ZONE_BACK_X)
 			return false;
-
-		if (getY() < 0 || getY() > Field.FIELD_TOTAL_WIDTH)
+		
+		if (getX() >= Field.EAST_END_ZONE_BACK_X)
 			return false;
-
+		
+		if (getY() <= Field.SOUTH_SIDELINE_Y)
+			return false;
+		
+		if (getY() >= Field.NORTH_SIDELINE_Y)
+			return false;
+		
 		return true;
+	}
+
+	@Override
+	public boolean isInEndZone()
+	{
+		if (getX() <= Field.WEST_END_ZONE_X)
+			return true;
+		
+		if (getX() >= Field.EAST_END_ZONE_X)
+			return true;
+		
+		if (getY() <= Field.SOUTH_SIDELINE_Y)
+			return true;
+		
+		if (getY() >= Field.NORTH_SIDELINE_Y)
+			return true;
+		
+		return false;
 	}
 
 	@Override

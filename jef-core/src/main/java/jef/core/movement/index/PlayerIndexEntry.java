@@ -2,54 +2,55 @@ package jef.core.movement.index;
 
 import java.util.Arrays;
 
-import jef.core.movement.player.PlayerTracker;
+import jef.core.Player;
+import jef.core.movement.player.Steerable;
 
 class PlayerIndexEntry
 {
-	private final String playerId;
-	private final PlayerTracker[] players;
+	private final Player player;
+	private final Steerable[] steerables;
 	private int startOffset;
 
-	PlayerIndexEntry(final String playerId, final int lookAheadTicks)
+	PlayerIndexEntry(final Player player, final int lookAheadTicks)
 	{
-		this.playerId = playerId;
-		this.players = new PlayerTracker[lookAheadTicks];
+		this.player = player;
+		this.steerables = new Steerable[lookAheadTicks];
 	}
 
 	String getPlayerId()
 	{
-		return this.playerId;
+		return this.player.getPlayerID();
 	}
 
 	void clear()
 	{
-		Arrays.fill(players, null);
+		Arrays.fill(steerables, null);
 	}
 	
 	int getLookAheadTicks()
 	{
-		return this.players.length;
+		return this.steerables.length;
 	}
 
-	PlayerTracker getPlayerTracker(final int tick)
+	Steerable getSteerable(final int tick)
 	{
-		return players[getIndex(tick)];
+		return steerables[getIndex(tick)];
 	}
 
-	void update(int tick, PlayerTracker player)
+	void update(int tick, Steerable steerable)
 	{
 		int index = getIndex(tick);
-		this.players[index] = player;
+		this.steerables[index] = steerable;
 	}
 	
 	void advance()
 	{
 		this.startOffset += 1;
-		this.startOffset = this.startOffset % this.players.length;
+		this.startOffset = this.startOffset % this.steerables.length;
 	}
 
 	private int getIndex(int tickCount)
 	{
-		return (this.startOffset + tickCount) % this.players.length;
+		return (this.startOffset + tickCount) % this.steerables.length;
 	}
 }

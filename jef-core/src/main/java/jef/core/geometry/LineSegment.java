@@ -208,16 +208,19 @@ public class LineSegment
 		return loc1.add(getDirection().multiply(t));
 	}
 
+	/**
+	 * @return a line segment which overlaps the original line segment where the starting and ending locations are in bounds and between the end zones exclusive
+	 */
 	public LineSegment restrictToBetweenEndZones()
 	{
 		Location l1 = null;
 
 		Location l = this.loc1;
-		if (l.isInPlayableArea())
+		if (l.isInBounds())
 			l1 = l;
 		
 		l = this.loc2;
-		if (l.isInPlayableArea())
+		if (l.isInBounds() && !l.isInEndZone())
 		{
 			if (l1 == null)
 				l1 = l;
@@ -226,7 +229,7 @@ public class LineSegment
 		}
 		
 		l = this.xyIntersection(Field.EAST_END_ZONE);
-		if (l != null && l.isInPlayableArea())
+		if (l != null && l.isInBounds() && !l.isInEndZone())
 		{
 			if (l1 == null)
 				l1 = l;
@@ -235,7 +238,7 @@ public class LineSegment
 		}
 		
 		l = this.xyIntersection(Field.WEST_END_ZONE);
-		if (l != null && l.isInPlayableArea())
+		if (l != null && l.isInBounds() && !l.isInEndZone())
 		{
 			if (l1 == null)
 				l1 = l;
@@ -244,7 +247,7 @@ public class LineSegment
 		}
 
 		l = this.xyIntersection(Field.NORTH_SIDELINE);
-		if (l != null && l.isInPlayableArea())
+		if (l != null && l.isInBounds() && !l.isInEndZone())
 		{
 			if (l1 == null)
 				l1 = l;
@@ -253,7 +256,7 @@ public class LineSegment
 		}
 
 		l = this.xyIntersection(Field.SOUTH_SIDELINE);
-		if (l != null && l.isInPlayableArea())
+		if (l != null && l.isInBounds() && !l.isInEndZone())
 		{
 			if (l1 == null)
 				l1 = l;
@@ -264,16 +267,16 @@ public class LineSegment
 		return null;
 	}
 
-	public LineSegment restrictToPlayableArea()
+	public LineSegment restrictToInBounds()
 	{
 		Location l1 = null;
 
 		Location l = this.loc1;
-		if (l.isInPlayableArea())
+		if (l.isInBounds())
 			l1 = l;
 		
 		l = this.loc2;
-		if (l.isInPlayableArea())
+		if (l.isInBounds())
 		{
 			if (l1 == null)
 				l1 = l;
@@ -282,7 +285,7 @@ public class LineSegment
 		}
 		
 		l = this.xyIntersection(Field.EAST_END_ZONE_BACK);
-		if (l != null && l.isInPlayableArea())
+		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
 				l1 = l;
@@ -291,7 +294,7 @@ public class LineSegment
 		}
 		
 		l = this.xyIntersection(Field.WEST_END_ZONE_BACK);
-		if (l != null && l.isInPlayableArea())
+		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
 				l1 = l;
@@ -300,7 +303,7 @@ public class LineSegment
 		}
 
 		l = this.xyIntersection(Field.NORTH_SIDELINE);
-		if (l != null && l.isInPlayableArea())
+		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
 				l1 = l;
@@ -309,7 +312,7 @@ public class LineSegment
 		}
 
 		l = this.xyIntersection(Field.SOUTH_SIDELINE);
-		if (l != null && l.isInPlayableArea())
+		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
 				l1 = l;

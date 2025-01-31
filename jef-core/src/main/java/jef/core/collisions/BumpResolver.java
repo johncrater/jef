@@ -1,18 +1,18 @@
 package jef.core.collisions;
 
-import jef.core.Player;
 import jef.core.Randomizer;
 import jef.core.movement.Location;
+import jef.core.movement.player.Steerable;
 
 public class BumpResolver implements CollisionResolver
 {
 	private static final double MAXIMUM_BUMP_ANGLE = Math.PI / 4;
 	private static final double MAXIMUM_BUMP_DISTANCE = .5;
 	
-	private Player player1;
-	private Player player2;
+	private Steerable player1;
+	private Steerable player2;
 		
-	public BumpResolver(Player player1, Player player2, Location location)
+	public BumpResolver(Steerable player1, Steerable player2, Location location)
 	{
 		super();
 		this.player1 = player1;

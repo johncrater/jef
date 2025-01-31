@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 
 import jef.core.DefaultPlayer;
 import jef.core.movement.DefaultLinearVelocity;
+import jef.core.movement.player.DefaultSteerable;
+import jef.core.movement.player.Steerable;
 
 class DefaultLocationIndexTest
 {
@@ -15,7 +17,9 @@ class DefaultLocationIndexTest
 		DefaultPlayer player = new DefaultPlayer();
 		player.setFirstName("Fran");
 		player.setLastName("Tarkenton");
-		player.setLV(new DefaultLinearVelocity((double) 10, (double) 10, (double) 0));
-		index.update(player);
+		
+		Steerable steerable = new DefaultSteerable(player);
+		steerable.setLV(new DefaultLinearVelocity((double) 10, (double) 10, (double) 0));
+		index.update(steerable);
 	}
 }

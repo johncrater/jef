@@ -1,14 +1,14 @@
 package jef.core.collisions;
 
-import jef.core.Player;
 import jef.core.Randomizer;
+import jef.core.movement.player.Steerable;
 
 public class BlockingResolver implements CollisionResolver
 {
-	private Player blocker;
-	private Player defender;
+	private Steerable blocker;
+	private Steerable defender;
 	
-	public BlockingResolver(Player blocker, Player defender)
+	public BlockingResolver(Steerable blocker, Steerable defender)
 	{
 		super();
 		this.blocker = blocker;

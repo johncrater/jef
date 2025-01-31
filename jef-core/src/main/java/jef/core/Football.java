@@ -12,4 +12,6 @@ public interface Football extends Moveable
 
 	public Player getPlayerInPossession();
 	public void setPlayerInPossession(Player player);
+	
+	public static final Football theFootball = new DefaultFootball();
 }

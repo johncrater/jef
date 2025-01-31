@@ -3,16 +3,17 @@ package jef.core.collisions;
 import jef.core.Player;
 import jef.core.Randomizer;
 import jef.core.movement.Posture;
+import jef.core.movement.player.Steerable;
 
 public class TackleResolver implements CollisionResolver
 {
 	private static final double MAXIMUM_TACKLE_ANGLE = Math.PI / 4;
 	private static final double MAXIMUM_TACKLE_DISTANCE = 1;
 
-	private Player runner;
-	private Player defender;
+	private Steerable runner;
+	private Steerable defender;
 	
-	public TackleResolver(Player runner, Player defender)
+	public TackleResolver(Steerable runner, Steerable defender)
 	{
 		super();
 		this.runner = runner;

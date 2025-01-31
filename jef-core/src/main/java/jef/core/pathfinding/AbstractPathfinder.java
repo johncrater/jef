@@ -14,11 +14,17 @@ public abstract class AbstractPathfinder implements Pathfinder
 
 	
 	@Override
+	public void reset()
+	{
+		timeRemaining = 0;
+	}
+
+
+	@Override
 	public void addTime(double time)
 	{
 		timeRemaining += time;
 	}
-
 
 	@Override
 	public double getTimeRemaining()
@@ -26,7 +32,11 @@ public abstract class AbstractPathfinder implements Pathfinder
 		return timeRemaining;
 	}
 
-
+	protected void setTimeRemaining(double timeRemaining)
+	{
+		this.timeRemaining = timeRemaining;
+	}
+	
 	protected void setPath(Path path)
 	{
 		this.path = path;
