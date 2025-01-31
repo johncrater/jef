@@ -5,7 +5,7 @@ import java.util.List;
 import jef.core.Player;
 import jef.core.collisions.Collision;
 import jef.core.movement.Location;
-import jef.core.movement.player.Steerable;
+import jef.core.movement.player.PlayerTracker;
 
 public interface LocationIndex
 {
@@ -15,7 +15,7 @@ public interface LocationIndex
 	 * @param tickCount This is relative to the current tick. For example, 0 is the currentTick, 1 is the next one and so on up to getNumTicks()
 	 * @return
 	 */
-	List<? extends Steerable> getOccupiers(Location location, int tick);
+	List<? extends PlayerTracker> getOccupiers(Location location, int tick);
 
 	List<Collision> getCollisions(int ticksAhead);
 	

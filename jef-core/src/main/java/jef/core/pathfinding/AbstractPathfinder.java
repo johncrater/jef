@@ -1,24 +1,31 @@
 package jef.core.pathfinding;
 
+import jef.core.Player;
 import jef.core.movement.player.Path;
+import jef.core.movement.player.Steerable;
 
 public abstract class AbstractPathfinder implements Pathfinder
 {
+	private Player player;
 	private Path path;
 	private double timeRemaining;
 
-	public AbstractPathfinder()
+	public AbstractPathfinder(Player player)
 	{
-		// TODO Auto-generated constructor stub
+		this.player = player;
 	}
 
-	
 	@Override
 	public void reset()
 	{
 		timeRemaining = 0;
 	}
 
+	@Override
+	public Player getPlayer()
+	{
+		return this.player;
+	}
 
 	@Override
 	public void addTime(double time)
@@ -41,7 +48,6 @@ public abstract class AbstractPathfinder implements Pathfinder
 	{
 		this.path = path;
 	}
-
 
 	protected void useTime(long nanos)
 	{

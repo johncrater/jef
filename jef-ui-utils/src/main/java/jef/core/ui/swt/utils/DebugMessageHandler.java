@@ -44,11 +44,11 @@ public class DebugMessageHandler implements Telegraph
 		colors.put(Messages.drawRunnerPath, runnerColor);
 		MessageManager.getInstance().addListener(this, Messages.drawRunnerPath);
 
-//		colors.put(Messages.drawEvasionBoundingSegments, evasionBoundsColor);
-//		MessageManager.getInstance().addListener(this, Messages.drawEvasionBoundingSegments);
-//
-//		colors.put(Messages.drawEvasionIntersections, evasionBoundsColor);
-//		MessageManager.getInstance().addListener(this, Messages.drawEvasionIntersections);
+		colors.put(Messages.drawEvasionBoundingSegments, evasionBoundsColor);
+		MessageManager.getInstance().addListener(this, Messages.drawEvasionBoundingSegments);
+
+		colors.put(Messages.drawEvasionIntersections, evasionBoundsColor);
+		MessageManager.getInstance().addListener(this, Messages.drawEvasionIntersections);
 
 		colors.put(Messages.drawEvasionCommonReachableLines, evasionCommonBoundsColor);
 		MessageManager.getInstance().addListener(this, Messages.drawEvasionCommonReachableLines);
@@ -62,8 +62,8 @@ public class DebugMessageHandler implements Telegraph
 		colors.put(Messages.drawBlockerPath, blockerColor);
 		MessageManager.getInstance().addListener(this, Messages.drawBlockerPath);
 
-//		MessageManager.getInstance().addListener(this, Messages.drawEvasionInterceptorReachableLocations);
-//		colors.put(Messages.drawEvasionInterceptorReachableLocations, new Color(0x80, 0x00, 0x00));
+		MessageManager.getInstance().addListener(this, Messages.drawEvasionInterceptorReachableLocations);
+		colors.put(Messages.drawEvasionInterceptorReachableLocations, new Color(0x80, 0x00, 0x00));
 
 	}
 

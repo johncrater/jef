@@ -1,19 +1,18 @@
 package jef.core.collisions;
 
-import jef.core.Player;
 import jef.core.Randomizer;
 import jef.core.movement.Posture;
-import jef.core.movement.player.Steerable;
+import jef.core.movement.player.PlayerTracker;
 
 public class TackleResolver implements CollisionResolver
 {
 	private static final double MAXIMUM_TACKLE_ANGLE = Math.PI / 4;
 	private static final double MAXIMUM_TACKLE_DISTANCE = 1;
 
-	private Steerable runner;
-	private Steerable defender;
+	private PlayerTracker runner;
+	private PlayerTracker defender;
 	
-	public TackleResolver(Steerable runner, Steerable defender)
+	public TackleResolver(PlayerTracker runner, PlayerTracker defender)
 	{
 		super();
 		this.runner = runner;

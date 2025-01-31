@@ -44,8 +44,8 @@ public class DefaultLocationIndex implements LocationIndex
 
 		for (final LocationIndexEntry entry : this.locationToIndexEntry.values())
 		{
-			final List<Steerable> neighbors = new ArrayList<>();
-			final List<Steerable> occupiers = entry.getOccupiers(ticksAhead);
+			final List<PlayerTracker> neighbors = new ArrayList<>();
+			final List<PlayerTracker> occupiers = entry.getOccupiers(ticksAhead);
 			final List<Location> surroundingLocs = this.getSurroundingLocations(entry.getCanonicalLocation());
 			for (final Location loc : surroundingLocs)
 			{
@@ -65,7 +65,7 @@ public class DefaultLocationIndex implements LocationIndex
 	}
 
 	@Override
-	public List<? extends Steerable> getOccupiers(final Location location, final int tick)
+	public List<? extends PlayerTracker> getOccupiers(final Location location, final int tick)
 	{
 		final LocationIndexEntry entries = this.locationToIndexEntry.get(location);
 		if (entries == null)
@@ -87,7 +87,7 @@ public class DefaultLocationIndex implements LocationIndex
 		
 		final int tick = 0;
 		PlayerIndexEntry entry = this.idToIndexEntry.get(player.getPlayerID());
-		final Steerable currentTracker = entry.getSteerable(tick);
+		final PlayerTracker currentTracker = entry.getPlayerTracker(tick);
 
 		if (currentTracker != null)
 		{
@@ -101,12 +101,11 @@ public class DefaultLocationIndex implements LocationIndex
 		
 		for (int i = 0; i < this.numberOfTicks; i++)
 		{
-			Steerable newSteerable = new DefaultSteerable(player);
-			PlayerTracker tracker = new PlayerTracker(newSteerable, this.timeInterval);	
+			PlayerTracker tracker = new PlayerTracker(player, this.timeInterval);	
 			tracker.move();
-			entry.update(i, newSteerable);
+			entry.update(i, tracker);
 
-			final Location canonicalLocation = this.toCanonicalLocation(newSteerable.getLoc());
+			final Location canonicalLocation = this.toCanonicalLocation(tracker.getLoc());
 			LocationIndexEntry locationEntry = this.locationToIndexEntry.get(canonicalLocation);
 			if (locationEntry == null)
 			{
@@ -114,7 +113,7 @@ public class DefaultLocationIndex implements LocationIndex
 				this.locationToIndexEntry.put(canonicalLocation, locationEntry);
 			}
 
-			locationEntry.addOccupier(newSteerable, i);
+			locationEntry.addOccupier(tracker, i);
 		}
 	}
 
@@ -123,9 +122,9 @@ public class DefaultLocationIndex implements LocationIndex
 		PlayerIndexEntry entry = this.idToIndexEntry.get(player.getPlayerID());
 		for (int i = 0; i < this.numberOfTicks; i++)
 		{
-			Location loc = this.toCanonicalLocation(entry.getSteerable(i).getLoc());
+			Location loc = this.toCanonicalLocation(entry.getPlayerTracker(i).getLoc());
 			LocationIndexEntry lEntry = this.locationToIndexEntry.get(loc);
-			Steerable pEntry = entry.getSteerable(i);
+			PlayerTracker pEntry = entry.getPlayerTracker(i);
 			int remainingOccupiers = lEntry.removeOccupier(pEntry, i);
 			if (remainingOccupiers == 0)
 				this.locationToIndexEntry.remove(loc);
@@ -144,8 +143,8 @@ public class DefaultLocationIndex implements LocationIndex
 		}
 	}
 	
-	private List<Collision> extractRealCollisions(final List<? extends Steerable> targetPlayers,
-			final List<? extends Steerable> surroundingPlayers, final int tick)
+	private List<Collision> extractRealCollisions(final List<? extends PlayerTracker> targetPlayers,
+			final List<? extends PlayerTracker> surroundingPlayers, final int tick)
 	{
 		final List<Collision> ret = new ArrayList<>();
 
@@ -153,8 +152,8 @@ public class DefaultLocationIndex implements LocationIndex
 		{
 			for (int j = i + 1; j < targetPlayers.size(); j++)
 			{
-				final Steerable p1 = targetPlayers.get(i);
-				final Steerable p2 = targetPlayers.get(j);
+				final PlayerTracker p1 = targetPlayers.get(i);
+				final PlayerTracker p2 = targetPlayers.get(j);
 
 				if (p1 == p2)
 				{
@@ -172,8 +171,8 @@ public class DefaultLocationIndex implements LocationIndex
 		{
 			for (int j = 0; j < surroundingPlayers.size(); j++)
 			{
-				final Steerable p1 = targetPlayers.get(i);
-				final Steerable p2 = surroundingPlayers.get(j);
+				final PlayerTracker p1 = targetPlayers.get(i);
+				final PlayerTracker p2 = surroundingPlayers.get(j);
 
 				if (p1 == p2)
 				{

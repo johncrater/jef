@@ -1,13 +1,11 @@
 package jef.core.movement.player;
 
-import jef.core.Player;
 import jef.core.PlayerPosition;
 import jef.core.movement.DefaultMoveable;
 import jef.core.movement.Posture;
 
 public class DefaultSteerable extends DefaultMoveable implements Steerable
 {
-	private Player player;
 	private SpeedMatrix speedMatrix;
 	private double desiredSpeed;
 	private Path path;
@@ -15,28 +13,14 @@ public class DefaultSteerable extends DefaultMoveable implements Steerable
 	private double accelerationCoefficient;
 	private PlayerPosition currentPosition;
 
-	public DefaultSteerable(Player player)
+	public DefaultSteerable()
 	{
-		super(player.getLV(), player.getLoc(), player.getAV());
-		this.player = player;
-		this.speedMatrix = player.getSpeedMatrix();
-		this.desiredSpeed = player.getMaxSpeed();
-		this.path = player.getPath();
-		this.posture = player.getPosture();
-		this.accelerationCoefficient = player.getAccelerationCoefficient();
-		this.currentPosition = player.getCurrentPosition();
-	}
-
-	public DefaultSteerable(final Player player, Path path)
-	{
-		this(player);
-		this.path = new DefaultPath(path);
+		super();
 	}
 
 	public DefaultSteerable(final Steerable s)
 	{
 		super(s);
-		this.player = s.getPlayer();
 		this.accelerationCoefficient = s.getAccelerationCoefficient();
 		this.desiredSpeed = s.getDesiredSpeed();
 		this.path = new DefaultPath(s.getPath());
@@ -51,16 +35,40 @@ public class DefaultSteerable extends DefaultMoveable implements Steerable
 		this.path = new DefaultPath(path);
 	}
 
+	public void setSpeedMatrix(SpeedMatrix speedMatrix)
+	{
+		this.speedMatrix = speedMatrix;
+	}
+
+	public void setDesiredSpeed(double desiredSpeed)
+	{
+		this.desiredSpeed = desiredSpeed;
+	}
+
+	public void setPath(Path path)
+	{
+		this.path = path;
+	}
+
+	public void setPosture(Posture posture)
+	{
+		this.posture = posture;
+	}
+
+	public void setAccelerationCoefficient(double accelerationCoefficient)
+	{
+		this.accelerationCoefficient = accelerationCoefficient;
+	}
+
+	public void setCurrentPosition(PlayerPosition currentPosition)
+	{
+		this.currentPosition = currentPosition;
+	}
+
 	@Override
 	public PlayerPosition getCurrentPosition()
 	{
 		return this.currentPosition;
-	}
-
-	@Override
-	public Player getPlayer()
-	{
-		return player;
 	}
 
 	@Override

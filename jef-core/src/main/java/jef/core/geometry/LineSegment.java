@@ -228,7 +228,7 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 		
-		l = this.xyIntersection(Field.EAST_END_ZONE);
+		l = this.xyIntersection(Field.EAST_END_ZONE.add(-Location.EPSILON_VALUE, 0, 0));
 		if (l != null && l.isInBounds() && !l.isInEndZone())
 		{
 			if (l1 == null)
@@ -237,7 +237,7 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 		
-		l = this.xyIntersection(Field.WEST_END_ZONE);
+		l = this.xyIntersection(Field.WEST_END_ZONE.add(Location.EPSILON_VALUE, 0, 0));
 		if (l != null && l.isInBounds() && !l.isInEndZone())
 		{
 			if (l1 == null)
@@ -246,7 +246,7 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.NORTH_SIDELINE);
+		l = this.xyIntersection(Field.NORTH_SIDELINE.add(0, -Location.EPSILON_VALUE, 0));
 		if (l != null && l.isInBounds() && !l.isInEndZone())
 		{
 			if (l1 == null)
@@ -255,7 +255,7 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.SOUTH_SIDELINE);
+		l = this.xyIntersection(Field.SOUTH_SIDELINE.add(0, Location.EPSILON_VALUE, 0));
 		if (l != null && l.isInBounds() && !l.isInEndZone())
 		{
 			if (l1 == null)
@@ -284,7 +284,7 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 		
-		l = this.xyIntersection(Field.EAST_END_ZONE_BACK);
+		l = this.xyIntersection(Field.EAST_END_ZONE_BACK.add(-Location.EPSILON_VALUE, 0, 0));
 		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
@@ -293,7 +293,7 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 		
-		l = this.xyIntersection(Field.WEST_END_ZONE_BACK);
+		l = this.xyIntersection(Field.WEST_END_ZONE_BACK.add(Location.EPSILON_VALUE, 0, 0));
 		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
@@ -302,7 +302,7 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.NORTH_SIDELINE);
+		l = this.xyIntersection(Field.NORTH_SIDELINE.add(0, -Location.EPSILON_VALUE, 0));
 		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
@@ -311,7 +311,7 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.SOUTH_SIDELINE);
+		l = this.xyIntersection(Field.SOUTH_SIDELINE.add(0, Location.EPSILON_VALUE, 0));
 		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
@@ -321,6 +321,11 @@ public class LineSegment
 		}
 
 		return null;
+	}
+	
+	public LineSegment add(double x, double y, double z)
+	{
+		return new LineSegment(this.getLoc1().add(x, y, z), this.getLoc2().add(x, y, z));
 	}
 	
 	@Override

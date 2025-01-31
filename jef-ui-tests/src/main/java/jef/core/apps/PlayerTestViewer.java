@@ -58,19 +58,14 @@ import jef.core.movement.Posture;
 import jef.core.movement.index.DefaultLocationIndex;
 import jef.core.movement.index.LocationIndex;
 import jef.core.movement.player.DefaultPath;
-import jef.core.movement.player.DefaultSteerable;
-import jef.core.movement.player.Path;
 import jef.core.movement.player.PlayerTracker;
-import jef.core.movement.player.Steerable;
 import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
 import jef.core.pathfinding.Direction;
+import jef.core.pathfinding.EvadeInterceptors;
 import jef.core.pathfinding.InterceptPlayer;
 import jef.core.pathfinding.Pathfinder;
-import jef.core.pathfinding.PlayerStepsCalculator;
-import jef.core.pathfinding.RunForGlory;
-import jef.core.pathfinding.RunnerPathfinder;
 import jef.core.ui.swt.utils.DebugMessageHandler;
 import jef.core.ui.swt.utils.GIFMarkup;
 import jef.core.ui.swt.utils.TransformStack;
@@ -101,12 +96,12 @@ public class PlayerTestViewer implements Runnable
 	private GIFMarkup player1Gif;
 	private boolean pause;
 
-	private Player player;
-	private Map<String, Player> players = new HashMap<>();
-	private Player runner;
-	private Map<String, Player> defenders = new HashMap<>();
-	private Map<String, Player> blockers = new HashMap<>();
-	private List<Pathfinder> pathfinders = new ArrayList<>();
+	private DefaultPlayer player;
+	private Map<String, DefaultPlayer> players = new HashMap<>();
+	private DefaultPlayer runner;
+	private Map<String, DefaultPlayer> defenders = new HashMap<>();
+	private Map<String, DefaultPlayer> blockers = new HashMap<>();
+	private Map<Pathfinder, DefaultPlayer> pathfinders = new HashMap<>();
 	private DestinationAction nextDestinationAction = DestinationAction.fastStop;
 	private LocationIndex index = new DefaultLocationIndex(TIMER_INTERVAL, (int) (2 / TIMER_INTERVAL)); // two seconds
 
@@ -235,11 +230,14 @@ public class PlayerTestViewer implements Runnable
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-				RunForGlory rfg = new RunForGlory(new DefaultSteerable(runner), Direction.west,
-						Performance.frameInterval);
-				pathfinders.add(rfg);
+//				RunForGlory rfg = new RunForGlory(runner, Direction.west,
+//						Performance.frameInterval);
+//				pathfinders.put(rfg, runner);
 
-				defenders.values().forEach(p -> pathfinders.add(new InterceptPlayer(p, rfg)));
+				EvadeInterceptors ei = new EvadeInterceptors(runner, defenders.values(), blockers.values(), Direction.west, Performance.frameInterval);
+				pathfinders.put(ei, runner);
+				
+				defenders.values().forEach(p -> pathfinders.put(new InterceptPlayer(p, ei), p));
 //				blockers.values().forEach(p -> pathfinders.put(p.getPlayer().getPlayerID(),
 //						new BlockNearestThreat(p, runner, defenders.values(), Direction.east)));
 //				blockers.values().forEach(p -> pathfinders.put(p.getPlayer().getPlayerID(),
@@ -270,7 +268,7 @@ public class PlayerTestViewer implements Runnable
 				@Override
 				public void widgetSelected(SelectionEvent e)
 				{
-					player = (Player) b.getData();
+					player = (DefaultPlayer) b.getData();
 				}
 			});
 		}
@@ -291,16 +289,16 @@ public class PlayerTestViewer implements Runnable
 		this.runner = player;
 		Football.theFootball.setPlayerInPossession(runner);
 
-//		Player pl = new DefaultPlayer(PlayerPosition.DE);
-//		pl.setFirstName("Carl");
-//		pl.setLastName("Eller");
-//		pl.setWeight(280);
-//		pl.setLoc(Field.MIDFIELD);
-//		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getMaxSpeed(), DestinationAction.fastStop)));
-//
-//		this.players.put(pl.getPlayerID(), pl);
-//		this.defenders.put(pl.getPlayerID(), pl);
-//
+		DefaultPlayer pl = new DefaultPlayer(PlayerPosition.DE);
+		pl.setFirstName("Carl");
+		pl.setLastName("Eller");
+		pl.setWeight(280);
+		pl.setLoc(Field.MIDFIELD);
+		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getMaxSpeed(), DestinationAction.fastStop)));
+
+		this.players.put(pl.getPlayerID(), pl);
+		this.defenders.put(pl.getPlayerID(), pl);
+
 //		p = new DefaultPlayer();
 //		p.setFirstName("Ron");
 //		p.setLastName("Yary");
@@ -315,18 +313,15 @@ public class PlayerTestViewer implements Runnable
 //		this.blockers.put(p.getPlayer().getPlayerID(), p);
 //		p.setCurrentPosition(PlayerPosition.G);
 //
-//		p = new DefaultPlayer();
-//		p.setFirstName("Alan");
-//		p.setLastName("Page");
-//		p.setWeight(280);
-//		p.setLoc(Field.MIDFIELD.add(-10, 0, 0));
-//		p.setSpeedMatrix(new SpeedMatrix(10, 8, 6, 3));
-//		path = new DefaultPath();
-//		path.addWaypoint(new Waypoint(p.getLoc(), p.getMaxSpeed(), DestinationAction.fastStop));
-//		p.setPath(path);
-//		this.players.put(p.getPlayer().getPlayerID(), p);
-//		this.defenders.put(p.getPlayer().getPlayerID(), p);
-//		p.setCurrentPosition(PlayerPosition.DT);
+//		pl = new DefaultPlayer(PlayerPosition.DT);
+//		pl.setFirstName("Alan");
+//		pl.setLastName("Page");
+//		pl.setWeight(280);
+//		pl.setLoc(Field.MIDFIELD.add(-10, 0, 0));
+//		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getMaxSpeed(), DestinationAction.fastStop)));
+//
+//		this.players.put(pl.getPlayerID(), pl);
+//		this.defenders.put(pl.getPlayerID(), pl);
 	}
 
 	public static int colorStringToColor(String colorString)
@@ -616,10 +611,10 @@ public class PlayerTestViewer implements Runnable
 					this.index.update(player);
 
 				List<Collision> collisions = this.index.getCollisions(0);
-				collisions = collisions.stream().filter(
-						c -> c.getOccupier1().getPlayer().equals(player) || c.getOccupier2().getPlayer().equals(player))
-						.map(c -> new Collision(c.getOccupier1(), c.getOccupier2(), c.getTickCountOfcollision()))
-						.toList();
+//				collisions = collisions.stream().filter(
+//						c -> c.getOccupier1().getPlayer().equals(player) || c.getOccupier2().getPlayer().equals(player))
+//						.map(c -> new Collision(c.getOccupier1(), c.getOccupier2(), c.getTickCountOfcollision()))
+//						.toList();
 
 				for (Collision collision : collisions)
 				{
@@ -627,18 +622,24 @@ public class PlayerTestViewer implements Runnable
 					{
 						CollisionResolver resolver = CollisionResolution.createResolution(collision);
 						resolver.resolveCollision();
+
+						DefaultPlayer player = players.get(collision.getOccupier1().getPlayer().getPlayerID());
+						player.setPosture(collision.getOccupier1().getPosture());
+
+						player = players.get(collision.getOccupier2().getPlayer().getPlayerID());
+						player.setPosture(collision.getOccupier2().getPosture());
 					}
 				}
 
-				this.pathfinders.forEach(pf -> pf.reset());
+				this.pathfinders.keySet().forEach(pf -> pf.reset());
 
 				double timeAllotted = Performance.frameInterval;
-				List<Pathfinder> playersToMove = new ArrayList<>(pathfinders);
+				List<Pathfinder> playersToMove = new ArrayList<>(pathfinders.keySet());
 
 				while (playersToMove.size() > 0 && timeAllotted > 0)
 				{
 					double timePerSteerable = timeAllotted / playersToMove.size();
-					for (Pathfinder pf : pathfinders)
+					for (Pathfinder pf : pathfinders.keySet())
 					{
 						if (playersToMove.contains(pf) == false)
 							continue;
@@ -650,7 +651,7 @@ public class PlayerTestViewer implements Runnable
 							if (pf.calculate())
 								playersToMove.remove(pf);
 							
-							player.setPath(pf.getPath());
+							pathfinders.get(pf).setPath(pf.getPath());
 							
 							timeAllotted += pf.getTimeRemaining();
 							pf.addTime(-pf.getTimeRemaining());
@@ -662,14 +663,13 @@ public class PlayerTestViewer implements Runnable
 					}
 				}
 
-				for (Player player : players.values())
+				for (DefaultPlayer player : players.values())
 				{
 					if (player.getPath() == null)
 						continue;
 
 					Steering steering = new Steering();
-					Steerable steerable = new DefaultSteerable(player);
-					PlayerTracker tracker = new PlayerTracker(steerable, TIMER_INTERVAL);
+					PlayerTracker tracker = new PlayerTracker(player, TIMER_INTERVAL);
 					steering.next(tracker);
 
 					player.setLV(tracker.getLV());

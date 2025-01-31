@@ -6,8 +6,9 @@ import jef.core.movement.Location;
 import jef.core.movement.Posture;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.SpeedMatrix;
+import jef.core.movement.player.Steerable;
 
-public interface Player extends PlayerInfo
+public interface Player extends PlayerInfo, Steerable
 {
 	public enum DecelerationRate
 	{
@@ -78,35 +79,20 @@ public interface Player extends PlayerInfo
 
 	public AngularVelocity getAV();
 
-	public void setAV(AngularVelocity angularVelocity);
-
 	public Location getLoc();
 
-	public void setLoc(Location location);
-
 	public LinearVelocity getLV();
-
-	public void setLV(LinearVelocity lv);
 
 	public SpeedMatrix getSpeedMatrix();
 
 	public double getMaxSpeed();
 
-	public void setSpeedMatrix(SpeedMatrix matrix);
-
 	public Path getPath();
-
-	public void setPath(Path path);
 
 	public Posture getPosture();
 
-	public void setPosture(Posture posture);
-
 	public double getAccelerationCoefficient();
-
-	public void setAccelerationCoefficient(double coefficient);
 
 	public PlayerPosition getCurrentPosition();
 
-	public void setCurrentPosition(PlayerPosition pos);
 }

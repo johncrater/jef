@@ -3,6 +3,7 @@ package jef.core.pathfinding;
 import java.util.ArrayList;
 import java.util.List;
 
+import jef.core.Player;
 import jef.core.movement.Location;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steerable;
@@ -14,17 +15,17 @@ public class PlayerStepsCalculator extends AbstractIterativeCalculation
 	private final PlayerTracker tracker;
 	private final int options;
 	
-	public PlayerStepsCalculator(Steerable steerable, double deltaTime)
+	public PlayerStepsCalculator(Player player, double deltaTime)
 	{
 		super();
-		tracker = new PlayerTracker(steerable, deltaTime);
+		tracker = new PlayerTracker(player, deltaTime);
 		options = Steering.USE_ALL;
 	}
 
-	public PlayerStepsCalculator(Steerable steerable, double deltaTime, int options)
+	public PlayerStepsCalculator(Player player, double deltaTime, int options)
 	{
 		super();
-		tracker = new PlayerTracker(steerable, deltaTime);
+		tracker = new PlayerTracker(player, deltaTime);
 		this.options = options;
 	}
 
@@ -44,8 +45,9 @@ public class PlayerStepsCalculator extends AbstractIterativeCalculation
 		while (getTimeRemaining() > 0 && ret == false)
 		{
 			 ret = steering.next(tracker);
+			 tracker.advance();
 			 steps.add(tracker.getLoc());
-			 this.useTime(System.nanoTime() - nanos);
+//			 this.useTime(System.nanoTime() - nanos);
 			 nanos = System.nanoTime();
 		}
 		

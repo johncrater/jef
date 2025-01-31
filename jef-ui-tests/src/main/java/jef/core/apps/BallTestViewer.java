@@ -68,7 +68,7 @@ public class BallTestViewer implements Runnable
 	private static Font playerDataFont;
 	public static Font trackingFont;
 
-	public static Football ball;
+	public static DefaultFootball ball;
 
 	private static long hangTime = 0;
 	private static double ballDistance;

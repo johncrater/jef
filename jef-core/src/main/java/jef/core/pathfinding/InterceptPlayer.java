@@ -4,11 +4,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.badlogic.gdx.ai.msg.MessageManager;
+
 import jef.core.Performance;
 import jef.core.Player;
+import jef.core.events.Messages;
+import jef.core.geometry.LineSegment;
 import jef.core.movement.Location;
 import jef.core.movement.player.DefaultPath;
-import jef.core.movement.player.DefaultSteerable;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
@@ -16,10 +19,8 @@ import jef.core.movement.player.Waypoint.DestinationAction;
 
 public class InterceptPlayer extends AbstractPathfinder
 {
-	private Player player;
-	private Player target;
 	private RunnerPathfinder runnerPathfinder;
-	
+
 	private List<Location> interceptionPoints;
 	private Map<Location, Integer> locationToTicks = new HashMap<>();
 	private int minIndex;
@@ -27,8 +28,7 @@ public class InterceptPlayer extends AbstractPathfinder
 
 	public InterceptPlayer(Player player, RunnerPathfinder runnerPathfinder)
 	{
-		super();
-		this.player = player;
+		super(player);
 		this.runnerPathfinder = runnerPathfinder;
 	}
 
@@ -42,18 +42,65 @@ public class InterceptPlayer extends AbstractPathfinder
 		maxIndex = -1;
 	}
 
+	private boolean exhaustiveCalculation()
+	{
+		if (interceptionPoints == null)
+			interceptionPoints = runnerPathfinder.getSteps();
+
+		if (interceptionPoints == null)
+			return false;
+		
+		this.minIndex = 0;
+		this.maxIndex = interceptionPoints.size() - 1;
+
+		int minIndex = 0;
+		int minTicks = Integer.MAX_VALUE;
+		for (int i = minIndex; i <= maxIndex; i++)
+		{
+			Location loc = interceptionPoints.get(i);
+			Integer ticks = locationToTicks.get(loc);
+			if (ticks == null)
+			{
+				ticks = Steering.calculateTicks(new PlayerTracker(getPlayer(),
+						new DefaultPath(new Waypoint(loc, getPlayer().getMaxSpeed(), DestinationAction.noStop)),
+						Performance.frameInterval));
+				locationToTicks.put(loc, ticks);
+			}
+
+			int tickDiff = ticks - i;
+			if ((minTicks > 0 && tickDiff < minTicks) || (minTicks < 0 && tickDiff <= 0 && tickDiff > minTicks))
+			{
+				minTicks = tickDiff;
+				minIndex = i;
+			}
+		}
+		
+		Location interceptionPoint = this.interceptionPoints.get(minIndex);
+		setPath(new DefaultPath(new Waypoint(interceptionPoint, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
+		MessageManager.getInstance().dispatchMessage(Messages.drawInterceptorPath, interceptionPoint);
+		MessageManager.getInstance().dispatchMessage(Messages.drawInterceptorDestination, new LineSegment(getPlayer().getLoc(), interceptionPoint));
+		
+		return true;
+	}
+	
 	@Override
 	public boolean calculate()
+	{
+		return exhaustiveCalculation();
+	}
+	
+	private boolean normalCalculation()
 	{
 		if (interceptionPoints == null)
 		{
 			long nanos = System.nanoTime();
 			interceptionPoints = runnerPathfinder.getSteps();
-			this.minIndex = 0;
-			this.maxIndex = interceptionPoints.size() - 1;
-			this.useTime(System.nanoTime() - nanos);
+//			this.useTime(System.nanoTime() - nanos);
 		}
-		
+
+		this.minIndex = 0;
+		this.maxIndex = interceptionPoints.size() - 1;
+
 		while (this.getTimeRemaining() > 0)
 		{
 			long nanos = System.nanoTime();
@@ -62,76 +109,91 @@ public class InterceptPlayer extends AbstractPathfinder
 			Integer maxTicks = locationToTicks.get(maxLoc);
 			if (maxTicks == null)
 			{
-				DefaultSteerable s = new DefaultSteerable(player, new DefaultPath(new Waypoint(maxLoc, player.getMaxSpeed(), DestinationAction.noStop)));
-				maxTicks = Steering.calculateTicks(new PlayerTracker(s, Performance.frameInterval));
+				maxTicks = Steering.calculateTicks(new PlayerTracker(getPlayer(),
+						new DefaultPath(new Waypoint(maxLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)),
+						Performance.frameInterval));
 				locationToTicks.put(maxLoc, maxTicks);
 			}
-			
+
 //			this.useTime(System.nanoTime() - nanos);
 //			if (this.getTimeRemaining() <= 0)
 //				return false;
 //			
 //			nanos = System.nanoTime();
 
-			if (maxTicks == maxIndex || maxTicks == maxIndex - 1 || maxTicks > maxIndex)
-			{
-				setPath(new DefaultPath(new Waypoint(maxLoc, player.getMaxSpeed(), DestinationAction.noStop)));
-				return true;
-			}
-			
+//			if (Math.abs(maxTicks - maxIndex) <= 1 || maxTicks > maxIndex)
+//			{
+//				setPath(new DefaultPath(new Waypoint(maxLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
+//				return true;
+//			}
+//
 			Location minLoc = interceptionPoints.get(minIndex);
 			Integer minTicks = locationToTicks.get(minLoc);
 			if (minTicks == null)
 			{
-				DefaultSteerable s = new DefaultSteerable(player, new DefaultPath(new Waypoint(minLoc, player.getMaxSpeed(), DestinationAction.noStop)));
-				minTicks = Steering.calculateTicks(new PlayerTracker(s, Performance.frameInterval));
+				minTicks = Steering.calculateTicks(new PlayerTracker(getPlayer(),
+						new DefaultPath(new Waypoint(minLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)),
+						Performance.frameInterval));
 				locationToTicks.put(minLoc, minTicks);
 			}
-			
+
 //			this.useTime(System.nanoTime() - nanos);
 //			if (this.getTimeRemaining() <= 0)
 //				return false;
 //
 //			nanos = System.nanoTime();
 
-			if (minTicks == minIndex || minTicks == minIndex - 1)
-			{
-				setPath(new DefaultPath(new Waypoint(minLoc, player.getMaxSpeed(), DestinationAction.noStop)));
-				return true;
-			}
-			
+//			if (Math.abs(minTicks - minIndex) <= 1)
+//			{
+//				setPath(new DefaultPath(new Waypoint(minLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
+//				return true;
+//			}
+
 			int centerIndex = minIndex + (maxIndex - minIndex) / 2;
 			Location centerLoc = interceptionPoints.get(centerIndex);
 			Integer centerTicks = locationToTicks.get(centerLoc);
 			if (centerTicks == null)
 			{
-				DefaultSteerable s = new DefaultSteerable(player, new DefaultPath(new Waypoint(centerLoc, player.getMaxSpeed(), DestinationAction.noStop)));
-				centerTicks = Steering.calculateTicks(new PlayerTracker(s, Performance.frameInterval));
+				centerTicks = Steering.calculateTicks(new PlayerTracker(getPlayer(),
+						new DefaultPath(new Waypoint(centerLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)),
+						Performance.frameInterval));
 				locationToTicks.put(centerLoc, centerTicks);
 			}
-			
+
 //			this.useTime(System.nanoTime() - nanos);
 //			if (this.getTimeRemaining() <= 0)
 //				return false;
 //
 //			nanos = System.nanoTime();
 
-			if (centerTicks == centerIndex || centerTicks == centerIndex - 1)
+			if (Math.abs(centerTicks - centerIndex) <= 1)
 			{
-				setPath(new DefaultPath(new Waypoint(centerLoc, player.getMaxSpeed(), DestinationAction.noStop)));
+				setPath(new DefaultPath(new Waypoint(centerLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
 				return true;
 			}
-			
-			if (minTicks == centerTicks && maxTicks == centerTicks)
+
+			if (Math.abs(maxTicks - maxIndex) <= 1)
 			{
-				setPath(new DefaultPath(new Waypoint(centerLoc, player.getMaxSpeed(), DestinationAction.noStop)));
+				setPath(new DefaultPath(new Waypoint(maxLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
+				return true;
+			}
+
+			if (Math.abs(minTicks - minIndex) <= 1)
+			{
+				setPath(new DefaultPath(new Waypoint(minLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
+				return true;
+			}
+
+			if (minTicks == centerTicks || maxTicks == centerTicks)
+			{
+				setPath(new DefaultPath(new Waypoint(centerLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
 				return true;
 			}
 
 //			int minTickDiff = minTicks - minIndex;
 			int centerTickDiff = centerTicks - centerIndex;
 //			int maxTickDiff = maxTicks - maxIndex;
-			
+
 			if (centerTickDiff < 0)
 			{
 				maxIndex = centerIndex;
@@ -143,7 +205,7 @@ public class InterceptPlayer extends AbstractPathfinder
 
 //			this.useTime(System.nanoTime() - nanos);
 		}
-		
+
 		return false;
 	}
 }

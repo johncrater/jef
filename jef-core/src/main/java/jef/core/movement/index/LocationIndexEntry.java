@@ -34,34 +34,33 @@ class LocationIndexEntry
 	}
 
 	@SuppressWarnings("unchecked")
-	List<Steerable> getOccupiers(final int tick)
+	List<PlayerTracker> getOccupiers(final int tick)
 	{
 		Object obj = this.occupiers[getIndex(tick)];
 		if (obj == null)
 			return Collections.emptyList();
-		else if (obj instanceof Steerable)
-			return Collections.singletonList((Steerable)obj);
+		else if (obj instanceof PlayerTracker)
+			return Collections.singletonList((PlayerTracker)obj);
 		else
-			return new ArrayList<Steerable>((Set<Steerable>)obj);
+			return new ArrayList<PlayerTracker>((Set<PlayerTracker>)obj);
 	}
 
 	@SuppressWarnings("unchecked")
-	int removeOccupier(final Steerable steerable, int tick)
+	int removeOccupier(final PlayerTracker player, int tick)
 	{
 		int index = this.getIndex(tick);
 		Object obj = this.occupiers[index];
 		
-		if (obj instanceof Steerable)
+		if (obj instanceof PlayerTracker)
 		{
-			assert ((Steerable) obj).getPlayer().getPlayerID().equals(steerable.getPlayer().getPlayerID());
 			this.occupiers[index] = null;
 			occupierCount -= 1;
 			assert occupierCount >= 0;
 		}
 		else 
 		{
-			Set<Steerable> set = (Set<Steerable>)obj;
-			if (set.remove(steerable))
+			Set<PlayerTracker> set = (Set<PlayerTracker>)obj;
+			if (set.remove(player))
 			{
 				occupierCount -= 1;
 				assert occupierCount >= 0;
@@ -72,22 +71,22 @@ class LocationIndexEntry
 	}
 
 	@SuppressWarnings("unchecked")
-	void addOccupier(final Steerable steerable, final int tick)
+	void addOccupier(final PlayerTracker player, final int tick)
 	{
 		int index = getIndex(tick);
 		Object obj = this.occupiers[index];
 		if (obj == null)
 		{
-			this.occupiers[index] = steerable;
+			this.occupiers[index] = player;
 			this.occupierCount += 1;
 		}
-		else if (obj instanceof Steerable)
+		else if (obj instanceof PlayerTracker)
 		{
-			Steerable pObj = (Steerable) obj;
-			if (pObj.getPlayer().getPlayerID().equals(steerable.getPlayer().getPlayerID()) == false)
+			PlayerTracker pObj = (PlayerTracker)obj;
+			if (pObj.getPlayer().getPlayerID().equals(player.getPlayer().getPlayerID()) == false)
 			{
-				Set<Steerable> set = new HashSet<Steerable>();
-				set.add(steerable);
+				Set<PlayerTracker> set = new HashSet<PlayerTracker>();
+				set.add(player);
 				set.add(pObj);
 				this.occupiers[index] = set;
 				this.occupierCount += 1;
@@ -95,8 +94,8 @@ class LocationIndexEntry
 		}
 		else 
 		{
-			Set<Steerable> set = (Set<Steerable>)obj;
-			if (set.add(steerable))
+			Set<PlayerTracker> set = (Set<PlayerTracker>)obj;
+			if (set.add(player))
 				this.occupierCount += 1;
 		}
 

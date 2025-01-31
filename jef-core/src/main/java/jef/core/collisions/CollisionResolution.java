@@ -1,15 +1,14 @@
 package jef.core.collisions;
 
 import jef.core.Football;
-import jef.core.Player;
 import jef.core.geometry.Vector;
 import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.LinearVelocity;
-import jef.core.movement.player.Steerable;
+import jef.core.movement.player.PlayerTracker;
 
 public class CollisionResolution
 {
-	public static void resolveCollision(Steerable occupier1, Steerable occupier2)
+	public static void resolveCollision(PlayerTracker occupier1, PlayerTracker occupier2)
 	{
 		double occupier1Weight = occupier1.getPlayer().getWeight();
 		double occupier2Weight = occupier2.getPlayer().getWeight();
@@ -33,10 +32,10 @@ public class CollisionResolution
 	
 	public static CollisionResolver createResolution(Collision collision)
 	{
-		Steerable runner = getRunner(collision.getOccupier1(), collision.getOccupier2());
+		PlayerTracker runner = getRunner(collision.getOccupier1(), collision.getOccupier2());
 		if (runner != null)
 		{
-			Steerable defender = getDefender(collision.getOccupier1(), collision.getOccupier2());
+			PlayerTracker defender = getDefender(collision.getOccupier1(), collision.getOccupier2());
 			if (defender != null)
 				return new TackleResolver(runner, defender);
 			else
@@ -44,10 +43,10 @@ public class CollisionResolution
 		}
 		else
 		{
-			Steerable defender = getDefender(collision.getOccupier1(), collision.getOccupier2());
+			PlayerTracker defender = getDefender(collision.getOccupier1(), collision.getOccupier2());
 			if (defender != null)
 			{
-				Steerable blocker = getBlocker(collision.getOccupier1(), collision.getOccupier2());
+				PlayerTracker blocker = getBlocker(collision.getOccupier1(), collision.getOccupier2());
 				if (blocker != null)
 					return new BlockingResolver(blocker, defender);
 				else
@@ -60,34 +59,34 @@ public class CollisionResolution
 		}
 	}
 
-	private static Steerable getDefender(Steerable occupier1, Steerable occupier2)
+	private static PlayerTracker getDefender(PlayerTracker occupier1, PlayerTracker occupier2)
 	{
-		if (occupier1.getCurrentPosition().getUnitType().isDefense())
+		if (occupier1.getPlayer().getCurrentPosition().getUnitType().isDefense())
 			return occupier1;
 
-		if (occupier2.getCurrentPosition().getUnitType().isDefense())
+		if (occupier2.getPlayer().getCurrentPosition().getUnitType().isDefense())
 			return occupier2;
 		
 		return null;
 	}
 	
-	private static Steerable getBlocker(Steerable occupier1, Steerable occupier2)
+	private static PlayerTracker getBlocker(PlayerTracker occupier1, PlayerTracker occupier2)
 	{
-		if (occupier1.getCurrentPosition().getUnitType().isOffense() && Football.theFootball.getPlayerInPossession() != occupier1)
+		if (occupier1.getPlayer().getCurrentPosition().getUnitType().isOffense() && Football.theFootball.getPlayerInPossession() != occupier1)
 			return occupier1;
 
-		if (occupier1.getCurrentPosition().getUnitType().isOffense() && Football.theFootball.getPlayerInPossession() != occupier2)
+		if (occupier1.getPlayer().getCurrentPosition().getUnitType().isOffense() && Football.theFootball.getPlayerInPossession() != occupier2)
 			return occupier2;
 		
 		return null;
 	}
 	
-	private static Steerable getRunner(Steerable occupier1, Steerable occupier2)
+	private static PlayerTracker getRunner(PlayerTracker occupier1, PlayerTracker occupier2)
 	{
-		if (Football.theFootball.getPlayerInPossession() == occupier1)
+		if (Football.theFootball.getPlayerInPossession() == occupier1.getPlayer())
 			return occupier1;
 		
-		if (Football.theFootball.getPlayerInPossession() == occupier2)
+		if (Football.theFootball.getPlayerInPossession() == occupier2.getPlayer())
 			return occupier2;
 		
 		return null;

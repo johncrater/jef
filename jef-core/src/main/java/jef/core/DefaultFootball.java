@@ -35,7 +35,6 @@ public class DefaultFootball implements Football
 		return this.av;
 	}
 
-	@Override
 	public void setAV(AngularVelocity angularVelocity)
 	{
 		this.av = angularVelocity;
@@ -47,7 +46,6 @@ public class DefaultFootball implements Football
 		return this.loc;
 	}
 
-	@Override
 	public void setLoc(Location location)
 	{
 		this.loc = location;
@@ -59,7 +57,6 @@ public class DefaultFootball implements Football
 		return this.lv;
 	}
 
-	@Override
 	public void setLV(LinearVelocity lv)
 	{
 		this.lv = lv;

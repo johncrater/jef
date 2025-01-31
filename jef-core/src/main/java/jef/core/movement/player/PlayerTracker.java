@@ -10,26 +10,39 @@ import jef.core.movement.Tracker;
 
 public class PlayerTracker extends Tracker
 {
-	private final Steerable steerable;
+	private final Player player;
 	private Path path;
 	private Posture posture;
 
-	public PlayerTracker(Steerable steerable, final double timeInterval)
+	public PlayerTracker(Player player, final double timeInterval)
 	{
-		super(steerable.getLV(), steerable.getLoc(), steerable.getAV(), timeInterval);
-		this.steerable = steerable;
-		this.path = steerable.getPath();
-		this.posture = steerable.getPosture();
+		super(player.getLV(), player.getLoc(), player.getAV(), timeInterval);
+		this.player = player;
+		this.path = player.getPath();
+		this.posture = player.getPosture();
+	}
+
+	public PlayerTracker(Player player, Path path, final double timeInterval)
+	{
+		super(player.getLV(), player.getLoc(), player.getAV(), timeInterval);
+		this.player = player;
+		this.path = path;
+		this.posture = player.getPosture();
 	}
 
 	public PlayerTracker(final PlayerTracker tracker)
 	{
 		super(tracker);
-		this.steerable = tracker.steerable;
+		this.player = tracker.player;
 		this.path = tracker.path;
 		this.posture = tracker.getPosture();
 	}
 
+	public Player getPlayer()
+	{
+		return this.player;
+	}
+	
 	public Posture getPosture()
 	{
 		return this.posture;
@@ -42,12 +55,12 @@ public class PlayerTracker extends Tracker
 
 	public double getAccelerationCoefficient()
 	{
-		return this.steerable.getAccelerationCoefficient();
+		return this.player.getAccelerationCoefficient();
 	}
 	
 	public double getDesiredSpeed()
 	{
-		return steerable.getDesiredSpeed();
+		return player.getDesiredSpeed();
 	}
 	
 	public Path getPath()
@@ -57,7 +70,7 @@ public class PlayerTracker extends Tracker
 
 	public double getMaxSpeed()
 	{
-		return this.steerable.getMaxSpeed();
+		return this.player.getMaxSpeed();
 	}
 	
 	public void setPath(Path path)
@@ -100,7 +113,7 @@ public class PlayerTracker extends Tracker
 	public boolean hasPastDestination()
 	{
 		final Location origin = this.getStartingLoc();
-		final Location dest = this.steerable.getPath().getCurrentWaypoint().getDestination();
+		final Location dest = this.getPath().getCurrentWaypoint().getDestination();
 
 		final LineSegment line = new LineSegment(origin, dest);
 		final LineSegment perpLine = line.getPerpendicularLine(dest, line.getLength());

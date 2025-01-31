@@ -90,7 +90,7 @@ public class Field
 	{
 		double ret = FIELD_BORDER_WIDTH + FIELD_END_ZONE_DEPTH + yardLine;
 		if (direction == Direction.west)
-			ret = FIELD_PLAYABLE_LENGTH - ret;
+			ret = FIELD_PLAYABLE_LENGTH + 2 * FIELD_BORDER_WIDTH - ret;
 
 		return ret;
 	}

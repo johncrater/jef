@@ -34,7 +34,6 @@ public class DefaultMoveable implements Moveable
 		return av;
 	}
 
-	@Override
 	public void setAV(AngularVelocity angularVelocity)
 	{
 		this.av = angularVelocity;
@@ -46,7 +45,6 @@ public class DefaultMoveable implements Moveable
 		return this.loc;
 	}
 
-	@Override
 	public void setLoc(Location location)
 	{
 		this.loc = location;
@@ -58,7 +56,6 @@ public class DefaultMoveable implements Moveable
 		return this.lv;
 	}
 
-	@Override
 	public void setLV(LinearVelocity lv)
 	{
 		this.lv = lv;

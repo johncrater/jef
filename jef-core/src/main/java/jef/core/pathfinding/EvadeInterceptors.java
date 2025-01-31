@@ -1,4 +1,4 @@
-package jef.core.pathfinding.old;
+package jef.core.pathfinding;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,53 +23,46 @@ import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
 import jef.core.movement.RelativeLocation;
 import jef.core.movement.player.DefaultPath;
-import jef.core.movement.player.Path;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
-import jef.core.pathfinding.Direction;
-import jef.core.pathfinding.Pathfinder;
 
-public class EvadeInterceptors implements Pathfinder
+public class EvadeInterceptors extends AbstractRunnerPathfinder
 {
-	private final Player player;
-	private final Collection<Player> interceptors;
-	private final Collection<Player> blockers;
-	private final Direction direction;
+	private final Collection<? extends Player> interceptors;
+	private final Collection<? extends Player> blockers;
 
-	public EvadeInterceptors(final Player player, final Collection<Player> interceptors, final Collection<Player> blockers,
-			final Direction direction)
+	public EvadeInterceptors(final Player player, final Collection<? extends Player> interceptors,
+			final Collection<? extends Player> blockers, final Direction direction, double deltaTime)
 	{
-		this.player = player;
+		super(player, direction, deltaTime);
 		this.interceptors = interceptors;
 		this.blockers = blockers;
-		this.direction = direction;
 	}
 
 	@Override
-	public Path getPath()
-	{
-		return this.getPath(Integer.MAX_VALUE);
-	}
-
-	@Override
-	public Path getPath(int maximumNanosecondsToSpend)
+	public boolean calculate()
 	{
 		List<Player> tmpPlayers = new ArrayList<Player>();
-		tmpPlayers.add(player);
+		tmpPlayers.add(getPlayer());
 		tmpPlayers.addAll(interceptors);
-		tmpPlayers = tmpPlayers.stream().sorted((p1, p2) -> (direction == Direction.west ? 1 : -1) * Double.compare(p1.getLoc().getX(), p2.getLoc().getX())).toList();
-		if (tmpPlayers.getFirst() == player)
+		tmpPlayers = tmpPlayers.stream().sorted((p1, p2) -> (getDirection() == Direction.west ? 1 : -1)
+				* Double.compare(p1.getLoc().getX(), p2.getLoc().getX())).toList();
+		if (tmpPlayers.getFirst() == getPlayer())
 		{
 			// if there are no defenders between the runner and the end zone
-			Location endZone = new DefaultLocation((direction == Direction.west) ? Field.WEST_END_ZONE_X : Field.EAST_END_ZONE_X, player.getLoc().getY());
+			Location endZone = new DefaultLocation(
+					(getDirection() == Direction.west) ? Field.WEST_END_ZONE_X : Field.EAST_END_ZONE_X,
+					getPlayer().getLoc().getY());
 			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, endZone);
-			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath, new LineSegment(player.getLoc(), endZone));
-			return new DefaultPath(new Waypoint(endZone, this.player.getMaxSpeed(), DestinationAction.noStop));
+			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
+					new LineSegment(getPlayer().getLoc(), endZone));
+			setPath(new DefaultPath(new Waypoint(endZone, this.getPlayer().getMaxSpeed(), DestinationAction.noStop)));
+			return this.calculateSteps();
 		}
-		
-		final HashSet<LineSegment> segments = this.getBoundingLines(player, interceptors);
+
+		final HashSet<LineSegment> segments = this.getBoundingLines(getPlayer(), interceptors);
 		segments.addAll(
 				Arrays.asList(Field.EAST_END_ZONE, Field.WEST_END_ZONE, Field.NORTH_SIDELINE, Field.SOUTH_SIDELINE));
 
@@ -78,36 +71,41 @@ public class EvadeInterceptors implements Pathfinder
 
 		Set<LineSegment> boundingLines = Collections.unmodifiableSet(this.splitLines(segments));
 
-		boundingLines.stream().forEach(s -> MessageManager.getInstance().dispatchMessage(Messages.drawEvasionBoundingSegments, s));
+		boundingLines.stream()
+				.forEach(s -> MessageManager.getInstance().dispatchMessage(Messages.drawEvasionBoundingSegments, s));
 
 		Set<Location> locationsOfIntersection = Collections
 				.unmodifiableSet(this.getPointsOfIntersection(boundingLines));
 
-		locationsOfIntersection.stream().forEach(s -> MessageManager.getInstance().dispatchMessage(Messages.drawEvasionIntersections, s));
+		locationsOfIntersection.stream()
+				.forEach(s -> MessageManager.getInstance().dispatchMessage(Messages.drawEvasionIntersections, s));
 
 		final Set<Location> interceptorReachableLocations = new HashSet<>();
 		for (final Player interceptor : this.interceptors)
 			interceptorReachableLocations
 					.addAll(this.getReachableLocations(interceptor, locationsOfIntersection, boundingLines));
 
-		interceptorReachableLocations.stream().forEach(s -> MessageManager.getInstance().dispatchMessage(Messages.drawEvasionInterceptorReachableLocations, s));
+		interceptorReachableLocations.stream().forEach(s -> MessageManager.getInstance()
+				.dispatchMessage(Messages.drawEvasionInterceptorReachableLocations, s));
 
 		final var commonReachableLines = this.removeObsoleteLines(interceptorReachableLocations, boundingLines);
-		commonReachableLines.stream().forEach(s -> MessageManager.getInstance().dispatchMessage(Messages.drawEvasionCommonReachableLines, s));
+		commonReachableLines.stream().forEach(
+				s -> MessageManager.getInstance().dispatchMessage(Messages.drawEvasionCommonReachableLines, s));
 
-		final var commonReachableLocations = this.getReachableLocations(this.player, interceptorReachableLocations,
+		final var commonReachableLocations = this.getReachableLocations(this.getPlayer(), interceptorReachableLocations,
 				commonReachableLines);
 
-		commonReachableLocations.stream().forEach(s -> MessageManager.getInstance().dispatchMessage(Messages.drawEvasionCommonReachableLocations, s));
+		commonReachableLocations.stream().forEach(
+				s -> MessageManager.getInstance().dispatchMessage(Messages.drawEvasionCommonReachableLocations, s));
 
-		Location destination = this.getFarthestReachableLocation(this.player, commonReachableLocations);
-		if (destination == null)
-			return null;
+		Location destination = this.getFarthestReachableLocation(this.getPlayer(), commonReachableLocations);
 
 		MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, destination);
-		MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath, new LineSegment(player.getLoc(), destination));
+		MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
+				new LineSegment(getPlayer().getLoc(), destination));
 
-		return new DefaultPath(new Waypoint(destination, this.player.getMaxSpeed(), DestinationAction.noStop));
+		setPath(new DefaultPath(new Waypoint(destination, this.getPlayer().getMaxSpeed(), DestinationAction.noStop)));
+		return this.calculateSteps();
 	}
 
 	private Location getFarthestReachableLocation(final Player player, final Set<Location> locations)
@@ -117,9 +115,9 @@ public class EvadeInterceptors implements Pathfinder
 			double l1x = l1.getX();
 			double l2x = l2.getX();
 
-			var ret = (direction == Direction.east ? -1 : 1) * Double.compare(l1x, l2x);
+			var ret = (getDirection() == Direction.east ? -1 : 1) * Double.compare(l1x, l2x);
 			if (ret == 0)
- 				ret = Double.compare(player.getLoc().distanceBetween(l1), player.getLoc().distanceBetween(l2));
+				ret = Double.compare(player.getLoc().distanceBetween(l1), player.getLoc().distanceBetween(l2));
 			return ret;
 		}).toList().getFirst();
 	}
@@ -127,14 +125,15 @@ public class EvadeInterceptors implements Pathfinder
 	private Location getFastestReachableLocation(final Player player, final Set<Location> locations)
 	{
 		Map<Location, PlayerTracker> locationToTracker = new HashMap<>();
-		locations.forEach(l -> 
+		locations.forEach(l ->
 		{
-			if (RelativeLocation.getFromAngle(player.getLoc().angleTo(l), direction).isBehind())
+			if (RelativeLocation.getFromAngle(player.getLoc().angleTo(l), getDirection()).isBehind())
 				return;
 
 			Player p = new DefaultPlayer(player);
-			p.setPath(new DefaultPath(new Waypoint(l, player.getMaxSpeed(), DestinationAction.noStop)));
-			PlayerTracker tracker = new PlayerTracker(p, Performance.frameInterval);
+			PlayerTracker tracker = new PlayerTracker(p,
+					new DefaultPath(new Waypoint(l, player.getMaxSpeed(), DestinationAction.noStop)),
+					Performance.frameInterval);
 			locationToTracker.put(l, tracker);
 		});
 
@@ -144,16 +143,17 @@ public class EvadeInterceptors implements Pathfinder
 			{
 				PlayerTracker tracker = locationToTracker.get(loc);
 				tracker.setPctRemaining(1);
-				Steering steering = new Steering(tracker);
+				Steering steering = new Steering();
 				steering.next(tracker);
 				if (tracker.getPath().getCurrentWaypoint() == null)
 					return loc;
 			}
 		}
-		
+
 	}
 
-	private Set<LineSegment> removeObsoleteLines(final Set<Location> reachableLocations, final Set<LineSegment> boundingLines)
+	private Set<LineSegment> removeObsoleteLines(final Set<Location> reachableLocations,
+			final Set<LineSegment> boundingLines)
 	{
 		return new HashSet<>(boundingLines.stream()
 				.filter(s -> reachableLocations.contains(s.getLoc1()) && reachableLocations.contains(s.getLoc2()))
@@ -171,7 +171,7 @@ public class EvadeInterceptors implements Pathfinder
 			for (final LineSegment ls : boundingLines)
 			{
 				final Location poi = lsToPoi.xyIntersection(ls);
-				if (poi == null || poi.isInPlayableArea() == false || ls.intersects(poi) == false
+				if (poi == null || poi.isInBounds() == false || ls.intersects(poi) == false
 						|| lsToPoi.intersects(poi) == false || poi.closeEnoughTo(l) || player.getLoc().equals(poi))
 					continue;
 
@@ -198,15 +198,15 @@ public class EvadeInterceptors implements Pathfinder
 		return ret;
 	}
 
-	private HashSet<LineSegment> getBoundingLines(Player p1, Collection<Player> p2)
+	private HashSet<LineSegment> getBoundingLines(Player p1, Collection<? extends Player> p2)
 	{
 		return new HashSet<>(p2.stream().map(p ->
 		{
 			double ratio = .5;
-			final double denom = this.player.getLV().getSpeed() + p.getLV().getSpeed();
+			final double denom = this.getPlayer().getLV().getSpeed() + p.getLV().getSpeed();
 			if (denom != 0)
 			{
-				ratio = this.player.getLV().getSpeed() / denom;
+				ratio = this.getPlayer().getLV().getSpeed() / denom;
 			}
 
 			final LineSegment seg = new LineSegment(p1.getLoc(), p.getLoc());

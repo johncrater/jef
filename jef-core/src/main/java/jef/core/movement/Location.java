@@ -7,7 +7,8 @@ import jef.core.geometry.Vector;
 /* @formatter:off */
 public interface Location
 {
-	public static final Precision.DoubleEquivalence EPSILON = Precision.doubleEquivalenceOfEpsilon(.02);
+	public static final double EPSILON_VALUE = .02;
+	public static final Precision.DoubleEquivalence EPSILON = Precision.doubleEquivalenceOfEpsilon(EPSILON_VALUE);
 
 	public static boolean closeEnoughTo(double v1, double v2)
 	{
