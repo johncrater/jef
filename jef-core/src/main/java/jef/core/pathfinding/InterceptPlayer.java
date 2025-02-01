@@ -16,17 +16,18 @@ import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
+import jef.core.pathfinding.runners.TargetPathfinder;
 
 public class InterceptPlayer extends AbstractPathfinder
 {
-	private RunnerPathfinder runnerPathfinder;
+	private TargetPathfinder runnerPathfinder;
 
 	private List<Location> interceptionPoints;
 	private Map<Location, Integer> locationToTicks = new HashMap<>();
 	private int minIndex;
 	private int maxIndex;
 
-	public InterceptPlayer(Player player, RunnerPathfinder runnerPathfinder)
+	public InterceptPlayer(Player player, TargetPathfinder runnerPathfinder)
 	{
 		super(player);
 		this.runnerPathfinder = runnerPathfinder;

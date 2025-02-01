@@ -1,4 +1,4 @@
-package jef.core.pathfinding.old;
+package jef.core.pathfinding.blocking;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,72 +7,61 @@ import java.util.List;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
-import jef.core.Field;
 import jef.core.Player;
 import jef.core.events.Messages;
 import jef.core.geometry.LineSegment;
-import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.Location;
 import jef.core.movement.RelativeLocation;
 import jef.core.movement.player.DefaultPath;
-import jef.core.movement.player.Path;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
+import jef.core.pathfinding.AbstractPathfinder;
 import jef.core.pathfinding.DefenderAssessment;
 import jef.core.pathfinding.Direction;
+import jef.core.pathfinding.InterceptPlayer;
 import jef.core.pathfinding.Pathfinder;
 
 /**
  * A BlockingEscort stays between the runner and the biggest defensive threat
  */
-public class BlockNearestThreat implements Pathfinder
+public class BlockNearestThreat extends AbstractPathfinder implements BlockerPathfinder
 {
 	private Player runner;
 	private Collection<Player> defenders;
-	private Direction direction;
-	private Player blocker;
+	
+	private Pathfinder interceptionPathfinder;
 
-	public BlockNearestThreat(Player blocker, Player runner, Collection<Player> defenders, Direction direction)
+	public BlockNearestThreat(Player blocker, Player runner, Collection<Player> defenders, Direction direction, double deltaTime)
 	{
-		super();
+		super(blocker, direction, deltaTime);
 		this.runner = runner;
-		this.blocker = blocker;
 		this.defenders = defenders;
-		this.direction = direction;
 	}
 
 	@Override
-	public Path getPath()
+	public void reset()
 	{
-		return this.getPath(Integer.MAX_VALUE);
+		super.reset();
+		interceptionPathfinder = null;
 	}
 
 	@Override
-	public Path getPath(int maximumNanosecondsToSpend)
+	public boolean calculate()
 	{
-		if (runner == null)
-			return null;
-
-		List<DefenderAssessment> threats = assessThreats(runner, runner.getPath().getDestination(), defenders);
-		threats = threats.stream().sorted(Comparator.comparing(DefenderAssessment::threatLevel)).toList();
-
-		Location blockerDestination = null;
-		if (threats.size() > 0)
+		if (interceptionPathfinder == null)
 		{
-			final Player threat = threats.get(0).getDefender();
-			return new InterceptPlayer(blocker, threat, direction).getPath(maximumNanosecondsToSpend);
+			List<DefenderAssessment> threats = assessThreats(runner, runner.getPath().getDestination(), defenders);
+			threats = threats.stream().sorted(Comparator.comparing(DefenderAssessment::threatLevel)).toList();
+
+			DefenderAssessment biggestThreat = threats.get(0);
+			interceptionPathfinder = new InterceptPlayer(getPlayer(), new TargetPathfinder(biggestThreat.getDefender(), direction.opposite())); 
 		}
-		
-		if (blockerDestination == null)
-		{
-			double angle = direction == Direction.west ? 0 : Math.PI;
-			blockerDestination = runner.getLoc()
-					.add(new DefaultLinearVelocity(angle, 0, Player.PLAYER_BLOCKING_RANGE_MAXIMUM));
-		}
+
+		return interceptionPathfinder.calculate();
 
 		MessageManager.getInstance().dispatchMessage(Messages.drawBlockerDestination, blockerDestination);
 		MessageManager.getInstance().dispatchMessage(Messages.drawBlockerPath,
-				new LineSegment(blocker.getLoc(), blockerDestination));
+				new LineSegment(getPlayer().getLoc(), blockerDestination));
 
 		return new DefaultPath(new Waypoint(blockerDestination, runner.getDesiredSpeed(), DestinationAction.noStop));
 	}

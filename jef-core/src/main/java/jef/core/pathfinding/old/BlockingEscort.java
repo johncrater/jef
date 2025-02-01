@@ -109,6 +109,27 @@ public class BlockingEscort implements Pathfinder
 		return assessments.stream().sorted(Comparator.comparing(DefenderAssessment::threatLevel)).toList();
 	}
 
+	@Override
+	public List<Location> getSteps()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Direction getDirection()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public double getDeltaTime()
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 	private static double getLVDistance(final Player player, final Location loc)
 	{
 		return player.getLoc().distanceBetween(loc) / player.getMaxSpeed();

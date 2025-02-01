@@ -1,7 +1,4 @@
-package jef.core.pathfinding;
-
-import java.util.ArrayList;
-import java.util.List;
+package jef.core.pathfinding.runners;
 
 import jef.core.Field;
 import jef.core.geometry.LineSegment;
@@ -10,11 +7,9 @@ import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.Path;
-import jef.core.movement.player.PlayerTracker;
-import jef.core.movement.player.Steerable;
-import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
+import jef.core.pathfinding.Direction;
 
 public class RunnerPathUtils
 {

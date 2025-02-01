@@ -1,5 +1,7 @@
 package jef.core.pathfinding.old;
 
+import java.util.List;
+
 import com.badlogic.gdx.ai.msg.MessageManager;
 
 import jef.core.Field;
@@ -127,5 +129,26 @@ public class InterceptPlayer implements Pathfinder
 					: new DefaultLocation(xplus.getX(), xplus.getY());
 
 		return interceptionPoint;
+	}
+
+	@Override
+	public List<Location> getSteps()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Direction getDirection()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public double getDeltaTime()
+	{
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

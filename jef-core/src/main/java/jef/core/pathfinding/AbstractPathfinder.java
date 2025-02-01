@@ -2,7 +2,6 @@ package jef.core.pathfinding;
 
 import jef.core.Player;
 import jef.core.movement.player.Path;
-import jef.core.movement.player.Steerable;
 
 public abstract class AbstractPathfinder implements Pathfinder
 {
@@ -19,6 +18,7 @@ public abstract class AbstractPathfinder implements Pathfinder
 	public void reset()
 	{
 		timeRemaining = 0;
+		path = null;
 	}
 
 	@Override
@@ -59,6 +59,4 @@ public abstract class AbstractPathfinder implements Pathfinder
 	{
 		return path;
 	}
-
-	
 }

@@ -8,43 +8,40 @@ import jef.core.Player;
 import jef.core.events.Messages;
 import jef.core.geometry.LineSegment;
 import jef.core.movement.Location;
+import jef.core.pathfinding.runners.TargetPathfinder;
 
-public abstract class AbstractRunnerPathfinder extends AbstractPathfinder implements RunnerPathfinder
+public abstract class AbstractTargetPathfinder extends AbstractPathfinder implements TargetPathfinder
 {
 	private Direction direction;
 	private PlayerStepsCalculator stepCalculator;
 	private double deltaTime;
-	
-	public AbstractRunnerPathfinder(Player runner, Direction direction, double deltaTime)
+
+	public AbstractTargetPathfinder(Player player, Direction direction, double deltaTime)
 	{
-		super(runner);
+		super(player);
+		
 		this.direction = direction;
 		this.deltaTime = deltaTime;
 	}
 
-	public double getDeltaTime()
-	{
-		return this.deltaTime;
-	}
-
 	@Override
-	public Direction getDirection()
+	public void reset()
 	{
-		return direction;
+		stepCalculator = null;
 	}
 
 	protected boolean calculateSteps()
 	{
-		this.stepCalculator = new PlayerStepsCalculator(this.getPlayer(), deltaTime);
-
+		this.stepCalculator = new PlayerStepsCalculator(getPlayer(), deltaTime);
+	
 		MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, getPath().getDestination());
 		MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath, new LineSegment(getPlayer().getLoc(), getPath().getDestination()));
-
+	
 		this.stepCalculator.setTimeRemaining(getTimeRemaining());
 		while (this.stepCalculator.getTimeRemaining() > 0)
 		{
 			boolean ret = this.stepCalculator.calculate();
-			this.setTimeRemaining(this.stepCalculator.getTimeRemaining());
+			setTimeRemaining(this.stepCalculator.getTimeRemaining());
 			if (ret)
 				return ret;
 		}
@@ -60,4 +57,18 @@ public abstract class AbstractRunnerPathfinder extends AbstractPathfinder implem
 		
 		return this.stepCalculator.getSteps();
 	}
+
+	
+	@Override
+	public Direction getDirection()
+	{
+		return direction;
+	}
+
+	@Override
+	public double getDeltaTime()
+	{
+		return deltaTime;
+	}
+
 }

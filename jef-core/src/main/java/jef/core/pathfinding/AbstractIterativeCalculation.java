@@ -14,7 +14,7 @@ public abstract class AbstractIterativeCalculation implements IterativeCalculati
 		timeRemaining += time;
 	}
 
-	protected void setTimeRemaining(double time)
+	public void setTimeRemaining(double time)
 	{
 		this.timeRemaining = time;
 	}

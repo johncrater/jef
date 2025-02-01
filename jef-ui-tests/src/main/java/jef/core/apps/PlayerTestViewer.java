@@ -63,9 +63,9 @@ import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
 import jef.core.pathfinding.Direction;
-import jef.core.pathfinding.EvadeInterceptors;
 import jef.core.pathfinding.InterceptPlayer;
 import jef.core.pathfinding.Pathfinder;
+import jef.core.pathfinding.runners.EvadeInterceptors;
 import jef.core.ui.swt.utils.DebugMessageHandler;
 import jef.core.ui.swt.utils.GIFMarkup;
 import jef.core.ui.swt.utils.TransformStack;
@@ -313,15 +313,15 @@ public class PlayerTestViewer implements Runnable
 //		this.blockers.put(p.getPlayer().getPlayerID(), p);
 //		p.setCurrentPosition(PlayerPosition.G);
 //
-//		pl = new DefaultPlayer(PlayerPosition.DT);
-//		pl.setFirstName("Alan");
-//		pl.setLastName("Page");
-//		pl.setWeight(280);
-//		pl.setLoc(Field.MIDFIELD.add(-10, 0, 0));
-//		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getMaxSpeed(), DestinationAction.fastStop)));
-//
-//		this.players.put(pl.getPlayerID(), pl);
-//		this.defenders.put(pl.getPlayerID(), pl);
+		pl = new DefaultPlayer(PlayerPosition.DT);
+		pl.setFirstName("Alan");
+		pl.setLastName("Page");
+		pl.setWeight(280);
+		pl.setLoc(Field.MIDFIELD.add(-10, 0, 0));
+		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getMaxSpeed(), DestinationAction.fastStop)));
+
+		this.players.put(pl.getPlayerID(), pl);
+		this.defenders.put(pl.getPlayerID(), pl);
 	}
 
 	public static int colorStringToColor(String colorString)

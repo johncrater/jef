@@ -1,4 +1,4 @@
-package jef.core.pathfinding;
+package jef.core.pathfinding.runners;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,8 +27,10 @@ import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
+import jef.core.pathfinding.AbstractTargetPathfinder;
+import jef.core.pathfinding.Direction;
 
-public class EvadeInterceptors extends AbstractRunnerPathfinder
+public class EvadeInterceptors extends AbstractTargetPathfinder
 {
 	private final Collection<? extends Player> interceptors;
 	private final Collection<? extends Player> blockers;

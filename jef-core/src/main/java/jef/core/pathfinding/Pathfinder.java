@@ -7,5 +7,5 @@ public interface Pathfinder extends IterativeCalculation
 {
 	public Path getPath();
 	public void reset();
-	public Player getPlayer();	
+	public Player getPlayer();
 }
