@@ -16,21 +16,22 @@ import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
-import jef.core.pathfinding.runners.TargetPathfinder;
+import jef.core.pathfinding.blocking.BlockerPathfinder;
+import jef.core.pathfinding.defenders.DefenderPathfinder;
+import jef.core.pathfinding.runners.RunnerPathfinder;
 
 public class InterceptPlayer extends AbstractPathfinder
 {
-	private TargetPathfinder runnerPathfinder;
-
+	private Pathfinder targetPathfinder;
 	private List<Location> interceptionPoints;
 	private Map<Location, Integer> locationToTicks = new HashMap<>();
 	private int minIndex;
 	private int maxIndex;
 
-	public InterceptPlayer(Player player, TargetPathfinder runnerPathfinder)
+	public InterceptPlayer(Player player, Direction direction, double deltaTime, Pathfinder targetPathfinder)
 	{
-		super(player);
-		this.runnerPathfinder = runnerPathfinder;
+		super(player, direction, deltaTime);
+		this.targetPathfinder = targetPathfinder;
 	}
 
 	@Override
@@ -43,10 +44,15 @@ public class InterceptPlayer extends AbstractPathfinder
 		maxIndex = -1;
 	}
 
+	public Pathfinder getTargetPathfinder()
+	{
+		return this.targetPathfinder;
+	}
+	
 	private boolean exhaustiveCalculation()
 	{
 		if (interceptionPoints == null)
-			interceptionPoints = runnerPathfinder.getSteps();
+			interceptionPoints = targetPathfinder.getSteps();
 
 		if (interceptionPoints == null)
 			return false;
@@ -85,7 +91,7 @@ public class InterceptPlayer extends AbstractPathfinder
 	}
 	
 	@Override
-	public boolean calculate()
+	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers)
 	{
 		return exhaustiveCalculation();
 	}
@@ -95,7 +101,7 @@ public class InterceptPlayer extends AbstractPathfinder
 		if (interceptionPoints == null)
 		{
 			long nanos = System.nanoTime();
-			interceptionPoints = runnerPathfinder.getSteps();
+			interceptionPoints = targetPathfinder.getSteps();
 //			this.useTime(System.nanoTime() - nanos);
 		}
 

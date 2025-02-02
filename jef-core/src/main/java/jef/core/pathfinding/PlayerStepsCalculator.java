@@ -8,6 +8,9 @@ import jef.core.movement.Location;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steerable;
 import jef.core.movement.player.Steering;
+import jef.core.pathfinding.blocking.BlockerPathfinder;
+import jef.core.pathfinding.defenders.DefenderPathfinder;
+import jef.core.pathfinding.runners.RunnerPathfinder;
 
 public class PlayerStepsCalculator extends AbstractIterativeCalculation
 {
@@ -35,7 +38,7 @@ public class PlayerStepsCalculator extends AbstractIterativeCalculation
 	}
 	
 	@Override
-	public boolean calculate()
+	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers)
 	{
 		long nanos = System.nanoTime();
 		

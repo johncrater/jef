@@ -1,6 +1,9 @@
 package jef.core.pathfinding;
 
+import java.util.List;
+
 import jef.core.Player;
+import jef.core.movement.Location;
 import jef.core.movement.player.Path;
 
 public interface Pathfinder extends IterativeCalculation
@@ -8,4 +11,7 @@ public interface Pathfinder extends IterativeCalculation
 	public Path getPath();
 	public void reset();
 	public Player getPlayer();
+	public List<Location> getSteps();
+	public Direction getDirection();
+	double getDeltaTime();	
 }

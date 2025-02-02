@@ -1,18 +1,23 @@
 package jef.core.pathfinding.runners;
 
+import java.util.List;
+
 import jef.core.Field;
 import jef.core.Player;
 import jef.core.movement.DefaultLocation;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
-import jef.core.pathfinding.AbstractTargetPathfinder;
+import jef.core.pathfinding.AbstractPathfinder;
 import jef.core.pathfinding.Direction;
+import jef.core.pathfinding.Pathfinder;
+import jef.core.pathfinding.blocking.BlockerPathfinder;
+import jef.core.pathfinding.defenders.DefenderPathfinder;
 
 /**
  * Runner heads directly for the nearest part of the end zone
  */
-public class RunForGlory extends AbstractTargetPathfinder
+public class RunForGlory extends AbstractPathfinder implements RunnerPathfinder
 {
 	public RunForGlory(Player runner, Direction direction, double deltaTime)
 	{
@@ -20,7 +25,7 @@ public class RunForGlory extends AbstractTargetPathfinder
 	}
 
 	@Override
-	public boolean calculate()
+	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers)
 	{
 		if (getPath() == null)
 		{
@@ -30,6 +35,6 @@ public class RunForGlory extends AbstractTargetPathfinder
 			useTime(System.nanoTime() - nanos);
 		}		
 
-		return this.calculateSteps();
+		return this.calculateSteps(runner, defenders, blockers);
 	}
 }

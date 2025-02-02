@@ -27,28 +27,27 @@ import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
-import jef.core.pathfinding.AbstractTargetPathfinder;
+import jef.core.pathfinding.AbstractPathfinder;
 import jef.core.pathfinding.Direction;
+import jef.core.pathfinding.Pathfinder;
+import jef.core.pathfinding.blocking.BlockerPathfinder;
+import jef.core.pathfinding.defenders.DefenderPathfinder;
 
-public class EvadeInterceptors extends AbstractTargetPathfinder
+public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathfinder
 {
-	private final Collection<? extends Player> interceptors;
-	private final Collection<? extends Player> blockers;
-
-	public EvadeInterceptors(final Player player, final Collection<? extends Player> interceptors,
-			final Collection<? extends Player> blockers, final Direction direction, double deltaTime)
+	public EvadeInterceptors(final Player player, final Direction direction, double deltaTime)
 	{
 		super(player, direction, deltaTime);
-		this.interceptors = interceptors;
-		this.blockers = blockers;
 	}
 
 	@Override
-	public boolean calculate()
+	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers)
 	{
+		List<Player> interceptorPlayers = defenders.stream().map(pf -> pf.getPlayer()).toList();
+		
 		List<Player> tmpPlayers = new ArrayList<Player>();
 		tmpPlayers.add(getPlayer());
-		tmpPlayers.addAll(interceptors);
+		tmpPlayers.addAll(interceptorPlayers);
 		tmpPlayers = tmpPlayers.stream().sorted((p1, p2) -> (getDirection() == Direction.west ? 1 : -1)
 				* Double.compare(p1.getLoc().getX(), p2.getLoc().getX())).toList();
 		if (tmpPlayers.getFirst() == getPlayer())
@@ -61,15 +60,15 @@ public class EvadeInterceptors extends AbstractTargetPathfinder
 			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
 					new LineSegment(getPlayer().getLoc(), endZone));
 			setPath(new DefaultPath(new Waypoint(endZone, this.getPlayer().getMaxSpeed(), DestinationAction.noStop)));
-			return this.calculateSteps();
+			return this.calculateSteps(runner, defenders, blockers);
 		}
 
-		final HashSet<LineSegment> segments = this.getBoundingLines(getPlayer(), interceptors);
+		final HashSet<LineSegment> segments = this.getBoundingLines(getPlayer(), interceptorPlayers);
 		segments.addAll(
 				Arrays.asList(Field.EAST_END_ZONE, Field.WEST_END_ZONE, Field.NORTH_SIDELINE, Field.SOUTH_SIDELINE));
 
-		for (final Player interceptor : this.interceptors)
-			segments.addAll(this.getBoundingLines(interceptor, this.blockers));
+		for (final Player interceptor : interceptorPlayers)
+			segments.addAll(this.getBoundingLines(interceptor, blockers.stream().map(pf -> pf.getPlayer()).toList()));
 
 		Set<LineSegment> boundingLines = Collections.unmodifiableSet(this.splitLines(segments));
 
@@ -83,7 +82,7 @@ public class EvadeInterceptors extends AbstractTargetPathfinder
 				.forEach(s -> MessageManager.getInstance().dispatchMessage(Messages.drawEvasionIntersections, s));
 
 		final Set<Location> interceptorReachableLocations = new HashSet<>();
-		for (final Player interceptor : this.interceptors)
+		for (final Player interceptor : interceptorPlayers)
 			interceptorReachableLocations
 					.addAll(this.getReachableLocations(interceptor, locationsOfIntersection, boundingLines));
 
@@ -107,7 +106,7 @@ public class EvadeInterceptors extends AbstractTargetPathfinder
 				new LineSegment(getPlayer().getLoc(), destination));
 
 		setPath(new DefaultPath(new Waypoint(destination, this.getPlayer().getMaxSpeed(), DestinationAction.noStop)));
-		return this.calculateSteps();
+		return this.calculateSteps(runner, defenders, blockers);
 	}
 
 	private Location getFarthestReachableLocation(final Player player, final Set<Location> locations)

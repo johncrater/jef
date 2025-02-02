@@ -3,6 +3,10 @@ package jef.core.pathfinding;
 import java.util.ArrayList;
 import java.util.List;
 
+import jef.core.pathfinding.blocking.BlockerPathfinder;
+import jef.core.pathfinding.defenders.DefenderPathfinder;
+import jef.core.pathfinding.runners.RunnerPathfinder;
+
 public class CalculationScheduler
 {
 	private List<IterativeCalculation> calcs = new ArrayList<>();
@@ -16,7 +20,7 @@ public class CalculationScheduler
 		this.addCalculation(calc);
 	}
 	
-	public double calculate(double time)
+	public double calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers, double time)
 	{
 		if (calcs.size() == 0)
 			return time;
@@ -28,7 +32,7 @@ public class CalculationScheduler
 			for (IterativeCalculation calc : new ArrayList<>(calcs))
 			{
 				calc.addTime(timeAllotment);
-				boolean isComplete = calc.calculate();
+				boolean isComplete = calc.calculate(runner, defenders, blockers);
 				if (isComplete)
 					calcs.remove(calc);
 				

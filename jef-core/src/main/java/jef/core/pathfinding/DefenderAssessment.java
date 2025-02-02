@@ -5,18 +5,18 @@ import jef.core.movement.RelativeLocation;
 
 public class DefenderAssessment
 {
-	private final Player defender;
+	private final Pathfinder defender;
 	private final double lvDistance;
 	private final RelativeLocation relativeLocation;
 
-	public DefenderAssessment(final Player defender, final double lvDistance, final RelativeLocation relativeLocation)
+	public DefenderAssessment(final Pathfinder defender, final double lvDistance, final RelativeLocation relativeLocation)
 	{
 		this.defender = defender;
 		this.lvDistance = lvDistance;
 		this.relativeLocation = relativeLocation;
 	}
 
-	public Player getDefender()
+	public Pathfinder getDefender()
 	{
 		return this.defender;
 	}

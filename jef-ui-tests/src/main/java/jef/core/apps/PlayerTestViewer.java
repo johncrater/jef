@@ -63,9 +63,13 @@ import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
 import jef.core.pathfinding.Direction;
-import jef.core.pathfinding.InterceptPlayer;
 import jef.core.pathfinding.Pathfinder;
+import jef.core.pathfinding.blocking.BlockNearestThreat;
+import jef.core.pathfinding.blocking.BlockerPathfinder;
+import jef.core.pathfinding.defenders.DefenderPathfinder;
+import jef.core.pathfinding.defenders.PursueRunner;
 import jef.core.pathfinding.runners.EvadeInterceptors;
+import jef.core.pathfinding.runners.RunnerPathfinder;
 import jef.core.ui.swt.utils.DebugMessageHandler;
 import jef.core.ui.swt.utils.GIFMarkup;
 import jef.core.ui.swt.utils.TransformStack;
@@ -234,12 +238,13 @@ public class PlayerTestViewer implements Runnable
 //						Performance.frameInterval);
 //				pathfinders.put(rfg, runner);
 
-				EvadeInterceptors ei = new EvadeInterceptors(runner, defenders.values(), blockers.values(), Direction.west, Performance.frameInterval);
+				EvadeInterceptors ei = new EvadeInterceptors(runner, Direction.west, Performance.frameInterval);
 				pathfinders.put(ei, runner);
-				
-				defenders.values().forEach(p -> pathfinders.put(new InterceptPlayer(p, ei), p));
-//				blockers.values().forEach(p -> pathfinders.put(p.getPlayer().getPlayerID(),
-//						new BlockNearestThreat(p, runner, defenders.values(), Direction.east)));
+
+				defenders.values().forEach(
+						p -> pathfinders.put(new PursueRunner(p, Direction.east, Performance.frameInterval), p));
+				blockers.values().forEach(
+						p -> pathfinders.put(new BlockNearestThreat(p, Direction.west, Performance.frameInterval), p));
 //				blockers.values().forEach(p -> pathfinders.put(p.getPlayer().getPlayerID(),
 //						new BlockingEscort(p, runner, defenders.values(), Direction.west)));
 //				pathfinders.put(runner.getPlayer().getPlayerID(),
@@ -569,7 +574,7 @@ public class PlayerTestViewer implements Runnable
 				str.append(String.format("       waypoint : %s - Dist: %.2f\n", wp,
 						this.player.getLoc().distanceBetween(wp.getDestination())));
 		}
-		
+
 		gc.setFont(playerDataFont);
 		gc.setForeground(yellow);
 		gc.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
@@ -643,16 +648,22 @@ public class PlayerTestViewer implements Runnable
 					{
 						if (playersToMove.contains(pf) == false)
 							continue;
-						
+
 						if (pf != null)
 						{
 							pf.addTime(timePerSteerable);
 							timeAllotted -= timePerSteerable;
-							if (pf.calculate())
+							if (pf.calculate(
+									pathfinders.keySet().stream().filter(rpf -> rpf instanceof RunnerPathfinder)
+										.map(rpf -> (RunnerPathfinder) rpf).findFirst().orElse(null),
+									pathfinders.keySet().stream().filter(dpf -> dpf instanceof DefenderPathfinder)
+											.map(dpf -> (DefenderPathfinder) dpf).toList(),
+									pathfinders.keySet().stream().filter(bpf -> bpf instanceof BlockerPathfinder)
+											.map(bpf -> (BlockerPathfinder) bpf).toList()))
 								playersToMove.remove(pf);
-							
+
 							pathfinders.get(pf).setPath(pf.getPath());
-							
+
 							timeAllotted += pf.getTimeRemaining();
 							pf.addTime(-pf.getTimeRemaining());
 						}
@@ -677,7 +688,7 @@ public class PlayerTestViewer implements Runnable
 					player.setLoc(tracker.getLoc());
 					player.setPath(tracker.getPath());
 					player.setPosture(tracker.getPosture());
-					
+
 					// just clear all pathfinders if anyone is done with their path.
 					// we do this just because this is a test environment
 					if (player.getPath().getWaypoints().size() == 0)
