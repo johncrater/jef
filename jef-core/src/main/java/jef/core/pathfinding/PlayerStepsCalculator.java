@@ -3,6 +3,7 @@ package jef.core.pathfinding;
 import java.util.ArrayList;
 import java.util.List;
 
+import jef.core.Performance;
 import jef.core.Player;
 import jef.core.movement.Location;
 import jef.core.movement.player.PlayerTracker;
@@ -12,23 +13,24 @@ import jef.core.pathfinding.blocking.BlockerPathfinder;
 import jef.core.pathfinding.defenders.DefenderPathfinder;
 import jef.core.pathfinding.runners.RunnerPathfinder;
 
-public class PlayerStepsCalculator extends AbstractIterativeCalculation
+public class PlayerStepsCalculator implements IterativeCalculation
 {
 	private final ArrayList<Location> steps = new ArrayList<>();
-	private final PlayerTracker tracker;
+	private PlayerTracker tracker;
+	private final Player player;
 	private final int options;
 	
-	public PlayerStepsCalculator(Player player, double deltaTime)
+	public PlayerStepsCalculator(Player player)
 	{
 		super();
-		tracker = new PlayerTracker(player, deltaTime);
+		this.player = player;
 		options = Steering.USE_ALL;
 	}
 
-	public PlayerStepsCalculator(Player player, double deltaTime, int options)
+	public PlayerStepsCalculator(Player player, int options)
 	{
 		super();
-		tracker = new PlayerTracker(player, deltaTime);
+		this.player = player;
 		this.options = options;
 	}
 
@@ -37,21 +39,22 @@ public class PlayerStepsCalculator extends AbstractIterativeCalculation
 		return this.steps;
 	}
 	
-	@Override
-	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers)
+	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers, long deltaNanos)
 	{
 		long nanos = System.nanoTime();
 		
+		if (tracker == null)
+			tracker = new PlayerTracker(player, Performance.frameInterval);
+
 		Steering steering = new Steering(options);
 		boolean ret = false;
 		
-		while (getTimeRemaining() > 0 && ret == false)
+//		while (System.nanoTime() - nanos < deltaNanos && ret == false)
+		while (ret == false)
 		{
 			 ret = steering.next(tracker);
 			 tracker.advance();
 			 steps.add(tracker.getLoc());
-//			 this.useTime(System.nanoTime() - nanos);
-			 nanos = System.nanoTime();
 		}
 		
 		return ret;

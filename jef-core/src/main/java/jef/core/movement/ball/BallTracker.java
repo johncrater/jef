@@ -1,8 +1,6 @@
 package jef.core.movement.ball;
 
 
-import javax.sound.sampled.Line;
-
 import jef.core.geometry.LineSegment;
 import jef.core.geometry.Plane;
 import jef.core.movement.AngularVelocity;

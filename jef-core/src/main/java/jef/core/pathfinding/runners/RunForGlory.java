@@ -10,7 +10,6 @@ import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
 import jef.core.pathfinding.AbstractPathfinder;
 import jef.core.pathfinding.Direction;
-import jef.core.pathfinding.Pathfinder;
 import jef.core.pathfinding.blocking.BlockerPathfinder;
 import jef.core.pathfinding.defenders.DefenderPathfinder;
 
@@ -19,22 +18,20 @@ import jef.core.pathfinding.defenders.DefenderPathfinder;
  */
 public class RunForGlory extends AbstractPathfinder implements RunnerPathfinder
 {
-	public RunForGlory(Player runner, Direction direction, double deltaTime)
+	public RunForGlory(Player runner, Direction direction)
 	{
-		super(runner, direction, deltaTime);
+		super(runner, direction);
 	}
 
 	@Override
-	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers)
+	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers, long deltaNanos)
 	{
 		if (getPath() == null)
 		{
-			long nanos = System.nanoTime();
 			setPath(new DefaultPath(new Waypoint(new DefaultLocation(Field.yardLine(100, getDirection()), getPlayer().getLoc().getY()),
 					getPlayer().getMaxSpeed(), DestinationAction.noStop)));
-			useTime(System.nanoTime() - nanos);
 		}		
 
-		return this.calculateSteps(runner, defenders, blockers);
+		return this.calculateSteps(runner, defenders, blockers, deltaNanos);
 	}
 }

@@ -2,7 +2,8 @@ package jef.core;
 
 public class Performance
 {
-	public static double desiredFrameRate = 24.0;
+	public static int desiredFrameRate = 24;
+	public static long frameNanos = 1000000000L / desiredFrameRate;
 	public static double frameInterval = 1.0 / desiredFrameRate;
 
 	private int COUNTS_TO_KEEP = 1000;

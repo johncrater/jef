@@ -22,15 +22,17 @@ import jef.core.pathfinding.runners.RunnerPathfinder;
 
 public class InterceptPlayer extends AbstractPathfinder
 {
+	public static final int IDEAL_INTERCEPT_TICKS_AHEAD = 2;
+
 	private Pathfinder targetPathfinder;
 	private List<Location> interceptionPoints;
 	private Map<Location, Integer> locationToTicks = new HashMap<>();
 	private int minIndex;
 	private int maxIndex;
 
-	public InterceptPlayer(Player player, Direction direction, double deltaTime, Pathfinder targetPathfinder)
+	public InterceptPlayer(Player player, Direction direction, Pathfinder targetPathfinder)
 	{
-		super(player, direction, deltaTime);
+		super(player, direction);
 		this.targetPathfinder = targetPathfinder;
 	}
 
@@ -48,20 +50,22 @@ public class InterceptPlayer extends AbstractPathfinder
 	{
 		return this.targetPathfinder;
 	}
-	
-	private boolean exhaustiveCalculation()
+
+	private boolean exhaustiveCalculation(long deltaNanos)
 	{
+		long nanos = System.nanoTime();
+
 		if (interceptionPoints == null)
 			interceptionPoints = targetPathfinder.getSteps();
 
-		if (interceptionPoints == null)
+		if (interceptionPoints == null || interceptionPoints.size() == 0)
 			return false;
-		
+
 		this.minIndex = 0;
 		this.maxIndex = interceptionPoints.size() - 1;
 
-		int minIndex = 0;
-		int minTicks = Integer.MAX_VALUE;
+		int selectedIndex = 0;
+		int selectedTicks = Integer.MAX_VALUE;
 		for (int i = minIndex; i <= maxIndex; i++)
 		{
 			Location loc = interceptionPoints.get(i);
@@ -74,145 +78,129 @@ public class InterceptPlayer extends AbstractPathfinder
 				locationToTicks.put(loc, ticks);
 			}
 
+			// negative tickDiff means intercepter arrives before target
 			int tickDiff = ticks - i;
-			if ((minTicks > 0 && tickDiff < minTicks) || (minTicks < 0 && tickDiff <= 0 && tickDiff > minTicks))
+			if ((selectedTicks > -IDEAL_INTERCEPT_TICKS_AHEAD && tickDiff < selectedTicks)
+					|| (selectedTicks < -IDEAL_INTERCEPT_TICKS_AHEAD && tickDiff <= -IDEAL_INTERCEPT_TICKS_AHEAD
+							&& tickDiff > selectedTicks))
 			{
-				minTicks = tickDiff;
-				minIndex = i;
+				selectedTicks = tickDiff;
+				selectedIndex = i;
 			}
 		}
-		
-		Location interceptionPoint = this.interceptionPoints.get(minIndex);
+
+		Location interceptionPoint = this.interceptionPoints.get(selectedIndex);
 		setPath(new DefaultPath(new Waypoint(interceptionPoint, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
-		MessageManager.getInstance().dispatchMessage(Messages.drawInterceptorPath, interceptionPoint);
-		MessageManager.getInstance().dispatchMessage(Messages.drawInterceptorDestination, new LineSegment(getPlayer().getLoc(), interceptionPoint));
 		
+		MessageManager.getInstance().dispatchMessage(Messages.drawIntercepterPath, interceptionPoint);
+		MessageManager.getInstance().dispatchMessage(Messages.drawIntercepterDestination,
+				new LineSegment(getPlayer().getLoc(), interceptionPoint));
+
 		return true;
 	}
-	
+
 	@Override
-	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers)
+	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders,
+			List<? extends BlockerPathfinder> blockers, long deltaNanos)
 	{
-		return exhaustiveCalculation();
+		boolean ret = exhaustiveCalculation(deltaNanos);
+		this.calculateSteps(runner, defenders, blockers, deltaNanos);
+		return ret;
 	}
-	
-	private boolean normalCalculation()
-	{
-		if (interceptionPoints == null)
-		{
-			long nanos = System.nanoTime();
-			interceptionPoints = targetPathfinder.getSteps();
-//			this.useTime(System.nanoTime() - nanos);
-		}
 
-		this.minIndex = 0;
-		this.maxIndex = interceptionPoints.size() - 1;
-
-		while (this.getTimeRemaining() > 0)
-		{
-			long nanos = System.nanoTime();
-
-			Location maxLoc = interceptionPoints.get(maxIndex);
-			Integer maxTicks = locationToTicks.get(maxLoc);
-			if (maxTicks == null)
-			{
-				maxTicks = Steering.calculateTicks(new PlayerTracker(getPlayer(),
-						new DefaultPath(new Waypoint(maxLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)),
-						Performance.frameInterval));
-				locationToTicks.put(maxLoc, maxTicks);
-			}
-
-//			this.useTime(System.nanoTime() - nanos);
-//			if (this.getTimeRemaining() <= 0)
-//				return false;
-//			
-//			nanos = System.nanoTime();
-
-//			if (Math.abs(maxTicks - maxIndex) <= 1 || maxTicks > maxIndex)
+//	private boolean normalCalculation(long deltaNanos)
+//	{
+//		long nanos = System.nanoTime();
+//
+//		if (interceptionPoints == null)
+//			interceptionPoints = targetPathfinder.getSteps();
+//
+//		this.minIndex = 0;
+//		this.maxIndex = interceptionPoints.size() - 1;
+//
+////		while (System.nanoTime() - nanos < deltaNanos)
+//		{
+//			Location maxLoc = interceptionPoints.get(maxIndex);
+//			Integer maxTicks = locationToTicks.get(maxLoc);
+//			if (maxTicks == null)
+//			{
+//				maxTicks = Steering.calculateTicks(new PlayerTracker(getPlayer(),
+//						new DefaultPath(new Waypoint(maxLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)),
+//						Performance.frameInterval));
+//				locationToTicks.put(maxLoc, maxTicks);
+//			}
+//
+////			if (Math.abs(maxTicks - maxIndex) <= IDEAL_INTERCEPT_TICKS_AHEAD || maxTicks > maxIndex)
+////			{
+////				setPath(new DefaultPath(new Waypoint(maxLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
+////				return true;
+////			}
+////
+//			Location minLoc = interceptionPoints.get(minIndex);
+//			Integer minTicks = locationToTicks.get(minLoc);
+//			if (minTicks == null)
+//			{
+//				minTicks = Steering.calculateTicks(new PlayerTracker(getPlayer(),
+//						new DefaultPath(new Waypoint(minLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)),
+//						Performance.frameInterval));
+//				locationToTicks.put(minLoc, minTicks);
+//			}
+//
+////			if (Math.abs(minTicks - minIndex) <= IDEAL_INTERCEPT_TICKS_AHEAD)
+////			{
+////				setPath(new DefaultPath(new Waypoint(minLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
+////				return true;
+////			}
+//
+//			int centerIndex = minIndex + (maxIndex - minIndex) / 2;
+//			Location centerLoc = interceptionPoints.get(centerIndex);
+//			Integer centerTicks = locationToTicks.get(centerLoc);
+//			if (centerTicks == null)
+//			{
+//				centerTicks = Steering.calculateTicks(new PlayerTracker(getPlayer(),
+//						new DefaultPath(new Waypoint(centerLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)),
+//						Performance.frameInterval));
+//				locationToTicks.put(centerLoc, centerTicks);
+//			}
+//
+//			if (Math.abs(centerTicks - centerIndex) <= IDEAL_INTERCEPT_TICKS_AHEAD)
+//			{
+//				setPath(new DefaultPath(new Waypoint(centerLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
+//				return true;
+//			}
+//
+//			if (Math.abs(maxTicks - maxIndex) <= IDEAL_INTERCEPT_TICKS_AHEAD)
 //			{
 //				setPath(new DefaultPath(new Waypoint(maxLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
 //				return true;
 //			}
 //
-			Location minLoc = interceptionPoints.get(minIndex);
-			Integer minTicks = locationToTicks.get(minLoc);
-			if (minTicks == null)
-			{
-				minTicks = Steering.calculateTicks(new PlayerTracker(getPlayer(),
-						new DefaultPath(new Waypoint(minLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)),
-						Performance.frameInterval));
-				locationToTicks.put(minLoc, minTicks);
-			}
-
-//			this.useTime(System.nanoTime() - nanos);
-//			if (this.getTimeRemaining() <= 0)
-//				return false;
-//
-//			nanos = System.nanoTime();
-
-//			if (Math.abs(minTicks - minIndex) <= 1)
+//			if (Math.abs(minTicks - minIndex) <= IDEAL_INTERCEPT_TICKS_AHEAD)
 //			{
 //				setPath(new DefaultPath(new Waypoint(minLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
 //				return true;
 //			}
-
-			int centerIndex = minIndex + (maxIndex - minIndex) / 2;
-			Location centerLoc = interceptionPoints.get(centerIndex);
-			Integer centerTicks = locationToTicks.get(centerLoc);
-			if (centerTicks == null)
-			{
-				centerTicks = Steering.calculateTicks(new PlayerTracker(getPlayer(),
-						new DefaultPath(new Waypoint(centerLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)),
-						Performance.frameInterval));
-				locationToTicks.put(centerLoc, centerTicks);
-			}
-
-//			this.useTime(System.nanoTime() - nanos);
-//			if (this.getTimeRemaining() <= 0)
-//				return false;
 //
-//			nanos = System.nanoTime();
-
-			if (Math.abs(centerTicks - centerIndex) <= 1)
-			{
-				setPath(new DefaultPath(new Waypoint(centerLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
-				return true;
-			}
-
-			if (Math.abs(maxTicks - maxIndex) <= 1)
-			{
-				setPath(new DefaultPath(new Waypoint(maxLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
-				return true;
-			}
-
-			if (Math.abs(minTicks - minIndex) <= 1)
-			{
-				setPath(new DefaultPath(new Waypoint(minLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
-				return true;
-			}
-
-			if (minTicks == centerTicks || maxTicks == centerTicks)
-			{
-				setPath(new DefaultPath(new Waypoint(centerLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
-				return true;
-			}
-
-//			int minTickDiff = minTicks - minIndex;
-			int centerTickDiff = centerTicks - centerIndex;
-//			int maxTickDiff = maxTicks - maxIndex;
-
-			if (centerTickDiff < 0)
-			{
-				maxIndex = centerIndex;
-			}
-			else
-			{
-				minIndex = centerIndex;
-			}
-
-//			this.useTime(System.nanoTime() - nanos);
-		}
-
-		return false;
-	}
+//			if (minTicks == centerTicks || maxTicks == centerTicks)
+//			{
+//				setPath(new DefaultPath(new Waypoint(centerLoc, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
+//				return true;
+//			}
+//
+////			int minTickDiff = minTicks - minIndex;
+//			int centerTickDiff = centerTicks - centerIndex;
+////			int maxTickDiff = maxTicks - maxIndex;
+//
+//			if (centerTickDiff < 0)
+//			{
+//				maxIndex = centerIndex;
+//			}
+//			else
+//			{
+//				minIndex = centerIndex;
+//			}
+//		}
+//
+//		return false;
+//	}
 }

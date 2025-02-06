@@ -9,8 +9,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -50,7 +50,6 @@ import jef.core.Player;
 import jef.core.PlayerPosition;
 import jef.core.collisions.Collision;
 import jef.core.collisions.CollisionResolution;
-import jef.core.collisions.CollisionResolver;
 import jef.core.movement.DefaultAngularVelocity;
 import jef.core.movement.DefaultLocation;
 import jef.core.movement.Location;
@@ -62,6 +61,7 @@ import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
+import jef.core.pathfinding.CalculationScheduler;
 import jef.core.pathfinding.Direction;
 import jef.core.pathfinding.Pathfinder;
 import jef.core.pathfinding.blocking.BlockNearestThreat;
@@ -111,6 +111,7 @@ public class PlayerTestViewer implements Runnable
 
 	private DebugMessageHandler debugMessageHandler = new DebugMessageHandler();
 
+	@SuppressWarnings("deprecation")
 	public PlayerTestViewer()
 	{
 		this.shell = new Shell();
@@ -234,17 +235,14 @@ public class PlayerTestViewer implements Runnable
 			@Override
 			public void widgetSelected(SelectionEvent e)
 			{
-//				RunForGlory rfg = new RunForGlory(runner, Direction.west,
-//						Performance.frameInterval);
+//				RunForGlory rfg = new RunForGlory(runner, Direction.west);
 //				pathfinders.put(rfg, runner);
 
-				EvadeInterceptors ei = new EvadeInterceptors(runner, Direction.west, Performance.frameInterval);
+				EvadeInterceptors ei = new EvadeInterceptors(runner, Direction.west);
 				pathfinders.put(ei, runner);
 
-				defenders.values().forEach(
-						p -> pathfinders.put(new PursueRunner(p, Direction.east, Performance.frameInterval), p));
-				blockers.values().forEach(
-						p -> pathfinders.put(new BlockNearestThreat(p, Direction.west, Performance.frameInterval), p));
+				defenders.values().forEach(p -> pathfinders.put(new PursueRunner(p, Direction.east), p));
+				blockers.values().forEach(p -> pathfinders.put(new BlockNearestThreat(p, Direction.west), p));
 //				blockers.values().forEach(p -> pathfinders.put(p.getPlayer().getPlayerID(),
 //						new BlockingEscort(p, runner, defenders.values(), Direction.west)));
 //				pathfinders.put(runner.getPlayer().getPlayerID(),
@@ -304,29 +302,38 @@ public class PlayerTestViewer implements Runnable
 		this.players.put(pl.getPlayerID(), pl);
 		this.defenders.put(pl.getPlayerID(), pl);
 
-//		p = new DefaultPlayer();
-//		p.setFirstName("Ron");
-//		p.setLastName("Yary");
-//		p.setLoc(Field.MIDFIELD.add(20, 5, 0));
-//		p.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
-//		p.setWeight(260);
-//		p.setSpeedMatrix(new SpeedMatrix(10, 8, 6, 3));
-//		path = new DefaultPath();
-//		path.addWaypoint(new Waypoint(p.getLoc(), p.getMaxSpeed(), DestinationAction.fastStop));
-//		p.setPath(path);
-//		this.players.put(p.getPlayer().getPlayerID(), p);
-//		this.blockers.put(p.getPlayer().getPlayerID(), p);
-//		p.setCurrentPosition(PlayerPosition.G);
+//		pl = new DefaultPlayer(PlayerPosition.DT);
+//		pl.setFirstName("Alan");
+//		pl.setLastName("Page");
+//		pl.setWeight(280);
+//		pl.setLoc(Field.MIDFIELD.add(-10, 0, 0));
+//		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getMaxSpeed(), DestinationAction.fastStop)));
 //
-		pl = new DefaultPlayer(PlayerPosition.DT);
-		pl.setFirstName("Alan");
-		pl.setLastName("Page");
-		pl.setWeight(280);
-		pl.setLoc(Field.MIDFIELD.add(-10, 0, 0));
-		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getMaxSpeed(), DestinationAction.fastStop)));
+//		this.players.put(pl.getPlayerID(), pl);
+//		this.defenders.put(pl.getPlayerID(), pl);
+//
+//		pl = new DefaultPlayer(PlayerPosition.RT);
+//		pl.setFirstName("Ron");
+//		pl.setLastName("Yary");
+//		pl.setWeight(260);
+//		pl.setLoc(Field.MIDFIELD.add(20, 1, 0));
+//		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
+//		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getMaxSpeed(), DestinationAction.fastStop)));
+//
+//		this.players.put(pl.getPlayerID(), pl);
+//		this.blockers.put(pl.getPlayerID(), pl);
+//
+//		pl = new DefaultPlayer(PlayerPosition.RG);
+//		pl.setFirstName("Ed");
+//		pl.setLastName("White");
+//		pl.setWeight(250);
+//		pl.setLoc(Field.MIDFIELD.add(20, -1, 0));
+//		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
+//		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getMaxSpeed(), DestinationAction.fastStop)));
+//
+//		this.players.put(pl.getPlayerID(), pl);
+//		this.blockers.put(pl.getPlayerID(), pl);
 
-		this.players.put(pl.getPlayerID(), pl);
-		this.defenders.put(pl.getPlayerID(), pl);
 	}
 
 	public static int colorStringToColor(String colorString)
@@ -508,23 +515,36 @@ public class PlayerTestViewer implements Runnable
 
 	private void drawPlayer(GC gc, Player player)
 	{
-		int offset = (int) Conversions.yardsToInches(Player.SIZE * 3.0 / 4.0);
+		int offset = (int) Conversions.yardsToInches(Player.SIZE * 2.0 / 4.0);
+
+		gc.setFont(playerFont);
+		Point p = locationToPoint(player.getLoc());
+
+		if (this.defenders.containsValue(player))
+		{
+			gc.setForeground(shell.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+			gc.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_DARK_MAGENTA));
+			gc.fillOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
+		}
+		else if (this.blockers.containsValue(player))
+		{
+			gc.setForeground(shell.getDisplay().getSystemColor(SWT.COLOR_DARK_MAGENTA));
+			gc.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+			gc.fillOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
+		}
+		else if (this.runner == player)
+		{
+			gc.setForeground(shell.getDisplay().getSystemColor(SWT.COLOR_DARK_MAGENTA));
+			gc.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+			gc.fillOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
+		}
 
 		if (player == this.player)
 		{
-			gc.setForeground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-			gc.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+			gc.setForeground(shell.getDisplay().getSystemColor(SWT.COLOR_RED));
+			gc.setLineWidth(3);
+			gc.drawOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
 		}
-		else
-		{
-			gc.setForeground(shell.getDisplay().getSystemColor(SWT.COLOR_WHITE));
-			gc.setBackground(shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-		}
-
-		gc.setFont(playerFont);
-
-		Point p = locationToPoint(player.getLoc());
-		gc.fillOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
 
 		try (TransformStack ts = new TransformStack(gc))
 		{
@@ -566,6 +586,7 @@ public class PlayerTestViewer implements Runnable
 		str.append(String.format("Location        : %s\n", this.player.getLoc()));
 		str.append(String.format("Linear velocity : %s\n", this.player.getLV()));
 		str.append(String.format("Angular velocity: %s\n", this.player.getAV()));
+		str.append(String.format("Posture		  : %s\n", this.player.getPosture()));
 		str.append(String.format("\n"));
 
 		if (this.player.getPath() != null)
@@ -593,6 +614,19 @@ public class PlayerTestViewer implements Runnable
 		return new DefaultLocation(Conversions.inchesToYards(p.x), Conversions.inchesToYards(p.y), 0.0);
 	}
 
+	private class PathCalculator extends CalculationScheduler
+	{
+		@Override
+		protected boolean calculate(Pathfinder pf, RunnerPathfinder runner,
+				List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers,
+				long deltaNanos)
+		{
+			boolean ret = super.calculate(pf, runner, defenders, blockers, deltaNanos);
+			pathfinders.get(pf).setPath(pf.getPath());
+			return ret;
+		}
+		
+	}
 	public void run()
 	{
 		final long interval = System.currentTimeMillis() - this.lastMilliseconds;
@@ -616,63 +650,44 @@ public class PlayerTestViewer implements Runnable
 					this.index.update(player);
 
 				List<Collision> collisions = this.index.getCollisions(0);
+				
 //				collisions = collisions.stream().filter(
 //						c -> c.getOccupier1().getPlayer().equals(player) || c.getOccupier2().getPlayer().equals(player))
 //						.map(c -> new Collision(c.getOccupier1(), c.getOccupier2(), c.getTickCountOfcollision()))
 //						.toList();
 
-				for (Collision collision : collisions)
+				if (pathfinders.size() > 0)
 				{
-					if (pathfinders.size() > 0)
+					new HashSet<>(collisions.stream().map(c -> CollisionResolution.createResolution(c)).toList()).forEach(resolver ->
 					{
-						CollisionResolver resolver = CollisionResolution.createResolution(collision);
 						resolver.resolveCollision();
-
-						DefaultPlayer player = players.get(collision.getOccupier1().getPlayer().getPlayerID());
-						player.setPosture(collision.getOccupier1().getPosture());
-
-						player = players.get(collision.getOccupier2().getPlayer().getPlayerID());
-						player.setPosture(collision.getOccupier2().getPosture());
-					}
+	
+						DefaultPlayer player = players.get(resolver.getPlayerTracker1().getPlayer().getPlayerID());
+						player.setPosture(resolver.getPlayerTracker1().getPosture());
+						player.setLV(resolver.getPlayerTracker1().getLV());
+	
+						player = players.get(resolver.getPlayerTracker2().getPlayer().getPlayerID());
+						player.setPosture(resolver.getPlayerTracker2().getPosture());
+						player.setLV(resolver.getPlayerTracker2().getLV());
+					});
 				}
-
+				
 				this.pathfinders.keySet().forEach(pf -> pf.reset());
 
-				double timeAllotted = Performance.frameInterval;
-				List<Pathfinder> playersToMove = new ArrayList<>(pathfinders.keySet());
+				PathCalculator calcScheduler = new PathCalculator();
 
-				while (playersToMove.size() > 0 && timeAllotted > 0)
-				{
-					double timePerSteerable = timeAllotted / playersToMove.size();
-					for (Pathfinder pf : pathfinders.keySet())
-					{
-						if (playersToMove.contains(pf) == false)
-							continue;
-
-						if (pf != null)
-						{
-							pf.addTime(timePerSteerable);
-							timeAllotted -= timePerSteerable;
-							if (pf.calculate(
-									pathfinders.keySet().stream().filter(rpf -> rpf instanceof RunnerPathfinder)
-										.map(rpf -> (RunnerPathfinder) rpf).findFirst().orElse(null),
-									pathfinders.keySet().stream().filter(dpf -> dpf instanceof DefenderPathfinder)
-											.map(dpf -> (DefenderPathfinder) dpf).toList(),
-									pathfinders.keySet().stream().filter(bpf -> bpf instanceof BlockerPathfinder)
-											.map(bpf -> (BlockerPathfinder) bpf).toList()))
-								playersToMove.remove(pf);
-
-							pathfinders.get(pf).setPath(pf.getPath());
-
-							timeAllotted += pf.getTimeRemaining();
-							pf.addTime(-pf.getTimeRemaining());
-						}
-						else
-						{
-							playersToMove.remove(pf);
-						}
-					}
-				}
+				pathfinders.keySet().stream().filter(pf -> pf instanceof RunnerPathfinder).forEach(pf -> calcScheduler.addCalculation(pf));
+				pathfinders.keySet().stream().filter(pf -> pf instanceof DefenderPathfinder).forEach(pf -> calcScheduler.addCalculation(pf));
+				pathfinders.keySet().stream().filter(pf -> pf instanceof BlockerPathfinder).forEach(pf -> calcScheduler.addCalculation(pf));
+				
+				calcScheduler.calculate(
+						pathfinders.keySet().stream().filter(rpf -> rpf instanceof RunnerPathfinder)
+								.map(rpf -> (RunnerPathfinder) rpf).findFirst().orElse(null),
+						pathfinders.keySet().stream().filter(dpf -> dpf instanceof DefenderPathfinder)
+								.map(dpf -> (DefenderPathfinder) dpf).toList(),
+						pathfinders.keySet().stream().filter(bpf -> bpf instanceof BlockerPathfinder)
+								.map(bpf -> (BlockerPathfinder) bpf).toList(),
+						Performance.frameNanos * 100);
 
 				for (DefaultPlayer player : players.values())
 				{
@@ -688,11 +703,6 @@ public class PlayerTestViewer implements Runnable
 					player.setLoc(tracker.getLoc());
 					player.setPath(tracker.getPath());
 					player.setPosture(tracker.getPosture());
-
-					// just clear all pathfinders if anyone is done with their path.
-					// we do this just because this is a test environment
-					if (player.getPath().getWaypoints().size() == 0)
-						pathfinders.clear();
 				}
 
 				this.index.advance();
@@ -700,6 +710,7 @@ public class PlayerTestViewer implements Runnable
 				if (runner.getPosture() == Posture.onTheGround)
 				{
 					pathfinders.clear();
+					players.values().forEach(p -> p.setPath(null));
 //					players.values().forEach(p -> p.setPosture(Posture.upright));
 				}
 

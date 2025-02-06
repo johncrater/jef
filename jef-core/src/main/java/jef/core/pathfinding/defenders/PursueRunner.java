@@ -16,9 +16,9 @@ public class PursueRunner extends AbstractPathfinder implements DefenderPathfind
 {
 	private InterceptPlayer interceptPlayer;
 	
-	public PursueRunner(Player player, Direction direction, double deltaTime)
+	public PursueRunner(Player player, Direction direction)
 	{
-		super(player, direction, deltaTime);
+		super(player, direction);
 	}
 
 	@Override
@@ -43,16 +43,13 @@ public class PursueRunner extends AbstractPathfinder implements DefenderPathfind
 
 	@Override
 	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders,
-			List<? extends BlockerPathfinder> blockers)
+			List<? extends BlockerPathfinder> blockers, long deltaNanos)
 	{
 		if (interceptPlayer == null || interceptPlayer.getTargetPathfinder() != runner)
-			interceptPlayer = new InterceptPlayer(getPlayer(), getDirection(), getDeltaTime(), runner);
+			interceptPlayer = new InterceptPlayer(getPlayer(), getDirection(), runner);
 
-		interceptPlayer.setTimeRemaining(getTimeRemaining());
-		boolean ret = interceptPlayer.calculate(runner, defenders, blockers);
-		this.setPath(interceptPlayer.getPath());
-		this.setTimeRemaining(this.interceptPlayer.getTimeRemaining());
-		
+		boolean ret = interceptPlayer.calculate(runner, defenders, blockers, deltaNanos);
+		setPath(interceptPlayer.getPath());
 		return ret;
 	}
 

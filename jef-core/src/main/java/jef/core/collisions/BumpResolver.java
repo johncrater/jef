@@ -1,37 +1,39 @@
 package jef.core.collisions;
 
+import jef.core.Conversions;
 import jef.core.Randomizer;
 import jef.core.movement.Location;
+import jef.core.movement.Posture;
 import jef.core.movement.player.PlayerTracker;
 
-public class BumpResolver implements CollisionResolver
+public class BumpResolver extends CollisionResolverBase
 {
 	private static final double MAXIMUM_BUMP_ANGLE = Math.PI / 4;
 	private static final double MAXIMUM_BUMP_DISTANCE = .5;
 	
-	private PlayerTracker player1;
-	private PlayerTracker player2;
-		
 	public BumpResolver(PlayerTracker player1, PlayerTracker player2, Location location)
 	{
-		super();
-		this.player1 = player1;
-		this.player2 = player2;
+		super(player1, player2);
+		assert player1 != null;
+		assert player2 != null;
 	}
 
 	@Override
 	public void resolveCollision()
 	{
-		double locAngle = player1.getLoc().angleTo(player2.getLoc());
-		double lv1Angle = player1.getLV().getAzimuth();
-		double lv2Angle = player2.getLV().getAzimuth();
+		double distance = getPlayerTracker1().getLoc().distanceBetween(getPlayerTracker2().getLoc());
+		double angle = Conversions.normalizeAngle(getPlayerTracker2().getLV().getAzimuth() - getPlayerTracker2().getLoc().angleTo(getPlayerTracker1().getLoc()));
 		
-		if (Math.abs(locAngle - lv1Angle) > MAXIMUM_BUMP_ANGLE && Math.abs(locAngle - lv2Angle) > MAXIMUM_BUMP_ANGLE)
-			return;
-			
-		double distance = player1.getLoc().distanceBetween(player2.getLoc());
-		if (Randomizer.nextDouble() < (MAXIMUM_BUMP_DISTANCE - distance))
-			CollisionResolution.resolveCollision(player1, player2);
-	}
+		double distancePct = Math.clamp(0, (MAXIMUM_BUMP_DISTANCE - distance) / MAXIMUM_BUMP_DISTANCE, 1.0);
+		double tackleAnglePct = Math.clamp(0, (MAXIMUM_BUMP_ANGLE - Math.abs(angle)) / MAXIMUM_BUMP_ANGLE, 1.0);
+		
+//		super.resolveCollision();
 
+//		double pct = distancePct * tackleAnglePct;
+//		if (Randomizer.nextDouble() < pct)
+		{
+//			getPlayerTracker1().setPosture(Posture.fallingDown);
+//			getPlayerTracker2().setPosture(Posture.fallingDown);
+		}
+	}
 }

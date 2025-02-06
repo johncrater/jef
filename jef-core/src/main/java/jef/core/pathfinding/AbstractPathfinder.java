@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
+import jef.core.Performance;
 import jef.core.Player;
 import jef.core.events.Messages;
 import jef.core.geometry.LineSegment;
@@ -17,22 +18,18 @@ public abstract class AbstractPathfinder implements Pathfinder
 {
 	private Player player;
 	private Path path;
-	private double timeRemaining;
 	private Direction direction;
 	private PlayerStepsCalculator stepCalculator;
-	private double deltaTime;
 
-	public AbstractPathfinder(Player player, Direction direction, double deltaTime)
+	public AbstractPathfinder(Player player, Direction direction)
 	{
 		this.player = player;
 		this.direction = direction;
-		this.deltaTime = deltaTime;
 	}
 
 	@Override
 	public void reset()
 	{
-		timeRemaining = 0;
 		path = null;
 		stepCalculator = null;
 	}
@@ -43,31 +40,9 @@ public abstract class AbstractPathfinder implements Pathfinder
 		return this.player;
 	}
 
-	@Override
-	public void addTime(double time)
-	{
-		timeRemaining += time;
-	}
-
-	@Override
-	public double getTimeRemaining()
-	{
-		return timeRemaining;
-	}
-
-	public void setTimeRemaining(double timeRemaining)
-	{
-		this.timeRemaining = timeRemaining;
-	}
-	
 	public void setPath(Path path)
 	{
 		this.path = path;
-	}
-
-	public void useTime(long nanos)
-	{
-		this.timeRemaining -= nanos / 1000000000.0;
 	}
 
 	@Override
@@ -76,18 +51,18 @@ public abstract class AbstractPathfinder implements Pathfinder
 		return path;
 	}
 
-	protected boolean calculateSteps(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers)
+	protected boolean calculateSteps(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers, long deltaNanos)
 	{
-		this.stepCalculator = new PlayerStepsCalculator(getPlayer(), deltaTime);
+		long nanos = System.nanoTime();
+		
+		this.stepCalculator = new PlayerStepsCalculator(getPlayer());
 	
 		MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, getPath().getDestination());
 		MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath, new LineSegment(getPlayer().getLoc(), getPath().getDestination()));
 	
-		this.stepCalculator.setTimeRemaining(getTimeRemaining());
-		while (this.stepCalculator.getTimeRemaining() > 0)
+//		while (System.nanoTime() - nanos < deltaNanos)
 		{
-			boolean ret = this.stepCalculator.calculate(runner, defenders, blockers);
-			setTimeRemaining(this.stepCalculator.getTimeRemaining());
+			boolean ret = this.stepCalculator.calculate(runner, defenders, blockers, deltaNanos - (System.nanoTime() - nanos));
 			if (ret)
 				return ret;
 		}
@@ -110,11 +85,4 @@ public abstract class AbstractPathfinder implements Pathfinder
 	{
 		return direction;
 	}
-
-	@Override
-	public double getDeltaTime()
-	{
-		return deltaTime;
-	}
-
 }

@@ -8,7 +8,5 @@ import jef.core.pathfinding.runners.RunnerPathfinder;
 
 public interface IterativeCalculation
 {
-	public void addTime(double time);
-	public double getTimeRemaining();
-	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers);
+	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers, long deltaNanos);
 }

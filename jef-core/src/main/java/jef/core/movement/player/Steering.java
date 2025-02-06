@@ -53,7 +53,7 @@ public class Steering
 
 	public boolean next(final PlayerTracker tracker)
 	{
-		if (tracker.getPath().getCurrentWaypoint() != null
+		if (tracker.getPath() != null && tracker.getPath().getCurrentWaypoint() != null
 				&& tracker.getLoc().closeEnoughTo(this.getDestination(tracker)) && tracker.getLV().isNotMoving())
 		{
 			List<Waypoint> waypoints = tracker.getPath().getWaypoints();
@@ -61,7 +61,7 @@ public class Steering
 			tracker.setPath(new DefaultPath(waypoints.toArray(new Waypoint[waypoints.size()])));
 		}
 
-		if (tracker.getPath().getWaypoints().size() == 0)
+		if (tracker.getPath() == null || tracker.getPath().getWaypoints().size() == 0)
 		{
 			if ((options & USE_COAST_TO_STOP) > 0)
 			{

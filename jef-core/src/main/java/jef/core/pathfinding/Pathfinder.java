@@ -13,5 +13,4 @@ public interface Pathfinder extends IterativeCalculation
 	public Player getPlayer();
 	public List<Location> getSteps();
 	public Direction getDirection();
-	double getDeltaTime();	
 }

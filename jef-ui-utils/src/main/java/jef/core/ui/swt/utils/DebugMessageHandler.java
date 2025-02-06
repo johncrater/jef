@@ -32,11 +32,11 @@ public class DebugMessageHandler implements Telegraph
 
 	public DebugMessageHandler()
 	{
-		colors.put(Messages.drawInterceptorDestination, interceptorColor);
-		MessageManager.getInstance().addListener(this, Messages.drawInterceptorDestination);
+		colors.put(Messages.drawIntercepterDestination, interceptorColor);
+		MessageManager.getInstance().addListener(this, Messages.drawIntercepterDestination);
 
-		colors.put(Messages.drawInterceptorPath, interceptorColor);
-		MessageManager.getInstance().addListener(this, Messages.drawInterceptorPath);
+		colors.put(Messages.drawIntercepterPath, interceptorColor);
+		MessageManager.getInstance().addListener(this, Messages.drawIntercepterPath);
 
 		colors.put(Messages.drawRunnerDestination, runnerColor);
 		MessageManager.getInstance().addListener(this, Messages.drawRunnerDestination);
@@ -62,8 +62,8 @@ public class DebugMessageHandler implements Telegraph
 		colors.put(Messages.drawBlockerPath, blockerColor);
 		MessageManager.getInstance().addListener(this, Messages.drawBlockerPath);
 
-		MessageManager.getInstance().addListener(this, Messages.drawEvasionInterceptorReachableLocations);
-		colors.put(Messages.drawEvasionInterceptorReachableLocations, new Color(0x80, 0x00, 0x00));
+		MessageManager.getInstance().addListener(this, Messages.drawEvasionIntercepterReachableLocations);
+		colors.put(Messages.drawEvasionIntercepterReachableLocations, new Color(0x80, 0x00, 0x00));
 
 	}
 
@@ -108,7 +108,7 @@ public class DebugMessageHandler implements Telegraph
 		{
 			Color color = colors.getOrDefault(message, defaultColor);
 			gc.setForeground(color);
-			gc.setLineWidth(5);
+			gc.setLineWidth(3);
 
 			List<LineSegment> segments = segmentsMap.get(message);
 			if (segments == null)

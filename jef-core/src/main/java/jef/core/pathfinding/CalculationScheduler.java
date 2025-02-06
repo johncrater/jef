@@ -9,38 +9,38 @@ import jef.core.pathfinding.runners.RunnerPathfinder;
 
 public class CalculationScheduler
 {
-	private List<IterativeCalculation> calcs = new ArrayList<>();
+	private List<Pathfinder> calcs = new ArrayList<>();
 	
 	public CalculationScheduler()
 	{
 	}
 
-	public void addCalculation(IterativeCalculation calc)
+	public void addCalculation(Pathfinder calc)
 	{
-		this.addCalculation(calc);
+		this.calcs.add(calc);
 	}
 	
-	public double calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers, double time)
+	public void calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers, long deltaNanos)
 	{
-		if (calcs.size() == 0)
-			return time;
-
-		// while there is more than 10 nanosecond
-		while (time > 10.0 / 1000000000.0)
+		long nanos = System.nanoTime();
+		
+//		while (System.nanoTime() - nanos < deltaNanos)
 		{
-			double timeAllotment = time / calcs.size();
-			for (IterativeCalculation calc : new ArrayList<>(calcs))
+			if (calcs.size() == 0)
+				return;
+
+			long timeAllotment = (deltaNanos - (System.nanoTime() - nanos)) / calcs.size();
+			for (Pathfinder calc : new ArrayList<>(calcs))
 			{
-				calc.addTime(timeAllotment);
-				boolean isComplete = calc.calculate(runner, defenders, blockers);
+				boolean isComplete = calculate(calc, runner, defenders, blockers, timeAllotment);
 				if (isComplete)
 					calcs.remove(calc);
-				
-				time -= timeAllotment;
-				time += calc.getTimeRemaining();
 			}
 		}
-		
-		return time;
+	}
+
+	protected boolean calculate(Pathfinder pf, RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers, long deltaNanos)
+	{
+		return pf.calculate(runner, defenders, blockers, deltaNanos);
 	}
 }

@@ -2,6 +2,7 @@ package jef.core.pathfinding.blocking;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -21,11 +22,11 @@ import jef.core.pathfinding.runners.RunnerPathfinder;
  */
 public class BlockNearestThreat extends AbstractPathfinder implements BlockerPathfinder
 {
-	private Pathfinder interceptionPathfinder;
+	private InterceptPlayer interceptionPathfinder;
 
-	public BlockNearestThreat(Player blocker, Direction direction, double deltaTime)
+	public BlockNearestThreat(Player blocker, Direction direction)
 	{
-		super(blocker, direction, deltaTime);
+		super(blocker, direction);
 	}
 
 	@Override
@@ -35,19 +36,40 @@ public class BlockNearestThreat extends AbstractPathfinder implements BlockerPat
 		interceptionPathfinder = null;
 	}
 
-	@Override
-	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers)
+	public Pathfinder getTargetPathfinder()
 	{
+		return this.interceptionPathfinder;
+	}
+
+	public List<Location> getSteps()
+	{
+		if (this.interceptionPathfinder != null)
+			return this.interceptionPathfinder.getSteps();
+		
+		return Collections.singletonList(getPlayer().getLoc());
+	}
+
+	@Override
+	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers, long deltaNanos)
+	{
+		if (runner.getPath() == null)
+			return true;
+		
+		long nanos = System.nanoTime();
+		
 		if (interceptionPathfinder == null)
 		{
 			List<DefenderAssessment> threats = assessThreats(runner, runner.getPath().getDestination(), defenders);
 			threats = threats.stream().sorted(Comparator.comparing(DefenderAssessment::threatLevel)).toList();
 
 			DefenderAssessment biggestThreat = threats.get(0);
-			interceptionPathfinder = new InterceptPlayer(getPlayer(), getDirection().opposite(), getDeltaTime(), biggestThreat.getDefender()); 
+			interceptionPathfinder = new InterceptPlayer(getPlayer(), getDirection().opposite(), biggestThreat.getDefender()); 
 		}
 
-		return interceptionPathfinder.calculate(runner, defenders, blockers);
+		boolean ret = interceptionPathfinder.calculate(runner, defenders, blockers, deltaNanos - (System.nanoTime() - nanos));
+		this.setPath(interceptionPathfinder.getPath());
+		
+		return ret;
 	}
 
 	private List<DefenderAssessment> assessThreats(final Pathfinder runner, final Location destination,
