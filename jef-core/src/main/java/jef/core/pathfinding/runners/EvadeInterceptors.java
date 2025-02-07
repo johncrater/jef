@@ -40,12 +40,14 @@ public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathf
 	}
 
 	@Override
-	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers, long deltaNanos)
+	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders,
+			List<? extends BlockerPathfinder> blockers, long deltaNanos)
 	{
 		long nanos = System.nanoTime();
-		
-		List<Player> interceptorPlayers = defenders.stream().map(pf -> pf.getPlayer()).toList();
-		
+
+		List<Player> interceptorPlayers = new ArrayList<>(
+				new HashSet<>(defenders.stream().map(pf -> pf.getPlayer()).toList()));
+
 		List<Player> tmpPlayers = new ArrayList<Player>();
 		tmpPlayers.add(getPlayer());
 		tmpPlayers.addAll(interceptorPlayers);
@@ -64,62 +66,67 @@ public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathf
 			return this.calculateSteps(runner, defenders, blockers, deltaNanos - (System.nanoTime() - nanos));
 		}
 
-		final HashSet<LineSegment> segments = this.getBoundingLines(getPlayer(), interceptorPlayers);
-		segments.addAll(
+		final HashSet<LineSegment> segments = new HashSet<>(
 				Arrays.asList(Field.EAST_END_ZONE, Field.WEST_END_ZONE, Field.NORTH_SIDELINE, Field.SOUTH_SIDELINE));
 
+ 		final HashSet<LineSegment> runnerInterceptorSegments = this.getBoundingLines(getPlayer(), interceptorPlayers);
+		runnerInterceptorSegments.stream().forEach(
+				s -> MessageManager.getInstance().dispatchMessage(Messages.drawRunnerIntercepterBoundingSegments, s));
+		
+		segments.addAll(runnerInterceptorSegments);
+
+		final HashSet<LineSegment> blockerInterceptorSegments = new HashSet<>();
 		for (final Player interceptor : interceptorPlayers)
-			segments.addAll(this.getBoundingLines(interceptor, blockers.stream().map(pf -> pf.getPlayer()).toList()));
+			blockerInterceptorSegments.addAll(this.getBoundingLines(interceptor, blockers.stream().map(pf -> pf.getPlayer()).toList()));
 
+		blockerInterceptorSegments.stream().forEach(
+				s -> MessageManager.getInstance().dispatchMessage(Messages.drawBlockerIntercepterBoundingSegments, s));
+
+		segments.addAll(blockerInterceptorSegments);
+		
 		Set<LineSegment> boundingLines = Collections.unmodifiableSet(this.splitLines(segments));
-
-		boundingLines.stream()
-				.forEach(s -> MessageManager.getInstance().dispatchMessage(Messages.drawEvasionBoundingSegments, s));
 
 		Set<Location> locationsOfIntersection = Collections
 				.unmodifiableSet(this.getPointsOfIntersection(boundingLines));
-
-		locationsOfIntersection.stream()
-				.forEach(s -> MessageManager.getInstance().dispatchMessage(Messages.drawEvasionIntersections, s));
 
 		final Set<Location> interceptorReachableLocations = new HashSet<>();
 		for (final Player interceptor : interceptorPlayers)
 			interceptorReachableLocations
 					.addAll(this.getReachableLocations(interceptor, locationsOfIntersection, boundingLines));
 
-		interceptorReachableLocations.stream().forEach(s -> MessageManager.getInstance()
-				.dispatchMessage(Messages.drawEvasionIntercepterReachableLocations, s));
-
 		final var commonReachableLines = this.removeObsoleteLines(interceptorReachableLocations, boundingLines);
-		commonReachableLines.stream().forEach(
-				s -> MessageManager.getInstance().dispatchMessage(Messages.drawEvasionCommonReachableLines, s));
-
 		final var commonReachableLocations = this.getReachableLocations(this.getPlayer(), interceptorReachableLocations,
 				commonReachableLines);
 
-		commonReachableLocations.stream().forEach(
-				s -> MessageManager.getInstance().dispatchMessage(Messages.drawEvasionCommonReachableLocations, s));
-
 		Location destination = this.getFarthestReachableLocation(this.getPlayer(), commonReachableLocations);
-
-		MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, destination);
-		MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
-				new LineSegment(getPlayer().getLoc(), destination));
 
 		Waypoint wp1 = new Waypoint(destination, this.getPlayer().getMaxSpeed(), DestinationAction.noStop);
 		if (destination.isInEndZone())
 		{
+			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, destination);
+			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
+					new LineSegment(getPlayer().getLoc(), destination));
+
 			setPath(new DefaultPath(wp1));
 		}
 		else
 		{
 			Location endZone = new DefaultLocation(
 					(getDirection() == Direction.west) ? Field.WEST_END_ZONE_X : Field.EAST_END_ZONE_X,
-							destination.getY());
+					destination.getY());
 			Waypoint wp2 = new Waypoint(endZone, this.getPlayer().getMaxSpeed(), DestinationAction.noStop);
+
+			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, destination);
+			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
+					new LineSegment(getPlayer().getLoc(), destination));
+
 			setPath(new DefaultPath(wp1, wp2));
+
+			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, wp2.getDestination());
+			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
+					new LineSegment(wp1.getDestination(), wp2.getDestination()));
 		}
-		
+
 		return this.calculateSteps(runner, defenders, blockers, deltaNanos - (System.nanoTime() - nanos));
 	}
 

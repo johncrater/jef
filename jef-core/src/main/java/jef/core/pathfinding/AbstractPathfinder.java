@@ -57,9 +57,6 @@ public abstract class AbstractPathfinder implements Pathfinder
 		
 		this.stepCalculator = new PlayerStepsCalculator(getPlayer());
 	
-		MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, getPath().getDestination());
-		MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath, new LineSegment(getPlayer().getLoc(), getPath().getDestination()));
-	
 //		while (System.nanoTime() - nanos < deltaNanos)
 		{
 			boolean ret = this.stepCalculator.calculate(runner, defenders, blockers, deltaNanos - (System.nanoTime() - nanos));

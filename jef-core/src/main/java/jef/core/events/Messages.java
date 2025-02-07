@@ -89,13 +89,11 @@ public class Messages
 	public static final int drawIntercepterDestination					= 3 	| debugPrefix;
 	public static final int drawRunnerPath								= 4 	| debugPrefix;
 	public static final int drawRunnerDestination						= 5 	| debugPrefix;
-	public static final int drawEvasionBoundingSegments					= 6 	| debugPrefix;
-	public static final int drawEvasionIntersections					= 7 	| debugPrefix;
-	public static final int drawEvasionIntercepterReachableLocations	= 8 	| debugPrefix;
-	public static final int drawEvasionCommonReachableLocations			= 9 	| debugPrefix;
-	public static final int drawEvasionCommonReachableLines				= 10	| debugPrefix;
 	public static final int drawBlockerDestination						= 11	| debugPrefix;
 	public static final int drawBlockerPath								= 12	| debugPrefix;
+
+	public static final int drawRunnerIntercepterBoundingSegments		= 6 	| debugPrefix;
+	public static final int drawBlockerIntercepterBoundingSegments		= 7 	| debugPrefix;
 	
 	public static <T> void dispatchEvent(List<T> listeners, Consumer<T> event)
 	{

@@ -302,27 +302,27 @@ public class PlayerTestViewer implements Runnable
 		this.players.put(pl.getPlayerID(), pl);
 		this.defenders.put(pl.getPlayerID(), pl);
 
-//		pl = new DefaultPlayer(PlayerPosition.DT);
-//		pl.setFirstName("Alan");
-//		pl.setLastName("Page");
-//		pl.setWeight(280);
-//		pl.setLoc(Field.MIDFIELD.add(-10, 0, 0));
-//		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getMaxSpeed(), DestinationAction.fastStop)));
-//
-//		this.players.put(pl.getPlayerID(), pl);
-//		this.defenders.put(pl.getPlayerID(), pl);
-//
-//		pl = new DefaultPlayer(PlayerPosition.RT);
-//		pl.setFirstName("Ron");
-//		pl.setLastName("Yary");
-//		pl.setWeight(260);
-//		pl.setLoc(Field.MIDFIELD.add(20, 1, 0));
-//		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
-//		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getMaxSpeed(), DestinationAction.fastStop)));
-//
-//		this.players.put(pl.getPlayerID(), pl);
-//		this.blockers.put(pl.getPlayerID(), pl);
-//
+		pl = new DefaultPlayer(PlayerPosition.DT);
+		pl.setFirstName("Alan");
+		pl.setLastName("Page");
+		pl.setWeight(280);
+		pl.setLoc(Field.MIDFIELD.add(-10, 0, 0));
+		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getMaxSpeed(), DestinationAction.fastStop)));
+
+		this.players.put(pl.getPlayerID(), pl);
+		this.defenders.put(pl.getPlayerID(), pl);
+
+		pl = new DefaultPlayer(PlayerPosition.RT);
+		pl.setFirstName("Ron");
+		pl.setLastName("Yary");
+		pl.setWeight(260);
+		pl.setLoc(Field.MIDFIELD.add(20, 1, 0));
+		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
+		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getMaxSpeed(), DestinationAction.fastStop)));
+
+		this.players.put(pl.getPlayerID(), pl);
+		this.blockers.put(pl.getPlayerID(), pl);
+
 //		pl = new DefaultPlayer(PlayerPosition.RG);
 //		pl.setFirstName("Ed");
 //		pl.setLastName("White");

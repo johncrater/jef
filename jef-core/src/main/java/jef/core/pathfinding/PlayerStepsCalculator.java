@@ -7,7 +7,6 @@ import jef.core.Performance;
 import jef.core.Player;
 import jef.core.movement.Location;
 import jef.core.movement.player.PlayerTracker;
-import jef.core.movement.player.Steerable;
 import jef.core.movement.player.Steering;
 import jef.core.pathfinding.blocking.BlockerPathfinder;
 import jef.core.pathfinding.defenders.DefenderPathfinder;
