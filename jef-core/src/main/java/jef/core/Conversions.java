@@ -53,6 +53,22 @@ public class Conversions
 		return angle;
 	}
 
+	/**
+	 * @param angle
+	 * @return Normalize to the range [0, 2π]
+	 */
+	public static double normalizeAngle2PI(double angle)
+	{
+		angle = angle % (2 * Math.PI); // Normalize to the range [-2π, 2π]
+
+		if (angle < 0)
+		{
+			angle = 2 * Math.PI + angle;
+		}
+
+		return angle;
+	}
+
 	public static double milesPerHourToYardsPerSecond(double d)
 	{
 		return Velocity.ofMilesPerHour(d).getInUnit(VUnits.YPS);

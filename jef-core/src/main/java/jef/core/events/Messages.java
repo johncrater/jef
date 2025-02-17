@@ -95,6 +95,8 @@ public class Messages
 	public static final int drawRunnerIntercepterBoundingSegments		= 6 	| debugPrefix;
 	public static final int drawBlockerIntercepterBoundingSegments		= 7 	| debugPrefix;
 	
+	public static final int drawDebugShape								= 100 	| debugPrefix;
+
 	public static <T> void dispatchEvent(List<T> listeners, Consumer<T> event)
 	{
 		List<T> copy = new ArrayList<T>(listeners);

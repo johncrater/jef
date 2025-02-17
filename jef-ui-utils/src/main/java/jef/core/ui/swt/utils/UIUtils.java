@@ -12,7 +12,7 @@ public class UIUtils
 	public static Color colorStringToColor(String colorString)
 	{
 		if (colorString == null)
-			return new Color(0, 0, 0);
+			return new Color(0, 0, 0, 0);
 
 		int colorInt = Integer.parseInt(colorString.substring(1), 16);
 		return UIUtils.colorIntToColor(colorInt);
@@ -20,17 +20,18 @@ public class UIUtils
 
 	public static String colorToString(Color c)
 	{
-		return String.format("#%02X%02X%02X", c.getRed(), c.getGreen(), c.getBlue());
+		return String.format("#%02X%02X%02X%02X", c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
 	}
 
 	public static Color colorIntToColor(int color)
 	{
 		color = color & 0x00ffffff;
-		final int r = color >> 16;
-		final int g = color >> 8 & 0x000000FF;
-		final int b = color & 0x000000FF;
+		final int r = color >> 24;
+		final int g = color >> 16 & 0x000000FF;
+		final int b = color >> 8 & 0x000000FF;
+		final int alpha = color & 0x000000FF;
 
-		return new Color(r, g, b);
+		return new Color(r, g, b, alpha);
 	}
 
 	public static void drawEquilateralTriangle(final GC gc, final Location loc, final float sideLength, final double a,
@@ -62,9 +63,13 @@ public class UIUtils
 		gc.fillOval(yardsToPixels(l.getX()) - radius, yardsToPixels(Field.FIELD_TOTAL_WIDTH - l.getY()) - radius, radius * 2, radius * 2);
 	}
 
+	public static void drawCircle(final GC gc, final Location l, final int radius)
+	{
+		gc.drawOval(yardsToPixels(l.getX()) - radius, yardsToPixels(Field.FIELD_TOTAL_WIDTH - l.getY()) - radius, radius * 2, radius * 2);
+	}
+
 	public static int yardsToPixels(double yards)
 	{
 		return (int)Math.round(yards * 36.0);
 	}
-	
 }

@@ -2,12 +2,7 @@ package jef.core.pathfinding;
 
 import java.util.List;
 
-import com.badlogic.gdx.ai.msg.MessageManager;
-
-import jef.core.Performance;
 import jef.core.Player;
-import jef.core.events.Messages;
-import jef.core.geometry.LineSegment;
 import jef.core.movement.Location;
 import jef.core.movement.player.Path;
 import jef.core.pathfinding.blocking.BlockerPathfinder;

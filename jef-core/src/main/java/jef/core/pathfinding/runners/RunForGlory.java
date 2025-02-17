@@ -29,7 +29,7 @@ public class RunForGlory extends AbstractPathfinder implements RunnerPathfinder
 		if (getPath() == null)
 		{
 			setPath(new DefaultPath(new Waypoint(new DefaultLocation(Field.yardLine(100, getDirection()), getPlayer().getLoc().getY()),
-					getPlayer().getMaxSpeed(), DestinationAction.noStop)));
+					getPlayer().getMaxSpeed(), getPlayer().getMaxSpeed(), DestinationAction.noStop)));
 		}		
 
 		return this.calculateSteps(runner, defenders, blockers, deltaNanos);

@@ -13,6 +13,11 @@ public class DefaultLinearVelocity implements LinearVelocity
 		this.v = new Vector();
 	}
 
+	public DefaultLinearVelocity(Location fromLoc, Location toLoc)
+	{
+		v = toLoc.toVector().subtract(fromLoc.toVector());
+	}
+	
 	public DefaultLinearVelocity(double azimuth, double elevation, double speed)
 	{
 		// sometimes, for legitimate reasons, one of the these can come up NaN.

@@ -365,7 +365,7 @@ public class Steering
 	 * @param currentSpeed
 	 * @return
 	 */
-	private double calculateTightestRadiusTurnAtSpeed(final double currentSpeed, final double maximumSpeed)
+	public static double calculateTightestRadiusTurnAtSpeed(final double currentSpeed, final double maximumSpeed)
 	{
 		final double pctOfMaximumSpeed = currentSpeed / maximumSpeed;
 
@@ -442,6 +442,7 @@ public class Steering
 					case normalStop -> DecelerationRate.NORMAL;
 					case slowStop -> DecelerationRate.LEISURELY;
 					case noStop -> DecelerationRate.NONE;
+					case rounded -> DecelerationRate.NONE;
 				};
 
 		if (maxDecelerationRate == DecelerationRate.NONE)
@@ -531,7 +532,8 @@ public class Steering
 			double turnSpeedAdjustment = 0;
 			if (distanceUsed < distanceNeededToCompleteTurn)
 			{
-				turnSpeedAdjustment = DecelerationRate.MAXIMUM.getRate() * tracker.getAccelerationCoefficient();
+//				turnSpeedAdjustment = DecelerationRate.MAXIMUM.getRate() * tracker.getAccelerationCoefficient();
+				turnSpeedAdjustment = Math.max(DecelerationRate.MAXIMUM.getRate() * tracker.getAccelerationCoefficient(), tracker.getPath().getCurrentWaypoint().getMinTurnSpeed() - speed);
 				if (SHOW_MESSAGES)
 					this.buildMessage(String.format("%-25s: \t%4f", "Turn Speed Adjustment", turnSpeedAdjustment));
 			}

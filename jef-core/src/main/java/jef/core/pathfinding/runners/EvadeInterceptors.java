@@ -16,8 +16,12 @@ import jef.core.DefaultPlayer;
 import jef.core.Field;
 import jef.core.Performance;
 import jef.core.Player;
+import jef.core.events.DebugShape;
 import jef.core.events.Messages;
+import jef.core.geometry.Angle;
 import jef.core.geometry.LineSegment;
+import jef.core.geometry.Vector;
+import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.DefaultLocation;
 import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
@@ -62,8 +66,8 @@ public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathf
 			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, endZone);
 			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
 					new LineSegment(getPlayer().getLoc(), endZone));
-			setPath(new DefaultPath(new Waypoint(endZone, this.getPlayer().getMaxSpeed(), DestinationAction.noStop)));
-			return this.calculateSteps(runner, defenders, blockers, deltaNanos - (System.nanoTime() - nanos));
+			setPath(new DefaultPath(new Waypoint(endZone, this.getPlayer().getSpeedMatrix().getJoggingSpeed(), this.getPlayer().getMaxSpeed(), DestinationAction.noStop)));
+			return true; // this.calculateSteps(runner, defenders, blockers, deltaNanos - (System.nanoTime() - nanos));
 		}
 
 		final HashSet<LineSegment> segments = new HashSet<>(
@@ -84,29 +88,29 @@ public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathf
 
 		segments.addAll(blockerInterceptorSegments);
 		
-		Set<LineSegment> boundingLines = Collections.unmodifiableSet(this.splitLines(segments));
+		Set<LineSegment> splitLines = Collections.unmodifiableSet(this.splitLines(segments));
 
 		Set<Location> locationsOfIntersection = Collections
-				.unmodifiableSet(this.getPointsOfIntersection(boundingLines));
+				.unmodifiableSet(this.getPointsOfIntersection(splitLines));
 
 		final Set<Location> interceptorReachableLocations = new HashSet<>();
 		for (final Player interceptor : interceptorPlayers)
 			interceptorReachableLocations
-					.addAll(this.getReachableLocations(interceptor, locationsOfIntersection, boundingLines));
+					.addAll(this.getReachableLocations(interceptor, locationsOfIntersection, splitLines));
 
-		final var commonReachableLines = this.removeObsoleteLines(interceptorReachableLocations, boundingLines);
+		final var commonReachableLines = this.removeObsoleteLines(interceptorReachableLocations, splitLines);
 		final var commonReachableLocations = this.getReachableLocations(this.getPlayer(), interceptorReachableLocations,
 				commonReachableLines);
 
 		Location destination = this.getFarthestReachableLocation(this.getPlayer(), commonReachableLocations);
 
-		Waypoint wp1 = new Waypoint(destination, this.getPlayer().getMaxSpeed(), DestinationAction.noStop);
 		if (destination.isInEndZone())
 		{
 			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, destination);
 			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
 					new LineSegment(getPlayer().getLoc(), destination));
 
+			Waypoint wp1 = new Waypoint(destination, getPlayer().getSpeedMatrix().getJoggingSpeed(), this.getPlayer().getMaxSpeed(), DestinationAction.noStop);
 			setPath(new DefaultPath(wp1));
 		}
 		else
@@ -114,20 +118,109 @@ public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathf
 			Location endZone = new DefaultLocation(
 					(getDirection() == Direction.west) ? Field.WEST_END_ZONE_X : Field.EAST_END_ZONE_X,
 					destination.getY());
-			Waypoint wp2 = new Waypoint(endZone, this.getPlayer().getMaxSpeed(), DestinationAction.noStop);
 
-			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, destination);
-			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
-					new LineSegment(getPlayer().getLoc(), destination));
+			Angle angle = new Angle(destination, Vector.fromPolarCoordinates(destination.angleTo(this.getPlayer().getLoc()), 0, destination.distanceBetween(this.getPlayer().getLoc())), 
+					Vector.fromPolarCoordinates(destination.angleTo(endZone), 0, destination.distanceBetween(endZone)));
+			double tightestRadiusAtSpeed = Steering.calculateTightestRadiusTurnAtSpeed(this.getPlayer().getLV().getSpeed(), this.getPlayer().getMaxSpeed());
+			
+			double adjacentSide = tightestRadiusAtSpeed / Math.tan(angle.getAngle() / 2);
+			double hypotenuse = Math.sqrt(tightestRadiusAtSpeed * tightestRadiusAtSpeed + adjacentSide * adjacentSide);
+			Vector bisection = angle.bisect();
+			bisection = Vector.fromPolarCoordinates(bisection.getAzimuth(), bisection.getElevation(), hypotenuse);
+			Location vertex = destination.add(new DefaultLinearVelocity(bisection));
+			MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape, DebugShape.drawCircle(vertex, "#00000000", tightestRadiusAtSpeed));
 
-			setPath(new DefaultPath(wp1, wp2));
+			Location pivotLocation = destination;
+			Location wp1Location = pivotLocation.add(new DefaultLinearVelocity(angle.getVector1()).newFrom(null, null, adjacentSide));
+			Location wp2Location = pivotLocation.add(new DefaultLinearVelocity(angle.getVector2()).newFrom(null, null, adjacentSide));
+			
+			Waypoint wp1 = new Waypoint(wp1Location, this.getPlayer().getMaxSpeed(), this.getPlayer().getMaxSpeed(), DestinationAction.noStop);
+			Waypoint wp2 = new Waypoint(wp2Location, this.getPlayer().getMaxSpeed(), this.getPlayer().getMaxSpeed(), DestinationAction.noStop);
+			Waypoint wp3 = new Waypoint(endZone, this.getPlayer().getMaxSpeed(), this.getPlayer().getMaxSpeed(), DestinationAction.noStop);
 
-			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, wp2.getDestination());
-			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
-					new LineSegment(wp1.getDestination(), wp2.getDestination()));
+			double distance = wp1.getDestination().distanceBetween(this.getPlayer().getLoc());
+			System.out.println(distance);
+			
+			double distanceToPivot = this.getPlayer().getLoc().distanceBetween(pivotLocation);
+			double distanceBetweenWp1AndWp2 = wp1.getDestination().distanceBetween(pivotLocation);
+			
+			if (distance < 1 || distanceToPivot < distanceBetweenWp1AndWp2)
+			{
+				setPath(new DefaultPath(wp2, wp3));
+
+				MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, wp2.getDestination());
+				MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
+						new LineSegment(this.getPlayer().getLoc(), wp2.getDestination()));
+
+				MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, wp3.getDestination());
+				MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
+						new LineSegment(wp2.getDestination(), wp3.getDestination()));
+			}
+			else
+			{
+				setPath(new DefaultPath(wp1, wp2, wp3));
+
+				MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, wp1.getDestination());
+				MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
+						new LineSegment(getPlayer().getLoc(), wp1.getDestination()));
+
+				MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, wp2.getDestination());
+				MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
+						new LineSegment(wp1.getDestination(), wp2.getDestination()));
+
+				MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, wp3.getDestination());
+				MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
+						new LineSegment(wp2.getDestination(), wp3.getDestination()));
+			}
+			
+
+			
 		}
+//		else
+//		{
+//			Waypoint wp1 = new Waypoint(destination, getPlayer().getSpeedMatrix().getJoggingSpeed(), this.getPlayer().getMaxSpeed(), DestinationAction.noStop);
+//
+//			Location endZone = new DefaultLocation(
+//					(getDirection() == Direction.west) ? Field.WEST_END_ZONE_X : Field.EAST_END_ZONE_X,
+//					destination.getY());
+//
+//			double angle = Conversions.normalizeAngle(wp1.getDestination().angleTo(endZone) - this.getPlayer().getLoc().angleTo(wp1.getDestination()));
+//			double tightestRadiusAtSpeed = Steering.calculateTightestRadiusTurnAtSpeed(this.getPlayer().getLV().getSpeed(), this.getPlayer().getMaxSpeed());
+//			double adjacentSide = tightestRadiusAtSpeed / Math.tan(angle / 2);
+//			
+//			Waypoint wp2 = new Waypoint(wp1.getDestination().add(new DefaultLinearVelocity(wp1.getDestination(), endZone).newFrom(null, null, adjacentSide)), 
+//					this.getPlayer().getMaxSpeed(), this.getPlayer().getMaxSpeed(), DestinationAction.noStop);
+//
+//			double hypotenuse = Math.sqrt(tightestRadiusAtSpeed * tightestRadiusAtSpeed + adjacentSide * adjacentSide);
+//			Location vertex = wp2.getDestination().add(new DefaultLinearVelocity(0, angle / 2, hypotenuse));
+//			MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape, DebugShape.drawCircle(vertex, "#00000000", tightestRadiusAtSpeed));
+//			
+//			wp1 = new Waypoint(new LineSegment(this.getPlayer().getLoc(), wp1.getDestination()).addLength(-adjacentSide).getLoc2(), this.getPlayer().getMaxSpeed(), this.getPlayer().getMaxSpeed(), DestinationAction.noStop);
+//			Waypoint wp3 = new Waypoint(endZone, this.getPlayer().getMaxSpeed(), this.getPlayer().getMaxSpeed(), DestinationAction.noStop);
+//
+//			if (this.getPlayer().getLoc().distanceBetween(wp2.getDestination()) < wp1.getDestination().distanceBetween(wp2.getDestination()))
+//			{
+//				setPath(new DefaultPath(wp2, wp3));
+//			}
+//			else
+//			{
+//				setPath(new DefaultPath(wp1, wp2, wp3));
+//
+//				MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, wp1.getDestination());
+//				MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
+//						new LineSegment(getPlayer().getLoc(), wp1.getDestination()));
+//			}
+//
+//			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, wp2.getDestination());
+//			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
+//					new LineSegment(wp1.getDestination(), wp2.getDestination()));
+//
+//			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, wp3.getDestination());
+//			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
+//					new LineSegment(wp2.getDestination(), wp3.getDestination()));
+//		}
 
-		return this.calculateSteps(runner, defenders, blockers, deltaNanos - (System.nanoTime() - nanos));
+		return true; // this.calculateSteps(runner, defenders, blockers, deltaNanos - (System.nanoTime() - nanos));
 	}
 
 	private Location getFarthestReachableLocation(final Player player, final Set<Location> locations)
@@ -154,7 +247,7 @@ public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathf
 
 			Player p = new DefaultPlayer(player);
 			PlayerTracker tracker = new PlayerTracker(p,
-					new DefaultPath(new Waypoint(l, player.getMaxSpeed(), DestinationAction.noStop)),
+					new DefaultPath(new Waypoint(l, this.getPlayer().getSpeedMatrix().getJoggingSpeed(), player.getMaxSpeed(), DestinationAction.noStop)),
 					Performance.frameInterval);
 			locationToTracker.put(l, tracker);
 		});

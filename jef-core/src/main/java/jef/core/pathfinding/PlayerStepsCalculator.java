@@ -3,8 +3,12 @@ package jef.core.pathfinding;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.badlogic.gdx.ai.msg.MessageManager;
+
 import jef.core.Performance;
 import jef.core.Player;
+import jef.core.events.DebugShape;
+import jef.core.events.Messages;
 import jef.core.movement.Location;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
@@ -18,7 +22,7 @@ public class PlayerStepsCalculator implements IterativeCalculation
 	private PlayerTracker tracker;
 	private final Player player;
 	private final int options;
-	
+
 	public PlayerStepsCalculator(Player player)
 	{
 		super();
@@ -37,25 +41,27 @@ public class PlayerStepsCalculator implements IterativeCalculation
 	{
 		return this.steps;
 	}
-	
-	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers, long deltaNanos)
+
+	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders,
+			List<? extends BlockerPathfinder> blockers, long deltaNanos)
 	{
 		long nanos = System.nanoTime();
-		
+
 		if (tracker == null)
 			tracker = new PlayerTracker(player, Performance.frameInterval);
 
 		Steering steering = new Steering(options);
 		boolean ret = false;
-		
+
 //		while (System.nanoTime() - nanos < deltaNanos && ret == false)
 		while (ret == false)
 		{
-			 ret = steering.next(tracker);
-			 tracker.advance();
-			 steps.add(tracker.getLoc());
+			System.out.println(tracker.getLoc());
+			ret = steering.next(tracker);
+			tracker.advance();
+			steps.add(tracker.getLoc());
 		}
-		
+
 		return ret;
 	}
 

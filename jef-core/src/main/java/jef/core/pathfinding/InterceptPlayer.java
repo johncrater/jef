@@ -73,7 +73,7 @@ public class InterceptPlayer extends AbstractPathfinder
 			if (ticks == null)
 			{
 				ticks = Steering.calculateTicks(new PlayerTracker(getPlayer(),
-						new DefaultPath(new Waypoint(loc, getPlayer().getMaxSpeed(), DestinationAction.noStop)),
+						new DefaultPath(new Waypoint(loc, this.getPlayer().getSpeedMatrix().getJoggingSpeed(), getPlayer().getMaxSpeed(), DestinationAction.noStop)),
 						Performance.frameInterval));
 				locationToTicks.put(loc, ticks);
 			}
@@ -90,7 +90,7 @@ public class InterceptPlayer extends AbstractPathfinder
 		}
 
 		Location interceptionPoint = this.interceptionPoints.get(selectedIndex);
-		setPath(new DefaultPath(new Waypoint(interceptionPoint, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
+		setPath(new DefaultPath(new Waypoint(interceptionPoint, this.getPlayer().getSpeedMatrix().getJoggingSpeed(), getPlayer().getMaxSpeed(), DestinationAction.noStop)));
 		
 		MessageManager.getInstance().dispatchMessage(Messages.drawIntercepterPath, interceptionPoint);
 		MessageManager.getInstance().dispatchMessage(Messages.drawIntercepterDestination,
