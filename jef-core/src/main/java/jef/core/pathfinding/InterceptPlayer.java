@@ -13,7 +13,7 @@ import jef.core.geometry.LineSegment;
 import jef.core.movement.Location;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.PlayerTracker;
-import jef.core.movement.player.Steering;
+import jef.core.movement.player.AdvancedSteering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
 import jef.core.pathfinding.blocking.BlockerPathfinder;
@@ -72,7 +72,7 @@ public class InterceptPlayer extends AbstractPathfinder
 			Integer ticks = locationToTicks.get(loc);
 			if (ticks == null)
 			{
-				ticks = Steering.calculateTicks(new PlayerTracker(getPlayer(),
+				ticks = AdvancedSteering.calculateTicks(new PlayerTracker(getPlayer(),
 						new DefaultPath(new Waypoint(loc, this.getPlayer().getSpeedMatrix().getJoggingSpeed(), getPlayer().getMaxSpeed(), DestinationAction.noStop)),
 						Performance.frameInterval));
 				locationToTicks.put(loc, ticks);

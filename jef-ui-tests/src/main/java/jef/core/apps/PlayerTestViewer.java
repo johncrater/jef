@@ -57,6 +57,7 @@ import jef.core.movement.index.LocationIndex;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
+import jef.core.movement.player.AdvancedSteering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
 import jef.core.pathfinding.CalculationScheduler;
@@ -338,7 +339,7 @@ public class PlayerTestViewer implements Runnable
 						continue;
 					}
 
-					final Steering steering = new Steering();
+					final Steering steering = Steering.getInstance();
 					final PlayerTracker tracker = new PlayerTracker(player, PlayerTestViewer.TIMER_INTERVAL);
 					steering.next(tracker);
 

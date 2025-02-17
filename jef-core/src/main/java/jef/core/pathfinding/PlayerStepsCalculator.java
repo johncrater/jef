@@ -12,6 +12,7 @@ import jef.core.events.Messages;
 import jef.core.movement.Location;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
+import jef.core.movement.player.AdvancedSteering;
 import jef.core.pathfinding.blocking.BlockerPathfinder;
 import jef.core.pathfinding.defenders.DefenderPathfinder;
 import jef.core.pathfinding.runners.RunnerPathfinder;
@@ -27,7 +28,7 @@ public class PlayerStepsCalculator implements IterativeCalculation
 	{
 		super();
 		this.player = player;
-		options = Steering.USE_ALL;
+		options = AdvancedSteering.USE_ALL;
 	}
 
 	public PlayerStepsCalculator(Player player, int options)
@@ -50,7 +51,7 @@ public class PlayerStepsCalculator implements IterativeCalculation
 		if (tracker == null)
 			tracker = new PlayerTracker(player, Performance.frameInterval);
 
-		Steering steering = new Steering(options);
+		Steering steering = Steering.getInstance(options);
 		boolean ret = false;
 
 //		while (System.nanoTime() - nanos < deltaNanos && ret == false)

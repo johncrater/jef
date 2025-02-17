@@ -29,6 +29,7 @@ import jef.core.movement.RelativeLocation;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
+import jef.core.movement.player.AdvancedSteering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
 import jef.core.pathfinding.AbstractPathfinder;
@@ -67,7 +68,7 @@ public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathf
 			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
 					new LineSegment(getPlayer().getLoc(), endZone));
 			setPath(new DefaultPath(new Waypoint(endZone, this.getPlayer().getSpeedMatrix().getJoggingSpeed(), this.getPlayer().getMaxSpeed(), DestinationAction.noStop)));
-			return true; // this.calculateSteps(runner, defenders, blockers, deltaNanos - (System.nanoTime() - nanos));
+			return this.calculateSteps(runner, defenders, blockers, deltaNanos - (System.nanoTime() - nanos));
 		}
 
 		Set<LineSegment> segments = new HashSet<>(
@@ -122,7 +123,7 @@ public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathf
 
 			Angle angle = new Angle(destination, Vector.fromPolarCoordinates(destination.angleTo(this.getPlayer().getLoc()), 0, destination.distanceBetween(this.getPlayer().getLoc())), 
 					Vector.fromPolarCoordinates(destination.angleTo(endZone), 0, destination.distanceBetween(endZone)));
-			double tightestRadiusAtSpeed = Steering.calculateTightestRadiusTurnAtSpeed(this.getPlayer().getLV().getSpeed(), this.getPlayer().getMaxSpeed());
+			double tightestRadiusAtSpeed = AdvancedSteering.calculateTightestRadiusTurnAtSpeed(this.getPlayer().getLV().getSpeed(), this.getPlayer().getMaxSpeed());
 			
 			double adjacentSide = tightestRadiusAtSpeed / Math.tan(angle.getAngle() / 2);
 			double hypotenuse = Math.sqrt(tightestRadiusAtSpeed * tightestRadiusAtSpeed + adjacentSide * adjacentSide);
@@ -221,7 +222,7 @@ public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathf
 //					new LineSegment(wp2.getDestination(), wp3.getDestination()));
 //		}
 
-		return true; // this.calculateSteps(runner, defenders, blockers, deltaNanos - (System.nanoTime() - nanos));
+		return this.calculateSteps(runner, defenders, blockers, deltaNanos - (System.nanoTime() - nanos));
 	}
 
 	private Location getFarthestReachableLocation(final Player player, final Set<Location> locations)
@@ -259,7 +260,7 @@ public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathf
 			{
 				PlayerTracker tracker = locationToTracker.get(loc);
 				tracker.setPctRemaining(1);
-				Steering steering = new Steering();
+				Steering steering = Steering.getInstance();
 				steering.next(tracker);
 				if (tracker.getPath().getCurrentWaypoint() == null)
 					return loc;

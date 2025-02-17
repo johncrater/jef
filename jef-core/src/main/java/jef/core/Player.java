@@ -12,6 +12,7 @@ public interface Player extends PlayerInfo, Steerable
 {
 	public enum DecelerationRate
 	{
+		INSTANT(Conversions.metersToYards(Double.MIN_VALUE)),
 		MAXIMUM(Conversions.metersToYards(-6)),
 		RAPID(Conversions.metersToYards(-5)),
 		NORMAL(Conversions.metersToYards(-4)),
