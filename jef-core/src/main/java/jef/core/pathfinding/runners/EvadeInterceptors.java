@@ -49,12 +49,12 @@ public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathf
 	{
 		long nanos = System.nanoTime();
 
-		List<Player> interceptorPlayers = new ArrayList<>(
+		List<Player> intercepterPlayers = new ArrayList<>(
 				new HashSet<>(defenders.stream().map(pf -> pf.getPlayer()).toList()));
 
 		List<Player> tmpPlayers = new ArrayList<Player>();
 		tmpPlayers.add(getPlayer());
-		tmpPlayers.addAll(interceptorPlayers);
+		tmpPlayers.addAll(intercepterPlayers);
 		tmpPlayers = tmpPlayers.stream().sorted((p1, p2) -> (getDirection() == Direction.west ? 1 : -1)
 				* Double.compare(p1.getLoc().getX(), p2.getLoc().getX())).toList();
 		if (tmpPlayers.getFirst() == getPlayer())
@@ -70,36 +70,37 @@ public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathf
 			return true; // this.calculateSteps(runner, defenders, blockers, deltaNanos - (System.nanoTime() - nanos));
 		}
 
-		final HashSet<LineSegment> segments = new HashSet<>(
+		Set<LineSegment> segments = new HashSet<>(
 				Arrays.asList(Field.EAST_END_ZONE, Field.WEST_END_ZONE, Field.NORTH_SIDELINE, Field.SOUTH_SIDELINE));
 
- 		final HashSet<LineSegment> runnerInterceptorSegments = this.getBoundingLines(getPlayer(), interceptorPlayers);
+ 		final HashSet<LineSegment> runnerInterceptorSegments = this.getBoundingLines(getPlayer(), intercepterPlayers);
 		runnerInterceptorSegments.stream().forEach(
 				s -> MessageManager.getInstance().dispatchMessage(Messages.drawRunnerIntercepterBoundingSegments, s));
 		
 		segments.addAll(runnerInterceptorSegments);
 
 		final HashSet<LineSegment> blockerInterceptorSegments = new HashSet<>();
-		for (final Player interceptor : interceptorPlayers)
-			blockerInterceptorSegments.addAll(this.getBoundingLines(interceptor, blockers.stream().map(pf -> pf.getPlayer()).toList()));
+		for (final Player intercepter : intercepterPlayers)
+			blockerInterceptorSegments.addAll(this.getBoundingLines(intercepter, blockers.stream().map(pf -> pf.getPlayer()).toList()));
 
 		blockerInterceptorSegments.stream().forEach(
 				s -> MessageManager.getInstance().dispatchMessage(Messages.drawBlockerIntercepterBoundingSegments, s));
 
 		segments.addAll(blockerInterceptorSegments);
 		
-		Set<LineSegment> splitLines = Collections.unmodifiableSet(this.splitLines(segments));
+		segments = Collections.unmodifiableSet(this.splitLines(segments));
 
 		Set<Location> locationsOfIntersection = Collections
-				.unmodifiableSet(this.getPointsOfIntersection(splitLines));
+				.unmodifiableSet(this.getPointsOfIntersection(segments));
 
-		final Set<Location> interceptorReachableLocations = new HashSet<>();
-		for (final Player interceptor : interceptorPlayers)
-			interceptorReachableLocations
-					.addAll(this.getReachableLocations(interceptor, locationsOfIntersection, splitLines));
+		final Set<Location> intercepterReachableLocations = new HashSet<>();
+		for (final Player intercepter : intercepterPlayers)
+			intercepterReachableLocations
+					.addAll(this.getReachableLocations(intercepter, locationsOfIntersection, segments));
 
-		final var commonReachableLines = this.removeObsoleteLines(interceptorReachableLocations, splitLines);
-		final var commonReachableLocations = this.getReachableLocations(this.getPlayer(), interceptorReachableLocations,
+		var commonReachableLines = this.removeObsoleteLines(intercepterReachableLocations, segments);
+//		commonReachableLines = this.removeObsoleteLines(this.getReachableLocations(runner.getPlayer(), locationsOfIntersection, segments), commonReachableLines);
+		final var commonReachableLocations = this.getReachableLocations(this.getPlayer(), intercepterReachableLocations,
 				commonReachableLines);
 
 		Location destination = this.getFarthestReachableLocation(this.getPlayer(), commonReachableLocations);
@@ -318,10 +319,10 @@ public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathf
 		return new HashSet<>(p2.stream().map(p ->
 		{
 			double ratio = .5;
-			final double denom = this.getPlayer().getLV().getSpeed() + p.getLV().getSpeed();
+			final double denom = p1.getLV().getSpeed() + p.getLV().getSpeed();
 			if (denom != 0)
 			{
-				ratio = this.getPlayer().getLV().getSpeed() / denom;
+				ratio = p1.getLV().getSpeed() / denom;
 			}
 
 			final LineSegment seg = new LineSegment(p1.getLoc(), p.getLoc());
