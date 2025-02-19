@@ -21,12 +21,12 @@ public class DebugShape
 	public DebugShape()
 	{	
 	}
-		
+	
 	public static DebugShape fillLocation(Location location, String backgroundRGBA)
 	{
 		DebugShape ret = new DebugShape();
 		ret.location = location;
-		ret.radius = .5;
+		ret.radius = .25;
 		ret.backgroundRGBA = backgroundRGBA;
 		return ret;
 	}
@@ -45,7 +45,7 @@ public class DebugShape
 		DebugShape ret = new DebugShape();
 		ret.linearVelocity = linearVelocity;
 		ret.foregroundRGBA = foregroundRGBA;
-		ret.radius = .5;
+		ret.radius = .25;
 		ret.backgroundRGBA = foregroundRGBA;
 		ret.lineWidth = 3;
 		return ret;
@@ -56,7 +56,7 @@ public class DebugShape
 		DebugShape ret = new DebugShape();
 		ret.lineSegment = lineSegment;
 		ret.foregroundRGBA = foregroundRGBA;
-		ret.radius = .5;
+		ret.radius = 0;
 		ret.backgroundRGBA = foregroundRGBA;
 		ret.lineWidth = 3;
 		return ret;

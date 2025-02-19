@@ -12,7 +12,7 @@ import jef.core.movement.RelativeLocation;
 import jef.core.pathfinding.AbstractPathfinder;
 import jef.core.pathfinding.DefenderAssessment;
 import jef.core.pathfinding.Direction;
-import jef.core.pathfinding.InterceptPlayer;
+import jef.core.pathfinding.AdvancedInterceptPlayer;
 import jef.core.pathfinding.Pathfinder;
 import jef.core.pathfinding.defenders.DefenderPathfinder;
 import jef.core.pathfinding.runners.RunnerPathfinder;
@@ -22,7 +22,7 @@ import jef.core.pathfinding.runners.RunnerPathfinder;
  */
 public class BlockNearestThreat extends AbstractPathfinder implements BlockerPathfinder
 {
-	private InterceptPlayer interceptionPathfinder;
+	private AdvancedInterceptPlayer interceptionPathfinder;
 
 	public BlockNearestThreat(Player blocker, Direction direction)
 	{
@@ -63,7 +63,7 @@ public class BlockNearestThreat extends AbstractPathfinder implements BlockerPat
 			threats = threats.stream().sorted(Comparator.comparing(DefenderAssessment::threatLevel)).toList();
 
 			DefenderAssessment biggestThreat = threats.get(0);
-			interceptionPathfinder = new InterceptPlayer(getPlayer(), getDirection().opposite(), biggestThreat.getDefender()); 
+			interceptionPathfinder = new AdvancedInterceptPlayer(getPlayer(), getDirection().opposite(), biggestThreat.getDefender()); 
 		}
 
 		boolean ret = interceptionPathfinder.calculate(runner, defenders, blockers, deltaNanos - (System.nanoTime() - nanos));

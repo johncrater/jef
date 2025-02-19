@@ -43,11 +43,11 @@ public class DebugMessageHandler implements Telegraph
 	{
 		MessageManager.getInstance().addListener(this, Messages.drawDebugShape);
 
-		colors.put(Messages.drawIntercepterDestination, interceptorColor);
-		MessageManager.getInstance().addListener(this, Messages.drawIntercepterDestination);
+		colors.put(Messages.drawInterceptorDestination, interceptorColor);
+		MessageManager.getInstance().addListener(this, Messages.drawInterceptorDestination);
 
-		colors.put(Messages.drawIntercepterPath, interceptorColor);
-		MessageManager.getInstance().addListener(this, Messages.drawIntercepterPath);
+		colors.put(Messages.drawInterceptorPath, interceptorColor);
+		MessageManager.getInstance().addListener(this, Messages.drawInterceptorPath);
 
 		colors.put(Messages.drawRunnerDestination, runnerColor);
 		MessageManager.getInstance().addListener(this, Messages.drawRunnerDestination);
@@ -61,11 +61,11 @@ public class DebugMessageHandler implements Telegraph
 		colors.put(Messages.drawBlockerPath, blockerColor);
 		MessageManager.getInstance().addListener(this, Messages.drawBlockerPath);
 
-		colors.put(Messages.drawRunnerIntercepterBoundingSegments, runnerInterceptorColor);
-		MessageManager.getInstance().addListener(this, Messages.drawRunnerIntercepterBoundingSegments);
+		colors.put(Messages.drawRunnerInterceptorBoundingSegments, runnerInterceptorColor);
+		MessageManager.getInstance().addListener(this, Messages.drawRunnerInterceptorBoundingSegments);
 
-		colors.put(Messages.drawBlockerIntercepterBoundingSegments, blockerInterceptorColor);
-		MessageManager.getInstance().addListener(this, Messages.drawBlockerIntercepterBoundingSegments);
+		colors.put(Messages.drawBlockerInterceptorBoundingSegments, blockerInterceptorColor);
+		MessageManager.getInstance().addListener(this, Messages.drawBlockerInterceptorBoundingSegments);
 	}
 
 	public void clear()
@@ -185,9 +185,9 @@ public class DebugMessageHandler implements Telegraph
 				{
 					if (foregroundColor != null)
 						gc.drawLine(UIUtils.yardsToPixels(debugShape.location.getX()),
-								UIUtils.yardsToPixels(debugShape.location.getY()),
+								UIUtils.yardsToPixels(Field.FIELD_TOTAL_WIDTH - debugShape.location.getY()),
 								UIUtils.yardsToPixels(debugShape.linearVelocity.getX()),
-								UIUtils.yardsToPixels(debugShape.linearVelocity.getY()));
+								UIUtils.yardsToPixels(Field.FIELD_TOTAL_WIDTH - debugShape.linearVelocity.getY()));
 				}
 			}
 
@@ -201,9 +201,9 @@ public class DebugMessageHandler implements Telegraph
 
 				if (foregroundColor != null)
 					gc.drawLine(UIUtils.yardsToPixels(debugShape.lineSegment.getLoc1().getX()),
-							UIUtils.yardsToPixels(debugShape.lineSegment.getLoc1().getY()),
+							UIUtils.yardsToPixels(Field.FIELD_TOTAL_WIDTH - debugShape.lineSegment.getLoc1().getY()),
 							UIUtils.yardsToPixels(debugShape.lineSegment.getLoc2().getX()),
-							UIUtils.yardsToPixels(debugShape.lineSegment.getLoc2().getY()));
+							UIUtils.yardsToPixels(Field.FIELD_TOTAL_WIDTH - debugShape.lineSegment.getLoc2().getY()));
 			}
 		}
 	}

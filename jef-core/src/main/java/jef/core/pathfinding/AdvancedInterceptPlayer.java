@@ -13,6 +13,7 @@ import jef.core.geometry.LineSegment;
 import jef.core.movement.Location;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.PlayerTracker;
+import jef.core.movement.player.Steering;
 import jef.core.movement.player.AdvancedSteering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
@@ -20,7 +21,7 @@ import jef.core.pathfinding.blocking.BlockerPathfinder;
 import jef.core.pathfinding.defenders.DefenderPathfinder;
 import jef.core.pathfinding.runners.RunnerPathfinder;
 
-public class InterceptPlayer extends AbstractPathfinder
+public class AdvancedInterceptPlayer extends AbstractPathfinder
 {
 	public static final int IDEAL_INTERCEPT_TICKS_AHEAD = 2;
 
@@ -30,7 +31,7 @@ public class InterceptPlayer extends AbstractPathfinder
 	private int minIndex;
 	private int maxIndex;
 
-	public InterceptPlayer(Player player, Direction direction, Pathfinder targetPathfinder)
+	public AdvancedInterceptPlayer(Player player, Direction direction, Pathfinder targetPathfinder)
 	{
 		super(player, direction);
 		this.targetPathfinder = targetPathfinder;
@@ -72,13 +73,13 @@ public class InterceptPlayer extends AbstractPathfinder
 			Integer ticks = locationToTicks.get(loc);
 			if (ticks == null)
 			{
-				ticks = AdvancedSteering.calculateTicks(new PlayerTracker(getPlayer(),
+				ticks = Steering.getInstance().calculateTicks(new PlayerTracker(getPlayer(),
 						new DefaultPath(new Waypoint(loc, this.getPlayer().getSpeedMatrix().getJoggingSpeed(), getPlayer().getMaxSpeed(), DestinationAction.noStop)),
 						Performance.frameInterval));
 				locationToTicks.put(loc, ticks);
 			}
 
-			// negative tickDiff means intercepter arrives before target
+			// negative tickDiff means interceptor arrives before target
 			int tickDiff = ticks - i;
 			if ((selectedTicks > -IDEAL_INTERCEPT_TICKS_AHEAD && tickDiff < selectedTicks)
 					|| (selectedTicks < -IDEAL_INTERCEPT_TICKS_AHEAD && tickDiff <= -IDEAL_INTERCEPT_TICKS_AHEAD
@@ -92,8 +93,8 @@ public class InterceptPlayer extends AbstractPathfinder
 		Location interceptionPoint = this.interceptionPoints.get(selectedIndex);
 		setPath(new DefaultPath(new Waypoint(interceptionPoint, this.getPlayer().getSpeedMatrix().getJoggingSpeed(), getPlayer().getMaxSpeed(), DestinationAction.noStop)));
 		
-		MessageManager.getInstance().dispatchMessage(Messages.drawIntercepterPath, interceptionPoint);
-		MessageManager.getInstance().dispatchMessage(Messages.drawIntercepterDestination,
+		MessageManager.getInstance().dispatchMessage(Messages.drawInterceptorPath, interceptionPoint);
+		MessageManager.getInstance().dispatchMessage(Messages.drawInterceptorDestination,
 				new LineSegment(getPlayer().getLoc(), interceptionPoint));
 
 		return true;

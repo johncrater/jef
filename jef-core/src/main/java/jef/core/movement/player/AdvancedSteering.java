@@ -17,19 +17,6 @@ public class AdvancedSteering implements Steering
 	private static double[] pctTimes =
 	{ .333f, .600f, 1.10f, 1.66f, 2.33f, 6.00f };
 
-	public static int calculateTicks(PlayerTracker tracker)
-	{
-		int count = 0;
-		Steering steering = new AdvancedSteering();
-		while (steering.next(tracker) == false)
-		{
-			count += 1;
-			tracker.advance();
-		}
-
-		return count;
-	}
-
 	public static final int USE_ALL = 0x8FFFFFFF;
 	public static final int USE_OUT_OF_CONTROL = 0x00000001;
 	public static final int USE_POSTURE = 0x00000002;
@@ -49,6 +36,18 @@ public class AdvancedSteering implements Steering
 	private AdvancedSteering(int options)
 	{
 		this.options = options;
+	}
+
+	public int calculateTicks(PlayerTracker tracker)
+	{
+		int count = 0;
+		while (next(tracker) == false)
+		{
+			count += 1;
+			tracker.advance();
+		}
+
+		return count;
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import jef.core.Field;
 import jef.core.geometry.Vector;
+import jef.core.pathfinding.Direction;
 
 public class DefaultLocation implements Location
 {
@@ -72,18 +73,15 @@ public class DefaultLocation implements Location
 	}
 
 	@Override
-	public boolean isInEndZone()
+	public boolean isInEndZone(Direction direction)
 	{
-		if (getX() <= Field.WEST_END_ZONE_X)
+		if (isInBounds() == false)
+			return false;
+		
+		if ((direction == null || direction == Direction.west) && getX() <= Field.WEST_END_ZONE_X)
 			return true;
 		
-		if (getX() >= Field.EAST_END_ZONE_X)
-			return true;
-		
-		if (getY() <= Field.SOUTH_SIDELINE_Y)
-			return true;
-		
-		if (getY() >= Field.NORTH_SIDELINE_Y)
+		if ((direction == null || direction == Direction.east) && getX() >= Field.EAST_END_ZONE_X)
 			return true;
 		
 		return false;

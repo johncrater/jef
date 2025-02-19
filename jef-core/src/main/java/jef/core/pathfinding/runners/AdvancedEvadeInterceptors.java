@@ -37,9 +37,9 @@ import jef.core.pathfinding.Direction;
 import jef.core.pathfinding.blocking.BlockerPathfinder;
 import jef.core.pathfinding.defenders.DefenderPathfinder;
 
-public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathfinder
+public class AdvancedEvadeInterceptors extends AbstractPathfinder implements RunnerPathfinder
 {
-	public EvadeInterceptors(final Player player, final Direction direction)
+	public AdvancedEvadeInterceptors(final Player player, final Direction direction)
 	{
 		super(player, direction);
 	}
@@ -50,12 +50,12 @@ public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathf
 	{
 		long nanos = System.nanoTime();
 
-		List<Player> intercepterPlayers = new ArrayList<>(
+		List<Player> interceptorPlayers = new ArrayList<>(
 				new HashSet<>(defenders.stream().map(pf -> pf.getPlayer()).toList()));
 
 		List<Player> tmpPlayers = new ArrayList<Player>();
 		tmpPlayers.add(getPlayer());
-		tmpPlayers.addAll(intercepterPlayers);
+		tmpPlayers.addAll(interceptorPlayers);
 		tmpPlayers = tmpPlayers.stream().sorted((p1, p2) -> (getDirection() == Direction.west ? 1 : -1)
 				* Double.compare(p1.getLoc().getX(), p2.getLoc().getX())).toList();
 		if (tmpPlayers.getFirst() == getPlayer())
@@ -74,18 +74,18 @@ public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathf
 		Set<LineSegment> segments = new HashSet<>(
 				Arrays.asList(Field.EAST_END_ZONE, Field.WEST_END_ZONE, Field.NORTH_SIDELINE, Field.SOUTH_SIDELINE));
 
- 		final HashSet<LineSegment> runnerInterceptorSegments = this.getBoundingLines(getPlayer(), intercepterPlayers);
+ 		final HashSet<LineSegment> runnerInterceptorSegments = this.getBoundingLines(getPlayer(), interceptorPlayers);
 		runnerInterceptorSegments.stream().forEach(
-				s -> MessageManager.getInstance().dispatchMessage(Messages.drawRunnerIntercepterBoundingSegments, s));
+				s -> MessageManager.getInstance().dispatchMessage(Messages.drawRunnerInterceptorBoundingSegments, s));
 		
 		segments.addAll(runnerInterceptorSegments);
 
 		final HashSet<LineSegment> blockerInterceptorSegments = new HashSet<>();
-		for (final Player intercepter : intercepterPlayers)
-			blockerInterceptorSegments.addAll(this.getBoundingLines(intercepter, blockers.stream().map(pf -> pf.getPlayer()).toList()));
+		for (final Player interceptor : interceptorPlayers)
+			blockerInterceptorSegments.addAll(this.getBoundingLines(interceptor, blockers.stream().map(pf -> pf.getPlayer()).toList()));
 
 		blockerInterceptorSegments.stream().forEach(
-				s -> MessageManager.getInstance().dispatchMessage(Messages.drawBlockerIntercepterBoundingSegments, s));
+				s -> MessageManager.getInstance().dispatchMessage(Messages.drawBlockerInterceptorBoundingSegments, s));
 
 		segments.addAll(blockerInterceptorSegments);
 		
@@ -94,19 +94,19 @@ public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathf
 		Set<Location> locationsOfIntersection = Collections
 				.unmodifiableSet(this.getPointsOfIntersection(segments));
 
-		final Set<Location> intercepterReachableLocations = new HashSet<>();
-		for (final Player intercepter : intercepterPlayers)
-			intercepterReachableLocations
-					.addAll(this.getReachableLocations(intercepter, locationsOfIntersection, segments));
+		final Set<Location> interceptorReachableLocations = new HashSet<>();
+		for (final Player interceptor : interceptorPlayers)
+			interceptorReachableLocations
+					.addAll(this.getReachableLocations(interceptor, locationsOfIntersection, segments));
 
-		var commonReachableLines = this.removeObsoleteLines(intercepterReachableLocations, segments);
+		var commonReachableLines = this.removeObsoleteLines(interceptorReachableLocations, segments);
 //		commonReachableLines = this.removeObsoleteLines(this.getReachableLocations(runner.getPlayer(), locationsOfIntersection, segments), commonReachableLines);
-		final var commonReachableLocations = this.getReachableLocations(this.getPlayer(), intercepterReachableLocations,
+		final var commonReachableLocations = this.getReachableLocations(this.getPlayer(), interceptorReachableLocations,
 				commonReachableLines);
 
 		Location destination = this.getFarthestReachableLocation(this.getPlayer(), commonReachableLocations);
 
-		if (destination.isInEndZone())
+		if (destination.isInEndZone(getDirection()))
 		{
 			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, destination);
 			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
@@ -333,7 +333,7 @@ public class EvadeInterceptors extends AbstractPathfinder implements RunnerPathf
 			// make it longer than field distances and then chop it down to size to make
 			// sure it fits
 			return new LineSegment(pointAlong.add(segLV.add(-Math.PI / 2, 0, 200)),
-					pointAlong.add(segLV.add(Math.PI / 2, 0, 200))).restrictToBetweenEndZones();
+					pointAlong.add(segLV.add(Math.PI / 2, 0, 200))).restrictToBetweenEndZones(true);
 		}).filter(l -> l != null).toList());
 	}
 

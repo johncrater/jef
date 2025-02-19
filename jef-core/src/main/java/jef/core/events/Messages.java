@@ -85,15 +85,15 @@ public class Messages
 	public static final int timeChanged		 				= 8 | scoreboardPrefix;
 	
 	// debug messages
-	public static final int drawIntercepterPath							= 1 	| debugPrefix;
-	public static final int drawIntercepterDestination					= 3 	| debugPrefix;
+	public static final int drawInterceptorPath							= 1 	| debugPrefix;
+	public static final int drawInterceptorDestination					= 3 	| debugPrefix;
 	public static final int drawRunnerPath								= 4 	| debugPrefix;
 	public static final int drawRunnerDestination						= 5 	| debugPrefix;
 	public static final int drawBlockerDestination						= 11	| debugPrefix;
 	public static final int drawBlockerPath								= 12	| debugPrefix;
 
-	public static final int drawRunnerIntercepterBoundingSegments		= 6 	| debugPrefix;
-	public static final int drawBlockerIntercepterBoundingSegments		= 7 	| debugPrefix;
+	public static final int drawRunnerInterceptorBoundingSegments		= 6 	| debugPrefix;
+	public static final int drawBlockerInterceptorBoundingSegments		= 7 	| debugPrefix;
 	
 	public static final int drawDebugShape								= 100 	| debugPrefix;
 

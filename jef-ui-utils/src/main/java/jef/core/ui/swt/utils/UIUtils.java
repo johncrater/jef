@@ -14,7 +14,10 @@ public class UIUtils
 		if (colorString == null)
 			return new Color(0, 0, 0, 0);
 
-		int colorInt = Integer.parseInt(colorString.substring(1), 16);
+		int colorInt = Integer.parseInt(colorString.substring(1, 3), 16) << 8;
+		colorInt = colorInt + Integer.parseInt(colorString.substring(3, 5), 16) << 8;
+		colorInt = colorInt + Integer.parseInt(colorString.substring(5, 7), 16) << 8;
+		colorInt = colorInt + Integer.parseInt(colorString.substring(7, 9), 16);
 		return UIUtils.colorIntToColor(colorInt);
 	}
 
@@ -25,8 +28,7 @@ public class UIUtils
 
 	public static Color colorIntToColor(int color)
 	{
-		color = color & 0x00ffffff;
-		final int r = color >> 24;
+		final int r = color >> 24 & 0x000000FF;
 		final int g = color >> 16 & 0x000000FF;
 		final int b = color >> 8 & 0x000000FF;
 		final int alpha = color & 0x000000FF;

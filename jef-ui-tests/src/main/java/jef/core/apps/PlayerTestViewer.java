@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +40,8 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
+import com.badlogic.gdx.ai.msg.MessageManager;
+
 import jef.core.Conversions;
 import jef.core.DefaultPlayer;
 import jef.core.Field;
@@ -48,6 +51,9 @@ import jef.core.Player;
 import jef.core.PlayerPosition;
 import jef.core.collisions.Collision;
 import jef.core.collisions.CollisionResolution;
+import jef.core.events.DebugShape;
+import jef.core.events.Messages;
+import jef.core.geometry.LineSegment;
 import jef.core.movement.DefaultAngularVelocity;
 import jef.core.movement.DefaultLocation;
 import jef.core.movement.Location;
@@ -57,7 +63,6 @@ import jef.core.movement.index.LocationIndex;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
-import jef.core.movement.player.AdvancedSteering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
 import jef.core.pathfinding.CalculationScheduler;
@@ -67,10 +72,10 @@ import jef.core.pathfinding.WaypointPathfinder;
 import jef.core.pathfinding.blocking.BlockNearestThreat;
 import jef.core.pathfinding.blocking.BlockerPathfinder;
 import jef.core.pathfinding.blocking.BlockerWaypointPathfinder;
+import jef.core.pathfinding.defenders.DefaultPursueRunner;
 import jef.core.pathfinding.defenders.DefenderPathfinder;
 import jef.core.pathfinding.defenders.DefenderWaypointPathfinder;
-import jef.core.pathfinding.defenders.PursueRunner;
-import jef.core.pathfinding.runners.EvadeInterceptors;
+import jef.core.pathfinding.runners.DefaultEvadeInterceptors;
 import jef.core.pathfinding.runners.RunForGlory;
 import jef.core.pathfinding.runners.RunnerPathfinder;
 import jef.core.pathfinding.runners.RunnerWaypointPathfinder;
@@ -332,6 +337,7 @@ public class PlayerTestViewer implements Runnable
 								.map(bpf -> (BlockerPathfinder) bpf).toList(),
 						Performance.frameNanos * 100);
 
+				
 				for (final DefaultPlayer player : this.players.values())
 				{
 					if (player.getPath() == null || player.getPath().getWaypoints().size() == 0)
@@ -352,7 +358,7 @@ public class PlayerTestViewer implements Runnable
 
 				this.index.advance();
 
-				if (this.runner.getPosture() == Posture.onTheGround)
+				if (this.runner.getPosture() == Posture.onTheGround || runner.getLoc().isInBounds() == false || runner.getLoc().isInEndZone(null))
 				{
 					this.pathfinders.clear();
 					this.players.values().forEach(p -> p.setPath(null));
@@ -368,12 +374,27 @@ public class PlayerTestViewer implements Runnable
 			}
 		}
 
+		this.drawPath(this.runner, "#00FF0000");
+		this.defenders.values().forEach(p -> drawPath(p, "#FF000000"));
+		this.blockers.values().forEach(p -> drawPath(p, "#0000FF00"));
+
 		this.canvas.redraw();
 
 		this.lastMilliseconds = System.currentTimeMillis();
 		this.shell.getDisplay().asyncExec(this);
 	}
 
+	private void drawPath(Player player, String color)
+	{
+		if (player.getPath() == null)
+			return;
+		
+		List<Location> locs = new ArrayList<>(player.getPath().getWaypoints().stream().map(wp -> wp.getDestination()).toList());
+		locs.addFirst(player.getLoc());
+		for (int i = 1; i < locs.size(); i++)
+			MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape, DebugShape.drawLineSegment(new LineSegment(locs.get(i - 1), locs.get(i)), color));
+	}
+	
 	private void createButtons()
 	{
 		final Composite buttonRow = new Composite(this.shell, SWT.NONE);
@@ -469,7 +490,7 @@ public class PlayerTestViewer implements Runnable
 
 				strategyCombo.add("Evade Interceptors");
 				strategyCombo.setData(strategyCombo.getItem(strategyCombo.getItemCount() - 1),
-						new EvadeInterceptors(p, Direction.west));
+						new DefaultEvadeInterceptors(p, Direction.west));
 			}
 			else if (this.defenders.containsValue(p))
 			{
@@ -481,7 +502,7 @@ public class PlayerTestViewer implements Runnable
 
 				strategyCombo.add("Pursue Runner");
 				strategyCombo.setData(strategyCombo.getItem(strategyCombo.getItemCount() - 1),
-						new PursueRunner(p, Direction.west));
+						new DefaultPursueRunner(p, Direction.west));
 			}
 			else if (this.blockers.containsValue(p))
 			{
@@ -654,9 +675,6 @@ public class PlayerTestViewer implements Runnable
 		this.player.setWeight(215);
 		this.player.setLoc(new DefaultLocation(Field.yardLine(20, Direction.west), Field.MIDFIELD_Y, 0));
 		this.player.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
-//		this.player.setPath(new DefaultPath(
-//				new Waypoint(this.player.getLoc(), this.player.getSpeedMatrix().getJoggingSpeed(),
-//						this.player.getMaxSpeed(), DestinationAction.fastStop)));
 
 		this.players.put(this.player.getPlayerID(), this.player);
 		this.runner = this.player;
@@ -667,7 +685,6 @@ public class PlayerTestViewer implements Runnable
 		pl.setLastName("Eller");
 		pl.setWeight(280);
 		pl.setLoc(Field.MIDFIELD);
-//		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getSpeedMatrix().getJoggingSpeed(), pl.getMaxSpeed(), DestinationAction.fastStop)));
 
 		this.players.put(pl.getPlayerID(), pl);
 		this.defenders.put(pl.getPlayerID(), pl);
@@ -676,33 +693,32 @@ public class PlayerTestViewer implements Runnable
 		pl.setFirstName("Alan");
 		pl.setLastName("Page");
 		pl.setWeight(280);
-		pl.setLoc(Field.MIDFIELD.add(-10, 0, 0));
-//		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getSpeedMatrix().getJoggingSpeed(), pl.getMaxSpeed(), DestinationAction.fastStop)));
+		pl.setLoc(Field.MIDFIELD.add(-5, 5, 0));
 
 		this.players.put(pl.getPlayerID(), pl);
 		this.defenders.put(pl.getPlayerID(), pl);
 
-		pl = new DefaultPlayer(PlayerPosition.RT);
-		pl.setFirstName("Ron");
-		pl.setLastName("Yary");
-		pl.setWeight(260);
-		pl.setLoc(Field.MIDFIELD.add(20, 1, 0));
-		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
-//		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getSpeedMatrix().getJoggingSpeed(), pl.getMaxSpeed(), DestinationAction.fastStop)));
-
-		this.players.put(pl.getPlayerID(), pl);
-		this.blockers.put(pl.getPlayerID(), pl);
-
-//		pl = new DefaultPlayer(PlayerPosition.RG);
-//		pl.setFirstName("Ed");
-//		pl.setLastName("White");
-//		pl.setWeight(250);
-//		pl.setLoc(Field.MIDFIELD.add(20, -1, 0));
+//		pl = new DefaultPlayer(PlayerPosition.RT);
+//		pl.setFirstName("Ron");
+//		pl.setLastName("Yary");
+//		pl.setWeight(260);
+//		pl.setLoc(Field.MIDFIELD.add(20, 1, 0));
 //		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
-////		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getMaxSpeed(), DestinationAction.fastStop)));
+////		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getSpeedMatrix().getJoggingSpeed(), pl.getMaxSpeed(), DestinationAction.fastStop)));
 //
 //		this.players.put(pl.getPlayerID(), pl);
 //		this.blockers.put(pl.getPlayerID(), pl);
+//
+////		pl = new DefaultPlayer(PlayerPosition.RG);
+////		pl.setFirstName("Ed");
+////		pl.setLastName("White");
+////		pl.setWeight(250);
+////		pl.setLoc(Field.MIDFIELD.add(20, -1, 0));
+////		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
+//////		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getMaxSpeed(), DestinationAction.fastStop)));
+////
+////		this.players.put(pl.getPlayerID(), pl);
+////		this.blockers.put(pl.getPlayerID(), pl);
 
 	}
 

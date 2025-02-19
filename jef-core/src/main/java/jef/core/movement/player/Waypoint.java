@@ -24,6 +24,15 @@ public class Waypoint
 		this.destinationAction = destinationAction;
 	}
 
+	public Waypoint(Location destination, double maxSpeed, DestinationAction destinationAction)
+	{
+		super();
+		this.destination = destination;
+		this.minTurnSpeed = maxSpeed;
+		this.maxSpeed = maxSpeed;
+		this.destinationAction = destinationAction;
+	}
+
 	public Location getDestination()
 	{
 		return this.destination;

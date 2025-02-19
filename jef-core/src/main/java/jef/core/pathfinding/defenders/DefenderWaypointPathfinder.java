@@ -30,13 +30,13 @@ public class DefenderWaypointPathfinder extends WaypointPathfinder implements De
 		Waypoint previousWp = null;
 		for (Waypoint wp : getPath().getWaypoints())
 		{
-			MessageManager.getInstance().dispatchMessage(Messages.drawIntercepterDestination, wp.getDestination());
+			MessageManager.getInstance().dispatchMessage(Messages.drawInterceptorDestination, wp.getDestination());
 
 			if (previousWp == null)
-				MessageManager.getInstance().dispatchMessage(Messages.drawIntercepterPath,
+				MessageManager.getInstance().dispatchMessage(Messages.drawInterceptorPath,
 						new LineSegment(this.getPlayer().getLoc(), wp.getDestination()));
 			else
-				MessageManager.getInstance().dispatchMessage(Messages.drawIntercepterPath,
+				MessageManager.getInstance().dispatchMessage(Messages.drawInterceptorPath,
 						new LineSegment(previousWp.getDestination(), wp.getDestination()));
 			
 			previousWp = wp;

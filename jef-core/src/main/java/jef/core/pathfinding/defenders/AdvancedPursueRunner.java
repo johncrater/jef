@@ -7,16 +7,16 @@ import jef.core.Player;
 import jef.core.movement.Location;
 import jef.core.pathfinding.AbstractPathfinder;
 import jef.core.pathfinding.Direction;
-import jef.core.pathfinding.InterceptPlayer;
+import jef.core.pathfinding.AdvancedInterceptPlayer;
 import jef.core.pathfinding.Pathfinder;
 import jef.core.pathfinding.blocking.BlockerPathfinder;
 import jef.core.pathfinding.runners.RunnerPathfinder;
 
-public class PursueRunner extends AbstractPathfinder implements DefenderPathfinder
+public class AdvancedPursueRunner extends AbstractPathfinder implements DefenderPathfinder
 {
-	private InterceptPlayer interceptPlayer;
+	private AdvancedInterceptPlayer interceptPlayer;
 	
-	public PursueRunner(Player player, Direction direction)
+	public AdvancedPursueRunner(Player player, Direction direction)
 	{
 		super(player, direction);
 	}
@@ -46,7 +46,7 @@ public class PursueRunner extends AbstractPathfinder implements DefenderPathfind
 			List<? extends BlockerPathfinder> blockers, long deltaNanos)
 	{
 		if (interceptPlayer == null || interceptPlayer.getTargetPathfinder() != runner)
-			interceptPlayer = new InterceptPlayer(getPlayer(), getDirection(), runner);
+			interceptPlayer = new AdvancedInterceptPlayer(getPlayer(), getDirection(), runner);
 
 		boolean ret = interceptPlayer.calculate(runner, defenders, blockers, deltaNanos);
 		setPath(interceptPlayer.getPath());

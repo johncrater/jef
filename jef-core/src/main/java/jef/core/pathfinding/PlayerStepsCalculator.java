@@ -57,7 +57,7 @@ public class PlayerStepsCalculator implements IterativeCalculation
 //		while (System.nanoTime() - nanos < deltaNanos && ret == false)
 		while (ret == false)
 		{
-			System.out.println(tracker.getLoc());
+//			System.out.println(tracker.getLoc());
 			ret = steering.next(tracker);
 			tracker.advance();
 			steps.add(tracker.getLoc());

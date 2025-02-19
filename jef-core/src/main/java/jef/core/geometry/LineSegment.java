@@ -152,7 +152,7 @@ public class LineSegment
 		else
 		{
 			x = (line.getYIntercept() - getYIntercept()) / (getXYSlope() - line.getXYSlope());
-			y = getXYSlope() * x + getYIntercept();
+			y = line.getXYSlope() * x + line.getYIntercept();
 		}
 
 		Location intersection = new DefaultLocation(x, y, 0);
@@ -220,7 +220,7 @@ public class LineSegment
 	 *         starting and ending locations are in bounds and between the end zones
 	 *         exclusive
 	 */
-	public LineSegment restrictToBetweenEndZones()
+	public LineSegment restrictToBetweenEndZones(boolean includeEndZoneLine)
 	{
 		Location l1 = null;
 
@@ -229,7 +229,7 @@ public class LineSegment
 			l1 = l;
 
 		l = this.loc2;
-		if (l.isInBounds() && !l.isInEndZone())
+		if (l.isInBounds() && !l.isInEndZone(null))
 		{
 			if (l1 == null)
 				l1 = l;
@@ -237,8 +237,8 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.EAST_END_ZONE.move(-1, 0, 0));
-		if (l != null && l.isInBounds() && !l.isInEndZone())
+		l = this.xyIntersection(Field.EAST_END_ZONE.move(includeEndZoneLine ? 0 : -Location.EPSILON_VALUE, 0, 0));
+		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
 				l1 = l;
@@ -246,8 +246,8 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.WEST_END_ZONE.move(1, 0, 0));
-		if (l != null && l.isInBounds() && !l.isInEndZone())
+		l = this.xyIntersection(Field.WEST_END_ZONE.move(includeEndZoneLine ? 0 : Location.EPSILON_VALUE, 0, 0));
+		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
 				l1 = l;
@@ -255,8 +255,8 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.NORTH_SIDELINE.move(0, -1, 0));
-		if (l != null && l.isInBounds() && !l.isInEndZone())
+		l = this.xyIntersection(Field.NORTH_SIDELINE.move(0, -Location.EPSILON_VALUE, 0));
+		if (l != null && !l.isInEndZone(null))
 		{
 			if (l1 == null)
 				l1 = l;
@@ -264,8 +264,8 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.SOUTH_SIDELINE.move(0, 1, 0));
-		if (l != null && l.isInBounds() && !l.isInEndZone())
+		l = this.xyIntersection(Field.SOUTH_SIDELINE.move(0, Location.EPSILON_VALUE, 0));
+		if (l != null && !l.isInEndZone(null))
 		{
 			if (l1 == null)
 				l1 = l;

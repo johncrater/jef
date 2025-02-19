@@ -31,7 +31,7 @@ public class RunnerPathUtils
 			return calculateRunForGloryPath(startingLocation, lv, direction);
 
 		Location endLoc = calculateRunnerEndLocation(startingLocation, lv);
-		if (endLoc.isInEndZone())
+		if (endLoc.isInEndZone(direction))
 			return new DefaultPath(new Waypoint(endLoc, lv.getSpeed(), lv.getSpeed(), DestinationAction.noStop));
 
 		return new DefaultPath(new Waypoint(endLoc, lv.getSpeed(), lv.getSpeed(), DestinationAction.noStop),
@@ -51,7 +51,7 @@ public class RunnerPathUtils
 	public static Location calculateRunnerEndLocation(Location startingLocation, LinearVelocity lv)
 	{
 		return new LineSegment(startingLocation, startingLocation.add(lv.newFrom(null, null, 500.0)))
-				.restrictToBetweenEndZones().getLoc2();
+				.restrictToBetweenEndZones(true).getLoc2();
 	}
 
 	/**
