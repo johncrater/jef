@@ -1,7 +1,5 @@
 package jef.core.events;
 
-import java.util.List;
-
 import jef.core.geometry.LineSegment;
 import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
@@ -12,14 +10,26 @@ public class DebugShape
 	public LinearVelocity linearVelocity;
 	public LineSegment lineSegment;
 	public Location [] locations;
+	public String text;
 	
 	public double radius;
 	public String foregroundRGBA;
 	public String backgroundRGBA;
 	public int lineWidth;
+	public int fontSize;
 	
 	public DebugShape()
 	{	
+	}
+	
+	public static DebugShape drawText(String text, Location location, String foregroundRGBA, int fontSize)
+	{
+		DebugShape ret = new DebugShape();
+		ret.location = location;
+		ret.text = text;
+		ret.fontSize = fontSize;
+		ret.foregroundRGBA = foregroundRGBA;
+		return ret;
 	}
 	
 	public static DebugShape fillLocation(Location location, String backgroundRGBA)

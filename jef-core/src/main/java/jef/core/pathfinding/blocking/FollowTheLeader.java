@@ -1,9 +1,10 @@
-package jef.core.pathfinding;
+package jef.core.pathfinding.blocking;
 
 import java.util.List;
 
 import jef.core.Player;
-import jef.core.pathfinding.blocking.BlockerPathfinder;
+import jef.core.pathfinding.IterativeCalculation;
+import jef.core.pathfinding.Pathfinder;
 import jef.core.pathfinding.defenders.DefenderPathfinder;
 import jef.core.pathfinding.runners.RunnerPathfinder;
 

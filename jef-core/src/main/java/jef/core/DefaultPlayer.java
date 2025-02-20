@@ -205,4 +205,10 @@ public class DefaultPlayer extends DefaultSteerable implements Player
 		this.currentPosition = pos;
 	}
 
+	@Override
+	public String toString()
+	{
+		return this.firstName + " " + this.lastName;
+	}
+
 }

@@ -183,12 +183,12 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 		final HashSet<Borderline> runnerInterceptorSegments = this.getBorderlines(getPlayer(), interceptorPlayers);
 		segments.addAll(runnerInterceptorSegments);
 
-		final HashSet<Borderline> blockerInterceptorSegments = new HashSet<>();
-		for (final Player interceptor : interceptorPlayers)
-			blockerInterceptorSegments
-					.addAll(this.getBorderlines(interceptor, blockers.stream().map(pf -> pf.getPlayer()).toList()));
-
-		segments.addAll(blockerInterceptorSegments);
+//		final HashSet<Borderline> blockerInterceptorSegments = new HashSet<>();
+//		for (final Player interceptor : interceptorPlayers)
+//			blockerInterceptorSegments
+//					.addAll(this.getBorderlines(interceptor, blockers.stream().map(pf -> pf.getPlayer()).toList()));
+//
+//		segments.addAll(blockerInterceptorSegments);
 
 		return this.splitLines(segments);
 	}

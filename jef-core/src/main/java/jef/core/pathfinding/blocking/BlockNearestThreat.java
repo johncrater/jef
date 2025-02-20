@@ -10,9 +10,10 @@ import jef.core.Player;
 import jef.core.movement.Location;
 import jef.core.movement.RelativeLocation;
 import jef.core.pathfinding.AbstractPathfinder;
+import jef.core.pathfinding.AdvancedInterceptPlayer;
+import jef.core.pathfinding.DefaultInterceptPlayer;
 import jef.core.pathfinding.DefenderAssessment;
 import jef.core.pathfinding.Direction;
-import jef.core.pathfinding.AdvancedInterceptPlayer;
 import jef.core.pathfinding.Pathfinder;
 import jef.core.pathfinding.defenders.DefenderPathfinder;
 import jef.core.pathfinding.runners.RunnerPathfinder;
@@ -22,7 +23,7 @@ import jef.core.pathfinding.runners.RunnerPathfinder;
  */
 public class BlockNearestThreat extends AbstractPathfinder implements BlockerPathfinder
 {
-	private AdvancedInterceptPlayer interceptionPathfinder;
+	private DefaultInterceptPlayer interceptionPathfinder;
 
 	public BlockNearestThreat(Player blocker, Direction direction)
 	{
@@ -59,11 +60,12 @@ public class BlockNearestThreat extends AbstractPathfinder implements BlockerPat
 		
 		if (interceptionPathfinder == null)
 		{
-			List<DefenderAssessment> threats = assessThreats(runner, runner.getPath().getDestination(), defenders);
-			threats = threats.stream().sorted(Comparator.comparing(DefenderAssessment::threatLevel)).toList();
-
+			List<DefenderAssessment> threats = assessThreats(defenders);
+			if (threats.size() == 0)
+				return true;
+			
 			DefenderAssessment biggestThreat = threats.get(0);
-			interceptionPathfinder = new AdvancedInterceptPlayer(getPlayer(), getDirection().opposite(), biggestThreat.getDefender()); 
+			interceptionPathfinder = new DefaultInterceptPlayer(getPlayer(), null, biggestThreat.getDefender()); 
 		}
 
 		boolean ret = interceptionPathfinder.calculate(runner, defenders, blockers, deltaNanos - (System.nanoTime() - nanos));
@@ -72,17 +74,17 @@ public class BlockNearestThreat extends AbstractPathfinder implements BlockerPat
 		return ret;
 	}
 
-	private List<DefenderAssessment> assessThreats(final Pathfinder runner, final Location destination,
-			final Collection<? extends Pathfinder> defenders)
+	private List<DefenderAssessment> assessThreats(final Collection<? extends Pathfinder> defenders)
 	{
 		final List<DefenderAssessment> assessments = new ArrayList<>();
 
 		defenders.forEach(p ->
 		{
-			final double lvDistance = getLVDistance(p.getPlayer(), destination);
-			final double a = runner.getPlayer().getLoc().angleTo(p.getPlayer().getLoc());
-			assessments.add(new DefenderAssessment(p, lvDistance, RelativeLocation.getFromAngle(a, getDirection())));
-
+			if (p.getPath() == null)
+				return;
+			
+			final double lvDistance = getLVDistance(getPlayer(), p.getPath().getDestination());
+			assessments.add(new DefenderAssessment(p, lvDistance));
 		});
 
 		return assessments.stream().sorted(Comparator.comparing(DefenderAssessment::threatLevel)).toList();

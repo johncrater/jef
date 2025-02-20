@@ -72,6 +72,7 @@ import jef.core.pathfinding.WaypointPathfinder;
 import jef.core.pathfinding.blocking.BlockNearestThreat;
 import jef.core.pathfinding.blocking.BlockerPathfinder;
 import jef.core.pathfinding.blocking.BlockerWaypointPathfinder;
+import jef.core.pathfinding.blocking.BlockersAction;
 import jef.core.pathfinding.defenders.DefaultPursueRunner;
 import jef.core.pathfinding.defenders.DefenderPathfinder;
 import jef.core.pathfinding.defenders.DefenderWaypointPathfinder;
@@ -319,32 +320,50 @@ public class PlayerTestViewer implements Runnable
 
 				this.pathfinders.values().forEach(Pathfinder::reset);
 
-				final PathCalculator calcScheduler = new PathCalculator();
+//				final PathCalculator calcScheduler = new PathCalculator();
+//
+//				this.pathfinders.values().stream().filter(RunnerPathfinder.class::isInstance)
+//						.forEach(pf -> calcScheduler.addCalculation(pf));
+//				this.pathfinders.values().stream().filter(DefenderPathfinder.class::isInstance)
+//						.forEach(pf -> calcScheduler.addCalculation(pf));
+//				this.pathfinders.values().stream().filter(BlockerPathfinder.class::isInstance)
+//						.forEach(pf -> calcScheduler.addCalculation(pf));
+//
+//				calcScheduler.calculate(
+//						this.pathfinders.values().stream().filter(RunnerPathfinder.class::isInstance)
+//								.map(rpf -> (RunnerPathfinder) rpf).findFirst().orElse(null),
+//						this.pathfinders.values().stream().filter(DefenderPathfinder.class::isInstance)
+//								.map(dpf -> (DefenderPathfinder) dpf).toList(),
+//						this.pathfinders.values().stream().filter(BlockerPathfinder.class::isInstance)
+//								.map(bpf -> (BlockerPathfinder) bpf).toList(),
+//						Performance.frameNanos * 100);
 
-				this.pathfinders.values().stream().filter(RunnerPathfinder.class::isInstance)
-						.forEach(pf -> calcScheduler.addCalculation(pf));
-				this.pathfinders.values().stream().filter(DefenderPathfinder.class::isInstance)
-						.forEach(pf -> calcScheduler.addCalculation(pf));
-				this.pathfinders.values().stream().filter(BlockerPathfinder.class::isInstance)
-						.forEach(pf -> calcScheduler.addCalculation(pf));
+				RunnerPathfinder runnerPathfinder = this.pathfinders.values().stream()
+						.filter(RunnerPathfinder.class::isInstance).map(rpf -> (RunnerPathfinder) rpf).findFirst()
+						.orElse(null);
 
-				calcScheduler.calculate(
-						this.pathfinders.values().stream().filter(RunnerPathfinder.class::isInstance)
-								.map(rpf -> (RunnerPathfinder) rpf).findFirst().orElse(null),
-						this.pathfinders.values().stream().filter(DefenderPathfinder.class::isInstance)
-								.map(dpf -> (DefenderPathfinder) dpf).toList(),
-						this.pathfinders.values().stream().filter(BlockerPathfinder.class::isInstance)
-								.map(bpf -> (BlockerPathfinder) bpf).toList(),
-						Performance.frameNanos * 100);
-
+				if (runnerPathfinder != null)
+				{
+					List<DefenderPathfinder> defenderPathfinders = this.pathfinders.values().stream()
+							.filter(DefenderPathfinder.class::isInstance).map(dpf -> (DefenderPathfinder) dpf).toList();
+	
+					List<BlockerPathfinder> blockerPathfinders = this.pathfinders.values().stream()
+							.filter(BlockerPathfinder.class::isInstance).map(bpf -> (BlockerPathfinder) bpf).toList();
+	
+					runnerPathfinder.calculate(runnerPathfinder, defenderPathfinders, blockerPathfinders, interval);
+					((DefaultPlayer) runnerPathfinder.getPlayer()).setPath(runnerPathfinder.getPath());
+	
+					defenderPathfinders.forEach(pf -> 
+					{
+						pf.calculate(runnerPathfinder, defenderPathfinders, blockerPathfinders, interval);
+						((DefaultPlayer) pf.getPlayer()).setPath(pf.getPath());
+					});
+					
+					new BlockersAction().move(runnerPathfinder, defenderPathfinders, blockerPathfinders, interval);
+				}
 				
 				for (final DefaultPlayer player : this.players.values())
 				{
-					if (player.getPath() == null || player.getPath().getWaypoints().size() == 0)
-					{
-						continue;
-					}
-
 					final Steering steering = Steering.getInstance();
 					final PlayerTracker tracker = new PlayerTracker(player, PlayerTestViewer.TIMER_INTERVAL);
 					steering.next(tracker);
@@ -358,7 +377,8 @@ public class PlayerTestViewer implements Runnable
 
 				this.index.advance();
 
-				if (this.runner.getPosture() == Posture.onTheGround || runner.getLoc().isInBounds() == false || runner.getLoc().isInEndZone(null))
+				if (this.runner.getPosture() == Posture.onTheGround || runner.getLoc().isInBounds() == false
+						|| runner.getLoc().isInEndZone(null))
 				{
 					this.pathfinders.clear();
 					this.players.values().forEach(p -> p.setPath(null));
@@ -388,13 +408,15 @@ public class PlayerTestViewer implements Runnable
 	{
 		if (player.getPath() == null)
 			return;
-		
-		List<Location> locs = new ArrayList<>(player.getPath().getWaypoints().stream().map(wp -> wp.getDestination()).toList());
+
+		List<Location> locs = new ArrayList<>(
+				player.getPath().getWaypoints().stream().map(wp -> wp.getDestination()).toList());
 		locs.addFirst(player.getLoc());
 		for (int i = 1; i < locs.size(); i++)
-			MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape, DebugShape.drawLineSegment(new LineSegment(locs.get(i - 1), locs.get(i)), color));
+			MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
+					DebugShape.drawLineSegment(new LineSegment(locs.get(i - 1), locs.get(i)), color));
 	}
-	
+
 	private void createButtons()
 	{
 		final Composite buttonRow = new Composite(this.shell, SWT.NONE);
@@ -693,32 +715,30 @@ public class PlayerTestViewer implements Runnable
 		pl.setFirstName("Alan");
 		pl.setLastName("Page");
 		pl.setWeight(280);
-		pl.setLoc(Field.MIDFIELD.add(-5, 5, 0));
+		pl.setLoc(Field.MIDFIELD.add(-5, 0, 0));
 
 		this.players.put(pl.getPlayerID(), pl);
 		this.defenders.put(pl.getPlayerID(), pl);
 
-//		pl = new DefaultPlayer(PlayerPosition.RT);
-//		pl.setFirstName("Ron");
-//		pl.setLastName("Yary");
-//		pl.setWeight(260);
-//		pl.setLoc(Field.MIDFIELD.add(20, 1, 0));
-//		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
-////		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getSpeedMatrix().getJoggingSpeed(), pl.getMaxSpeed(), DestinationAction.fastStop)));
-//
-//		this.players.put(pl.getPlayerID(), pl);
-//		this.blockers.put(pl.getPlayerID(), pl);
-//
-////		pl = new DefaultPlayer(PlayerPosition.RG);
-////		pl.setFirstName("Ed");
-////		pl.setLastName("White");
-////		pl.setWeight(250);
-////		pl.setLoc(Field.MIDFIELD.add(20, -1, 0));
-////		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
-//////		pl.setPath(new DefaultPath(new Waypoint(pl.getLoc(), pl.getMaxSpeed(), DestinationAction.fastStop)));
-////
-////		this.players.put(pl.getPlayerID(), pl);
-////		this.blockers.put(pl.getPlayerID(), pl);
+		pl = new DefaultPlayer(PlayerPosition.RT);
+		pl.setFirstName("Ron");
+		pl.setLastName("Yary");
+		pl.setWeight(260);
+		pl.setLoc(Field.MIDFIELD.add(20, 5, 0));
+		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
+
+		this.players.put(pl.getPlayerID(), pl);
+		this.blockers.put(pl.getPlayerID(), pl);
+
+		pl = new DefaultPlayer(PlayerPosition.RG);
+		pl.setFirstName("Ed");
+		pl.setLastName("White");
+		pl.setWeight(250);
+		pl.setLoc(Field.MIDFIELD.add(20, -1, 0));
+		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
+
+		this.players.put(pl.getPlayerID(), pl);
+		this.blockers.put(pl.getPlayerID(), pl);
 
 	}
 

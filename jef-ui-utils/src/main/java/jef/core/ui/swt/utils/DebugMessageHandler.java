@@ -175,19 +175,27 @@ public class DebugMessageHandler implements Telegraph
 
 			if (debugShape.location != null)
 			{
-				if (backgroundColor != null)
-					UIUtils.fillCircle(gc, debugShape.location, UIUtils.yardsToPixels(debugShape.radius));
-
-				if (foregroundColor != null)
-					UIUtils.drawCircle(gc, debugShape.location, UIUtils.yardsToPixels(debugShape.radius));
-
-				if (debugShape.linearVelocity != null)
+				if (debugShape.text != null)
 				{
+					gc.drawString(debugShape.text, UIUtils.yardsToPixels(debugShape.location.getX()),
+							UIUtils.yardsToPixels(Field.FIELD_TOTAL_WIDTH - debugShape.location.getY()), true);
+				}
+				else
+				{
+					if (backgroundColor != null)
+						UIUtils.fillCircle(gc, debugShape.location, UIUtils.yardsToPixels(debugShape.radius));
+	
 					if (foregroundColor != null)
-						gc.drawLine(UIUtils.yardsToPixels(debugShape.location.getX()),
-								UIUtils.yardsToPixels(Field.FIELD_TOTAL_WIDTH - debugShape.location.getY()),
-								UIUtils.yardsToPixels(debugShape.linearVelocity.getX()),
-								UIUtils.yardsToPixels(Field.FIELD_TOTAL_WIDTH - debugShape.linearVelocity.getY()));
+						UIUtils.drawCircle(gc, debugShape.location, UIUtils.yardsToPixels(debugShape.radius));
+	
+					if (debugShape.linearVelocity != null)
+					{
+						if (foregroundColor != null)
+							gc.drawLine(UIUtils.yardsToPixels(debugShape.location.getX()),
+									UIUtils.yardsToPixels(Field.FIELD_TOTAL_WIDTH - debugShape.location.getY()),
+									UIUtils.yardsToPixels(debugShape.linearVelocity.getX()),
+									UIUtils.yardsToPixels(Field.FIELD_TOTAL_WIDTH - debugShape.linearVelocity.getY()));
+					}
 				}
 			}
 
