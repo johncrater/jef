@@ -498,47 +498,6 @@ public class PlayerTestViewer implements Runnable
 
 			final Combo strategyCombo = new Combo(composite, SWT.DROP_DOWN);
 
-			if (p == this.runner)
-			{
-				WaypointPathfinder pathfinder = new RunnerWaypointPathfinder(p, Direction.west);
-				strategyCombo.add("Waypoint");
-				strategyCombo.setData(strategyCombo.getItem(strategyCombo.getItemCount() - 1), pathfinder);
-				strategyCombo.select(0);
-				pathfinders.put(p, pathfinder);
-
-				strategyCombo.add("Run For Glory");
-				strategyCombo.setData(strategyCombo.getItem(strategyCombo.getItemCount() - 1),
-						new RunForGlory(p, Direction.west));
-
-				strategyCombo.add("Evade Interceptors");
-				strategyCombo.setData(strategyCombo.getItem(strategyCombo.getItemCount() - 1),
-						new DefaultEvadeInterceptors(p, Direction.west));
-			}
-			else if (this.defenders.containsValue(p))
-			{
-				WaypointPathfinder pathfinder = new DefenderWaypointPathfinder(p, Direction.west);
-				strategyCombo.add("Waypoint");
-				strategyCombo.setData(strategyCombo.getItem(strategyCombo.getItemCount() - 1), pathfinder);
-				strategyCombo.select(0);
-				pathfinders.put(p, pathfinder);
-
-				strategyCombo.add("Pursue Runner");
-				strategyCombo.setData(strategyCombo.getItem(strategyCombo.getItemCount() - 1),
-						new DefaultPursueRunner(p, Direction.west));
-			}
-			else if (this.blockers.containsValue(p))
-			{
-				WaypointPathfinder pathfinder = new BlockerWaypointPathfinder(p, Direction.west);
-				strategyCombo.add("Waypoint");
-				strategyCombo.setData(strategyCombo.getItem(strategyCombo.getItemCount() - 1), pathfinder);
-				strategyCombo.select(0);
-				pathfinders.put(p, pathfinder);
-
-				strategyCombo.add("Block Nearest Threat");
-				strategyCombo.setData(strategyCombo.getItem(strategyCombo.getItemCount() - 1),
-						new BlockNearestThreat(p, Direction.west));
-			}
-
 			strategyCombo.addSelectionListener(new SelectionAdapter()
 			{
 				@Override
@@ -549,6 +508,41 @@ public class PlayerTestViewer implements Runnable
 					PlayerTestViewer.this.pathfinders.put(p, pf);
 				}
 			});
+
+			if (p == this.runner)
+			{
+				strategyCombo.add("Evade Interceptors");
+				strategyCombo.setData(strategyCombo.getItem(strategyCombo.getItemCount() - 1),
+						new DefaultEvadeInterceptors(p, Direction.west));
+
+				strategyCombo.add("Waypoint");
+				strategyCombo.setData(strategyCombo.getItem(strategyCombo.getItemCount() - 1), new RunnerWaypointPathfinder(p, Direction.west));
+
+				strategyCombo.add("Run For Glory");
+				strategyCombo.setData(strategyCombo.getItem(strategyCombo.getItemCount() - 1),
+						new RunForGlory(p, Direction.west));
+			}
+			else if (this.defenders.containsValue(p))
+			{
+				strategyCombo.add("Pursue Runner");
+				strategyCombo.setData(strategyCombo.getItem(strategyCombo.getItemCount() - 1),
+						new DefaultPursueRunner(p, Direction.west));
+
+				strategyCombo.add("Waypoint");
+				strategyCombo.setData(strategyCombo.getItem(strategyCombo.getItemCount() - 1), new DefenderWaypointPathfinder(p, Direction.west));
+			}
+			else if (this.blockers.containsValue(p))
+			{
+				strategyCombo.add("Block Nearest Threat");
+				strategyCombo.setData(strategyCombo.getItem(strategyCombo.getItemCount() - 1),
+						new BlockNearestThreat(p, Direction.west));
+
+				strategyCombo.add("Waypoint");
+				strategyCombo.setData(strategyCombo.getItem(strategyCombo.getItemCount() - 1), new BlockerWaypointPathfinder(p, Direction.west));
+			}
+			
+			strategyCombo.select(0);
+			this.pathfinders.put(p, (Pathfinder)strategyCombo.getData(strategyCombo.getItems()[strategyCombo.getSelectionIndex()]));
 		}
 	}
 
@@ -691,54 +685,78 @@ public class PlayerTestViewer implements Runnable
 
 	private void createPlayers()
 	{
-		this.player = new DefaultPlayer(PlayerPosition.RB);
-		this.player.setFirstName("Chuck");
-		this.player.setLastName("Foreman");
-		this.player.setWeight(215);
-		this.player.setLoc(new DefaultLocation(Field.yardLine(20, Direction.west), Field.MIDFIELD_Y, 0));
-		this.player.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
-
-		this.players.put(this.player.getPlayerID(), this.player);
-		this.runner = this.player;
-		Football.theFootball.setPlayerInPossession(this.runner);
-
-		DefaultPlayer pl = new DefaultPlayer(PlayerPosition.DE);
-		pl.setFirstName("Carl");
-		pl.setLastName("Eller");
-		pl.setWeight(280);
-		pl.setLoc(Field.MIDFIELD);
-
-		this.players.put(pl.getPlayerID(), pl);
-		this.defenders.put(pl.getPlayerID(), pl);
-
-		pl = new DefaultPlayer(PlayerPosition.DT);
-		pl.setFirstName("Alan");
-		pl.setLastName("Page");
-		pl.setWeight(280);
-		pl.setLoc(Field.MIDFIELD.add(-5, 0, 0));
-
-		this.players.put(pl.getPlayerID(), pl);
-		this.defenders.put(pl.getPlayerID(), pl);
-
-		pl = new DefaultPlayer(PlayerPosition.RT);
-		pl.setFirstName("Ron");
-		pl.setLastName("Yary");
-		pl.setWeight(260);
-		pl.setLoc(Field.MIDFIELD.add(20, 5, 0));
+		// offense
+		
+		double lineOfScrimmage = Field.yardLine(30, Direction.west);
+		
+		DefaultPlayer pl = new DefaultPlayer(PlayerPosition.RB);
+		pl.setFirstName("Chuck");
+		pl.setLastName("Foreman");
+		pl.setWeight(215);
+		pl.setLoc(new DefaultLocation(lineOfScrimmage + 5, Field.MIDFIELD_Y, 0));
 		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
 
 		this.players.put(pl.getPlayerID(), pl);
-		this.blockers.put(pl.getPlayerID(), pl);
+		this.runner = this.player = pl;
+		Football.theFootball.setPlayerInPossession(this.runner);
 
 		pl = new DefaultPlayer(PlayerPosition.RG);
 		pl.setFirstName("Ed");
 		pl.setLastName("White");
 		pl.setWeight(250);
-		pl.setLoc(Field.MIDFIELD.add(20, -1, 0));
+		pl.setLoc(new DefaultLocation(lineOfScrimmage, Field.MIDFIELD_Y - 2, 0));
 		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
 
 		this.players.put(pl.getPlayerID(), pl);
 		this.blockers.put(pl.getPlayerID(), pl);
+
+		pl = new DefaultPlayer(PlayerPosition.C);
+		pl.setFirstName("Mick");
+		pl.setLastName("Tinglehoff");
+		pl.setWeight(270);
+		pl.setLoc(new DefaultLocation(lineOfScrimmage, Field.MIDFIELD_Y, 0));
+		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
+
+		this.players.put(pl.getPlayerID(), pl);
+		this.blockers.put(pl.getPlayerID(), pl);
+
+		pl = new DefaultPlayer(PlayerPosition.RT);
+		pl.setFirstName("Ron");
+		pl.setLastName("Yary");
+		pl.setWeight(260);
+		pl.setLoc(new DefaultLocation(lineOfScrimmage, Field.MIDFIELD_Y + 2, 0));
+		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
+
+		this.players.put(pl.getPlayerID(), pl);
+		this.blockers.put(pl.getPlayerID(), pl);
+
+		// defense 
+		pl = new DefaultPlayer(PlayerPosition.DT);
+		pl.setFirstName("Alan");
+		pl.setLastName("Page");
+		pl.setWeight(280);
+		pl.setLoc(new DefaultLocation(lineOfScrimmage - 1, Field.MIDFIELD_Y + 2, 0));
+
+		this.players.put(pl.getPlayerID(), pl);
+		this.defenders.put(pl.getPlayerID(), pl);
+
+		pl = new DefaultPlayer(PlayerPosition.DE);
+		pl.setFirstName("Carl");
+		pl.setLastName("Eller");
+		pl.setWeight(280);
+		pl.setLoc(new DefaultLocation(lineOfScrimmage - 1, Field.MIDFIELD_Y - 2, 0));
+
+		this.players.put(pl.getPlayerID(), pl);
+		this.defenders.put(pl.getPlayerID(), pl);
+
+		pl = new DefaultPlayer(PlayerPosition.DE);
+		pl.setFirstName("Matt");
+		pl.setLastName("Blair");
+		pl.setWeight(255);
+		pl.setLoc(new DefaultLocation(lineOfScrimmage - 6, Field.MIDFIELD_Y, 0));
+
+		this.players.put(pl.getPlayerID(), pl);
+		this.defenders.put(pl.getPlayerID(), pl);
 
 	}
 

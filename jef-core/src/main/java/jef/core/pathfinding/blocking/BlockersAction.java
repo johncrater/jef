@@ -22,8 +22,9 @@ public class BlockersAction
 	public void move(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders,
 			List<? extends BlockerPathfinder> blockers, long deltaNanos)
 	{
-		defenders.forEach(d -> 
-				MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape, DebugShape.drawText("" + (int)d.getSteps().getLast().getX(),
+		defenders = defenders.stream().filter(d -> d.getSteps() != null).toList();
+
+		defenders.forEach(d -> MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape, DebugShape.drawText("" + (int)d.getSteps().getLast().getX(),
 						d.getPlayer().getLoc().add(0, -1, 0), "#FFFF0000", 12)));
 		
 		List<? extends DefenderPathfinder> defendersRanking = defenders.stream().sorted((d1, d2) ->
@@ -33,13 +34,14 @@ public class BlockersAction
 					multiplier * d2.getSteps().getLast().getX());
 		}).toList();
 
-		MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
-				DebugShape.drawCircle(defendersRanking.getFirst().getPlayer().getLoc(), "#FFFFFF00", 1));
+		if (defendersRanking.size() > 0)
+			MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
+					DebugShape.drawCircle(defendersRanking.getFirst().getPlayer().getLoc(), "#FFFFFF00", 1));
 
 		Map<DefenderPathfinder, SortedSet<BlockerInterceptRating>> blockersList = new HashMap<>();
-		blockers.forEach(pf ->
+		for (BlockerPathfinder blocker : blockers)
 		{
-			defendersRanking.forEach(d ->
+			for (DefenderPathfinder d : defendersRanking)
 			{
 				SortedSet<BlockerInterceptRating> ss = blockersList.get(d);
 				if (ss == null)
@@ -48,14 +50,18 @@ public class BlockersAction
 					blockersList.put(d, ss);
 				}
 
-				DefaultInterceptPlayer dip = new DefaultInterceptPlayer(pf.getPlayer(), null, d);
-				dip.calculate(runner, defenders, blockers, deltaNanos);
-				int ticks = dip.getSteps().size();
-				ss.add(new BlockerInterceptRating(dip, ticks));
-			});
-		});
+				DefaultInterceptPlayer dip = new DefaultInterceptPlayer(blocker.getPlayer(), null, d);
+				
+				int ticks = Integer.MAX_VALUE;
+				boolean targetReached = dip.calculate(runner, defenders, blockers, deltaNanos);
+				if (targetReached)
+					ticks = dip.getSteps().size();
 
-		defendersRanking.forEach(dr ->
+				ss.add(new BlockerInterceptRating(dip, ticks));
+			}
+		}
+
+		for (DefenderPathfinder dr : defendersRanking)
 		{
 			SortedSet<BlockerInterceptRating> birss = blockersList.get(dr);
 			if (birss.size() == 0)
@@ -67,7 +73,7 @@ public class BlockersAction
 			player.setPath(bir.getBlocker().getPath());
 
 			blockersList.values().forEach(ss -> ss.remove(bir));
-		});
+		}
 	}
 
 	private class BlockerInterceptRating implements Comparable<BlockerInterceptRating>

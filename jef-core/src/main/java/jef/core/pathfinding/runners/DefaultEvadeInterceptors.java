@@ -18,6 +18,7 @@ import jef.core.geometry.LineSegment;
 import jef.core.movement.DefaultLocation;
 import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
+import jef.core.movement.Posture;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
@@ -309,6 +310,9 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 	{
 		return new HashSet<>(players.stream().map(p2 ->
 		{
+			if (p2.getPosture() != Posture.upright)
+				return new Borderline(null, p1, p2);
+			
 			double ratio = .5;
 			final double denom = p1.getMaxSpeed() + p2.getMaxSpeed();
 			if (denom != 0)

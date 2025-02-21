@@ -239,36 +239,6 @@ public class AdvancedEvadeInterceptors extends AbstractPathfinder implements Run
 		}).toList().getFirst();
 	}
 
-	private Location getFastestReachableLocation(final Player player, final Set<Location> locations)
-	{
-		Map<Location, PlayerTracker> locationToTracker = new HashMap<>();
-		locations.forEach(l ->
-		{
-			if (RelativeLocation.getFromAngle(player.getLoc().angleTo(l), getDirection()).isBehind())
-				return;
-
-			Player p = new DefaultPlayer(player);
-			PlayerTracker tracker = new PlayerTracker(p,
-					new DefaultPath(new Waypoint(l, this.getPlayer().getSpeedMatrix().getJoggingSpeed(), player.getMaxSpeed(), DestinationAction.noStop)),
-					Performance.frameInterval);
-			locationToTracker.put(l, tracker);
-		});
-
-		while (true)
-		{
-			for (Location loc : locationToTracker.keySet())
-			{
-				PlayerTracker tracker = locationToTracker.get(loc);
-				tracker.setPctRemaining(1);
-				Steering steering = Steering.getInstance();
-				steering.next(tracker);
-				if (tracker.getPath().getCurrentWaypoint() == null)
-					return loc;
-			}
-		}
-
-	}
-
 	private Set<LineSegment> removeObsoleteLines(final Set<Location> reachableLocations,
 			final Set<LineSegment> boundingLines)
 	{

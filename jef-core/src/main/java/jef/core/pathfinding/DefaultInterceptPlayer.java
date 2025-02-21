@@ -73,7 +73,6 @@ public class DefaultInterceptPlayer extends AbstractPathfinder
 			}
 		}
 		
-		setPath(new DefaultPath(new Waypoint(targetPathfinder.getPath().getDestination(), getPlayer().getMaxSpeed(), DestinationAction.noStop)));
 		return false;
 	}
 
