@@ -30,8 +30,11 @@ public class BlockersAction
 		List<? extends DefenderPathfinder> defendersRanking = defenders.stream().sorted((d1, d2) ->
 		{
 			int multiplier = runner.getDirection() == Direction.west ? -1 : 1;
-			return Double.compare(multiplier * d1.getSteps().getLast().getX(),
+			int ranking = Double.compare(multiplier * d1.getSteps().getLast().getX(),
 					multiplier * d2.getSteps().getLast().getX());
+			
+			
+			return ranking;
 		}).toList();
 
 		if (defendersRanking.size() > 0)

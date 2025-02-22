@@ -74,4 +74,9 @@ public class UIUtils
 	{
 		return (int)Math.round(yards * 36.0);
 	}
+
+	public static double pixelsToYards(int pixels)
+	{
+		return pixels / 36.0;
+	}
 }

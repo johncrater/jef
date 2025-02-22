@@ -21,6 +21,7 @@ import javax.imageio.ImageIO;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseWheelListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -68,7 +69,6 @@ import jef.core.movement.player.Waypoint.DestinationAction;
 import jef.core.pathfinding.CalculationScheduler;
 import jef.core.pathfinding.Direction;
 import jef.core.pathfinding.Pathfinder;
-import jef.core.pathfinding.WaypointPathfinder;
 import jef.core.pathfinding.blocking.BlockNearestThreat;
 import jef.core.pathfinding.blocking.BlockerPathfinder;
 import jef.core.pathfinding.blocking.BlockerWaypointPathfinder;
@@ -83,6 +83,7 @@ import jef.core.pathfinding.runners.RunnerWaypointPathfinder;
 import jef.core.ui.swt.utils.DebugMessageHandler;
 import jef.core.ui.swt.utils.GIFMarkup;
 import jef.core.ui.swt.utils.TransformStack;
+import jef.core.ui.swt.utils.UIUtils;
 
 public class PlayerTestViewer implements Runnable
 {
@@ -112,7 +113,7 @@ public class PlayerTestViewer implements Runnable
 
 	private static final Color red = new Color(255, 0, 0);
 	private static FontData playerFontData = new FontData("Courier New", 16, SWT.NORMAL);
-	private static FontData playerDataFontData = new FontData("Courier New", 24, SWT.NORMAL);
+	private static FontData playerDataFontData = new FontData("Courier New", 8, SWT.NORMAL);
 	private static Font playerFont;
 
 	private static Font playerDataFont;
@@ -546,6 +547,22 @@ public class PlayerTestViewer implements Runnable
 		}
 	}
 
+	float scaleAdjustment = 1.0f;
+	Point upperLeft = new Point(0, 0);
+	
+	private Point calculateMidfield()
+	{
+		return new Point(this.canvas.getClientArea().width / 2, this.canvas.getClientArea().height / 2);
+	}
+	
+	private float calculateScale()
+	{
+		final float scaleX = (float) (this.canvas.getClientArea().width / PlayerTestViewer.totalLength);
+		final float scaleY = (float) (this.canvas.getClientArea().height / PlayerTestViewer.totalWidth);
+		final float scale = Math.min(scaleX, scaleY) * scaleAdjustment;
+		return scale;
+	}
+	
 	private void createCanvas()
 	{
 		this.canvas = new Canvas(this.shell, SWT.DOUBLE_BUFFERED);
@@ -619,10 +636,10 @@ public class PlayerTestViewer implements Runnable
 			Performance.drawTime.beginCycle();
 			try (TransformStack ts = new TransformStack(e.gc))
 			{
-				final float scaleX = (float) (this.canvas.getClientArea().width / PlayerTestViewer.totalLength);
-				final float scaleY = (float) (this.canvas.getClientArea().height / PlayerTestViewer.totalWidth);
-				final float scale = Math.min(scaleX, scaleY);
+				float scale = calculateScale();
 				ts.scale(scale, scale);
+				
+				ts.translate(upperLeft);
 				ts.set();
 
 				e.gc.drawImage(this.field, 0, 0);
@@ -631,14 +648,16 @@ public class PlayerTestViewer implements Runnable
 					this.drawPlayer(e.gc, player);
 				}
 
-				this.drawPerformance(e.gc);
-
 				this.debugMessageHandler.draw(e.gc);
 			}
 			catch (final Exception e1)
 			{
 				e1.printStackTrace();
 			}
+
+			this.drawPerformance(e.gc);
+			this.drawSelectedPlayerData(e.gc);
+
 			Performance.drawTime.endCycle();
 		});
 
@@ -655,11 +674,7 @@ public class PlayerTestViewer implements Runnable
 				final GC gc = new GC(PlayerTestViewer.this.shell.getDisplay());
 				try (TransformStack ts = new TransformStack(gc))
 				{
-					final float scaleX = (float) (PlayerTestViewer.this.canvas.getClientArea().width
-							/ PlayerTestViewer.totalLength);
-					final float scaleY = (float) (PlayerTestViewer.this.canvas.getClientArea().height
-							/ PlayerTestViewer.totalWidth);
-					final float scale = Math.min(scaleX, scaleY);
+					final float scale = calculateScale();
 					ts.scale(1 / scale, 1 / scale);
 					ts.set();
 
@@ -667,9 +682,19 @@ public class PlayerTestViewer implements Runnable
 					p.y = (int) (PlayerTestViewer.totalWidth - p.y);
 					final Location loc = PlayerTestViewer.this.pointToLocation(p);
 
-					PlayerTestViewer.this.player.setPath(new DefaultPath(new Waypoint(loc,
-							PlayerTestViewer.this.player.getSpeedMatrix().getJoggingSpeed(),
-							PlayerTestViewer.this.player.getMaxSpeed(), PlayerTestViewer.this.nextDestinationAction)));
+					if ((e.stateMask & SWT.CONTROL) != 0)
+					{
+						Point calculatedMidfield = calculateMidfield();
+						Point transformedMidfield = ts.transform(new Point(e.x - calculatedMidfield.x, e.y - calculatedMidfield.y));
+						Point newUpperLeft = new Point(upperLeft.x - transformedMidfield.x, upperLeft.y - transformedMidfield.y);
+						upperLeft = newUpperLeft;
+					}
+					else
+					{
+						PlayerTestViewer.this.player.setPath(new DefaultPath(new Waypoint(loc,
+								PlayerTestViewer.this.player.getSpeedMatrix().getJoggingSpeed(),
+								PlayerTestViewer.this.player.getMaxSpeed(), PlayerTestViewer.this.nextDestinationAction)));
+					}
 				}
 				catch (final Exception e1)
 				{
@@ -681,6 +706,20 @@ public class PlayerTestViewer implements Runnable
 			}
 
 		});
+
+		this.canvas.addMouseWheelListener(new MouseWheelListener()
+		{
+			@Override
+			public void mouseScrolled(MouseEvent e)
+			{
+				if ((e.stateMask & SWT.CONTROL) != 0)
+				{
+					scaleAdjustment = (float)Math.max(.25, scaleAdjustment + Math.signum(e.count) * .25);
+				}
+			}
+	
+		});
+		
 	}
 
 	private void createPlayers()
@@ -749,11 +788,20 @@ public class PlayerTestViewer implements Runnable
 		this.players.put(pl.getPlayerID(), pl);
 		this.defenders.put(pl.getPlayerID(), pl);
 
-		pl = new DefaultPlayer(PlayerPosition.DE);
+		pl = new DefaultPlayer(PlayerPosition.LLB);
 		pl.setFirstName("Matt");
 		pl.setLastName("Blair");
 		pl.setWeight(255);
-		pl.setLoc(new DefaultLocation(lineOfScrimmage - 6, Field.MIDFIELD_Y, 0));
+		pl.setLoc(new DefaultLocation(lineOfScrimmage - 6, Field.MIDFIELD_Y - 2, 0));
+
+		this.players.put(pl.getPlayerID(), pl);
+		this.defenders.put(pl.getPlayerID(), pl);
+
+		pl = new DefaultPlayer(PlayerPosition.RLB);
+		pl.setFirstName("Wally");
+		pl.setLastName("Hilgenberg");
+		pl.setWeight(255);
+		pl.setLoc(new DefaultLocation(lineOfScrimmage - 6, Field.MIDFIELD_Y + 2, 0));
 
 		this.players.put(pl.getPlayerID(), pl);
 		this.defenders.put(pl.getPlayerID(), pl);
@@ -763,6 +811,7 @@ public class PlayerTestViewer implements Runnable
 	private void drawPerformance(final GC gc)
 	{
 		gc.setFont(PlayerTestViewer.playerDataFont);
+		gc.setBackground(black);
 		gc.setForeground(PlayerTestViewer.yellow);
 
 		final long current = System.currentTimeMillis();
@@ -862,6 +911,10 @@ public class PlayerTestViewer implements Runnable
 //			e.printStackTrace();
 //		}
 //
+	}
+
+	private void drawSelectedPlayerData(final GC gc)
+	{
 		final StringBuilder str = new StringBuilder();
 		str.append(String.format("Name            : %s %s\n", this.player.getFirstName(), this.player.getLastName()));
 		str.append(String.format("Location        : %s\n", this.player.getLoc()));
@@ -882,14 +935,14 @@ public class PlayerTestViewer implements Runnable
 		gc.setFont(PlayerTestViewer.playerDataFont);
 		gc.setForeground(PlayerTestViewer.yellow);
 		gc.setBackground(this.shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
-		gc.drawText(str.toString(), 3000, 20);
+		gc.drawText(str.toString(), 1400, 20);
 	}
 
 	private Point locationToPoint(final Location loc)
 	{
-		final int x = (int) Conversions.yardsToInches(loc.getX());
-		final int y = (int) (Conversions.yardsToInches(Field.FIELD_TOTAL_WIDTH)
-				- Conversions.yardsToInches(loc.getY()));
+		final int x = UIUtils.yardsToPixels(loc.getX());
+		final int y = UIUtils.yardsToPixels(Field.FIELD_TOTAL_WIDTH)
+				- UIUtils.yardsToPixels(loc.getY());
 		return new Point(x, y);
 	}
 
