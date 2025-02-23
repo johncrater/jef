@@ -55,19 +55,16 @@ public class TestMoveable implements Moveable
 		return this.location;
 	}
 
-	@Override
 	public void setAV(final AngularVelocity angularVelocity)
 	{
 		this.angularVelocity = angularVelocity;
 	}
 
-	@Override
 	public void setLV(final LinearVelocity lv)
 	{
 		this.linearVelocity = lv;
 	}
 
-	@Override
 	public void setLoc(final Location location)
 	{
 		this.location = location;

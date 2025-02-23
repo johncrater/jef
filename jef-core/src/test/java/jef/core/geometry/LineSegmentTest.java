@@ -150,7 +150,7 @@ class LineSegmentTest
 		Location l1 = new DefaultLocation(20, 40);
 		Location l2 = new DefaultLocation(30, 50);
 		LineSegment ls1 = new LineSegment(l1, l2);
-		LineSegment ls2 = ls1.restrictToBetweenEndZones();
+		LineSegment ls2 = ls1.restrictToBetweenEndZones(true);
 		
 		assertEquals(new DefaultLocation(20, 40), ls2.getLoc1());
 		assertEquals(new DefaultLocation(30, 50), ls2.getLoc2());
@@ -158,7 +158,7 @@ class LineSegmentTest
 		l1 = new DefaultLocation(20, -10);
 		l2 = new DefaultLocation(20, 100);
 		ls1 = new LineSegment(l1, l2);
-		ls2 = ls1.restrictToBetweenEndZones();
+		ls2 = ls1.restrictToBetweenEndZones(true);
 		
 		assertEquals(new DefaultLocation(20, Field.FIELD_BORDER_WIDTH), ls2.getLoc2());
 		assertEquals(new DefaultLocation(20, Field.FIELD_TOTAL_WIDTH - Field.FIELD_BORDER_WIDTH), ls2.getLoc1());
