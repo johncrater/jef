@@ -82,8 +82,6 @@ import jef.core.pathfinding.runners.RunnerPathfinder;
 import jef.core.pathfinding.runners.RunnerWaypointPathfinder;
 import jef.core.ui.swt.utils.DebugMessageHandler;
 import jef.core.ui.swt.utils.GIFMarkup;
-import jef.core.ui.swt.utils.TransformStack;
-import jef.core.ui.swt.utils.UIUtils;
 
 public class PlayerTestViewer implements Runnable
 {
@@ -548,9 +546,9 @@ public class PlayerTestViewer implements Runnable
 	}
 
 	float scaleAdjustment = 1.0f;
-	Point upperLeft = new Point(0, 0);
+	Location midfieldLocation = Field.MIDFIELD;;
 	
-	private Point calculateMidfield()
+	private Point calculateMidfieldScreenCoordinates()
 	{
 		return new Point(this.canvas.getClientArea().width / 2, this.canvas.getClientArea().height / 2);
 	}
@@ -634,29 +632,25 @@ public class PlayerTestViewer implements Runnable
 		this.canvas.addPaintListener(e ->
 		{
 			Performance.drawTime.beginCycle();
-			try (TransformStack ts = new TransformStack(e.gc))
+			try (FieldTransformStack ts = new FieldTransformStack(canvas, e.gc, midfieldLocation, scaleAdjustment))
 			{
-				float scale = calculateScale();
-				ts.scale(scale, scale);
-				
-				ts.translate(upperLeft);
-				ts.set();
-
 				e.gc.drawImage(this.field, 0, 0);
 				for (final Player player : this.players.values())
 				{
-					this.drawPlayer(e.gc, player);
+//					this.drawPlayer(ts, player);
 				}
 
-				this.debugMessageHandler.draw(e.gc);
+//				this.debugMessageHandler.draw(e.gc);
+//				e.gc.setForeground(white);
+//				e.gc.drawRectangle(this.centerFieldCoordinates.x, this.centerFieldCoordinates.y, 100, 100);
 			}
 			catch (final Exception e1)
 			{
 				e1.printStackTrace();
 			}
 
-			this.drawPerformance(e.gc);
-			this.drawSelectedPlayerData(e.gc);
+//			this.drawPerformance(e.gc);
+//			this.drawSelectedPlayerData(e.gc);
 
 			Performance.drawTime.endCycle();
 		});
@@ -670,27 +664,21 @@ public class PlayerTestViewer implements Runnable
 				super.mouseUp(e);
 
 				Point p = new Point(e.x, e.y);
-
-				final GC gc = new GC(PlayerTestViewer.this.shell.getDisplay());
-				try (TransformStack ts = new TransformStack(gc))
+				
+				try (FieldTransformStack ts = new FieldTransformStack(canvas, midfieldLocation, scaleAdjustment))
 				{
-					final float scale = calculateScale();
-					ts.scale(1 / scale, 1 / scale);
-					ts.set();
-
-					p = ts.transform(p);
-					p.y = (int) (PlayerTestViewer.totalWidth - p.y);
-					final Location loc = PlayerTestViewer.this.pointToLocation(p);
-
 					if ((e.stateMask & SWT.CONTROL) != 0)
 					{
-						Point calculatedMidfield = calculateMidfield();
-						Point transformedMidfield = ts.transform(new Point(e.x - calculatedMidfield.x, e.y - calculatedMidfield.y));
-						Point newUpperLeft = new Point(upperLeft.x - transformedMidfield.x, upperLeft.y - transformedMidfield.y);
-						upperLeft = newUpperLeft;
+						midfieldLocation = Field.MIDFIELD.subtract(ts.getMidfield().multiply(ts.getZoomFactor()));
+						midfieldLocation = new DefaultLocation(Conversions.inchesToYards(p.x / ts.getScale()),
+								Conversions.inchesToYards(p.y / ts.getScale())).subtract(midfieldLocation);
+						System.out.println("midfieldLocation=" + midfieldLocation);
 					}
 					else
 					{
+						p.y = (int) (PlayerTestViewer.totalWidth - p.y);
+						final Location loc = ts.screenToLocation(p);
+
 						PlayerTestViewer.this.player.setPath(new DefaultPath(new Waypoint(loc,
 								PlayerTestViewer.this.player.getSpeedMatrix().getJoggingSpeed(),
 								PlayerTestViewer.this.player.getMaxSpeed(), PlayerTestViewer.this.nextDestinationAction)));
@@ -701,8 +689,6 @@ public class PlayerTestViewer implements Runnable
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-
-				gc.dispose();
 			}
 
 		});
@@ -713,9 +699,7 @@ public class PlayerTestViewer implements Runnable
 			public void mouseScrolled(MouseEvent e)
 			{
 				if ((e.stateMask & SWT.CONTROL) != 0)
-				{
 					scaleAdjustment = (float)Math.max(.25, scaleAdjustment + Math.signum(e.count) * .25);
-				}
 			}
 	
 		});
@@ -849,12 +833,13 @@ public class PlayerTestViewer implements Runnable
 		gc.drawText(msg.toString(), 10, 10, false);
 	}
 
-	private void drawPlayer(final GC gc, final Player player)
+	private void drawPlayer(final FieldTransformStack fts, final Player player)
 	{
 		final int offset = (int) Conversions.yardsToInches((Player.SIZE * 2.0) / 4.0);
 
+		GC gc = fts.getGC();
 		gc.setFont(PlayerTestViewer.playerFont);
-		final Point p = this.locationToPoint(player.getLoc());
+		final Point p = fts.locationToScreen(player.getLoc());
 
 		if (this.defenders.containsValue(player))
 		{
@@ -876,20 +861,15 @@ public class PlayerTestViewer implements Runnable
 			gc.drawOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
 		}
 
-		try (TransformStack ts = new TransformStack(gc))
-		{
-			ts.translate(p);
-			ts.rotate(-player.getAV().getOrientation());
-			ts.set();
+		fts.push();
+		fts.translate(p);
+		fts.rotate(-player.getAV().getOrientation());
+		fts.set();
+		gc.fillPolygon(new int[]
+		{ 0, -offset, 0, offset, 2 * offset, 0 });
 
-			gc.fillPolygon(new int[]
-			{ 0, -offset, 0, offset, 2 * offset, 0 });
-		}
-		catch (final Exception e)
-		{
-			e.printStackTrace();
-		}
-
+		fts.pop();
+		
 		final String playerNumber = "" + player.getFirstName().charAt(0) + player.getLastName().charAt(0);
 		final Point extent = gc.textExtent(playerNumber);
 
@@ -936,19 +916,6 @@ public class PlayerTestViewer implements Runnable
 		gc.setForeground(PlayerTestViewer.yellow);
 		gc.setBackground(this.shell.getDisplay().getSystemColor(SWT.COLOR_BLACK));
 		gc.drawText(str.toString(), 1400, 20);
-	}
-
-	private Point locationToPoint(final Location loc)
-	{
-		final int x = UIUtils.yardsToPixels(loc.getX());
-		final int y = UIUtils.yardsToPixels(Field.FIELD_TOTAL_WIDTH)
-				- UIUtils.yardsToPixels(loc.getY());
-		return new Point(x, y);
-	}
-
-	private Location pointToLocation(final Point p)
-	{
-		return new DefaultLocation(Conversions.inchesToYards(p.x), Conversions.inchesToYards(p.y), 0.0);
 	}
 
 }

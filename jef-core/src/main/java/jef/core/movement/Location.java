@@ -24,6 +24,8 @@ public interface Location
 	public Location add(double x, double y, double z);
 	public Location add(Location loc);
 	public Location subtract(Location loc);
+	public Location multiply(double scalar);
+	public Location divide(double scalar);
 	public Location negate();
 
 	public Location newFrom(Double x, Double y, Double z);

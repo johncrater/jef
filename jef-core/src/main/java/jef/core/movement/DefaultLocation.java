@@ -100,6 +100,18 @@ public class DefaultLocation implements Location
 	}
 
 	@Override
+	public Location multiply(double scalar)
+	{
+		return new DefaultLocation(getX() * scalar, getY() * scalar);
+	}
+
+	@Override
+	public Location divide(double scalar)
+	{
+		return new DefaultLocation(getX() / scalar, getY() / scalar);
+	}
+
+	@Override
 	public boolean closeEnoughTo(final Location loc)
 	{
 		return Location.EPSILON.eqZero(this.distanceBetween(loc));

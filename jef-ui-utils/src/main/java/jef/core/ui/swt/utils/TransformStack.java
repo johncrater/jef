@@ -7,6 +7,9 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Transform;
 
+import jef.core.movement.DefaultLocation;
+import jef.core.movement.Location;
+
 
 public class TransformStack implements AutoCloseable
 {
@@ -23,7 +26,7 @@ public class TransformStack implements AutoCloseable
 		push();
 	}
 
-	public Transform getCurrentTrasnform()
+	public Transform getCurrentTransform()
 	{
 		return this.currentTransform;
 	}
@@ -122,13 +125,28 @@ public class TransformStack implements AutoCloseable
 		this.currentTransform.transform(floatArray);
 	}
 	
-	public Point transform(Point p)
+	public Point transformToPoint(Point p)
 	{
 		float [] f = new float[] {p.x, p.y};
 		transform(f);
 		
 		Point ret = new Point((int)f[0], (int)f[1]);
 		return ret;
+	}
+	
+	public Location translateToLocation(Point p)
+	{
+		float [] tmp = new float[2];
+		tmp[0] = (float)UIUtils.pixelsToYards(p.x);
+		tmp[1] = (float)UIUtils.pixelsToYards(p.y);
+		transform(tmp);
+		return new DefaultLocation((int)tmp[0], tmp[1]);
+	}
+	
+	public Point transformToPoint(Location loc)
+	{
+		Point p = new Point(UIUtils.yardsToPixels(loc.getX()), UIUtils.yardsToPixels(loc.getY()));
+		return transformToPoint(p);
 	}
 	
 	public void translate(float offsetX, float offsetY)
