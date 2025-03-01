@@ -167,13 +167,13 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 	{
 		return new HashSet<>(Arrays.asList(
 				new Borderline(
-						Field.EAST_END_ZONE.addLength(-2 * Location.EPSILON_VALUE).move(0, Location.EPSILON_VALUE, 0),
+						Field.GOAL_LINE_EAST.addLength(-2 * Location.EPSILON_VALUE).move(0, Location.EPSILON_VALUE, 0),
 						null, null),
 				new Borderline(
-						Field.WEST_END_ZONE.addLength(-2 * Location.EPSILON_VALUE).move(0, Location.EPSILON_VALUE, 0),
+						Field.GOAL_LINE_WEST.addLength(-2 * Location.EPSILON_VALUE).move(0, Location.EPSILON_VALUE, 0),
 						null, null),
-				new Borderline(Field.NORTH_SIDELINE.move(0, -Location.EPSILON_VALUE, 0), null, null),
-				new Borderline(Field.SOUTH_SIDELINE.move(0, Location.EPSILON_VALUE, 0), null, null)));
+				new Borderline(Field.SIDELINE_NORTH.move(0, -Location.EPSILON_VALUE, 0), null, null),
+				new Borderline(Field.SIDELINE_SOUTH.move(0, Location.EPSILON_VALUE, 0), null, null)));
 	}
 
 	private Set<Borderline> buildBorderlines(List<Player> interceptorPlayers,

@@ -82,6 +82,7 @@ import jef.core.pathfinding.runners.RunnerPathfinder;
 import jef.core.pathfinding.runners.RunnerWaypointPathfinder;
 import jef.core.ui.swt.utils.DebugMessageHandler;
 import jef.core.ui.swt.utils.GIFMarkup;
+import jef.core.ui.swt.utils.UIUtils;
 
 public class PlayerTestViewer implements Runnable
 {
@@ -637,20 +638,18 @@ public class PlayerTestViewer implements Runnable
 				e.gc.drawImage(this.field, 0, 0);
 				for (final Player player : this.players.values())
 				{
-//					this.drawPlayer(ts, player);
+					this.drawPlayer(ts, player);
 				}
 
-//				this.debugMessageHandler.draw(e.gc);
-//				e.gc.setForeground(white);
-//				e.gc.drawRectangle(this.centerFieldCoordinates.x, this.centerFieldCoordinates.y, 100, 100);
+				this.debugMessageHandler.draw(e.gc);
 			}
 			catch (final Exception e1)
 			{
 				e1.printStackTrace();
 			}
 
-//			this.drawPerformance(e.gc);
-//			this.drawSelectedPlayerData(e.gc);
+			this.drawPerformance(e.gc);
+			this.drawSelectedPlayerData(e.gc);
 
 			Performance.drawTime.endCycle();
 		});
@@ -674,9 +673,7 @@ public class PlayerTestViewer implements Runnable
 					}
 					else
 					{
-						p.y = (int) (PlayerTestViewer.totalWidth - p.y);
-						final Location loc = ts.screenToLocation(p);
-
+						Location loc = ts.transformToLocation(p);
 						PlayerTestViewer.this.player.setPath(new DefaultPath(new Waypoint(loc,
 								PlayerTestViewer.this.player.getSpeedMatrix().getJoggingSpeed(),
 								PlayerTestViewer.this.player.getMaxSpeed(), PlayerTestViewer.this.nextDestinationAction)));
@@ -837,7 +834,7 @@ public class PlayerTestViewer implements Runnable
 
 		GC gc = fts.getGC();
 		gc.setFont(PlayerTestViewer.playerFont);
-		final Point p = fts.locationToScreen(player.getLoc());
+		final Point p = UIUtils.locationToPoint(player.getLoc());
 
 		if (this.defenders.containsValue(player))
 		{
@@ -861,7 +858,7 @@ public class PlayerTestViewer implements Runnable
 
 		fts.push();
 		fts.translate(p);
-		fts.rotate(-player.getAV().getOrientation());
+		fts.rotate(player.getAV().getOrientation());
 		fts.set();
 		gc.fillPolygon(new int[]
 		{ 0, -offset, 0, offset, 2 * offset, 0 });

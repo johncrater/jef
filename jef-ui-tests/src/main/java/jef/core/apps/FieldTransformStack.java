@@ -33,8 +33,8 @@ public class FieldTransformStack extends TransformStack
 		this.midfield = midfield;
 		this.zoomFactor = zoomFactor;
 		
-		final float scaleX = (float) (clientArea.width / Conversions.yardsToInches(Field.FIELD_TOTAL_LENGTH));
-		final float scaleY = (float) (clientArea.height / Conversions.yardsToInches(Field.FIELD_TOTAL_WIDTH));
+		final float scaleX = (float) (clientArea.width / Conversions.yardsToInches(Field.DIM_TOTAL_LENGTH));
+		final float scaleY = (float) (clientArea.height / Conversions.yardsToInches(Field.DIM_TOTAL_WIDTH));
 		this.scale = Math.min(scaleX, scaleY) * (float)zoomFactor;
 
 		this.scale((float)scale, (float)scale);
@@ -46,17 +46,9 @@ public class FieldTransformStack extends TransformStack
 		this.set();
 	}
 
-	public void translate(Location loc)
-	{
-		Point pt = this.locationToScreen(loc);
-		this.translate(pt.x, pt.y);
-	}
-	
 	public Location getUpperLeft()
 	{
 		return Field.MIDFIELD.subtract(getMidfield().multiply(getZoomFactor())).divide(2);
-//		upperLeft = new DefaultLocation(upperLeft.getX() / zoomFactor, upperLeft.getY() / zoomFactor);
-//		return upperLeft;
 	}
 	
 	public Rectangle getClientArea()
@@ -79,22 +71,6 @@ public class FieldTransformStack extends TransformStack
 		return this.midfield;
 	}
 
-	public Point locationToScreen(Location location)
-	{
-		location = location.add(getUpperLeft());
-		return new Point(yardsToPixels(location.getX()), yardsToPixels(location.getY()));
-	}
-	
-	public Location screenToLocation(Point p)
-	{
-		return new DefaultLocation(Conversions.inchesToYards(p.x / getScale()), Conversions.inchesToYards(p.y / getScale())).subtract(this.getUpperLeft());
-	}
-	
-	public int yardsToPixels(double yards)
-	{
-		return (int)(Conversions.yardsToInches(yards));
-	}
-	
 	@Override
 	public void close() throws Exception
 	{

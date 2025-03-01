@@ -40,8 +40,6 @@ public class RunnerWaypointPathfinder extends WaypointPathfinder implements Runn
 			previousWp = wp;
 		}
 
-		return true;
-	}
-
-	
+		return this.calculateSteps(runner, defenders, blockers, deltaNanos);
+	}	
 }

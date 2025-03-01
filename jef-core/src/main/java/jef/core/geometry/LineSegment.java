@@ -237,7 +237,7 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.EAST_END_ZONE.move(includeEndZoneLine ? 0 : -Location.EPSILON_VALUE, 0, 0));
+		l = this.xyIntersection(Field.GOAL_LINE_EAST.move(includeEndZoneLine ? 0 : -Location.EPSILON_VALUE, 0, 0));
 		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
@@ -246,7 +246,7 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.WEST_END_ZONE.move(includeEndZoneLine ? 0 : Location.EPSILON_VALUE, 0, 0));
+		l = this.xyIntersection(Field.GOAL_LINE_WEST.move(includeEndZoneLine ? 0 : Location.EPSILON_VALUE, 0, 0));
 		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
@@ -255,7 +255,7 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.NORTH_SIDELINE.move(0, -Location.EPSILON_VALUE, 0));
+		l = this.xyIntersection(Field.SIDELINE_NORTH.move(0, -Location.EPSILON_VALUE, 0));
 		if (l != null && !l.isInEndZone(null))
 		{
 			if (l1 == null)
@@ -264,7 +264,7 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.SOUTH_SIDELINE.move(0, Location.EPSILON_VALUE, 0));
+		l = this.xyIntersection(Field.SIDELINE_SOUTH.move(0, Location.EPSILON_VALUE, 0));
 		if (l != null && !l.isInEndZone(null))
 		{
 			if (l1 == null)
@@ -293,7 +293,7 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.EAST_END_ZONE_BACK.move(-1, 0, 0));
+		l = this.xyIntersection(Field.END_LINE_EAST.move(-1, 0, 0));
 		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
@@ -302,7 +302,7 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.WEST_END_ZONE_BACK.move(1, 0, 0));
+		l = this.xyIntersection(Field.END_LINE_WEST.move(1, 0, 0));
 		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
@@ -311,7 +311,7 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.NORTH_SIDELINE.move(0, -1, 0));
+		l = this.xyIntersection(Field.SIDELINE_NORTH.move(0, -1, 0));
 		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
@@ -320,7 +320,7 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.SOUTH_SIDELINE.move(0, 1, 0));
+		l = this.xyIntersection(Field.SIDELINE_SOUTH.move(0, 1, 0));
 		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)

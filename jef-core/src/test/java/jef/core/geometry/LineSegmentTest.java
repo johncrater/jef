@@ -160,8 +160,8 @@ class LineSegmentTest
 		ls1 = new LineSegment(l1, l2);
 		ls2 = ls1.restrictToBetweenEndZones(true);
 		
-		assertEquals(new DefaultLocation(20, Field.FIELD_BORDER_WIDTH), ls2.getLoc2());
-		assertEquals(new DefaultLocation(20, Field.FIELD_TOTAL_WIDTH - Field.FIELD_BORDER_WIDTH), ls2.getLoc1());
+		assertEquals(new DefaultLocation(20, Field.DIM_SIDELINE_WIDTH), ls2.getLoc2());
+		assertEquals(new DefaultLocation(20, Field.DIM_TOTAL_WIDTH - Field.DIM_SIDELINE_WIDTH), ls2.getLoc1());
 	}
 
 }

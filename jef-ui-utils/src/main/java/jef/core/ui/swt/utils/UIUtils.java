@@ -2,6 +2,7 @@ package jef.core.ui.swt.utils;
 
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Point;
 
 import jef.core.Field;
 import jef.core.movement.DefaultLinearVelocity;
@@ -62,12 +63,12 @@ public class UIUtils
 
 	public static void fillCircle(final GC gc, final Location l, final int radius)
 	{
-		gc.fillOval(yardsToPixels(l.getX()) - radius, yardsToPixels(Field.FIELD_TOTAL_WIDTH - l.getY()) - radius, radius * 2, radius * 2);
+		gc.fillOval(yardsToPixels(l.getX()) - radius, yardsToPixels(Field.DIM_TOTAL_WIDTH - l.getY()) - radius, radius * 2, radius * 2);
 	}
 
 	public static void drawCircle(final GC gc, final Location l, final int radius)
 	{
-		gc.drawOval(yardsToPixels(l.getX()) - radius, yardsToPixels(Field.FIELD_TOTAL_WIDTH - l.getY()) - radius, radius * 2, radius * 2);
+		gc.drawOval(yardsToPixels(l.getX()) - radius, yardsToPixels(Field.DIM_TOTAL_WIDTH - l.getY()) - radius, radius * 2, radius * 2);
 	}
 
 	public static int yardsToPixels(double yards)
@@ -78,5 +79,10 @@ public class UIUtils
 	public static double pixelsToYards(int pixels)
 	{
 		return pixels / 36.0;
+	}
+	
+	public static Point locationToPoint(Location loc)
+	{
+		return new Point(yardsToPixels(loc.getX()), yardsToPixels(loc.getY()));
 	}
 }

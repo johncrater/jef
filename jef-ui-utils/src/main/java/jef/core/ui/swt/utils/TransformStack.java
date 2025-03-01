@@ -148,7 +148,7 @@ public class TransformStack implements AutoCloseable
 	
 	public Point transformToPoint(Location loc)
 	{
-		Point p = new Point(UIUtils.yardsToPixels(loc.getX()), UIUtils.yardsToPixels(loc.getY()));
+		Point p = new Point((int)Conversions.yardsToInches(loc.getX()), (int)Conversions.yardsToInches(loc.getY()));
 		return transformToPoint(p);
 	}
 	

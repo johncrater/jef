@@ -187,7 +187,7 @@ public class DefaultLocation implements Location
 	@Override
 	public String toString()
 	{
-		return String.format("(%6.2f, %5.2f, %5.2f)", this.getX() - Field.WEST_END_ZONE_X, this.getY() - Field.FIELD_BORDER_WIDTH, this.getZ());
+		return String.format("(%6.2f, %5.2f, %5.2f)", this.getX() - Field.WEST_END_ZONE_X, this.getY() - Field.DIM_SIDELINE_WIDTH, this.getZ());
 	}
 
 	@Override

@@ -72,7 +72,7 @@ public class AdvancedEvadeInterceptors extends AbstractPathfinder implements Run
 		}
 
 		Set<LineSegment> segments = new HashSet<>(
-				Arrays.asList(Field.EAST_END_ZONE, Field.WEST_END_ZONE, Field.NORTH_SIDELINE, Field.SOUTH_SIDELINE));
+				Arrays.asList(Field.GOAL_LINE_EAST, Field.GOAL_LINE_WEST, Field.SIDELINE_NORTH, Field.SIDELINE_SOUTH));
 
  		final HashSet<LineSegment> runnerInterceptorSegments = this.getBoundingLines(getPlayer(), interceptorPlayers);
 		runnerInterceptorSegments.stream().forEach(
