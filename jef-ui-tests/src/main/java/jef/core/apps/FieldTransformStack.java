@@ -17,20 +17,20 @@ public class FieldTransformStack extends TransformStack
 	private Rectangle clientArea;
 	private double zoomFactor = 1.0;
 	private double scale;
-	private Location upperLeft;
+	private Location midfield;
 	
-	public FieldTransformStack(Canvas canvas, Location upperLeft, double zoomFactor)
+	public FieldTransformStack(Canvas canvas, Location midfield, double zoomFactor)
 	{
-		this(canvas, new GC(canvas.getDisplay()), upperLeft, zoomFactor);
+		this(canvas, new GC(canvas.getDisplay()), midfield, zoomFactor);
 		this.disposeGC = true;
 	}
 	
-	public FieldTransformStack(Canvas canvas, GC gc, Location upperLeft, double zoomFactor)
+	public FieldTransformStack(Canvas canvas, GC gc, Location midfield, double zoomFactor)
 	{
 		super(gc);
 		
 		this.clientArea = canvas.getClientArea();
-		this.upperLeft = upperLeft;
+		this.midfield = midfield;
 		this.zoomFactor = zoomFactor;
 		
 		final float scaleX = (float) (clientArea.width / Conversions.yardsToInches(Field.FIELD_TOTAL_LENGTH));
@@ -39,7 +39,8 @@ public class FieldTransformStack extends TransformStack
 
 		this.scale((float)scale, (float)scale);
 
-		Point pt = new Point((int)Conversions.yardsToInches(upperLeft.getX() / zoomFactor), (int)Conversions.yardsToInches(upperLeft.getY() / zoomFactor));
+		Location upperLeft = midfield.subtract(Field.MIDFIELD.divide(zoomFactor));
+		Point pt = new Point((int)Conversions.yardsToInches(upperLeft.getX()), (int)Conversions.yardsToInches(upperLeft.getY()));
 		this.translate(-pt.x, -pt.y);
 
 		this.set();
@@ -53,7 +54,9 @@ public class FieldTransformStack extends TransformStack
 	
 	public Location getUpperLeft()
 	{
-		return upperLeft;
+		return Field.MIDFIELD.subtract(getMidfield().multiply(getZoomFactor())).divide(2);
+//		upperLeft = new DefaultLocation(upperLeft.getX() / zoomFactor, upperLeft.getY() / zoomFactor);
+//		return upperLeft;
 	}
 	
 	public Rectangle getClientArea()
@@ -69,6 +72,11 @@ public class FieldTransformStack extends TransformStack
 	public double getScale()
 	{
 		return this.scale;
+	}
+
+	public Location getMidfield()
+	{
+		return this.midfield;
 	}
 
 	public Point locationToScreen(Location location)
