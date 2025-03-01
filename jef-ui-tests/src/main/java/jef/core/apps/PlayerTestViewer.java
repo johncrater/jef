@@ -546,7 +546,7 @@ public class PlayerTestViewer implements Runnable
 	}
 
 	float scaleAdjustment = 1.0f;
-	Location midfieldLocation = Field.MIDFIELD;;
+	Location upperLeftLocation = new DefaultLocation();
 	
 	private Point calculateMidfieldScreenCoordinates()
 	{
@@ -632,7 +632,7 @@ public class PlayerTestViewer implements Runnable
 		this.canvas.addPaintListener(e ->
 		{
 			Performance.drawTime.beginCycle();
-			try (FieldTransformStack ts = new FieldTransformStack(canvas, e.gc, midfieldLocation, scaleAdjustment))
+			try (FieldTransformStack ts = new FieldTransformStack(canvas, e.gc, upperLeftLocation, scaleAdjustment))
 			{
 				e.gc.drawImage(this.field, 0, 0);
 				for (final Player player : this.players.values())
@@ -665,14 +665,14 @@ public class PlayerTestViewer implements Runnable
 
 				Point p = new Point(e.x, e.y);
 				
-				try (FieldTransformStack ts = new FieldTransformStack(canvas, midfieldLocation, scaleAdjustment))
+				try (FieldTransformStack ts = new FieldTransformStack(canvas, upperLeftLocation, scaleAdjustment))
 				{
 					if ((e.stateMask & SWT.CONTROL) != 0)
 					{
-						midfieldLocation = Field.MIDFIELD.subtract(ts.getMidfield().multiply(ts.getZoomFactor()));
-						midfieldLocation = new DefaultLocation(Conversions.inchesToYards(p.x / ts.getScale()),
-								Conversions.inchesToYards(p.y / ts.getScale())).subtract(midfieldLocation);
-						System.out.println("midfieldLocation=" + midfieldLocation);
+						Location midfield = ts.transformToLocation(p);
+						System.out.print("midfield=" + midfield);
+						upperLeftLocation = midfield.subtract(Field.MIDFIELD.divide(ts.getZoomFactor()));
+						System.out.println("upperLeft=" + upperLeftLocation);
 					}
 					else
 					{

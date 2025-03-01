@@ -7,6 +7,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Transform;
 
+import jef.core.Conversions;
 import jef.core.movement.DefaultLocation;
 import jef.core.movement.Location;
 
@@ -134,13 +135,15 @@ public class TransformStack implements AutoCloseable
 		return ret;
 	}
 	
-	public Location translateToLocation(Point p)
+	public Location transformToLocation(Point p)
 	{
 		float [] tmp = new float[2];
-		tmp[0] = (float)UIUtils.pixelsToYards(p.x);
-		tmp[1] = (float)UIUtils.pixelsToYards(p.y);
+		tmp[0] = p.x;
+		tmp[1] = p.y;
+		this.invert();
 		transform(tmp);
-		return new DefaultLocation((int)tmp[0], tmp[1]);
+		this.invert();
+		return new DefaultLocation(Conversions.inchesToYards(tmp[0]), Conversions.inchesToYards(tmp[1]));
 	}
 	
 	public Point transformToPoint(Location loc)
