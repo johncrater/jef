@@ -68,7 +68,7 @@ public class BlockersAction
 		{
 			SortedSet<BlockerInterceptRating> birss = blockersList.get(dr);
 			if (birss.size() == 0)
-				return;
+				continue;
 
 			BlockerInterceptRating bir = birss.getFirst();
 

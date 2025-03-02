@@ -443,18 +443,6 @@ public class PlayerTestViewer implements Runnable
 		final Composite c2 = new Composite(buttonRow, SWT.NONE);
 		c2.setLayout(new FillLayout(SWT.HORIZONTAL));
 
-		final Button testButton = new Button(c2, SWT.PUSH);
-		testButton.setText("Test");
-		testButton.addSelectionListener(new SelectionAdapter()
-		{
-			@Override
-			public void widgetSelected(final SelectionEvent e)
-			{
-				PlayerTestViewer.this.testRunning = !PlayerTestViewer.this.testRunning;
-				testButton.setText(PlayerTestViewer.this.testRunning ? "Stop" : "Test");
-			}
-		});
-
 		final Button autoPauseButton = new Button(c2, SWT.PUSH);
 		autoPauseButton.setText("Auto Pause: Off");
 		autoPauseButton.addSelectionListener(new SelectionAdapter()
@@ -548,19 +536,6 @@ public class PlayerTestViewer implements Runnable
 
 	private float scaleAdjustment = 1.0f;
 	private Location midfieldLocation = Field.MIDFIELD;
-	
-	private Point calculateMidfieldScreenCoordinates()
-	{
-		return new Point(this.canvas.getClientArea().width / 2, this.canvas.getClientArea().height / 2);
-	}
-	
-	private float calculateScale()
-	{
-		final float scaleX = (float) (this.canvas.getClientArea().width / PlayerTestViewer.totalLength);
-		final float scaleY = (float) (this.canvas.getClientArea().height / PlayerTestViewer.totalWidth);
-		final float scale = Math.min(scaleX, scaleY) * scaleAdjustment;
-		return scale;
-	}
 	
 	private void createCanvas()
 	{
@@ -830,6 +805,7 @@ public class PlayerTestViewer implements Runnable
 
 	private void drawPlayer(final FieldTransformStack fts, final Player player)
 	{
+		int lineWidth = 3;
 		final int offset = (int) Conversions.yardsToInches((Player.SIZE * 2.0) / 4.0);
 
 		GC gc = fts.getGC();
@@ -852,7 +828,7 @@ public class PlayerTestViewer implements Runnable
 		if (player == this.player)
 		{
 			gc.setForeground(this.shell.getDisplay().getSystemColor(SWT.COLOR_RED));
-			gc.setLineWidth(3);
+			gc.setLineWidth(lineWidth);
 			gc.drawOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
 		}
 
@@ -861,14 +837,14 @@ public class PlayerTestViewer implements Runnable
 		fts.rotate(player.getAV().getOrientation());
 		fts.set();
 		gc.fillPolygon(new int[]
-		{ 0, -offset, 0, offset, 2 * offset, 0 });
+		{ 0, -offset + lineWidth, 0, offset - lineWidth, 2 * offset - 2 * lineWidth, 0 });
 
 		fts.pop();
 		
 		final String playerNumber = "" + player.getFirstName().charAt(0) + player.getLastName().charAt(0);
 		final Point extent = gc.textExtent(playerNumber);
 
-		gc.drawText(playerNumber, p.x - (extent.x / 2), p.y - (extent.y / 2));
+		gc.drawText(playerNumber, p.x - (extent.x / 2), p.y - (extent.y / 2), true);
 
 //		try (TransformStack ts = new TransformStack(gc))
 //		{

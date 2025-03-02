@@ -40,11 +40,11 @@ public class Field
 	public static final Location FIELD_SW_CORNER = new DefaultLocation(0, DIM_TOTAL_WIDTH);
 	public static final Location FIELD_SE_CORNER = new DefaultLocation(DIM_TOTAL_LENGTH, DIM_TOTAL_WIDTH);
 	
-	public static final Location PLAYABLE_AREA_NW_CORNER = FIELD_NW_CORNER.add(DIM_SIDELINE_WIDTH, 0, 0);
-	public static final Location PLAYABLE_AREA_NE_CORNER = FIELD_NE_CORNER.add(-DIM_SIDELINE_WIDTH, 0, 0);
-	public static final Location PLAYABLE_AREA_SW_CORNER = FIELD_SW_CORNER.add(DIM_SIDELINE_WIDTH, 0, 0);
-	public static final Location PLAYABLE_AREA_SE_CORNER = FIELD_SE_CORNER.add(-DIM_SIDELINE_WIDTH, 0, 0);
-
+	public static final Location PLAYABLE_AREA_NW_CORNER = FIELD_NW_CORNER.add(DIM_SIDELINE_WIDTH, DIM_SIDELINE_WIDTH, 0);
+	public static final Location PLAYABLE_AREA_NE_CORNER = FIELD_NE_CORNER.add(-DIM_SIDELINE_WIDTH, DIM_SIDELINE_WIDTH, 0);
+	public static final Location PLAYABLE_AREA_SW_CORNER = FIELD_SW_CORNER.add(DIM_SIDELINE_WIDTH, -DIM_SIDELINE_WIDTH, 0);
+	public static final Location PLAYABLE_AREA_SE_CORNER = FIELD_SE_CORNER.add(-DIM_SIDELINE_WIDTH, -DIM_SIDELINE_WIDTH, 0);
+	
 	public static final Location END_ZONE_WEST_NW_CORNER = PLAYABLE_AREA_NW_CORNER;
 	public static final Location END_ZONE_WEST_NE_CORNER = PLAYABLE_AREA_NW_CORNER.add(DIM_END_ZONE_WIDTH, 0, 0);
 	public static final Location END_ZONE_WEST_SW_CORNER = PLAYABLE_AREA_SW_CORNER;

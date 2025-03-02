@@ -14,6 +14,42 @@ import jef.core.movement.Location;
 
 public class TransformStack implements AutoCloseable
 {
+	public static float transform(GC gc, float in)
+	{
+		try (TransformStack stack = new TransformStack(gc))
+		{
+			return stack.transform(in);
+		}
+		catch (Exception e)
+		{
+			return in;
+		}
+	}
+	
+	public static Point transformToPoint(GC gc, Point pt)
+	{
+		try (TransformStack stack = new TransformStack(gc))
+		{
+			return stack.transformToPoint(pt);
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+	}
+	
+	public static Point transformToPoint(GC gc, Location loc)
+	{
+		try (TransformStack stack = new TransformStack(gc))
+		{
+			return stack.transformToPoint(loc);
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+	}
+	
 	private Stack<Transform> stack = new Stack<>();
 	private Transform currentTransform;
 	private GC gc;
@@ -124,6 +160,13 @@ public class TransformStack implements AutoCloseable
 	public void transform(float [] floatArray)
 	{
 		this.currentTransform.transform(floatArray);
+	}
+	
+	public float transform(float in)
+	{
+		float [] f = new float[] {in, in};
+		transform(f);
+		return f[0];
 	}
 	
 	public Point transformToPoint(Point p)
