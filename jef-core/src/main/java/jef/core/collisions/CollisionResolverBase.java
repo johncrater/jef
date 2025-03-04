@@ -2,9 +2,9 @@ package jef.core.collisions;
 
 import java.util.Objects;
 
+import jef.core.DefaultLinearVelocity;
 import jef.core.LinearVelocity;
 import jef.core.geometry.Vector;
-import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.player.PlayerTracker;
 
 public class CollisionResolverBase implements CollisionResolver

@@ -1,10 +1,10 @@
 package jef.core.movement.player;
 
+import jef.core.DefaultAngularVelocity;
 import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.Player;
 import jef.core.geometry.LineSegment;
-import jef.core.movement.DefaultAngularVelocity;
 import jef.core.movement.Posture;
 import jef.core.movement.Tracker;
 

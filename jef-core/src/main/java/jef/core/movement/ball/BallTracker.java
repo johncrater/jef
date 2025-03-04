@@ -2,11 +2,11 @@ package jef.core.movement.ball;
 
 
 import jef.core.AngularVelocity;
+import jef.core.DefaultAngularVelocity;
 import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.geometry.LineSegment;
 import jef.core.geometry.Plane;
-import jef.core.movement.DefaultAngularVelocity;
 import jef.core.movement.Moveable;
 import jef.core.movement.Tracker;
 

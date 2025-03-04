@@ -5,12 +5,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import jef.core.Location;
-import jef.core.movement.DefaultLocation;
+import jef.core.Location;
 
 public class DefaultPath implements Iterable<Waypoint>, Path
 {
 	private List<Waypoint> waypoints = new ArrayList<>();
-	private Location destination = new DefaultLocation();
+	private Location destination = new Location();
 	
 	public DefaultPath(Path path)
 	{

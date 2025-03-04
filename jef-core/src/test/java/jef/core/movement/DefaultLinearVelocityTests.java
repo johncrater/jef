@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+import jef.core.DefaultLinearVelocity;
+import jef.core.LinearVelocity;
 import jef.core.geometry.Vector;
 
 class DefaultLinearVelocityTests

@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 import jef.core.Location;
+import jef.core.Location;
 import jef.core.Player;
 import jef.core.collisions.Collision;
-import jef.core.movement.DefaultLocation;
 import jef.core.movement.player.DefaultSteerable;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steerable;
@@ -191,17 +191,17 @@ public class DefaultLocationIndex implements LocationIndex
 
 	private List<Location> getSurroundingLocations(final Location loc)
 	{
-		return Arrays.asList(new DefaultLocation(loc.getX() - 1, loc.getY() - 1, 0),
-				new DefaultLocation(loc.getX(), loc.getY() - 1, 0),
-				new DefaultLocation(loc.getX() + 11, loc.getY() - 1, 0),
-				new DefaultLocation(loc.getX() - 1, loc.getY(), 0), new DefaultLocation(loc.getX() + 1, loc.getY(), 0),
-				new DefaultLocation(loc.getX() - 1, loc.getY() + 1, 0),
-				new DefaultLocation(loc.getX(), loc.getY() + 1, 0),
-				new DefaultLocation(loc.getX() + 1, loc.getY() + 1, 0));
+		return Arrays.asList(new Location(loc.getX() - 1, loc.getY() - 1, 0),
+				new Location(loc.getX(), loc.getY() - 1, 0),
+				new Location(loc.getX() + 11, loc.getY() - 1, 0),
+				new Location(loc.getX() - 1, loc.getY(), 0), new Location(loc.getX() + 1, loc.getY(), 0),
+				new Location(loc.getX() - 1, loc.getY() + 1, 0),
+				new Location(loc.getX(), loc.getY() + 1, 0),
+				new Location(loc.getX() + 1, loc.getY() + 1, 0));
 	}
 
 	private Location toCanonicalLocation(final Location loc)
 	{
-		return new DefaultLocation(Math.round(loc.getX()), Math.round(loc.getY()), 0);
+		return new Location(Math.round(loc.getX()), Math.round(loc.getY()), 0);
 	}
 }

@@ -2,9 +2,9 @@ package jef.core.movement.index;
 
 import org.junit.jupiter.api.Test;
 
+import jef.core.DefaultLinearVelocity;
 import jef.core.DefaultPlayer;
 import jef.core.PlayerPosition;
-import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.player.DefaultSteerable;
 
 class DefaultLocationIndexTest

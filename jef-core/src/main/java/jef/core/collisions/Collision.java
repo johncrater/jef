@@ -3,7 +3,7 @@ package jef.core.collisions;
 import java.util.Objects;
 
 import jef.core.Location;
-import jef.core.movement.DefaultLocation;
+import jef.core.Location;
 import jef.core.movement.player.PlayerTracker;
 
 public class Collision
@@ -24,7 +24,7 @@ public class Collision
 	{
 		double distance = occupier1.getLoc().distanceBetween(occupier2.getLoc()) / 2;
 		double angle = occupier1.getLoc().angleTo(occupier2.getLoc());
-		return new DefaultLocation(occupier1.getLoc().getX() + distance * Math.cos(angle),
+		return new Location(occupier1.getLoc().getX() + distance * Math.cos(angle),
 				occupier1.getLoc().getY() + distance * Math.sin(angle), 0);
 	}
 

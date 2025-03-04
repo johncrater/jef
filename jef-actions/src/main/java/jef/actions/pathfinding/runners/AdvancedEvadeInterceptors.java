@@ -13,6 +13,8 @@ import com.badlogic.gdx.ai.msg.MessageManager;
 import jef.actions.pathfinding.AbstractPathfinder;
 import jef.actions.pathfinding.blocking.BlockerPathfinder;
 import jef.actions.pathfinding.defenders.DefenderPathfinder;
+import jef.core.DefaultLinearVelocity;
+import jef.core.Location;
 import jef.core.Direction;
 import jef.core.Field;
 import jef.core.LinearVelocity;
@@ -23,8 +25,6 @@ import jef.core.events.Messages;
 import jef.core.geometry.Angle;
 import jef.core.geometry.LineSegment;
 import jef.core.geometry.Vector;
-import jef.core.movement.DefaultLinearVelocity;
-import jef.core.movement.DefaultLocation;
 import jef.core.movement.player.AdvancedSteering;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.Waypoint;
@@ -54,7 +54,7 @@ public class AdvancedEvadeInterceptors extends AbstractPathfinder implements Run
 		if (tmpPlayers.getFirst() == getPlayer())
 		{
 			// if there are no defenders between the runner and the end zone
-			Location endZone = new DefaultLocation(
+			Location endZone = new Location(
 					(getDirection() == Direction.west) ? Field.WEST_END_ZONE_X : Field.EAST_END_ZONE_X,
 					getPlayer().getLoc().getY());
 			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, endZone);
@@ -110,7 +110,7 @@ public class AdvancedEvadeInterceptors extends AbstractPathfinder implements Run
 		}
 		else
 		{
-			Location endZone = new DefaultLocation(
+			Location endZone = new Location(
 					(getDirection() == Direction.west) ? Field.WEST_END_ZONE_X : Field.EAST_END_ZONE_X,
 					destination.getY());
 

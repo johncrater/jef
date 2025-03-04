@@ -4,9 +4,9 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
+import jef.core.DefaultLinearVelocity;
 import jef.core.Field;
 import jef.core.Location;
-import jef.core.movement.DefaultLinearVelocity;
 
 public class UIUtils
 {

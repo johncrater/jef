@@ -31,13 +31,13 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import jef.core.Conversions;
+import jef.core.DefaultAngularVelocity;
 import jef.core.DefaultFootball;
+import jef.core.DefaultLinearVelocity;
+import jef.core.Location;
 import jef.core.Football;
 import jef.core.Location;
 import jef.core.Performance;
-import jef.core.movement.DefaultAngularVelocity;
-import jef.core.movement.DefaultLinearVelocity;
-import jef.core.movement.DefaultLocation;
 import jef.core.movement.ball.BallPhysics;
 import jef.core.movement.ball.BallTracker;
 import jef.core.ui.swt.utils.TransformStack;
@@ -90,7 +90,7 @@ public class BallTestViewer implements Runnable
 				BallTestViewer.class.getResourceAsStream("/football-34x34.png"));
 
 		BallTestViewer.ball = new DefaultFootball();
-		BallTestViewer.ball.setLoc(new DefaultLocation(10.0, 27.0, 0.0));
+		BallTestViewer.ball.setLoc(new Location(10.0, 27.0, 0.0));
 
 		final Composite c = new Composite(BallTestViewer.shell, SWT.NONE);
 		final GridData gd = new GridData();
@@ -156,7 +156,7 @@ public class BallTestViewer implements Runnable
 				double heightInYards =  Double.parseDouble(height.getText());
 				double yardLineValue =  Double.parseDouble(yardLine.getText()) + 10;
 				
-				BallTestViewer.ball.setLoc(new DefaultLocation(yardLineValue, 27.0, heightInYards));
+				BallTestViewer.ball.setLoc(new Location(yardLineValue, 27.0, heightInYards));
 				BallTestViewer.path.clear();
 			}
 			

@@ -1,7 +1,6 @@
 package jef.core;
 
 import jef.core.geometry.LineSegment;
-import jef.core.movement.DefaultLocation;
 
 public class Field
 {
@@ -33,10 +32,10 @@ public class Field
 	public static final double DIM_FIELD_GOAL_POST_DEPTH = 0; 	// pre 1974
 //	public static final double DIM_FIELD_GOAL_POST_DEPTH = 10; // pos 1974
 
-	public static final Location FIELD_NW_CORNER = new DefaultLocation(0, 0);
-	public static final Location FIELD_NE_CORNER = new DefaultLocation(DIM_TOTAL_LENGTH, 0);
-	public static final Location FIELD_SW_CORNER = new DefaultLocation(0, DIM_TOTAL_WIDTH);
-	public static final Location FIELD_SE_CORNER = new DefaultLocation(DIM_TOTAL_LENGTH, DIM_TOTAL_WIDTH);
+	public static final Location FIELD_NW_CORNER = new Location(0, 0);
+	public static final Location FIELD_NE_CORNER = new Location(DIM_TOTAL_LENGTH, 0);
+	public static final Location FIELD_SW_CORNER = new Location(0, DIM_TOTAL_WIDTH);
+	public static final Location FIELD_SE_CORNER = new Location(DIM_TOTAL_LENGTH, DIM_TOTAL_WIDTH);
 	
 	public static final Location PLAYABLE_AREA_NW_CORNER = FIELD_NW_CORNER.add(DIM_SIDELINE_WIDTH, DIM_SIDELINE_WIDTH, 0);
 	public static final Location PLAYABLE_AREA_NE_CORNER = FIELD_NE_CORNER.add(-DIM_SIDELINE_WIDTH, DIM_SIDELINE_WIDTH, 0);
@@ -60,7 +59,7 @@ public class Field
 
 	public static final double MIDFIELD_X = DIM_TOTAL_LENGTH / 2;
 	public static final double MIDFIELD_Y = DIM_TOTAL_WIDTH / 2;
-	public static final Location MIDFIELD = new DefaultLocation(MIDFIELD_X, MIDFIELD_Y, 0.0);
+	public static final Location MIDFIELD = new Location(MIDFIELD_X, MIDFIELD_Y, 0.0);
 
 	public static final LineSegment GOAL_LINE_WEST = new LineSegment(PLAYING_FIELD_NW_CORNER, PLAYING_FIELD_SW_CORNER);
 	public static final LineSegment GOAL_LINE_EAST = new LineSegment(PLAYING_FIELD_NE_CORNER, PLAYING_FIELD_SE_CORNER);

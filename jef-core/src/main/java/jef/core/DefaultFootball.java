@@ -1,9 +1,5 @@
 package jef.core;
 
-import jef.core.movement.DefaultAngularVelocity;
-import jef.core.movement.DefaultLinearVelocity;
-import jef.core.movement.DefaultLocation;
-
 public class DefaultFootball implements Football
 {
 	private Location loc;
@@ -13,7 +9,7 @@ public class DefaultFootball implements Football
 	
 	public DefaultFootball()
 	{
-		this.loc = new DefaultLocation(Field.MIDFIELD_X, Field.MIDFIELD_Y, 0);
+		this.loc = new Location(Field.MIDFIELD_X, Field.MIDFIELD_Y, 0);
 		this.lv = new DefaultLinearVelocity();
 		this.av = new DefaultAngularVelocity();
 	}

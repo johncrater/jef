@@ -11,13 +11,13 @@ import java.util.Set;
 import jef.actions.pathfinding.AbstractPathfinder;
 import jef.actions.pathfinding.blocking.BlockerPathfinder;
 import jef.actions.pathfinding.defenders.DefenderPathfinder;
+import jef.core.Location;
 import jef.core.Direction;
 import jef.core.Field;
 import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.Player;
 import jef.core.geometry.LineSegment;
-import jef.core.movement.DefaultLocation;
 import jef.core.movement.Posture;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.Waypoint;
@@ -75,7 +75,7 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 			else
 			{
 				Waypoint wp2 = new Waypoint(
-						new DefaultLocation(getDirection() == Direction.east ? Field.EAST_END_ZONE_X
+						new Location(getDirection() == Direction.east ? Field.EAST_END_ZONE_X
 								: Field.WEST_END_ZONE_X, wp1.getDestination().getY()),
 						getPlayer().getMaxSpeed(), DestinationAction.normalStop);
 				this.setPath(new DefaultPath(wp1, wp2));
@@ -84,7 +84,7 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 		else
 		{
 			Waypoint wp1 = new Waypoint(
-					new DefaultLocation(getDirection() == Direction.east ? Field.EAST_END_ZONE_X
+					new Location(getDirection() == Direction.east ? Field.EAST_END_ZONE_X
 							: Field.WEST_END_ZONE_X, getPlayer().getLoc().getY()),
 					getPlayer().getMaxSpeed(), DestinationAction.normalStop);
 			this.setPath(new DefaultPath(wp1));
@@ -116,7 +116,7 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 		List<Location> reachableLocations = new ArrayList<>();
 		reachableLocations.addAll(borderlines.stream().map(bl -> bl.getLocation1()).toList());
 		reachableLocations.addAll(borderlines.stream().map(bl -> bl.getLocation2()).toList());
-		reachableLocations.add(new DefaultLocation(getDirection() == Direction.east ? Field.EAST_END_ZONE_X : Field.WEST_END_ZONE_X, getPlayer().getLoc().getY()));
+		reachableLocations.add(new Location(getDirection() == Direction.east ? Field.EAST_END_ZONE_X : Field.WEST_END_ZONE_X, getPlayer().getLoc().getY()));
 		return reachableLocations;
 	}
 

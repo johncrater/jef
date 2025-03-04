@@ -57,6 +57,8 @@ import jef.actions.pathfinding.runners.RunForGlory;
 import jef.actions.pathfinding.runners.RunnerPathfinder;
 import jef.actions.pathfinding.runners.RunnerWaypointPathfinder;
 import jef.core.Conversions;
+import jef.core.DefaultAngularVelocity;
+import jef.core.Location;
 import jef.core.DefaultPlayer;
 import jef.core.Direction;
 import jef.core.Field;
@@ -70,8 +72,6 @@ import jef.core.collisions.CollisionResolution;
 import jef.core.events.DebugShape;
 import jef.core.events.Messages;
 import jef.core.geometry.LineSegment;
-import jef.core.movement.DefaultAngularVelocity;
-import jef.core.movement.DefaultLocation;
 import jef.core.movement.Posture;
 import jef.core.movement.index.DefaultLocationIndex;
 import jef.core.movement.index.LocationIndex;
@@ -686,7 +686,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setFirstName("Chuck");
 		pl.setLastName("Foreman");
 		pl.setWeight(215);
-		pl.setLoc(new DefaultLocation(lineOfScrimmage + 5, Field.MIDFIELD_Y, 0));
+		pl.setLoc(new Location(lineOfScrimmage + 5, Field.MIDFIELD_Y, 0));
 		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
 
 		this.players.put(pl.getPlayerID(), pl);
@@ -697,7 +697,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setFirstName("Ed");
 		pl.setLastName("White");
 		pl.setWeight(250);
-		pl.setLoc(new DefaultLocation(lineOfScrimmage, Field.MIDFIELD_Y - 2, 0));
+		pl.setLoc(new Location(lineOfScrimmage, Field.MIDFIELD_Y - 2, 0));
 		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
 
 		this.players.put(pl.getPlayerID(), pl);
@@ -707,7 +707,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setFirstName("Mick");
 		pl.setLastName("Tinglehoff");
 		pl.setWeight(270);
-		pl.setLoc(new DefaultLocation(lineOfScrimmage, Field.MIDFIELD_Y, 0));
+		pl.setLoc(new Location(lineOfScrimmage, Field.MIDFIELD_Y, 0));
 		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
 
 		this.players.put(pl.getPlayerID(), pl);
@@ -717,7 +717,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setFirstName("Ron");
 		pl.setLastName("Yary");
 		pl.setWeight(260);
-		pl.setLoc(new DefaultLocation(lineOfScrimmage, Field.MIDFIELD_Y + 2, 0));
+		pl.setLoc(new Location(lineOfScrimmage, Field.MIDFIELD_Y + 2, 0));
 		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
 
 		this.players.put(pl.getPlayerID(), pl);
@@ -728,7 +728,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setFirstName("Alan");
 		pl.setLastName("Page");
 		pl.setWeight(280);
-		pl.setLoc(new DefaultLocation(lineOfScrimmage - 1, Field.MIDFIELD_Y + 2, 0));
+		pl.setLoc(new Location(lineOfScrimmage - 1, Field.MIDFIELD_Y + 2, 0));
 
 		this.players.put(pl.getPlayerID(), pl);
 		this.defenders.put(pl.getPlayerID(), pl);
@@ -737,7 +737,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setFirstName("Carl");
 		pl.setLastName("Eller");
 		pl.setWeight(280);
-		pl.setLoc(new DefaultLocation(lineOfScrimmage - 1, Field.MIDFIELD_Y - 2, 0));
+		pl.setLoc(new Location(lineOfScrimmage - 1, Field.MIDFIELD_Y - 2, 0));
 
 		this.players.put(pl.getPlayerID(), pl);
 		this.defenders.put(pl.getPlayerID(), pl);
@@ -746,7 +746,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setFirstName("Matt");
 		pl.setLastName("Blair");
 		pl.setWeight(255);
-		pl.setLoc(new DefaultLocation(lineOfScrimmage - 6, Field.MIDFIELD_Y - 2, 0));
+		pl.setLoc(new Location(lineOfScrimmage - 6, Field.MIDFIELD_Y - 2, 0));
 
 		this.players.put(pl.getPlayerID(), pl);
 		this.defenders.put(pl.getPlayerID(), pl);
@@ -755,7 +755,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setFirstName("Wally");
 		pl.setLastName("Hilgenberg");
 		pl.setWeight(255);
-		pl.setLoc(new DefaultLocation(lineOfScrimmage - 6, Field.MIDFIELD_Y + 2, 0));
+		pl.setLoc(new Location(lineOfScrimmage - 6, Field.MIDFIELD_Y + 2, 0));
 
 		this.players.put(pl.getPlayerID(), pl);
 		this.defenders.put(pl.getPlayerID(), pl);

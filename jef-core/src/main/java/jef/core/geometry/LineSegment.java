@@ -1,10 +1,10 @@
 package jef.core.geometry;
 
+import jef.core.DefaultLinearVelocity;
+import jef.core.Location;
 import jef.core.Field;
 import jef.core.LinearVelocity;
 import jef.core.Location;
-import jef.core.movement.DefaultLinearVelocity;
-import jef.core.movement.DefaultLocation;
 
 public class LineSegment
 {
@@ -39,7 +39,7 @@ public class LineSegment
 
 	public Location getPoint(double ratio)
 	{
-		return new DefaultLocation(loc1.toVector().add(Vector.fromCartesianCoordinates(loc2.getX() - loc1.getX(),
+		return new Location(loc1.toVector().add(Vector.fromCartesianCoordinates(loc2.getX() - loc1.getX(),
 				loc2.getY() - loc1.getY(), loc2.getZ() - loc1.getZ()).multiply(ratio)));
 	}
 
@@ -55,8 +55,8 @@ public class LineSegment
 		Vector v = Vector.fromPolarCoordinates(angle, 0, length);
 
 		Vector orthogonal = v.orthogonal2D();
-		Location orthogonalEndPoint = new DefaultLocation(orthogonal);
-		Location vertex = new DefaultLocation();
+		Location orthogonalEndPoint = new Location(orthogonal);
+		Location vertex = new Location();
 
 		// move relative to point
 		orthogonalEndPoint = orthogonalEndPoint.add(point);
@@ -155,7 +155,7 @@ public class LineSegment
 			y = line.getXYSlope() * x + line.getYIntercept();
 		}
 
-		Location intersection = new DefaultLocation(x, y, 0);
+		Location intersection = new Location(x, y, 0);
 
 		if (intersects(intersection) && line.intersects(intersection))
 			return intersection;
@@ -173,7 +173,7 @@ public class LineSegment
 
 		Vector q = wProjectedOnV.add(loc1.toVector());
 
-		double distance = loc.distanceBetween(new DefaultLocation(q));
+		double distance = loc.distanceBetween(new Location(q));
 		boolean ret = Location.EPSILON.eqZero(distance);
 		if (ret == false)
 			return false;

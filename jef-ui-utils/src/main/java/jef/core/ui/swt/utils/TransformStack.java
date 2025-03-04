@@ -9,7 +9,7 @@ import org.eclipse.swt.graphics.Transform;
 
 import jef.core.Conversions;
 import jef.core.Location;
-import jef.core.movement.DefaultLocation;
+import jef.core.Location;
 
 
 public class TransformStack implements AutoCloseable
@@ -214,7 +214,7 @@ public class TransformStack implements AutoCloseable
 		this.invert();
 		transform(tmp);
 		this.invert();
-		return new DefaultLocation(Conversions.inchesToYards(tmp[0]), Conversions.inchesToYards(tmp[1]));
+		return new Location(Conversions.inchesToYards(tmp[0]), Conversions.inchesToYards(tmp[1]));
 	}
 	
 	public Point transformToPoint(Location loc)

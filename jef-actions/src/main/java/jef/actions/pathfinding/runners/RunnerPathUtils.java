@@ -1,11 +1,11 @@
 package jef.actions.pathfinding.runners;
 
+import jef.core.Location;
 import jef.core.Direction;
 import jef.core.Field;
 import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.geometry.LineSegment;
-import jef.core.movement.DefaultLocation;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.Waypoint;
@@ -65,7 +65,7 @@ public class RunnerPathUtils
 	 */
 	public static Path calculateRunForGloryPath(Location startingLocation, LinearVelocity lv, Direction direction)
 	{
-		return new DefaultPath(new Waypoint(new DefaultLocation(getEndZone(direction), startingLocation.getY(), 0),
+		return new DefaultPath(new Waypoint(new Location(getEndZone(direction), startingLocation.getY(), 0),
 				lv.getSpeed(), lv.getSpeed(), DestinationAction.noStop));
 	}
 

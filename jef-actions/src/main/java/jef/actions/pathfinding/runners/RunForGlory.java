@@ -5,10 +5,10 @@ import java.util.List;
 import jef.actions.pathfinding.AbstractPathfinder;
 import jef.actions.pathfinding.blocking.BlockerPathfinder;
 import jef.actions.pathfinding.defenders.DefenderPathfinder;
+import jef.core.Location;
 import jef.core.Direction;
 import jef.core.Field;
 import jef.core.Player;
-import jef.core.movement.DefaultLocation;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
@@ -28,7 +28,7 @@ public class RunForGlory extends AbstractPathfinder implements RunnerPathfinder
 	{
 		if (getPath() == null)
 		{
-			setPath(new DefaultPath(new Waypoint(new DefaultLocation(Field.yardLine(110, getDirection()), getPlayer().getLoc().getY()),
+			setPath(new DefaultPath(new Waypoint(new Location(Field.yardLine(110, getDirection()), getPlayer().getLoc().getY()),
 					getPlayer().getMaxSpeed(), getPlayer().getMaxSpeed(), DestinationAction.noStop)));
 		}		
 

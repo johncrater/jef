@@ -3,10 +3,10 @@ package jef.core.movement.player;
 import java.util.List;
 
 import jef.core.Conversions;
+import jef.core.DefaultLinearVelocity;
 import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.Player.DecelerationRate;
-import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.Posture;
 import jef.core.movement.player.Waypoint.DestinationAction;
 

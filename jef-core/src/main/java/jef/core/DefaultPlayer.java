@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import jef.core.movement.DefaultAngularVelocity;
-import jef.core.movement.DefaultLinearVelocity;
-import jef.core.movement.DefaultLocation;
 import jef.core.movement.Posture;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.DefaultSteerable;
@@ -31,7 +28,7 @@ public class DefaultPlayer extends DefaultSteerable implements Player
 	{
 		this.setAV(new DefaultAngularVelocity());
 		this.setLV(new DefaultLinearVelocity());
-		this.setLoc(new DefaultLocation());
+		this.setLoc(new Location());
 
 		this.setPosture(Posture.upright);
 		this.setPath(new DefaultPath());
