@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import jef.core.Conversions;
-import jef.core.DefaultAngularVelocity;
+import jef.core.AngularVelocity;
 import jef.core.DefaultFootball;
 import jef.core.LinearVelocity;
 import jef.core.Location;
@@ -151,7 +151,7 @@ public class BallTestViewer implements Runnable
 
 				double phiInDegrees = Double.parseDouble(phi.getText());
 				double omegaInRadiansPerSecond = Double.parseDouble(omega.getText());
-				BallTestViewer.ball.setAV(new DefaultAngularVelocity(Math.toRadians(phiInDegrees), omegaInRadiansPerSecond));
+				BallTestViewer.ball.setAV(new AngularVelocity(Math.toRadians(phiInDegrees), omegaInRadiansPerSecond));
 
 				double heightInYards =  Double.parseDouble(height.getText());
 				double yardLineValue =  Double.parseDouble(yardLine.getText()) + 10;

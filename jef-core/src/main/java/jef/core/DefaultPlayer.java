@@ -26,7 +26,7 @@ public class DefaultPlayer extends DefaultSteerable implements Player
 
 	public DefaultPlayer(PlayerPosition currentPosition)
 	{
-		this.setAV(new DefaultAngularVelocity());
+		this.setAV(new AngularVelocity());
 		this.setLV(new LinearVelocity());
 		this.setLoc(new Location());
 

@@ -57,7 +57,7 @@ import jef.actions.pathfinding.runners.RunForGlory;
 import jef.actions.pathfinding.runners.RunnerPathfinder;
 import jef.actions.pathfinding.runners.RunnerWaypointPathfinder;
 import jef.core.Conversions;
-import jef.core.DefaultAngularVelocity;
+import jef.core.AngularVelocity;
 import jef.core.Location;
 import jef.core.DefaultPlayer;
 import jef.core.Direction;
@@ -687,7 +687,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setLastName("Foreman");
 		pl.setWeight(215);
 		pl.setLoc(new Location(lineOfScrimmage + 5, Field.MIDFIELD_Y, 0));
-		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
+		pl.setAV(new AngularVelocity(Math.PI, 0, 0));
 
 		this.players.put(pl.getPlayerID(), pl);
 		this.runner = this.player = pl;
@@ -698,7 +698,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setLastName("White");
 		pl.setWeight(250);
 		pl.setLoc(new Location(lineOfScrimmage, Field.MIDFIELD_Y - 2, 0));
-		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
+		pl.setAV(new AngularVelocity(Math.PI, 0, 0));
 
 		this.players.put(pl.getPlayerID(), pl);
 		this.blockers.put(pl.getPlayerID(), pl);
@@ -708,7 +708,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setLastName("Tinglehoff");
 		pl.setWeight(270);
 		pl.setLoc(new Location(lineOfScrimmage, Field.MIDFIELD_Y, 0));
-		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
+		pl.setAV(new AngularVelocity(Math.PI, 0, 0));
 
 		this.players.put(pl.getPlayerID(), pl);
 		this.blockers.put(pl.getPlayerID(), pl);
@@ -718,7 +718,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setLastName("Yary");
 		pl.setWeight(260);
 		pl.setLoc(new Location(lineOfScrimmage, Field.MIDFIELD_Y + 2, 0));
-		pl.setAV(new DefaultAngularVelocity(Math.PI, 0, 0));
+		pl.setAV(new AngularVelocity(Math.PI, 0, 0));
 
 		this.players.put(pl.getPlayerID(), pl);
 		this.blockers.put(pl.getPlayerID(), pl);

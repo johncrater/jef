@@ -2,7 +2,7 @@ package jef.core.movement.ball;
 
 
 import jef.core.AngularVelocity;
-import jef.core.DefaultAngularVelocity;
+import jef.core.AngularVelocity;
 import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.geometry.LineSegment;
@@ -87,7 +87,7 @@ public class BallTracker extends Tracker
 		{
 			setLoc(getLoc().newFrom(null, null, 0.0));
 			setLV(getLV().newFrom(null, 0.0, null));
-			setAV(new DefaultAngularVelocity());
+			setAV(new AngularVelocity());
 		}
 		
 		// if the ball is not moving and it is sitting within EPSILON of the ground, we
@@ -96,13 +96,13 @@ public class BallTracker extends Tracker
 		if (Location.closeEnoughTo(0, getLoc().getZ()) && getLV().isNotMoving())
 		{
 			setLV(getLV().newFrom(null, 0.0, null));
-			setAV(new DefaultAngularVelocity());
+			setAV(new AngularVelocity());
 		}
 
 		if (getLoc().getZ() == 0 && getLV().getElevation() < 0)
 		{
 			setLV(getLV().newFrom(null, 0.0, null));
-			setAV(new DefaultAngularVelocity());
+			setAV(new AngularVelocity());
 		}
 	}
 

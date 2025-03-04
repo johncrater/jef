@@ -2,7 +2,7 @@ package jef.core.movement;
 
 import jef.core.AngularVelocity;
 import jef.core.Conversions;
-import jef.core.DefaultAngularVelocity;
+import jef.core.AngularVelocity;
 import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.LinearVelocity;
@@ -24,7 +24,7 @@ public class Tracker extends DefaultMoveable
 	
 	public Tracker(final double timeInterval)
 	{
-		this(new LinearVelocity(), new Location(), new DefaultAngularVelocity(), timeInterval);
+		this(new LinearVelocity(), new Location(), new AngularVelocity(), timeInterval);
 	}
 
 	public Tracker(final LinearVelocity lv, final Location loc, final AngularVelocity av, final double timeInterval)
@@ -200,7 +200,7 @@ public class Tracker extends DefaultMoveable
 		if ((this.getAV().getRotation() == 0) && (this.getAV().getSpiralVelocity() > 0))
 			spin = this.getLV().getElevation();
 
-		this.setAV(new DefaultAngularVelocity(spin, this.getAV().getRotation(), this.getAV().getSpiralVelocity()));
+		this.setAV(new AngularVelocity(spin, this.getAV().getRotation(), this.getAV().getSpiralVelocity()));
 	}
 
 }

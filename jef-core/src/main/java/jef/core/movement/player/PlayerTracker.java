@@ -1,6 +1,6 @@
 package jef.core.movement.player;
 
-import jef.core.DefaultAngularVelocity;
+import jef.core.AngularVelocity;
 import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.Player;
@@ -133,7 +133,7 @@ public class PlayerTracker extends Tracker
 		// orientation in that case
 		if (this.getLV().getSpeed() > 0)
 		{
-			this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
+			this.setAV(new AngularVelocity(this.getLV().getAzimuth(), 0, 0));
 		}
 
 		return ret;
@@ -148,7 +148,7 @@ public class PlayerTracker extends Tracker
 		// orientation in that case
 		if (this.getLV().getSpeed() > 0)
 		{
-			this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
+			this.setAV(new AngularVelocity(this.getLV().getAzimuth(), 0, 0));
 		}
 
 		return ret;
@@ -163,7 +163,7 @@ public class PlayerTracker extends Tracker
 		// orientation in that case
 		if (this.getLV().getSpeed() > 0)
 		{
-			this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
+			this.setAV(new AngularVelocity(this.getLV().getAzimuth(), 0, 0));
 		}
 	}
 
@@ -181,7 +181,7 @@ public class PlayerTracker extends Tracker
 		// orientation in that case
 		if (this.getLV().getSpeed() > 0)
 		{
-			this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
+			this.setAV(new AngularVelocity(this.getLV().getAzimuth(), 0, 0));
 		}
 	}
 
