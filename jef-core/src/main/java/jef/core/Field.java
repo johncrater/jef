@@ -2,7 +2,6 @@ package jef.core;
 
 import jef.core.geometry.LineSegment;
 import jef.core.movement.DefaultLocation;
-import jef.core.movement.Location;
 
 public class Field
 {

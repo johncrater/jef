@@ -1,4 +1,4 @@
-package jef.core.movement;
+package jef.core;
 
 import org.apache.commons.numbers.core.Precision;
 

@@ -5,8 +5,8 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
 import jef.core.Field;
+import jef.core.Location;
 import jef.core.movement.DefaultLinearVelocity;
-import jef.core.movement.Location;
 
 public class UIUtils
 {

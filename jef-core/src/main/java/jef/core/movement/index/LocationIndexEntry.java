@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import jef.core.movement.Location;
+import jef.core.Location;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steerable;
 

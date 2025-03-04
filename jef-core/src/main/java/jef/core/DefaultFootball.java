@@ -1,11 +1,8 @@
 package jef.core;
 
-import jef.core.movement.AngularVelocity;
 import jef.core.movement.DefaultAngularVelocity;
 import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.DefaultLocation;
-import jef.core.movement.LinearVelocity;
-import jef.core.movement.Location;
 
 public class DefaultFootball implements Football
 {

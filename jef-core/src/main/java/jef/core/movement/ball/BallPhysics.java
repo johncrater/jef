@@ -8,10 +8,10 @@ import com.synerset.unitility.unitsystem.common.Velocity;
 import com.synerset.unitility.unitsystem.mechanical.Force;
 import com.synerset.unitility.unitsystem.thermodynamic.Density;
 
+import jef.core.AngularVelocity;
 import jef.core.Conversions;
-import jef.core.movement.AngularVelocity;
+import jef.core.LinearVelocity;
 import jef.core.movement.DefaultLinearVelocity;
-import jef.core.movement.LinearVelocity;
 import jef.core.movement.VUnits;
 
 public class BallPhysics

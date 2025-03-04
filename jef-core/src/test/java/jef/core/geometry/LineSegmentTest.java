@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import jef.core.Field;
+import jef.core.Location;
 import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.DefaultLocation;
-import jef.core.movement.Location;
 
 class LineSegmentTest
 {

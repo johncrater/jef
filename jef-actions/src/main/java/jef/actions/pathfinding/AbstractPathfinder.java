@@ -6,8 +6,8 @@ import jef.actions.pathfinding.blocking.BlockerPathfinder;
 import jef.actions.pathfinding.defenders.DefenderPathfinder;
 import jef.actions.pathfinding.runners.RunnerPathfinder;
 import jef.core.Direction;
+import jef.core.Location;
 import jef.core.Player;
-import jef.core.movement.Location;
 import jef.core.movement.player.Path;
 
 public abstract class AbstractPathfinder implements Pathfinder

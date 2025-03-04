@@ -3,7 +3,7 @@ package jef.core.movement.player;
 import java.util.List;
 
 import jef.core.Conversions;
-import jef.core.movement.Location;
+import jef.core.Location;
 
 public class DefaultSteering implements Steering
 {

@@ -1,8 +1,8 @@
 package jef.core.events;
 
+import jef.core.LinearVelocity;
+import jef.core.Location;
 import jef.core.geometry.LineSegment;
-import jef.core.movement.LinearVelocity;
-import jef.core.movement.Location;
 
 public class DebugShape
 {

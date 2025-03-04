@@ -2,8 +2,8 @@ package jef.core.collisions;
 
 import java.util.Objects;
 
+import jef.core.Location;
 import jef.core.movement.DefaultLocation;
-import jef.core.movement.Location;
 import jef.core.movement.player.PlayerTracker;
 
 public class Collision

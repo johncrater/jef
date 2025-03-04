@@ -1,6 +1,9 @@
 package jef.core.movement;
 
+import jef.core.AngularVelocity;
 import jef.core.Conversions;
+import jef.core.LinearVelocity;
+import jef.core.Location;
 
 public class Tracker extends DefaultMoveable
 {

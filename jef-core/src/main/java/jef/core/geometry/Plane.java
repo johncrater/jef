@@ -1,9 +1,9 @@
 package jef.core.geometry;
 
+import jef.core.LinearVelocity;
+import jef.core.Location;
 import jef.core.movement.DefaultLinearVelocity;
 import jef.core.movement.DefaultLocation;
-import jef.core.movement.LinearVelocity;
-import jef.core.movement.Location;
 
 public class Plane
 {

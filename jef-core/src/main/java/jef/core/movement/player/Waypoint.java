@@ -1,6 +1,6 @@
 package jef.core.movement.player;
 
-import jef.core.movement.Location;
+import jef.core.Location;
 
 public class Waypoint
 {

@@ -8,10 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import jef.core.Location;
 import jef.core.Player;
 import jef.core.collisions.Collision;
 import jef.core.movement.DefaultLocation;
-import jef.core.movement.Location;
 import jef.core.movement.player.DefaultSteerable;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steerable;

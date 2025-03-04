@@ -3,8 +3,8 @@ package jef.actions.pathfinding;
 import java.util.List;
 
 import jef.core.Direction;
+import jef.core.Location;
 import jef.core.Player;
-import jef.core.movement.Location;
 import jef.core.movement.player.Path;
 
 public interface Pathfinder extends IterativeCalculation

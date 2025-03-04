@@ -13,8 +13,8 @@ import jef.actions.pathfinding.Pathfinder;
 import jef.actions.pathfinding.defenders.DefenderPathfinder;
 import jef.actions.pathfinding.runners.RunnerPathfinder;
 import jef.core.Direction;
+import jef.core.Location;
 import jef.core.Player;
-import jef.core.movement.Location;
 
 /**
  * A BlockingEscort stays between the runner and the biggest defensive threat

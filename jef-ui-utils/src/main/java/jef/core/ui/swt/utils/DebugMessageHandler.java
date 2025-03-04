@@ -14,10 +14,10 @@ import com.badlogic.gdx.ai.msg.Telegraph;
 
 import jef.core.Conversions;
 import jef.core.Field;
+import jef.core.Location;
 import jef.core.events.DebugShape;
 import jef.core.events.Messages;
 import jef.core.geometry.LineSegment;
-import jef.core.movement.Location;
 
 public class DebugMessageHandler implements Telegraph
 {

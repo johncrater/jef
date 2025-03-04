@@ -9,8 +9,8 @@ import jef.actions.pathfinding.Pathfinder;
 import jef.actions.pathfinding.blocking.BlockerPathfinder;
 import jef.actions.pathfinding.runners.RunnerPathfinder;
 import jef.core.Direction;
+import jef.core.Location;
 import jef.core.Player;
-import jef.core.movement.Location;
 
 public class AdvancedPursueRunner extends AbstractPathfinder implements DefenderPathfinder
 {

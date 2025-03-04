@@ -2,7 +2,7 @@ package jef.core.ui.swt.utils;
 
 import org.eclipse.swt.graphics.GC;
 
-import jef.core.movement.Location;
+import jef.core.Location;
 import jef.core.movement.player.Steerable;
 
 public class PlayerDrawable implements DrawableItem

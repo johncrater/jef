@@ -1,8 +1,5 @@
 package jef.core;
 
-import jef.core.movement.AngularVelocity;
-import jef.core.movement.LinearVelocity;
-import jef.core.movement.Location;
 import jef.core.movement.Posture;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.SpeedMatrix;

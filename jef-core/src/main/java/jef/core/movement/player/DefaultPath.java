@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import jef.core.Location;
 import jef.core.movement.DefaultLocation;
-import jef.core.movement.Location;
 
 public class DefaultPath implements Iterable<Waypoint>, Path
 {

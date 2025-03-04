@@ -2,10 +2,10 @@ package jef.actions.pathfinding.runners;
 
 import jef.core.Direction;
 import jef.core.Field;
+import jef.core.LinearVelocity;
+import jef.core.Location;
 import jef.core.geometry.LineSegment;
 import jef.core.movement.DefaultLocation;
-import jef.core.movement.LinearVelocity;
-import jef.core.movement.Location;
 import jef.core.movement.player.DefaultPath;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.Waypoint;

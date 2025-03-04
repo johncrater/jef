@@ -1,8 +1,7 @@
-package jef.core.movement;
+package jef.core;
 
 import org.apache.commons.numbers.core.Precision;
 
-import jef.core.Direction;
 import jef.core.geometry.Vector;
 
 /* @formatter:off */

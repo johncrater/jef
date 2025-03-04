@@ -2,6 +2,8 @@ package jef.core.movement;
 
 import java.util.Objects;
 
+import jef.core.LinearVelocity;
+import jef.core.Location;
 import jef.core.geometry.Vector;
 
 public class DefaultLinearVelocity implements LinearVelocity

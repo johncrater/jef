@@ -8,8 +8,8 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Transform;
 
 import jef.core.Conversions;
+import jef.core.Location;
 import jef.core.movement.DefaultLocation;
-import jef.core.movement.Location;
 
 
 public class TransformStack implements AutoCloseable

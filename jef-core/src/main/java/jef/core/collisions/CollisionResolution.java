@@ -1,9 +1,9 @@
 package jef.core.collisions;
 
 import jef.core.Football;
+import jef.core.LinearVelocity;
 import jef.core.geometry.Vector;
 import jef.core.movement.DefaultLinearVelocity;
-import jef.core.movement.LinearVelocity;
 import jef.core.movement.player.PlayerTracker;
 
 public class CollisionResolution

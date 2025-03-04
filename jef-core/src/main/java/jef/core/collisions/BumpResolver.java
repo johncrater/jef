@@ -1,8 +1,8 @@
 package jef.core.collisions;
 
 import jef.core.Conversions;
+import jef.core.Location;
 import jef.core.Randomizer;
-import jef.core.movement.Location;
 import jef.core.movement.Posture;
 import jef.core.movement.player.PlayerTracker;
 

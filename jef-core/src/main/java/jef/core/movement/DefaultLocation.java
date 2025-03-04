@@ -4,6 +4,8 @@ import java.util.Objects;
 
 import jef.core.Direction;
 import jef.core.Field;
+import jef.core.LinearVelocity;
+import jef.core.Location;
 import jef.core.geometry.Vector;
 
 public class DefaultLocation implements Location
