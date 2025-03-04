@@ -2,7 +2,7 @@ package jef.core.collisions;
 
 import java.util.Objects;
 
-import jef.core.DefaultLinearVelocity;
+import jef.core.LinearVelocity;
 import jef.core.LinearVelocity;
 import jef.core.geometry.Vector;
 import jef.core.movement.player.PlayerTracker;
@@ -46,8 +46,8 @@ public class CollisionResolverBase implements CollisionResolver
 		double p2Mvy = playerTracker2Weight * playerTracker2.getLV().getY();
 		double vyF = (p1Mvy + p2Mvy) / (playerTracker1Weight + playerTracker2Weight);
 
-		LinearVelocity lv1 = new DefaultLinearVelocity(Vector.fromCartesianCoordinates(vxF, vyF, 0));
-		LinearVelocity lv2 = new DefaultLinearVelocity(Vector.fromCartesianCoordinates(vxF, vyF, 0));
+		LinearVelocity lv1 = new LinearVelocity(Vector.fromCartesianCoordinates(vxF, vyF, 0));
+		LinearVelocity lv2 = new LinearVelocity(Vector.fromCartesianCoordinates(vxF, vyF, 0));
 
 		playerTracker1.setLV(lv1);
 		playerTracker2.setLV(lv2);

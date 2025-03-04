@@ -10,7 +10,7 @@ import com.synerset.unitility.unitsystem.thermodynamic.Density;
 
 import jef.core.AngularVelocity;
 import jef.core.Conversions;
-import jef.core.DefaultLinearVelocity;
+import jef.core.LinearVelocity;
 import jef.core.LinearVelocity;
 import jef.core.movement.VUnits;
 
@@ -84,7 +84,7 @@ public class BallPhysics
 			// since we are rebounding, we need manually set the new LV
 			tracker.setLV(reboundLV);
 			
-			accumulatedLV = new DefaultLinearVelocity();
+			accumulatedLV = new LinearVelocity();
 
 			double frictionAdjustment = friction.calculateLVAdjustment(tracker.getAV(), tracker.getLV(), mass);
 			System.out.print(String.format("Friction: %.2f ", frictionAdjustment));
@@ -116,7 +116,7 @@ public class BallPhysics
 
 	public LinearVelocity calculateGravityAdjustment()
 	{
-		return new DefaultLinearVelocity((double) 0, -Math.PI / 2, gravity.getInUnit(VUnits.YPS));
+		return new LinearVelocity((double) 0, -Math.PI / 2, gravity.getInUnit(VUnits.YPS));
 	}
 
 	private static Force calculateDragForce(Velocity velocity, final double dragCoefficient, final Density ofAir,

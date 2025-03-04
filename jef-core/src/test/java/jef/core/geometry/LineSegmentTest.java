@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import jef.core.DefaultLinearVelocity;
+import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.Field;
 import jef.core.Location;

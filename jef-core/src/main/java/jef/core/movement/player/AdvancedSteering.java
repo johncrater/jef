@@ -3,7 +3,7 @@ package jef.core.movement.player;
 import java.util.List;
 
 import jef.core.Conversions;
-import jef.core.DefaultLinearVelocity;
+import jef.core.LinearVelocity;
 import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.Player.DecelerationRate;
@@ -174,7 +174,7 @@ public class AdvancedSteering implements Steering
 			}
 		}
 
-		tracker.move(new DefaultLinearVelocity(newAngle, 0.0, speedAdjustment), null);
+		tracker.move(new LinearVelocity(newAngle, 0.0, speedAdjustment), null);
 
 		if (this.destinationReached(tracker) || (tracker.hasPastDestination()
 				&& tracker.getPath().getCurrentWaypoint().getDestinationAction() == DestinationAction.noStop))

@@ -1,6 +1,6 @@
 package jef.core.geometry;
 
-import jef.core.DefaultLinearVelocity;
+import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.Field;
 import jef.core.LinearVelocity;
@@ -34,7 +34,7 @@ public class LineSegment
 
 	public LinearVelocity getDirection()
 	{
-		return new DefaultLinearVelocity(loc2.toVector().subtract(loc1.toVector()));
+		return new LinearVelocity(loc2.toVector().subtract(loc1.toVector()));
 	}
 
 	public Location getPoint(double ratio)
@@ -73,7 +73,7 @@ public class LineSegment
 	public LineSegment addLength(double length)
 	{
 		return new LineSegment(this.getLoc1(), this.getLoc2()
-				.add(new DefaultLinearVelocity(this.getLoc1(), this.getLoc2()).newFrom(null, null, length)));
+				.add(new LinearVelocity(this.getLoc1(), this.getLoc2()).newFrom(null, null, length)));
 	}
 
 //	public Vector toQuadratic()

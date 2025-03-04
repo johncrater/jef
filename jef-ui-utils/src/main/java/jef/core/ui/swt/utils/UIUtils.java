@@ -4,7 +4,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 
-import jef.core.DefaultLinearVelocity;
+import jef.core.LinearVelocity;
 import jef.core.Field;
 import jef.core.Location;
 
@@ -41,9 +41,9 @@ public class UIUtils
 			final boolean fill)
 	{
 		final var distanceToVertex = (float)Math.abs(Math.cos(60) * sideLength / 2);
-		final var p1 = loc.add(new DefaultLinearVelocity(a, 0, distanceToVertex));
-		final var p2 = loc.add(new DefaultLinearVelocity(a + Math.PI * 4.0 / 6.0, 0, distanceToVertex));
-		final var p3 = loc.add(new DefaultLinearVelocity(a + Math.PI * 8.0 / 6.0, 0, distanceToVertex));
+		final var p1 = loc.add(new LinearVelocity(a, 0, distanceToVertex));
+		final var p2 = loc.add(new LinearVelocity(a + Math.PI * 4.0 / 6.0, 0, distanceToVertex));
+		final var p3 = loc.add(new LinearVelocity(a + Math.PI * 8.0 / 6.0, 0, distanceToVertex));
 
 		int [] coordinates = new int[]
 				{ yardsToPixels(p1.getX()), yardsToPixels(p1.getY()), yardsToPixels(p2.getX()), yardsToPixels(p2.getY()), yardsToPixels(p3.getX()), yardsToPixels(p3.getY()) };

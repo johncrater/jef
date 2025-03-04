@@ -2,7 +2,7 @@ package jef.core.movement.index;
 
 import org.junit.jupiter.api.Test;
 
-import jef.core.DefaultLinearVelocity;
+import jef.core.LinearVelocity;
 import jef.core.DefaultPlayer;
 import jef.core.PlayerPosition;
 import jef.core.movement.player.DefaultSteerable;
@@ -19,7 +19,7 @@ class DefaultLocationIndexTest
 		player.setLastName("Tarkenton");
 		
 		DefaultSteerable steerable = new DefaultSteerable(player);
-		steerable.setLV(new DefaultLinearVelocity((double) 10, (double) 10, (double) 0));
+		steerable.setLV(new LinearVelocity((double) 10, (double) 10, (double) 0));
 		index.update(player);
 	}
 }

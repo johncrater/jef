@@ -13,7 +13,7 @@ import com.badlogic.gdx.ai.msg.MessageManager;
 import jef.actions.pathfinding.AbstractPathfinder;
 import jef.actions.pathfinding.blocking.BlockerPathfinder;
 import jef.actions.pathfinding.defenders.DefenderPathfinder;
-import jef.core.DefaultLinearVelocity;
+import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.Direction;
 import jef.core.Field;
@@ -122,12 +122,12 @@ public class AdvancedEvadeInterceptors extends AbstractPathfinder implements Run
 			double hypotenuse = Math.sqrt(tightestRadiusAtSpeed * tightestRadiusAtSpeed + adjacentSide * adjacentSide);
 			Vector bisection = angle.bisect();
 			bisection = Vector.fromPolarCoordinates(bisection.getAzimuth(), bisection.getElevation(), hypotenuse);
-			Location vertex = destination.add(new DefaultLinearVelocity(bisection));
+			Location vertex = destination.add(new LinearVelocity(bisection));
 			MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape, DebugShape.drawCircle(vertex, "#00000000", tightestRadiusAtSpeed));
 
 			Location pivotLocation = destination;
-			Location wp1Location = pivotLocation.add(new DefaultLinearVelocity(angle.getVector1()).newFrom(null, null, adjacentSide));
-			Location wp2Location = pivotLocation.add(new DefaultLinearVelocity(angle.getVector2()).newFrom(null, null, adjacentSide));
+			Location wp1Location = pivotLocation.add(new LinearVelocity(angle.getVector1()).newFrom(null, null, adjacentSide));
+			Location wp2Location = pivotLocation.add(new LinearVelocity(angle.getVector2()).newFrom(null, null, adjacentSide));
 			
 			Waypoint wp1 = new Waypoint(wp1Location, this.getPlayer().getMaxSpeed(), this.getPlayer().getMaxSpeed(), DestinationAction.noStop);
 			Waypoint wp2 = new Waypoint(wp2Location, this.getPlayer().getMaxSpeed(), this.getPlayer().getMaxSpeed(), DestinationAction.noStop);

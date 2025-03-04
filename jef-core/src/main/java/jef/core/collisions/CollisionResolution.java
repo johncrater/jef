@@ -1,6 +1,6 @@
 package jef.core.collisions;
 
-import jef.core.DefaultLinearVelocity;
+import jef.core.LinearVelocity;
 import jef.core.Football;
 import jef.core.LinearVelocity;
 import jef.core.geometry.Vector;

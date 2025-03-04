@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import jef.core.DefaultLinearVelocity;
+import jef.core.LinearVelocity;
 import jef.core.LinearVelocity;
 import jef.core.geometry.Vector;
 
@@ -15,7 +15,7 @@ class DefaultLinearVelocityTests
 	@Test
 	void testDefaultLinearVelocity()
 	{
-		DefaultLinearVelocity lv = new DefaultLinearVelocity();
+		LinearVelocity lv = new LinearVelocity();
 		
 		assertEquals(0, lv.getAzimuth());
 		assertEquals(0, lv.getElevation());
@@ -29,8 +29,8 @@ class DefaultLinearVelocityTests
 	@Test
 	void testDefaultLinearVelocityDoubleDoubleDouble()
 	{
-		DefaultLinearVelocity lv1 = new DefaultLinearVelocity(2 * Math.PI / 3, Math.PI / 5, 5);
-		DefaultLinearVelocity lv2 = new DefaultLinearVelocity(lv1.getAzimuth(), lv1.getElevation(), lv1.getSpeed());
+		LinearVelocity lv1 = new LinearVelocity(2 * Math.PI / 3, Math.PI / 5, 5);
+		LinearVelocity lv2 = new LinearVelocity(lv1.getAzimuth(), lv1.getElevation(), lv1.getSpeed());
 
 		assertEquals(round(Math.PI / 5), round(lv1.getElevation()));
 		assertEquals(round(2 * Math.PI / 3), round(lv1.getAzimuth()));
@@ -49,7 +49,7 @@ class DefaultLinearVelocityTests
 	void testDefaultLinearVelocityVector()
 	{
 		Vector v1 = Vector.fromCartesianCoordinates(1, 2, 3);
-		DefaultLinearVelocity lv1 = new DefaultLinearVelocity(v1);
+		LinearVelocity lv1 = new LinearVelocity(v1);
 		
 		assertEquals(round(v1.getX()), round(lv1.getX()));
 		assertEquals(round(v1.getY()), round(lv1.getY()));
@@ -63,7 +63,7 @@ class DefaultLinearVelocityTests
 	@Test
 	void testAddDouble()
 	{
-		DefaultLinearVelocity lv1 = new DefaultLinearVelocity(Math.PI / 2, Math.PI / 4, 10);
+		LinearVelocity lv1 = new LinearVelocity(Math.PI / 2, Math.PI / 4, 10);
 		LinearVelocity lv2 = lv1.add(8);
 		
 		assertEquals(18, lv2.getSpeed());
@@ -72,8 +72,8 @@ class DefaultLinearVelocityTests
 	@Test
 	void testAddLinearVelocity()
 	{
-		DefaultLinearVelocity lv1 = new DefaultLinearVelocity(Math.PI / 2, Math.PI / 4, 10);
-		LinearVelocity lv2 = lv1.add(new DefaultLinearVelocity(Math.PI / 2, Math.PI / 4, 10));
+		LinearVelocity lv1 = new LinearVelocity(Math.PI / 2, Math.PI / 4, 10);
+		LinearVelocity lv2 = lv1.add(new LinearVelocity(Math.PI / 2, Math.PI / 4, 10));
 		
 		assertEquals(round(lv1.getAzimuth()), round(lv2.getAzimuth()));
 		assertEquals(round(lv1.getElevation()), round(lv2.getElevation()));
@@ -83,8 +83,8 @@ class DefaultLinearVelocityTests
 	@Test
 	void testCloseEnoughTo()
 	{
-		DefaultLinearVelocity lv1 = new DefaultLinearVelocity(Math.PI / 2, Math.PI / 4, 10);
-		DefaultLinearVelocity lv2 = new DefaultLinearVelocity(Math.PI / 2, Math.PI / 4, 10.001);
+		LinearVelocity lv1 = new LinearVelocity(Math.PI / 2, Math.PI / 4, 10);
+		LinearVelocity lv2 = new LinearVelocity(Math.PI / 2, Math.PI / 4, 10.001);
 		
 		assertTrue(lv1.closeEnoughTo(lv2));
 	}

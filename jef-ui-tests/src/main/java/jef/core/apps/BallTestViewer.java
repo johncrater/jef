@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.Text;
 import jef.core.Conversions;
 import jef.core.DefaultAngularVelocity;
 import jef.core.DefaultFootball;
-import jef.core.DefaultLinearVelocity;
+import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.Football;
 import jef.core.Location;
@@ -147,7 +147,7 @@ public class BallTestViewer implements Runnable
 				double thetaInDegrees = Double.parseDouble(theta.getText());
 				double speedInYPS = Double.parseDouble(speed.getText());
 				double azimuthInRadians = Double.parseDouble(azimuth.getText());
-				BallTestViewer.ball.setLV(new DefaultLinearVelocity(azimuthInRadians, Math.toRadians(thetaInDegrees), speedInYPS));
+				BallTestViewer.ball.setLV(new LinearVelocity(azimuthInRadians, Math.toRadians(thetaInDegrees), speedInYPS));
 
 				double phiInDegrees = Double.parseDouble(phi.getText());
 				double omegaInRadiansPerSecond = Double.parseDouble(omega.getText());

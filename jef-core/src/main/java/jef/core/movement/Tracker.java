@@ -3,7 +3,7 @@ package jef.core.movement;
 import jef.core.AngularVelocity;
 import jef.core.Conversions;
 import jef.core.DefaultAngularVelocity;
-import jef.core.DefaultLinearVelocity;
+import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.LinearVelocity;
 import jef.core.Location;
@@ -24,7 +24,7 @@ public class Tracker extends DefaultMoveable
 	
 	public Tracker(final double timeInterval)
 	{
-		this(new DefaultLinearVelocity(), new Location(), new DefaultAngularVelocity(), timeInterval);
+		this(new LinearVelocity(), new Location(), new DefaultAngularVelocity(), timeInterval);
 	}
 
 	public Tracker(final LinearVelocity lv, final Location loc, final AngularVelocity av, final double timeInterval)

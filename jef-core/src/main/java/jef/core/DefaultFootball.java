@@ -10,7 +10,7 @@ public class DefaultFootball implements Football
 	public DefaultFootball()
 	{
 		this.loc = new Location(Field.MIDFIELD_X, Field.MIDFIELD_Y, 0);
-		this.lv = new DefaultLinearVelocity();
+		this.lv = new LinearVelocity();
 		this.av = new DefaultAngularVelocity();
 	}
 
