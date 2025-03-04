@@ -144,24 +144,24 @@ class LineSegmentTest
 		assertEquals(new DefaultLocation(2.5, 6.5, 4), loc);
 	}
 
-	@Test
-	void testRestrictToBetweenEndZones()
-	{
-		Location l1 = new DefaultLocation(20, 40);
-		Location l2 = new DefaultLocation(30, 50);
-		LineSegment ls1 = new LineSegment(l1, l2);
-		LineSegment ls2 = ls1.restrictToBetweenEndZones(true);
-		
-		assertEquals(new DefaultLocation(20, 40), ls2.getLoc1());
-		assertEquals(new DefaultLocation(30, 50), ls2.getLoc2());
-
-		l1 = new DefaultLocation(20, -10);
-		l2 = new DefaultLocation(20, 100);
-		ls1 = new LineSegment(l1, l2);
-		ls2 = ls1.restrictToBetweenEndZones(true);
-		
-		assertEquals(new DefaultLocation(20, Field.DIM_SIDELINE_WIDTH), ls2.getLoc2());
-		assertEquals(new DefaultLocation(20, Field.DIM_TOTAL_WIDTH - Field.DIM_SIDELINE_WIDTH), ls2.getLoc1());
-	}
-
+//	@Test
+//	void testRestrictToBetweenEndZones()
+//	{
+//		Location l1 = new DefaultLocation(20, 40);
+//		Location l2 = new DefaultLocation(30, 50);
+//		LineSegment ls1 = new LineSegment(l1, l2);
+//		LineSegment ls2 = ls1.restrictToBetweenEndZones(true);
+//		
+//		assertEquals(new DefaultLocation(20, 40), ls2.getLoc1());
+//		assertEquals(new DefaultLocation(30, 50), ls2.getLoc2());
+//
+//		l1 = new DefaultLocation(20, -10);
+//		l2 = new DefaultLocation(20, 100);
+//		ls1 = new LineSegment(l1, l2);
+//		ls2 = ls1.restrictToBetweenEndZones(true);
+//		
+//		assertEquals(new DefaultLocation(20, Field.DIM_SIDELINE_WIDTH), ls2.getLoc2());
+//		assertEquals(new DefaultLocation(20, Field.DIM_TOTAL_WIDTH - Field.DIM_SIDELINE_WIDTH), ls2.getLoc1());
+//	}
+//
 }

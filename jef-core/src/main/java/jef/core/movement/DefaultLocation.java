@@ -2,9 +2,9 @@ package jef.core.movement;
 
 import java.util.Objects;
 
+import jef.core.Direction;
 import jef.core.Field;
 import jef.core.geometry.Vector;
-import jef.core.pathfinding.Direction;
 
 public class DefaultLocation implements Location
 {

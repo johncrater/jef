@@ -43,8 +43,22 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
+import jef.actions.pathfinding.CalculationScheduler;
+import jef.actions.pathfinding.Pathfinder;
+import jef.actions.pathfinding.blocking.BlockNearestThreat;
+import jef.actions.pathfinding.blocking.BlockerPathfinder;
+import jef.actions.pathfinding.blocking.BlockerWaypointPathfinder;
+import jef.actions.pathfinding.blocking.BlockersAction;
+import jef.actions.pathfinding.defenders.DefaultPursueRunner;
+import jef.actions.pathfinding.defenders.DefenderPathfinder;
+import jef.actions.pathfinding.defenders.DefenderWaypointPathfinder;
+import jef.actions.pathfinding.runners.DefaultEvadeInterceptors;
+import jef.actions.pathfinding.runners.RunForGlory;
+import jef.actions.pathfinding.runners.RunnerPathfinder;
+import jef.actions.pathfinding.runners.RunnerWaypointPathfinder;
 import jef.core.Conversions;
 import jef.core.DefaultPlayer;
+import jef.core.Direction;
 import jef.core.Field;
 import jef.core.Football;
 import jef.core.Performance;
@@ -66,20 +80,6 @@ import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
-import jef.core.pathfinding.CalculationScheduler;
-import jef.core.pathfinding.Direction;
-import jef.core.pathfinding.Pathfinder;
-import jef.core.pathfinding.blocking.BlockNearestThreat;
-import jef.core.pathfinding.blocking.BlockerPathfinder;
-import jef.core.pathfinding.blocking.BlockerWaypointPathfinder;
-import jef.core.pathfinding.blocking.BlockersAction;
-import jef.core.pathfinding.defenders.DefaultPursueRunner;
-import jef.core.pathfinding.defenders.DefenderPathfinder;
-import jef.core.pathfinding.defenders.DefenderWaypointPathfinder;
-import jef.core.pathfinding.runners.DefaultEvadeInterceptors;
-import jef.core.pathfinding.runners.RunForGlory;
-import jef.core.pathfinding.runners.RunnerPathfinder;
-import jef.core.pathfinding.runners.RunnerWaypointPathfinder;
 import jef.core.ui.swt.utils.DebugMessageHandler;
 import jef.core.ui.swt.utils.GIFMarkup;
 import jef.core.ui.swt.utils.UIUtils;
@@ -806,7 +806,7 @@ public class PlayerTestViewer implements Runnable
 	private void drawPlayer(final FieldTransformStack fts, final Player player)
 	{
 		int lineWidth = 3;
-		final int offset = (int) Conversions.yardsToInches((Player.SIZE * 2.0) / 4.0);
+		final int offset = (int) Conversions.yardsToInches((Player.SIZE) / 4.0);
 
 		GC gc = fts.getGC();
 		gc.setFont(PlayerTestViewer.playerFont);
@@ -832,19 +832,19 @@ public class PlayerTestViewer implements Runnable
 			gc.drawOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
 		}
 
-		fts.push();
-		fts.translate(p);
-		fts.rotate(player.getAV().getOrientation());
-		fts.set();
-		gc.fillPolygon(new int[]
-		{ 0, -offset + lineWidth, 0, offset - lineWidth, 2 * offset - 2 * lineWidth, 0 });
-
-		fts.pop();
-		
-		final String playerNumber = "" + player.getFirstName().charAt(0) + player.getLastName().charAt(0);
-		final Point extent = gc.textExtent(playerNumber);
-
-		gc.drawText(playerNumber, p.x - (extent.x / 2), p.y - (extent.y / 2), true);
+//		fts.push();
+//		fts.translate(p);
+//		fts.rotate(player.getAV().getOrientation());
+//		fts.set();
+//		gc.fillPolygon(new int[]
+//		{ 0, -offset + lineWidth, 0, offset - lineWidth, 2 * offset - 2 * lineWidth, 0 });
+//
+//		fts.pop();
+//		
+//		final String playerNumber = "" + player.getFirstName().charAt(0) + player.getLastName().charAt(0);
+//		final Point extent = gc.textExtent(playerNumber);
+//
+//		gc.drawText(playerNumber, p.x - (extent.x / 2), p.y - (extent.y / 2), true);
 
 //		try (TransformStack ts = new TransformStack(gc))
 //		{

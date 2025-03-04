@@ -92,6 +92,34 @@ public class TransformStack implements AutoCloseable
 		this.currentTransform.getElements(elements);
 	}
 	
+	public float getXScale()
+	{
+		float [] elements = new float[16];
+		getElements(elements);
+		return elements[0];
+	}
+	
+	public float getYScale()
+	{
+		float [] elements = new float[16];
+		getElements(elements);
+		return elements[3];
+	}
+	
+	public float getXTransform()
+	{
+		float [] elements = new float[16];
+		getElements(elements);
+		return elements[4];
+	}
+	
+	public float getYTransform()
+	{
+		float [] elements = new float[16];
+		getElements(elements);
+		return elements[5];
+	}
+	
 	public void identity()
 	{
 		this.currentTransform.identity();

@@ -170,8 +170,19 @@ public class DebugMessageHandler implements Telegraph
 			if (backgroundColor != null)
 				gc.setBackground(backgroundColor);
 
-			int lineWidth = debugShape.lineWidth;
-			gc.setLineWidth(lineWidth);
+			double lineWidth = debugShape.lineWidth;
+			double radius = debugShape.radius;
+			try (TransformStack ts = new TransformStack(gc))
+			{
+				float scale = ts.getXScale();
+				lineWidth = lineWidth / scale;
+				radius = radius / scale;
+			}
+			catch (Exception e)
+			{
+			}
+
+			gc.setLineWidth((int)Math.round(lineWidth));
 
 			if (debugShape.location != null)
 			{
@@ -183,10 +194,10 @@ public class DebugMessageHandler implements Telegraph
 				else
 				{
 					if (backgroundColor != null)
-						UIUtils.fillCircle(gc, debugShape.location, UIUtils.yardsToPixels(debugShape.radius));
+						UIUtils.fillCircle(gc, debugShape.location, UIUtils.yardsToPixels(radius));
 	
 					if (foregroundColor != null)
-						UIUtils.drawCircle(gc, debugShape.location, UIUtils.yardsToPixels(debugShape.radius));
+						UIUtils.drawCircle(gc, debugShape.location, UIUtils.yardsToPixels(radius));
 	
 					if (debugShape.linearVelocity != null)
 					{
@@ -203,17 +214,16 @@ public class DebugMessageHandler implements Telegraph
 			{
 				if (backgroundColor != null)
 				{
-					UIUtils.fillCircle(gc, debugShape.lineSegment.getLoc1(), UIUtils.yardsToPixels(debugShape.radius));
-					UIUtils.fillCircle(gc, debugShape.lineSegment.getLoc2(), UIUtils.yardsToPixels(debugShape.radius));
+					UIUtils.fillCircle(gc, debugShape.lineSegment.getLoc1(), UIUtils.yardsToPixels(radius));
+					UIUtils.fillCircle(gc, debugShape.lineSegment.getLoc2(), UIUtils.yardsToPixels(radius));
 				}
 
 				if (foregroundColor != null)
 				{
-					
-					gc.drawLine(UIUtils.yardsToPixels(debugShape.lineSegment.getLoc1().getX()),
-							UIUtils.yardsToPixels(debugShape.lineSegment.getLoc1().getY()),
-							UIUtils.yardsToPixels(debugShape.lineSegment.getLoc2().getX()),
-							UIUtils.yardsToPixels(debugShape.lineSegment.getLoc2().getY()));
+						gc.drawLine(UIUtils.yardsToPixels(debugShape.lineSegment.getLoc1().getX()),
+								UIUtils.yardsToPixels(debugShape.lineSegment.getLoc1().getY()),
+								UIUtils.yardsToPixels(debugShape.lineSegment.getLoc2().getX()),
+								UIUtils.yardsToPixels(debugShape.lineSegment.getLoc2().getY()));
 				}
 			}
 		}

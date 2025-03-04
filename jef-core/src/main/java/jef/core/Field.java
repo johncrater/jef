@@ -3,7 +3,6 @@ package jef.core;
 import jef.core.geometry.LineSegment;
 import jef.core.movement.DefaultLocation;
 import jef.core.movement.Location;
-import jef.core.pathfinding.Direction;
 
 public class Field
 {
