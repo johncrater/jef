@@ -8,7 +8,7 @@ import jef.actions.pathfinding.WaypointPathfinder;
 import jef.actions.pathfinding.blocking.BlockerPathfinder;
 import jef.actions.pathfinding.runners.RunnerPathfinder;
 import jef.core.Direction;
-import jef.core.Player;
+import jef.core.PlayerState;
 import jef.core.events.Messages;
 import jef.core.geometry.LineSegment;
 import jef.core.movement.player.Waypoint;
@@ -16,7 +16,7 @@ import jef.core.movement.player.Waypoint;
 public class DefenderWaypointPathfinder extends WaypointPathfinder implements DefenderPathfinder
 {
 
-	public DefenderWaypointPathfinder(Player player, Direction direction)
+	public DefenderWaypointPathfinder(PlayerState player, Direction direction)
 	{
 		super(player, direction);
 		// TODO Auto-generated constructor stub
@@ -34,7 +34,7 @@ public class DefenderWaypointPathfinder extends WaypointPathfinder implements De
 
 			if (previousWp == null)
 				MessageManager.getInstance().dispatchMessage(Messages.drawInterceptorPath,
-						new LineSegment(this.getPlayer().getLoc(), wp.getDestination()));
+						new LineSegment(this.getPlayerState().getLoc(), wp.getDestination()));
 			else
 				MessageManager.getInstance().dispatchMessage(Messages.drawInterceptorPath,
 						new LineSegment(previousWp.getDestination(), wp.getDestination()));

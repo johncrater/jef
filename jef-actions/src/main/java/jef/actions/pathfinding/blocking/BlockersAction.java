@@ -12,7 +12,7 @@ import com.badlogic.gdx.ai.msg.MessageManager;
 import jef.actions.pathfinding.DefaultInterceptPlayer;
 import jef.actions.pathfinding.defenders.DefenderPathfinder;
 import jef.actions.pathfinding.runners.RunnerPathfinder;
-import jef.core.DefaultPlayer;
+import jef.core.PlayerState;
 import jef.core.Direction;
 import jef.core.events.DebugShape;
 import jef.core.events.Messages;
@@ -25,7 +25,7 @@ public class BlockersAction
 		defenders = defenders.stream().filter(d -> d.getSteps() != null).toList();
 
 		defenders.forEach(d -> MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape, DebugShape.drawText("" + (int)d.getSteps().getLast().getX(),
-						d.getPlayer().getLoc().add(0, -1, 0), "#FFFF0000", 12)));
+						d.getPlayerState().getLoc().add(0, -1, 0), "#FFFF0000", 12)));
 		
 		List<? extends DefenderPathfinder> defendersRanking = defenders.stream().sorted((d1, d2) ->
 		{
@@ -39,7 +39,7 @@ public class BlockersAction
 
 		if (defendersRanking.size() > 0)
 			MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
-					DebugShape.drawCircle(defendersRanking.getFirst().getPlayer().getLoc(), "#FFFFFF00", 1));
+					DebugShape.drawCircle(defendersRanking.getFirst().getPlayerState().getLoc(), "#FFFFFF00", 1));
 
 		Map<DefenderPathfinder, SortedSet<BlockerInterceptRating>> blockersList = new HashMap<>();
 		for (BlockerPathfinder blocker : blockers)
@@ -53,14 +53,14 @@ public class BlockersAction
 					blockersList.put(d, ss);
 				}
 
-				DefaultInterceptPlayer dip = new DefaultInterceptPlayer(blocker.getPlayer(), null, d);
+				DefaultInterceptPlayer dip = new DefaultInterceptPlayer(blocker.getPlayerState(), null, d);
 				
 				int ticks = Integer.MAX_VALUE;
 				boolean targetReached = dip.calculate(runner, defenders, blockers, deltaNanos);
 				if (targetReached)
 					ticks = dip.getSteps().size();
 
-				ss.add(new BlockerInterceptRating(dip, ticks, d.getPlayer().getLoc().distanceBetween(blocker.getPlayer().getLoc())));
+				ss.add(new BlockerInterceptRating(dip, ticks, d.getPlayerState().getLoc().distanceBetween(blocker.getPlayerState().getLoc())));
 			}
 		}
 
@@ -76,7 +76,7 @@ public class BlockersAction
 			{
 				for (BlockerInterceptRating birTmp : ss)
 				{
-					if (birTmp.getBlocker().getPlayer().equals(bir.getBlocker().getPlayer()))
+					if (birTmp.getBlocker().getPlayerState().equals(bir.getBlocker().getPlayerState()))
 					{
 						ss.remove(birTmp);
 						break;
@@ -84,9 +84,8 @@ public class BlockersAction
 				}
 			}
 			
-			DefaultPlayer player = (DefaultPlayer) bir.getBlocker().getPlayer();
-			player.setPath(bir.getBlocker().getPath());
-
+			bir.bpf.setPath(bir.getBlocker().getPath());
+			bir.bpf.calculate(runner, defendersRanking, blockers, deltaNanos);
 		}
 	}
 
@@ -123,7 +122,7 @@ public class BlockersAction
 				ret = Double.compare(this.distance, o.distance);
 				
 			if (ret == 0)
-				ret = bpf.getPlayer().getPlayerID().compareTo(o.bpf.getPlayer().getPlayerID());
+				ret = bpf.getPlayerState().getPlayer().getPlayerID().compareTo(o.bpf.getPlayerState().getPlayer().getPlayerID());
 			
 			return ret;
 		}

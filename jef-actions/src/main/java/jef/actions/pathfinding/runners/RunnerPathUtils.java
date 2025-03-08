@@ -6,7 +6,7 @@ import jef.core.Field;
 import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.geometry.LineSegment;
-import jef.core.movement.player.DefaultPath;
+import jef.core.movement.player.Path;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
@@ -32,9 +32,9 @@ public class RunnerPathUtils
 
 		Location endLoc = calculateRunnerEndLocation(startingLocation, lv);
 		if (endLoc.isInEndZone(direction))
-			return new DefaultPath(new Waypoint(endLoc, lv.getSpeed(), lv.getSpeed(), DestinationAction.noStop));
+			return new Path(new Waypoint(endLoc, lv.getSpeed(), lv.getSpeed(), DestinationAction.noStop));
 
-		return new DefaultPath(new Waypoint(endLoc, lv.getSpeed(), lv.getSpeed(), DestinationAction.noStop),
+		return new Path(new Waypoint(endLoc, lv.getSpeed(), lv.getSpeed(), DestinationAction.noStop),
 				calculateRunForGloryPath(startingLocation, lv, direction).getCurrentWaypoint());
 	}
 
@@ -65,7 +65,7 @@ public class RunnerPathUtils
 	 */
 	public static Path calculateRunForGloryPath(Location startingLocation, LinearVelocity lv, Direction direction)
 	{
-		return new DefaultPath(new Waypoint(new Location(getEndZone(direction), startingLocation.getY(), 0),
+		return new Path(new Waypoint(new Location(getEndZone(direction), startingLocation.getY(), 0),
 				lv.getSpeed(), lv.getSpeed(), DestinationAction.noStop));
 	}
 

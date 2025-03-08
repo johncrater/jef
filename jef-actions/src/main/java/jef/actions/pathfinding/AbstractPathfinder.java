@@ -7,33 +7,25 @@ import jef.actions.pathfinding.defenders.DefenderPathfinder;
 import jef.actions.pathfinding.runners.RunnerPathfinder;
 import jef.core.Direction;
 import jef.core.Location;
-import jef.core.Player;
+import jef.core.PlayerState;
 import jef.core.movement.player.Path;
 
 public abstract class AbstractPathfinder implements Pathfinder
 {
-	private Player player;
-	private Path path;
+	private PlayerState playerState;
 	private Direction direction;
 	private PlayerStepsCalculator stepCalculator;
+	private Path path;
 
-	public AbstractPathfinder(Player player, Direction direction)
+	public AbstractPathfinder(PlayerState playerState, Direction direction)
 	{
-		this.player = player;
+		this.playerState = playerState;
 		this.direction = direction;
 	}
 
-	@Override
-	public void reset()
+	public Path getPath()
 	{
-		path = null;
-		stepCalculator = null;
-	}
-
-	@Override
-	public Player getPlayer()
-	{
-		return this.player;
+		return this.path;
 	}
 
 	public void setPath(Path path)
@@ -42,16 +34,16 @@ public abstract class AbstractPathfinder implements Pathfinder
 	}
 
 	@Override
-	public Path getPath()
+	public PlayerState getPlayerState()
 	{
-		return path;
+		return this.playerState;
 	}
 
 	protected boolean calculateSteps(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers, long deltaNanos)
 	{
 		long nanos = System.nanoTime();
 		
-		this.stepCalculator = new PlayerStepsCalculator(getPlayer());
+		this.stepCalculator = new PlayerStepsCalculator(getPlayerState());
 	
 //		while (System.nanoTime() - nanos < deltaNanos)
 		{
@@ -82,6 +74,6 @@ public abstract class AbstractPathfinder implements Pathfinder
 	@Override
 	public String toString()
 	{
-		return this.player.toString();
+		return this.playerState.toString();
 	}
 }

@@ -58,7 +58,7 @@ public class AdvancedSteering implements Steering
 		{
 			List<Waypoint> waypoints = tracker.getPath().getWaypoints();
 			waypoints.remove(0);
-			tracker.setPath(new DefaultPath(waypoints.toArray(new Waypoint[waypoints.size()])));
+			tracker.setPath(new Path(waypoints.toArray(new Waypoint[waypoints.size()])));
 		}
 
 		if (tracker.getPath() == null || tracker.getPath().getWaypoints().size() == 0)
@@ -85,7 +85,7 @@ public class AdvancedSteering implements Steering
 
 		final double startingSpeed = tracker.getLV().getSpeed();
 
-		if (startingSpeed > tracker.getMaxSpeed())
+		if (startingSpeed > tracker.getPlayer().getSpeedMatrix().getSprintingSpeed())
 		{
 			if ((options & USE_OUT_OF_CONTROL) > 0)
 			{
@@ -94,7 +94,7 @@ public class AdvancedSteering implements Steering
 			}
 			else
 			{
-				tracker.setLV(tracker.getLV().newFrom(null, null, tracker.getMaxSpeed()));
+				tracker.setLV(tracker.getLV().newFrom(null, null, tracker.getPlayer().getSpeedMatrix().getSprintingSpeed()));
 			}
 
 			return false;
@@ -109,7 +109,7 @@ public class AdvancedSteering implements Steering
 						tracker.setPosture(tracker.getPosture().adjustDown());
 					else
 						tracker.moveRemaining(
-								DecelerationRate.MAXIMUM.getRate() * tracker.getAccelerationCoefficient());
+								DecelerationRate.MAXIMUM.getRate());
 					return false;
 				case onTheGround:
 					tracker.setPosture(tracker.getPosture().adjustUp());
@@ -157,11 +157,11 @@ public class AdvancedSteering implements Steering
 			{
 				// calculate where we are in the acceleration cycle
 				double elapsedTime = this
-						.calculateElapsedTime((tracker.getLV().getSpeed() + speedAdjustment) / tracker.getMaxSpeed());
-				elapsedTime += tracker.getRemainingTime() * tracker.getAccelerationCoefficient();
+						.calculateElapsedTime((tracker.getLV().getSpeed() + speedAdjustment) / tracker.getPlayer().getSpeedMatrix().getSprintingSpeed());
+				elapsedTime += tracker.getRemainingTime();
 				double newSpeed = this.calculateSpeed(elapsedTime);
-				newSpeed *= tracker.getMaxSpeed();
-				newSpeed = Math.min(newSpeed, tracker.getDesiredSpeed());
+				newSpeed *= tracker.getPlayer().getSpeedMatrix().getSprintingSpeed();
+				newSpeed = Math.min(newSpeed, tracker.getPath().getCurrentWaypoint().getMaxSpeed());
 
 				if (SHOW_MESSAGES)
 					this.buildMessage(String.format("%-25s: \t%4f", "New Speed", newSpeed));
@@ -170,7 +170,7 @@ public class AdvancedSteering implements Steering
 			}
 			else
 			{
-				speedAdjustment = (tracker.getMaxSpeed() - tracker.getLV().getSpeed()) / tracker.getRemainingTime();
+				speedAdjustment = (tracker.getPlayer().getSpeedMatrix().getSprintingSpeed() - tracker.getLV().getSpeed()) / tracker.getRemainingTime();
 			}
 		}
 
@@ -181,7 +181,7 @@ public class AdvancedSteering implements Steering
 		{
 			List<Waypoint> waypoints = tracker.getPath().getWaypoints();
 			waypoints.remove(0);
-			tracker.setPath(new DefaultPath(waypoints.toArray(new Waypoint[waypoints.size()])));
+			tracker.setPath(new Path(waypoints.toArray(new Waypoint[waypoints.size()])));
 
 			if (tracker.getPath().getWaypoints().size() > 1)
 			{
@@ -235,7 +235,7 @@ public class AdvancedSteering implements Steering
 	private double calculateDistanceNeededToCompleteTurn(final PlayerTracker tracker, final double newAngle)
 	{
 		final double minTurnRadius = this.calculateTightestRadiusTurnAtSpeed(tracker.getLV().getSpeed(),
-				tracker.getMaxSpeed()) / tracker.getAccelerationCoefficient();
+				tracker.getPlayer().getSpeedMatrix().getSprintingSpeed());
 		return Math.abs(minTurnRadius * newAngle);
 	}
 
@@ -429,7 +429,7 @@ public class AdvancedSteering implements Steering
 	private void coastToAStop(final PlayerTracker tracker)
 	{
 		// coast to a stop
-		tracker.moveRemaining(DecelerationRate.NORMAL.getRate() * tracker.getAccelerationCoefficient());
+		tracker.moveRemaining(DecelerationRate.NORMAL.getRate());
 		if (SHOW_MESSAGES)
 			this.buildMessage(String.format("%-25s: %s", "Coasting To Stop",
 					String.format("%3.2f %s %s", tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
@@ -494,9 +494,9 @@ public class AdvancedSteering implements Steering
 		// control to decelerate
 		// at the fastest rate
 
-		double adjustment = DecelerationRate.NORMAL.getRate() * tracker.getAccelerationCoefficient();
+		double adjustment = DecelerationRate.NORMAL.getRate();
 		final double adjustedSpeed = tracker.calculateAdjustedSpeed(adjustment);
-		if (adjustedSpeed > tracker.getMaxSpeed())
+		if (adjustedSpeed > tracker.getPlayer().getSpeedMatrix().getSprintingSpeed())
 		{
 			// we are falling. need to improve this
 			adjustment = -adjustedSpeed / 2;
@@ -538,7 +538,7 @@ public class AdvancedSteering implements Steering
 			{
 //				turnSpeedAdjustment = DecelerationRate.MAXIMUM.getRate() * tracker.getAccelerationCoefficient();
 				turnSpeedAdjustment = Math.max(
-						DecelerationRate.MAXIMUM.getRate() * tracker.getAccelerationCoefficient(),
+						DecelerationRate.MAXIMUM.getRate(),
 						tracker.getPath().getCurrentWaypoint().getMinTurnSpeed() - speed);
 				if (SHOW_MESSAGES)
 					this.buildMessage(String.format("%-25s: \t%4f", "Turn Speed Adjustment", turnSpeedAdjustment));

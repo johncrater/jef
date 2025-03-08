@@ -1,14 +1,11 @@
 package jef.core.collisions;
 
-import jef.core.LinearVelocity;
 import jef.core.Football;
-import jef.core.LinearVelocity;
-import jef.core.geometry.Vector;
 import jef.core.movement.player.PlayerTracker;
 
 public class CollisionResolution
 {
-	public static CollisionResolver createResolution(Collision collision)
+	public static CollisionResolver createResolution(Collision collision, Football football)
 	{
 		PlayerTracker runner = getRunner(collision.getOccupier1(), collision.getOccupier2());
 		if (runner != null)
@@ -24,7 +21,7 @@ public class CollisionResolution
 			PlayerTracker defender = getDefender(collision.getOccupier1(), collision.getOccupier2());
 			if (defender != null)
 			{
-				PlayerTracker blocker = getBlocker(collision.getOccupier1(), collision.getOccupier2());
+				PlayerTracker blocker = getBlocker(collision.getOccupier1(), collision.getOccupier2(), football);
 				if (blocker != null)
 					return new BlockingResolver(blocker, defender);
 				else
@@ -48,12 +45,12 @@ public class CollisionResolution
 		return null;
 	}
 	
-	private static PlayerTracker getBlocker(PlayerTracker occupier1, PlayerTracker occupier2)
+	private static PlayerTracker getBlocker(PlayerTracker occupier1, PlayerTracker occupier2, Football football)
 	{
-		if (occupier1.getPlayer().getCurrentPosition().getUnitType().isOffense() && Football.theFootball.getPlayerInPossession() != occupier1)
+		if (occupier1.getPlayer().getCurrentPosition().getUnitType().isOffense() && football.getPlayerInPossession() != occupier1.getPlayer())
 			return occupier1;
 
-		if (occupier2.getPlayer().getCurrentPosition().getUnitType().isOffense() && Football.theFootball.getPlayerInPossession() != occupier2)
+		if (occupier2.getPlayer().getCurrentPosition().getUnitType().isOffense() && football.getPlayerInPossession() != occupier2.getPlayer())
 			return occupier2;
 		
 		return null;

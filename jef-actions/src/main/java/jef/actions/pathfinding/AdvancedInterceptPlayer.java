@@ -12,10 +12,10 @@ import jef.actions.pathfinding.runners.RunnerPathfinder;
 import jef.core.Direction;
 import jef.core.Location;
 import jef.core.Performance;
-import jef.core.Player;
+import jef.core.PlayerState;
 import jef.core.events.Messages;
 import jef.core.geometry.LineSegment;
-import jef.core.movement.player.DefaultPath;
+import jef.core.movement.player.Path;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
@@ -31,20 +31,10 @@ public class AdvancedInterceptPlayer extends AbstractPathfinder
 	private int minIndex;
 	private int maxIndex;
 
-	public AdvancedInterceptPlayer(Player player, Direction direction, Pathfinder targetPathfinder)
+	public AdvancedInterceptPlayer(PlayerState playerState, Direction direction, Pathfinder targetPathfinder)
 	{
-		super(player, direction);
+		super(playerState, direction);
 		this.targetPathfinder = targetPathfinder;
-	}
-
-	@Override
-	public void reset()
-	{
-		super.reset();
-		interceptionPoints = null;
-		locationToTicks = new HashMap<>();
-		minIndex = -1;
-		maxIndex = -1;
 	}
 
 	public Pathfinder getTargetPathfinder()
@@ -73,9 +63,12 @@ public class AdvancedInterceptPlayer extends AbstractPathfinder
 			Integer ticks = locationToTicks.get(loc);
 			if (ticks == null)
 			{
-				ticks = Steering.getInstance().calculateTicks(new PlayerTracker(getPlayer(),
-						new DefaultPath(new Waypoint(loc, this.getPlayer().getSpeedMatrix().getJoggingSpeed(), getPlayer().getMaxSpeed(), DestinationAction.noStop)),
-						Performance.frameInterval));
+				PlayerState playerState = this.getPlayerState().newFrom(null, null, null,
+						new Path(new Waypoint(loc, this.getPlayerState().getPlayer().getSpeedMatrix().getJoggingSpeed(),
+								getPlayerState().getMaxSpeed(), DestinationAction.noStop)),
+						null);
+				ticks = Steering.getInstance()
+						.calculateTicks(new PlayerTracker(getPlayerState(), Performance.frameInterval));
 				locationToTicks.put(loc, ticks);
 			}
 
@@ -91,11 +84,12 @@ public class AdvancedInterceptPlayer extends AbstractPathfinder
 		}
 
 		Location interceptionPoint = this.interceptionPoints.get(selectedIndex);
-		setPath(new DefaultPath(new Waypoint(interceptionPoint, this.getPlayer().getSpeedMatrix().getJoggingSpeed(), getPlayer().getMaxSpeed(), DestinationAction.noStop)));
-		
+		setPath(new Path(new Waypoint(interceptionPoint, this.getPlayerState().getPlayer().getSpeedMatrix().getJoggingSpeed(),
+				getPlayerState().getMaxSpeed(), DestinationAction.noStop)));
+
 		MessageManager.getInstance().dispatchMessage(Messages.drawInterceptorPath, interceptionPoint);
 		MessageManager.getInstance().dispatchMessage(Messages.drawInterceptorDestination,
-				new LineSegment(getPlayer().getLoc(), interceptionPoint));
+				new LineSegment(getPlayerState().getLoc(), interceptionPoint));
 
 		return true;
 	}

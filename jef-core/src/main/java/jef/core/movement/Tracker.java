@@ -2,62 +2,34 @@ package jef.core.movement;
 
 import jef.core.AngularVelocity;
 import jef.core.Conversions;
-import jef.core.AngularVelocity;
-import jef.core.LinearVelocity;
-import jef.core.Location;
 import jef.core.LinearVelocity;
 import jef.core.Location;
 
-public class Tracker extends DefaultMoveable
+public abstract class Tracker
 {
-	private LinearVelocity startingLv;
-	private Location startingLoc;
-	private AngularVelocity startingAv;
-
 	private double pctRemaining;
 	private final double timeInterval;
 
-	public Tracker(Tracker tracker)
+	public Tracker(double timeInterval)
 	{
-		this(tracker.getLV(), tracker.getLoc(), tracker.getAV(), tracker.getTimeInterval());
-	}
-	
-	public Tracker(final double timeInterval)
-	{
-		this(new LinearVelocity(), new Location(), new AngularVelocity(), timeInterval);
-	}
-
-	public Tracker(final LinearVelocity lv, final Location loc, final AngularVelocity av, final double timeInterval)
-	{
-		super(lv, loc, av);
 		this.pctRemaining = 1.0;
 		this.timeInterval = timeInterval;
-		
-		this.startingLv = lv;
-		this.startingLoc = loc;
-		this.startingAv = av;
 	}
-
-	public Tracker(final Moveable moveable, final double timeInterval)
+	
+	public Tracker(Tracker tracker)
 	{
-		this(moveable.getLV(), moveable.getLoc(), moveable.getAV(), timeInterval);
+		this.pctRemaining = tracker.pctRemaining;
+		this.timeInterval = tracker.timeInterval;
 	}
-
-	public LinearVelocity getStartingLv()
-	{
-		return this.startingLv;
-	}
-
-	public Location getStartingLoc()
-	{
-		return this.startingLoc;
-	}
-
-	public AngularVelocity getStartingAv()
-	{
-		return this.startingAv;
-	}
-
+	
+	public abstract LinearVelocity getLV();
+	public abstract Location getLoc();
+	public abstract AngularVelocity getAV();
+	
+	public abstract void setLV(LinearVelocity lv);
+	public abstract void setLoc(Location loc);
+	public abstract void setAV(AngularVelocity av);
+	
 	/**
 	 * @param speed null to use the current speed
 	 * @return the distance that can be traveled at the given speed with the given
@@ -87,7 +59,7 @@ public class Tracker extends DefaultMoveable
 	{
 		return this.timeInterval;
 	}
-
+	
 	/**
 	 * Moves the distance corresponding to the current linear velocity from the
 	 * current location in the time remaining. This is the same as move(null, null)
@@ -158,22 +130,6 @@ public class Tracker extends DefaultMoveable
 		this.setLoc(this.getLoc().add(this.getLV().multiply(this.getRemainingTime())));
 		this.pctRemaining = 0;
 		this.applyAngularVelocity();
-	}
-
-	public void reset()
-	{
-		this.setLV(this.startingLv);
-		this.setAV(this.startingAv);
-		this.setLoc(this.startingLoc);
-		this.pctRemaining = 1.0;
-	}
-	
-	public void advance()
-	{
-		this.startingLv = this.getLV();
-		this.startingAv = this.getAV();
-		this.startingLoc = this.getLoc();
-		this.pctRemaining = 1.0;
 	}
 
 	public void setPctRemaining(final double pctRemaining)

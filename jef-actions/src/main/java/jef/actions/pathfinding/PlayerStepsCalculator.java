@@ -8,7 +8,7 @@ import jef.actions.pathfinding.defenders.DefenderPathfinder;
 import jef.actions.pathfinding.runners.RunnerPathfinder;
 import jef.core.Location;
 import jef.core.Performance;
-import jef.core.Player;
+import jef.core.PlayerState;
 import jef.core.movement.player.AdvancedSteering;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
@@ -17,20 +17,20 @@ public class PlayerStepsCalculator implements IterativeCalculation
 {
 	private final ArrayList<Location> steps = new ArrayList<>();
 	private PlayerTracker tracker;
-	private final Player player;
+	private PlayerState playerState;
 	private final int options;
 
-	public PlayerStepsCalculator(Player player)
+	public PlayerStepsCalculator(PlayerState playerState)
 	{
 		super();
-		this.player = player;
+		this.playerState = playerState;
 		options = AdvancedSteering.USE_ALL;
 	}
 
-	public PlayerStepsCalculator(Player player, int options)
+	public PlayerStepsCalculator(PlayerState playerState, int options)
 	{
 		super();
-		this.player = player;
+		this.playerState = playerState;
 		this.options = options;
 	}
 
@@ -45,7 +45,7 @@ public class PlayerStepsCalculator implements IterativeCalculation
 		long nanos = System.nanoTime();
 
 		if (tracker == null)
-			tracker = new PlayerTracker(player, Performance.frameInterval);
+			tracker = new PlayerTracker(playerState, Performance.frameInterval);
 
 		Steering steering = Steering.getInstance(options);
 		boolean ret = false;

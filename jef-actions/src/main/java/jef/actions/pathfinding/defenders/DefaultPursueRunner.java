@@ -10,22 +10,15 @@ import jef.actions.pathfinding.blocking.BlockerPathfinder;
 import jef.actions.pathfinding.runners.RunnerPathfinder;
 import jef.core.Direction;
 import jef.core.Location;
-import jef.core.Player;
+import jef.core.PlayerState;
 
 public class DefaultPursueRunner extends AbstractPathfinder implements DefenderPathfinder
 {
 	private DefaultInterceptPlayer interceptPlayer;
 	
-	public DefaultPursueRunner(Player player, Direction direction)
+	public DefaultPursueRunner(PlayerState player, Direction direction)
 	{
 		super(player, direction);
-	}
-
-	@Override
-	public void reset()
-	{
-		super.reset();
-		this.interceptPlayer = null;
 	}
 
 	public Pathfinder getTargetPathfinder()
@@ -38,7 +31,7 @@ public class DefaultPursueRunner extends AbstractPathfinder implements DefenderP
 		if (this.interceptPlayer != null)
 			return this.interceptPlayer.getSteps();
 		
-		return Collections.singletonList(getPlayer().getLoc());
+		return Collections.singletonList(getPlayerState().getLoc());
 	}
 
 	@Override
@@ -46,7 +39,7 @@ public class DefaultPursueRunner extends AbstractPathfinder implements DefenderP
 			List<? extends BlockerPathfinder> blockers, long deltaNanos)
 	{
 		if (interceptPlayer == null || interceptPlayer.getTargetPathfinder() != runner)
-			interceptPlayer = new DefaultInterceptPlayer(getPlayer(), getDirection(), runner);
+			interceptPlayer = new DefaultInterceptPlayer(getPlayerState(), getDirection(), runner);
 
 		boolean ret = interceptPlayer.calculate(runner, defenders, blockers, deltaNanos);
 		setPath(interceptPlayer.getPath());

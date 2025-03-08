@@ -30,12 +30,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import jef.core.Conversions;
 import jef.core.AngularVelocity;
-import jef.core.DefaultFootball;
-import jef.core.LinearVelocity;
-import jef.core.Location;
+import jef.core.Conversions;
 import jef.core.Football;
+import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.Performance;
 import jef.core.movement.ball.BallPhysics;
@@ -68,7 +66,7 @@ public class BallTestViewer implements Runnable
 	private static Font playerDataFont;
 	public static Font trackingFont;
 
-	public static DefaultFootball ball;
+	public static Football ball;
 
 	private static long hangTime = 0;
 	private static double ballDistance;
@@ -89,8 +87,7 @@ public class BallTestViewer implements Runnable
 		BallTestViewer.footballSmall = new Image(BallTestViewer.shell.getDisplay(),
 				BallTestViewer.class.getResourceAsStream("/football-34x34.png"));
 
-		BallTestViewer.ball = new DefaultFootball();
-		BallTestViewer.ball.setLoc(new Location(10.0, 27.0, 0.0));
+		BallTestViewer.ball = new Football(null, new Location(10.0, 27.0, 0.0), null);
 
 		final Composite c = new Composite(BallTestViewer.shell, SWT.NONE);
 		final GridData gd = new GridData();
@@ -147,23 +144,23 @@ public class BallTestViewer implements Runnable
 				double thetaInDegrees = Double.parseDouble(theta.getText());
 				double speedInYPS = Double.parseDouble(speed.getText());
 				double azimuthInRadians = Double.parseDouble(azimuth.getText());
-				BallTestViewer.ball.setLV(new LinearVelocity(azimuthInRadians, Math.toRadians(thetaInDegrees), speedInYPS));
+				BallTestViewer.ball = ball.newFrom(new LinearVelocity(azimuthInRadians, Math.toRadians(thetaInDegrees), speedInYPS), null, null);
 
 				double phiInDegrees = Double.parseDouble(phi.getText());
 				double omegaInRadiansPerSecond = Double.parseDouble(omega.getText());
-				BallTestViewer.ball.setAV(new AngularVelocity(Math.toRadians(phiInDegrees), omegaInRadiansPerSecond));
+				BallTestViewer.ball = ball.newFrom(null, null, new AngularVelocity(Math.toRadians(phiInDegrees), omegaInRadiansPerSecond));
 
 				double heightInYards =  Double.parseDouble(height.getText());
 				double yardLineValue =  Double.parseDouble(yardLine.getText()) + 10;
 				
-				BallTestViewer.ball.setLoc(new Location(yardLineValue, 27.0, heightInYards));
+				BallTestViewer.ball = ball.newFrom(null, new Location(yardLineValue, 27.0, heightInYards), null);
 				BallTestViewer.path.clear();
 			}
 			
 		});
 
-		BallTestViewer.createCanvasXY(BallTestViewer.ball);
-		BallTestViewer.createCanvasXZ(BallTestViewer.ball);
+		BallTestViewer.createCanvasXY();
+		BallTestViewer.createCanvasXZ();
 
 		BallTestViewer.trackingFont = new Font(BallTestViewer.shell.getDisplay(), BallTestViewer.playerFontData);
 
@@ -184,7 +181,7 @@ public class BallTestViewer implements Runnable
 
 	}
 
-	private static void createCanvasXY(final Football ball)
+	private static void createCanvasXY()
 	{
 		BallTestViewer.canvasXY = new Canvas(BallTestViewer.shell, SWT.DOUBLE_BUFFERED);
 		final GridData gd = new GridData();
@@ -233,7 +230,7 @@ public class BallTestViewer implements Runnable
 		});
 	}
 
-	private static void createCanvasXZ(final Football ball)
+	private static void createCanvasXZ()
 	{
 		BallTestViewer.canvasXZ = new Canvas(BallTestViewer.shell, SWT.DOUBLE_BUFFERED);
 		final GridData gd = new GridData();
@@ -416,9 +413,7 @@ public class BallTestViewer implements Runnable
 
 			BallTracker tracker = new BallTracker(ball, .04);
 			new BallPhysics().update(tracker);
-			ball.setAV(tracker.getAV());
-			ball.setLV(tracker.getLV());
-			ball.setLoc(tracker.getLoc());
+			ball = new Football(tracker.getLV(), tracker.getLoc(), tracker.getAV());
 		}
 		catch (Exception e)
 		{

@@ -34,7 +34,7 @@ public class DefaultSteering implements Steering
 		{
 			List<Waypoint> waypoints = tracker.getPath().getWaypoints();
 			waypoints.remove(0);
-			tracker.setPath(new DefaultPath(waypoints.toArray(new Waypoint[waypoints.size()])));
+			tracker.setPath(new Path(waypoints.toArray(new Waypoint[waypoints.size()])));
 		}
 
 		if (tracker.getPath() == null || tracker.getPath().getWaypoints().size() == 0)
@@ -62,7 +62,7 @@ public class DefaultSteering implements Steering
 				tracker.setPosture(tracker.getPosture().adjustUp());
 				break;
 			default:
-				tracker.setLV(tracker.getLV().newFrom(null, null, tracker.getMaxSpeed()));
+				tracker.setLV(tracker.getLV().newFrom(null, null, tracker.getPlayer().getSpeedMatrix().getSprintingSpeed()));
 				break;
 		}
 
@@ -80,7 +80,7 @@ public class DefaultSteering implements Steering
 		{
 			List<Waypoint> waypoints = tracker.getPath().getWaypoints();
 			waypoints.remove(0);
-			tracker.setPath(new DefaultPath(waypoints.toArray(new Waypoint[waypoints.size()])));
+			tracker.setPath(new Path(waypoints.toArray(new Waypoint[waypoints.size()])));
 
 			if (tracker.getPath().getWaypoints().size() > 0)
 			{

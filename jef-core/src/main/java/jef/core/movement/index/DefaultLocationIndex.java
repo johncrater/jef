@@ -9,12 +9,10 @@ import java.util.List;
 import java.util.Map;
 
 import jef.core.Location;
-import jef.core.Location;
 import jef.core.Player;
+import jef.core.PlayerState;
 import jef.core.collisions.Collision;
-import jef.core.movement.player.DefaultSteerable;
 import jef.core.movement.player.PlayerTracker;
-import jef.core.movement.player.Steerable;
 
 public class DefaultLocationIndex implements LocationIndex
 {
@@ -81,27 +79,27 @@ public class DefaultLocationIndex implements LocationIndex
 	}
 
 	@Override
-	public void update(final Player player)
+	public void update(PlayerState playerState)
 	{
-		initEntries(player);
+		initEntries(playerState.getPlayer());
 		
 		final int tick = 0;
-		PlayerIndexEntry entry = this.idToIndexEntry.get(player.getPlayerID());
+		PlayerIndexEntry entry = this.idToIndexEntry.get(playerState.getPlayer().getPlayerID());
 		final PlayerTracker currentTracker = entry.getPlayerTracker(tick);
 
 		if (currentTracker != null)
 		{
-			if (currentTracker.getLV().equals(player.getLV())
-				&& currentTracker.getLoc().equals(player.getLoc()))
+			if (currentTracker.getLV().equals(playerState.getLV())
+				&& currentTracker.getLoc().equals(playerState.getLoc()))
 			return; // no change, so no need to update entries
 
-			clearEntries(player);
+			clearEntries(playerState.getPlayer());
 		}
 
 		
 		for (int i = 0; i < this.numberOfTicks; i++)
 		{
-			PlayerTracker tracker = new PlayerTracker(player, this.timeInterval);	
+			PlayerTracker tracker = new PlayerTracker(playerState, this.timeInterval);	
 			tracker.move();
 			entry.update(i, tracker);
 

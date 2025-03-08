@@ -14,7 +14,7 @@ import jef.actions.pathfinding.defenders.DefenderPathfinder;
 import jef.actions.pathfinding.runners.RunnerPathfinder;
 import jef.core.Direction;
 import jef.core.Location;
-import jef.core.Player;
+import jef.core.PlayerState;
 
 /**
  * A BlockingEscort stays between the runner and the biggest defensive threat
@@ -23,16 +23,9 @@ public class BlockNearestThreat extends AbstractPathfinder implements BlockerPat
 {
 	private DefaultInterceptPlayer interceptionPathfinder;
 
-	public BlockNearestThreat(Player blocker, Direction direction)
+	public BlockNearestThreat(PlayerState blocker, Direction direction)
 	{
 		super(blocker, direction);
-	}
-
-	@Override
-	public void reset()
-	{
-		super.reset();
-		interceptionPathfinder = null;
 	}
 
 	public Pathfinder getTargetPathfinder()
@@ -45,7 +38,7 @@ public class BlockNearestThreat extends AbstractPathfinder implements BlockerPat
 		if (this.interceptionPathfinder != null)
 			return this.interceptionPathfinder.getSteps();
 		
-		return Collections.singletonList(getPlayer().getLoc());
+		return Collections.singletonList(getPlayerState().getLoc());
 	}
 
 	@Override
@@ -63,7 +56,7 @@ public class BlockNearestThreat extends AbstractPathfinder implements BlockerPat
 				return true;
 			
 			DefenderAssessment biggestThreat = threats.get(0);
-			interceptionPathfinder = new DefaultInterceptPlayer(getPlayer(), null, biggestThreat.getDefender()); 
+			interceptionPathfinder = new DefaultInterceptPlayer(getPlayerState(), null, biggestThreat.getDefender()); 
 		}
 
 		boolean ret = interceptionPathfinder.calculate(runner, defenders, blockers, deltaNanos - (System.nanoTime() - nanos));
@@ -81,14 +74,14 @@ public class BlockNearestThreat extends AbstractPathfinder implements BlockerPat
 			if (p.getPath() == null)
 				return;
 			
-			final double lvDistance = getLVDistance(getPlayer(), p.getPath().getDestination());
+			final double lvDistance = getLVDistance(getPlayerState(), p.getPath().getDestination());
 			assessments.add(new DefenderAssessment(p, lvDistance));
 		});
 
 		return assessments.stream().sorted(Comparator.comparing(DefenderAssessment::threatLevel)).toList();
 	}
 
-	private static double getLVDistance(final Player player, final Location loc)
+	private static double getLVDistance(final PlayerState player, final Location loc)
 	{
 		return player.getLoc().distanceBetween(loc) / player.getMaxSpeed();
 	}

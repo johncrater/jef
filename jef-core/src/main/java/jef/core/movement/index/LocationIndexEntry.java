@@ -8,7 +8,6 @@ import java.util.Set;
 
 import jef.core.Location;
 import jef.core.movement.player.PlayerTracker;
-import jef.core.movement.player.Steerable;
 
 class LocationIndexEntry
 {
@@ -110,13 +109,13 @@ class LocationIndexEntry
 		{
 			return 0;
 		}
-		else if (obj instanceof Steerable)
+		else if (obj instanceof PlayerTracker)
 		{
 			return 1;
 		}
 		else 
 		{
-			Set<Steerable> set = (Set<Steerable>)obj;
+			Set<PlayerTracker> set = (Set<PlayerTracker>)obj;
 			return set.size();
 		}
 	}

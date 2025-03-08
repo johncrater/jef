@@ -1,11 +1,12 @@
 package jef.core;
 
-import jef.core.movement.Posture;
-import jef.core.movement.player.Path;
-import jef.core.movement.player.SpeedMatrix;
-import jef.core.movement.player.Steerable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-public interface Player extends PlayerInfo, Steerable
+import jef.core.movement.player.SpeedMatrix;
+
+public class Player
 {
 	public enum DecelerationRate
 	{
@@ -73,24 +74,167 @@ public interface Player extends PlayerInfo, Steerable
 	public static final double PLAYER_AVG_HUMAN_VISUAL_REACTION_TIME = .200f;
 	public static final double PLAYER_AVG_HUMAN_AUDITORY_REACTION_TIME = .150f;
 
-	public PlayerRatings getRatings();
+	private int weight;
+	private String id;
+	private String firstName;
+	private String lastName;
+	private int height;
+	private int age;
+	private int number;
 
-	public AngularVelocity getAV();
+	private PlayerRatings ratings;
 
-	public Location getLoc();
+	private PlayerPosition currentPosition;
+	private final List<PlayerPosition> positions = new ArrayList<>();
 
-	public LinearVelocity getLV();
+	public Player(PlayerPosition currentPosition)
+	{
+		this.setCurrentPosition(currentPosition);
+	}
 
-	public SpeedMatrix getSpeedMatrix();
+	public SpeedMatrix getSpeedMatrix()
+	{
+		return new SpeedMatrix(this.currentPosition);
+	}
+	
+	public int getAge()
+	{
+		return this.age;
+	}
 
-	public double getMaxSpeed();
+	public String getFirstName()
+	{
+		return this.firstName;
+	}
 
-	public Path getPath();
+	
+	public int getHeight()
+	{
+		return this.height;
+	}
 
-	public Posture getPosture();
+	
+	public String getLastName()
+	{
+		return this.lastName;
+	}
 
-	public double getAccelerationCoefficient();
+	
+	public int getNumber()
+	{
+		return this.number;
+	}
 
-	public PlayerPosition getCurrentPosition();
+	
+	public String getPlayerID()
+	{
+		if (this.id == null)
+			return lastName + firstName;
+		
+		return this.id;
+	}
+
+	
+	public List<PlayerPosition> getPositions()
+	{
+		return Collections.unmodifiableList(this.positions);
+	}
+
+	
+	public PlayerPosition getPrimaryPosition()
+	{
+		if (this.positions.size() > 0)
+			return this.positions.getFirst();
+
+		return null;
+	}
+
+	
+	public PlayerRatings getRatings()
+	{
+		return this.ratings;
+	}
+
+	
+	public PlayerPosition getSecondaryPosition()
+	{
+		if (this.positions.size() > 1)
+			return this.positions.get(1);
+
+		return null;
+	}
+
+	
+	public PlayerPosition getTertiaryPosition()
+	{
+		if (this.positions.size() > 2)
+			return this.positions.get(2);
+
+		return null;
+	}
+
+	
+	public int getWeight()
+	{
+		return this.weight;
+	}
+
+	
+	public void setAge(final int age)
+	{
+		this.age = age;
+	}
+
+	
+	public void setFirstName(final String firstName)
+	{
+		this.firstName = firstName;
+	}
+
+	
+	public void setHeight(final int height)
+	{
+		this.height = height;
+	}
+
+	public void setLastName(final String lastName)
+	{
+		this.lastName = lastName;
+	}
+
+	
+	public void setNumber(final int number)
+	{
+		this.number = number;
+	}
+
+	public void setRatings(final PlayerRatings ratings)
+	{
+		this.ratings = ratings;
+	}
+
+	
+	public void setWeight(final int weight)
+	{
+		this.weight = weight;
+	}
+
+	
+	public PlayerPosition getCurrentPosition()
+	{
+		return this.currentPosition;
+	}
+
+	
+	public void setCurrentPosition(PlayerPosition pos)
+	{
+		this.currentPosition = pos;
+	}
+
+	
+	public String toString()
+	{
+		return this.firstName + " " + this.lastName;
+	}
 
 }

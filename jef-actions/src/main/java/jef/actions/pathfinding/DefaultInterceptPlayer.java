@@ -8,8 +8,8 @@ import jef.actions.pathfinding.runners.RunnerPathfinder;
 import jef.core.Direction;
 import jef.core.Location;
 import jef.core.Performance;
-import jef.core.Player;
-import jef.core.movement.player.DefaultPath;
+import jef.core.PlayerState;
+import jef.core.movement.player.Path;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
@@ -21,24 +21,11 @@ public class DefaultInterceptPlayer extends AbstractPathfinder
 
 	private Pathfinder targetPathfinder;
 	private List<Location> interceptionPoints;
-//	private Map<Location, Integer> locationToTicks = new HashMap<>();
-//	private int minIndex;
-//	private int maxIndex;
 
-	public DefaultInterceptPlayer(Player player, Direction direction, Pathfinder targetPathfinder)
+	public DefaultInterceptPlayer(PlayerState playerState, Direction direction, Pathfinder targetPathfinder)
 	{
-		super(player, direction);
+		super(playerState, direction);
 		this.targetPathfinder = targetPathfinder;
-	}
-
-	@Override
-	public void reset()
-	{
-		super.reset();
-		interceptionPoints = null;
-//		locationToTicks = new HashMap<>();
-//		minIndex = -1;
-//		maxIndex = -1;
 	}
 
 	public Pathfinder getTargetPathfinder()
@@ -63,18 +50,18 @@ public class DefaultInterceptPlayer extends AbstractPathfinder
 		for (int i = 0; i < interceptionPoints.size(); i++)
 		{
 			Location loc = interceptionPoints.get(i);
-			int ticks = Steering.getInstance().calculateTicks(new PlayerTracker(getPlayer(),
-					new DefaultPath(new Waypoint(loc, getPlayer().getMaxSpeed(), DestinationAction.noStop)),
+			PlayerState playerState = getPlayerState().newFrom(null, null, null, new Path(new Waypoint(loc, getPlayerState().getMaxSpeed(), DestinationAction.noStop)), null);
+			int ticks = Steering.getInstance().calculateTicks(new PlayerTracker(playerState,
 					Performance.frameInterval));
 			
 			if (ticks - i <= IDEAL_INTERCEPT_TICKS_AHEAD)
 			{
-				setPath(new DefaultPath(new Waypoint(loc, getPlayer().getMaxSpeed(), DestinationAction.noStop)));
+				setPath(new Path(new Waypoint(loc, getPlayerState().getMaxSpeed(), DestinationAction.noStop)));
 				return true;
 			}
 		}
 		
-		setPath(new DefaultPath(new Waypoint(targetPathfinder.getPlayer().getLoc(), getPlayer().getMaxSpeed(), DestinationAction.noStop)));
+		setPath(new Path(new Waypoint(targetPathfinder.getPlayerState().getLoc(), getPlayerState().getMaxSpeed(), DestinationAction.noStop)));
 		return false;
 	}
 

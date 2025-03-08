@@ -11,32 +11,32 @@ import java.util.Set;
 import jef.actions.pathfinding.AbstractPathfinder;
 import jef.actions.pathfinding.blocking.BlockerPathfinder;
 import jef.actions.pathfinding.defenders.DefenderPathfinder;
-import jef.core.Location;
 import jef.core.Direction;
 import jef.core.Field;
 import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.Player;
+import jef.core.PlayerState;
 import jef.core.geometry.LineSegment;
 import jef.core.movement.Posture;
-import jef.core.movement.player.DefaultPath;
+import jef.core.movement.player.Path;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
 
 public class DefaultEvadeInterceptors extends AbstractPathfinder implements RunnerPathfinder
 {
 
-	public DefaultEvadeInterceptors(Player player, Direction direction)
+	public DefaultEvadeInterceptors(PlayerState playerState, Direction direction)
 	{
-		super(player, direction);
+		super(playerState, direction);
 	}
 
 	@Override
 	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders,
 			List<? extends BlockerPathfinder> blockers, long deltaNanos)
 	{
-		List<Player> interceptorPlayers = new ArrayList<>(
-				new HashSet<>(defenders.stream().map(pf -> pf.getPlayer()).toList()));
+		List<PlayerState> interceptorPlayers = new ArrayList<>(
+				new HashSet<>(defenders.stream().map(pf -> pf.getPlayerState()).toList()));
 
 		Set<Borderline> neutralBorderlines = buildNeutralBorderlines();
 //		neutralBorderlines.stream().forEach(bl -> MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
@@ -52,7 +52,7 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 //		reachableLocations.stream().forEach(rl -> MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
 //				DebugShape.fillLocation(rl, "#FF000000")));
 
-		reachableLocations = filterOutUnreachableLocations(runner.getPlayer(), reachableLocations, borderlines);
+		reachableLocations = filterOutUnreachableLocations(runner.getPlayerState(), reachableLocations, borderlines);
 //		reachableLocations.stream().forEach(rl -> MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
 //				DebugShape.fillLocation(rl, "#00FF0000")));
 
@@ -66,28 +66,28 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 	{
 		if (reachableLocations.size() > 0)
 		{
-			Waypoint wp1 = new Waypoint(reachableLocations.getFirst(), getPlayer().getMaxSpeed(),
+			Waypoint wp1 = new Waypoint(reachableLocations.getFirst(), getPlayerState().getMaxSpeed(),
 					DestinationAction.noStop);
 			if (wp1.getDestination().isInEndZone(getDirection()))
 			{
-				this.setPath(new DefaultPath(wp1));
+				this.setPath(new Path(wp1));
 			}
 			else
 			{
 				Waypoint wp2 = new Waypoint(
 						new Location(getDirection() == Direction.east ? Field.EAST_END_ZONE_X
 								: Field.WEST_END_ZONE_X, wp1.getDestination().getY()),
-						getPlayer().getMaxSpeed(), DestinationAction.normalStop);
-				this.setPath(new DefaultPath(wp1, wp2));
+						getPlayerState().getMaxSpeed(), DestinationAction.normalStop);
+				this.setPath(new Path(wp1, wp2));
 			}
 		}
 		else
 		{
 			Waypoint wp1 = new Waypoint(
 					new Location(getDirection() == Direction.east ? Field.EAST_END_ZONE_X
-							: Field.WEST_END_ZONE_X, getPlayer().getLoc().getY()),
-					getPlayer().getMaxSpeed(), DestinationAction.normalStop);
-			this.setPath(new DefaultPath(wp1));
+							: Field.WEST_END_ZONE_X, getPlayerState().getLoc().getY()),
+					getPlayerState().getMaxSpeed(), DestinationAction.normalStop);
+			this.setPath(new Path(wp1));
 		}
 	}
 
@@ -97,7 +97,7 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 		{
 			int ret = Double.compare(rl1.getX(), rl2.getX()) * (getDirection() == Direction.west ? 1 : -1);
 			if (ret == 0)
-				ret = Double.compare(getPlayer().getLoc().distanceBetween(rl1), getPlayer().getLoc().distanceBetween(rl2));
+				ret = Double.compare(getPlayerState().getLoc().distanceBetween(rl1), getPlayerState().getLoc().distanceBetween(rl2));
 			
 			if (ret == 0)
 				ret = Double.compare(Math.abs(rl1.getY() - Field.MIDFIELD_Y), Math.abs(rl2.getY() - Field.MIDFIELD_Y));
@@ -116,18 +116,18 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 		List<Location> reachableLocations = new ArrayList<>();
 		reachableLocations.addAll(borderlines.stream().map(bl -> bl.getLocation1()).toList());
 		reachableLocations.addAll(borderlines.stream().map(bl -> bl.getLocation2()).toList());
-		reachableLocations.add(new Location(getDirection() == Direction.east ? Field.EAST_END_ZONE_X : Field.WEST_END_ZONE_X, getPlayer().getLoc().getY()));
+		reachableLocations.add(new Location(getDirection() == Direction.east ? Field.EAST_END_ZONE_X : Field.WEST_END_ZONE_X, getPlayerState().getLoc().getY()));
 		return reachableLocations;
 	}
 
-	private List<Location> filterOutUnreachableLocations(Player player, List<Location> reachableLocations,
+	private List<Location> filterOutUnreachableLocations(PlayerState playerState, List<Location> reachableLocations,
 			Set<Borderline> borderlines)
 	{
 		Set<Location> ret = new HashSet<>();
 
 		for (Location reachableLocation : reachableLocations)
 		{
-			LineSegment ls = new LineSegment(player.getLoc(), reachableLocation);
+			LineSegment ls = new LineSegment(playerState.getLoc(), reachableLocation);
 			boolean locationNotReachable = false;
 			for (Borderline bl : borderlines)
 			{
@@ -172,12 +172,12 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 				new Borderline(Field.SIDELINE_SOUTH.move(0, Location.EPSILON_VALUE, 0), null, null)));
 	}
 
-	private Set<Borderline> buildBorderlines(List<Player> interceptorPlayers,
+	private Set<Borderline> buildBorderlines(List<PlayerState> interceptorPlayers,
 			List<? extends BlockerPathfinder> blockers)
 	{
 		Set<Borderline> segments = new HashSet<>();
 
-		final HashSet<Borderline> runnerInterceptorSegments = this.getBorderlines(getPlayer(), interceptorPlayers);
+		final HashSet<Borderline> runnerInterceptorSegments = this.getBorderlines(getPlayerState(), interceptorPlayers);
 		segments.addAll(runnerInterceptorSegments);
 
 //		final HashSet<Borderline> blockerInterceptorSegments = new HashSet<>();
@@ -214,9 +214,9 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 						continue;
 
 					final var newBl1 = new Borderline(new LineSegment(bl1.getLs().getLoc1(), intersection),
-							bl1.getPlayer1(), bl1.getPlayer2());
+							bl1.getPlayerState1(), bl1.getPlayerState2());
 					final var newBl2 = new Borderline(new LineSegment(bl1.getLs().getLoc2(), intersection),
-							bl1.getPlayer1(), bl1.getPlayer2());
+							bl1.getPlayerState1(), bl1.getPlayerState2());
 
 					borderlinesQueue.add(newBl1);
 					borderlinesQueue.add(newBl2);
@@ -235,15 +235,15 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 	private class Borderline
 	{
 		private LineSegment ls;
-		private Player player1;
-		private Player player2;
+		private PlayerState playerState1;
+		private PlayerState playerState2;
 
-		public Borderline(LineSegment ls, Player player1, Player player2)
+		public Borderline(LineSegment ls, PlayerState playerState1, PlayerState playerState2)
 		{
 			super();
 			this.ls = ls;
-			this.player1 = player1;
-			this.player2 = player2;
+			this.playerState1 = playerState1;
+			this.playerState2 = playerState2;
 		}
 
 		public LineSegment getLs()
@@ -251,14 +251,14 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 			return this.ls;
 		}
 
-		public Player getPlayer1()
+		public PlayerState getPlayerState1()
 		{
-			return this.player1;
+			return this.playerState1;
 		}
 
-		public Player getPlayer2()
+		public PlayerState getPlayerState2()
 		{
-			return this.player2;
+			return this.playerState2;
 		}
 
 		public Location getLocation1()
@@ -276,7 +276,7 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 		{
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + Objects.hash(ls, player1, player2);
+			result = prime * result + Objects.hash(ls, playerState1, playerState2);
 			return result;
 		}
 
@@ -291,18 +291,18 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 				return false;
 			Borderline other = (Borderline) obj;
 
-			return Objects.equals(this.ls, other.ls) && Objects.equals(this.player1, other.player1)
-					&& Objects.equals(this.player2, other.player2);
+			return Objects.equals(this.ls, other.ls) && Objects.equals(this.playerState1, other.playerState1)
+					&& Objects.equals(this.playerState2, other.playerState2);
 		}
 
 		@Override
 		public String toString()
 		{
-			return "Borderline [ls=" + this.ls + ", player1=" + this.player1 + ", player2=" + this.player2 + "]";
+			return "Borderline [ls=" + this.ls + ", player1=" + this.playerState1 + ", player2=" + this.playerState2 + "]";
 		}
 	}
 
-	private HashSet<Borderline> getBorderlines(Player p1, Collection<? extends Player> players)
+	private HashSet<Borderline> getBorderlines(PlayerState p1, Collection<? extends PlayerState> players)
 	{
 		return new HashSet<>(players.stream().map(p2 ->
 		{

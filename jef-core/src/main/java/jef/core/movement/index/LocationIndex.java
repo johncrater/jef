@@ -3,7 +3,7 @@ package jef.core.movement.index;
 import java.util.List;
 
 import jef.core.Location;
-import jef.core.Player;
+import jef.core.PlayerState;
 import jef.core.collisions.Collision;
 import jef.core.movement.player.PlayerTracker;
 
@@ -31,5 +31,5 @@ public interface LocationIndex
 	 * This should be called BEFORE player movement in the current turn. That way, collisions will be available before movement
 	 * @param player
 	 */
-	void update(Player player);
+	void update(PlayerState playerState);
 }
