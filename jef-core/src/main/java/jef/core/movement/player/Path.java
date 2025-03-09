@@ -57,4 +57,10 @@ public class Path implements Iterable<Waypoint>
 		if (this.waypoints.size() > 0)
 			this.destination = this.waypoints.getLast().getDestination();
 	}
+
+	@Override
+	public String toString()
+	{
+		return "Path [waypoints=" + this.waypoints + "]";
+	}
 }

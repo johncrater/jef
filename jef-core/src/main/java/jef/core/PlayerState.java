@@ -105,8 +105,10 @@ public class PlayerState
 		return new PlayerState(this.player, lv, loc, av, path, posture);
 	}
 	
+	@Override
 	public String toString()
 	{
-		return this.player.toString();
+		return "PlayerState [player=" + this.player + ", lv=" + this.lv + ", loc=" + this.loc + ", av=" + this.av
+				+ ", path=" + this.path + ", posture=" + this.posture + "]";
 	}
 }

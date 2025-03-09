@@ -92,6 +92,13 @@ public class Player
 		this.setCurrentPosition(currentPosition);
 	}
 
+	public Player(String firstName, String lastName, PlayerPosition currentPosition)
+	{
+		this.setFirstName(firstName);
+		this.setLastName(lastName);
+		this.setCurrentPosition(currentPosition);
+	}
+
 	public SpeedMatrix getSpeedMatrix()
 	{
 		return new SpeedMatrix(this.currentPosition);
