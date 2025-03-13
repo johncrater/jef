@@ -1,5 +1,7 @@
 package jef.core;
 
+import java.util.Objects;
+
 import jef.core.movement.Posture;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.SpeedMatrix;
@@ -106,9 +108,32 @@ public class PlayerState
 	}
 	
 	@Override
+	public int hashCode()
+	{
+		return Objects.hash(av, loc, lv, path, player, posture);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PlayerState other = (PlayerState) obj;
+		return Objects.equals(this.av, other.av) && Objects.equals(this.loc, other.loc)
+				&& Objects.equals(this.lv, other.lv) && Objects.equals(this.path, other.path)
+				&& Objects.equals(this.player, other.player) && this.posture == other.posture;
+	}
+
+	@Override
 	public String toString()
 	{
 		return "PlayerState [player=" + this.player + ", lv=" + this.lv + ", loc=" + this.loc + ", av=" + this.av
 				+ ", path=" + this.path + ", posture=" + this.posture + "]";
 	}
+	
+	
 }

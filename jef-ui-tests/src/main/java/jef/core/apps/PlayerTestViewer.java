@@ -9,13 +9,12 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.imageio.ImageIO;
 
@@ -45,16 +44,13 @@ import org.eclipse.swt.widgets.Shell;
 import com.badlogic.gdx.ai.msg.MessageManager;
 
 import jef.actions.pathfinding.Pathfinder;
+import jef.actions.pathfinding.Players;
 import jef.actions.pathfinding.blocking.BlockNearestThreat;
-import jef.actions.pathfinding.blocking.BlockerPathfinder;
 import jef.actions.pathfinding.blocking.BlockerWaypointPathfinder;
-import jef.actions.pathfinding.blocking.BlockersAction;
 import jef.actions.pathfinding.defenders.DefaultPursueRunner;
-import jef.actions.pathfinding.defenders.DefenderPathfinder;
 import jef.actions.pathfinding.defenders.DefenderWaypointPathfinder;
 import jef.actions.pathfinding.runners.DefaultEvadeInterceptors;
 import jef.actions.pathfinding.runners.RunForGlory;
-import jef.actions.pathfinding.runners.RunnerPathfinder;
 import jef.actions.pathfinding.runners.RunnerWaypointPathfinder;
 import jef.core.AngularVelocity;
 import jef.core.Conversions;
@@ -66,18 +62,11 @@ import jef.core.Performance;
 import jef.core.Player;
 import jef.core.PlayerPosition;
 import jef.core.PlayerState;
-import jef.core.collisions.Collision;
-import jef.core.collisions.CollisionResolution;
-import jef.core.collisions.CollisionResolver;
 import jef.core.events.DebugShape;
 import jef.core.events.Messages;
 import jef.core.geometry.LineSegment;
 import jef.core.movement.Posture;
-import jef.core.movement.index.DefaultLocationIndex;
-import jef.core.movement.index.LocationIndex;
 import jef.core.movement.player.Path;
-import jef.core.movement.player.PlayerTracker;
-import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
 import jef.core.ui.swt.utils.DebugMessageHandler;
@@ -120,21 +109,16 @@ public class PlayerTestViewer implements Runnable
 	private Image playerImage;
 	private GIFMarkup player1Gif;
 	private boolean pause = true;
-	private Player player;
-	private final Map<Player, PlayerState> players = new HashMap<>();
+	private Player currentPlayer;
+
 	private Player runner;
 	private final Map<String, Player> defenders = new HashMap<>();
 	private final Map<String, Player> blockers = new HashMap<>();
-
-	private final Map<Player, Class<? extends Pathfinder>> pathfinders = new HashMap<>();
-
+	private Players players = new Players(50, Performance.frameInterval);
+	
 	private DestinationAction nextDestinationAction = DestinationAction.fastStop;
 
-	private final LocationIndex index = new DefaultLocationIndex(PlayerTestViewer.TIMER_INTERVAL,
-			(int) (2 / PlayerTestViewer.TIMER_INTERVAL)); // two seconds
 	private final DebugMessageHandler debugMessageHandler = new DebugMessageHandler();
-
-	private boolean testRunning;
 
 	private boolean autoPauseActive;
 
@@ -270,103 +254,7 @@ public class PlayerTestViewer implements Runnable
 			{
 				this.debugMessageHandler.clear();
 
-				for (final PlayerState player : this.players.values())
-				{
-					this.index.update(player);
-				}
-
-				final List<Collision> collisions = this.index.getCollisions(0);
-
-				Set<Player> playersInvolvedInAcollision = new HashSet<>();
-				if (this.pathfinders.size() > 0)
-				{
-					Set<CollisionResolver> resolvers = new HashSet<>();
-					for (Collision c : collisions)
-					{
-						resolvers.add(CollisionResolution.createResolution(c, Football.theFootball));
-					}
-
-					for (CollisionResolver resolver : resolvers)
-					{
-						resolver.resolveCollision();
-						PlayerState playerState = this.players
-								.get(resolver.getPlayerTracker1().getPlayer())
-								.newFrom(resolver.getPlayerTracker1().getLV(), null, null, null,
-										resolver.getPlayerTracker1().getPosture());
-
-						players.put(playerState.getPlayer(), playerState);
-						playersInvolvedInAcollision.add(playerState.getPlayer());
-
-						playerState = this.players.get(resolver.getPlayerTracker2().getPlayer()).newFrom(
-								resolver.getPlayerTracker2().getLV(), null, null, null,
-								resolver.getPlayerTracker2().getPosture());
-
-						players.put(playerState.getPlayer(), playerState);
-						playersInvolvedInAcollision.add(playerState.getPlayer());
-					}
-
-					Set<Pathfinder> newPathfinders = new HashSet<>();
-					for (Player player : players.keySet())
-					{
-						Class<? extends Pathfinder> pathfinderClass = this.pathfinders.get(player);
-						if (pathfinderClass == null)
-							continue;
-	
-						Pathfinder pathfinder = (Pathfinder) pathfinderClass
-								.getConstructor(PlayerState.class, Direction.class)
-								.newInstance(players.get(player), Direction.west);
-	
-						newPathfinders.add(pathfinder);
-					}
-	
-					RunnerPathfinder runnerPathfinder = newPathfinders.stream()
-							.filter(rpf -> rpf instanceof RunnerPathfinder).map(rpf -> (RunnerPathfinder) rpf).findFirst()
-							.orElse(null);
-	
-					if (runnerPathfinder != null)
-					{
-						List<DefenderPathfinder> defenderPathfinders = newPathfinders.stream()
-								.filter(DefenderPathfinder.class::isInstance).map(dpf -> (DefenderPathfinder) dpf).toList();
-	
-						List<BlockerPathfinder> blockerPathfinders = newPathfinders.stream()
-								.filter(BlockerPathfinder.class::isInstance).map(bpf -> (BlockerPathfinder) bpf).toList();
-	
-						runnerPathfinder.calculate(runnerPathfinder, defenderPathfinders, blockerPathfinders, interval);
-	
-						defenderPathfinders.forEach(pf ->
-						{
-							pf.calculate(runnerPathfinder, defenderPathfinders, blockerPathfinders, interval);
-						});
-	
-						new BlockersAction().move(runnerPathfinder, defenderPathfinders, blockerPathfinders, interval);
-	
-						for (Pathfinder pathfinder : newPathfinders)
-						{
-							this.players.put(pathfinder.getPlayerState().getPlayer(), pathfinder.getPlayerState().newFrom(null, null, null, pathfinder.getPath(), null));
-						}
-						
-						for (final PlayerState player : this.players.values())
-						{
-							final Steering steering = Steering.getInstance();
-							final PlayerTracker tracker = new PlayerTracker(player, PlayerTestViewer.TIMER_INTERVAL);
-							steering.next(tracker);
-		
-							this.players.put(player.getPlayer(), player.newFrom(tracker.getLV(), tracker.getLoc(),
-									tracker.getAV(), tracker.getPath(), tracker.getPosture()));
-						}
-		
-						PlayerState runnerState = this.players.get(runner);
-						if (runnerState.getPosture() == Posture.onTheGround || runnerState.getLoc().isInBounds() == false
-								|| runnerState.getLoc().isInEndZone(null))
-						{
-							this.pathfinders.clear();
-		//					this.players.values().forEach(p -> p.setPath(null));
-		//					players.values().forEach(p -> p.setPosture(Posture.upright));
-						}
-		
-						this.index.advance();
-					}
-				}
+				players.process();
 				
 				Performance.processTime.endCycle();
 			}
@@ -377,9 +265,9 @@ public class PlayerTestViewer implements Runnable
 			}
 		}
 
-		this.drawPath(this.players.get(runner), "#00FF0000");
-		this.defenders.values().forEach(p -> drawPath(this.players.get(p), "#FF000000"));
-		this.blockers.values().forEach(p -> drawPath(this.players.get(p), "#0000FF00"));
+		this.drawPath(players.getState(runner), "#00FF0000");
+		this.defenders.values().forEach(p -> drawPath(players.getState(p), "#FF000000"));
+		this.blockers.values().forEach(p -> drawPath(players.getState(p), "#0000FF00"));
 
 		this.canvas.redraw();
 
@@ -451,7 +339,7 @@ public class PlayerTestViewer implements Runnable
 			}
 		});
 
-		for (final Player p : this.players.keySet())
+		for (final Player p : this.players.getPlayers())
 		{
 			final Composite composite = new Composite(buttonRow, SWT.NONE);
 			composite.setLayout(new FillLayout(SWT.VERTICAL));
@@ -464,7 +352,7 @@ public class PlayerTestViewer implements Runnable
 				@Override
 				public void widgetSelected(final SelectionEvent e)
 				{
-					PlayerTestViewer.this.player = (Player) b.getData();
+					PlayerTestViewer.this.currentPlayer = (Player) b.getData();
 				}
 			});
 
@@ -475,9 +363,19 @@ public class PlayerTestViewer implements Runnable
 				@Override
 				public void widgetSelected(final SelectionEvent e)
 				{
-					final Class<? extends Pathfinder> pf = (Class<? extends Pathfinder>) strategyCombo
+					final Class<Pathfinder> pfClass = (Class<Pathfinder>) strategyCombo
 							.getData(strategyCombo.getItems()[strategyCombo.getSelectionIndex()]);
-					PlayerTestViewer.this.pathfinders.put(p, pf);
+					try
+					{
+						Pathfinder pathfinder = (Pathfinder) pfClass
+								.getConstructor(PlayerState.class, Direction.class)
+								.newInstance(p, Direction.west);
+						players.setPathfinder(pathfinder);
+					}
+					catch (Exception e1)
+					{
+						e1.printStackTrace();
+					}
 				}
 			});
 
@@ -516,8 +414,21 @@ public class PlayerTestViewer implements Runnable
 			}
 
 			strategyCombo.select(0);
-			this.pathfinders.put(p, (Class<? extends Pathfinder>) strategyCombo
-					.getData(strategyCombo.getItems()[strategyCombo.getSelectionIndex()]));
+			final Class<Pathfinder> pfClass = (Class<Pathfinder>) strategyCombo
+					.getData(strategyCombo.getItems()[strategyCombo.getSelectionIndex()]);
+
+			try
+			{
+				Pathfinder pathfinder = (Pathfinder) pfClass
+						.getConstructor(PlayerState.class, Direction.class)
+						.newInstance(players.getState(p), Direction.west);
+				players.setPathfinder(pathfinder);
+			}
+			catch (Exception e1)
+			{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 	}
 
@@ -598,9 +509,9 @@ public class PlayerTestViewer implements Runnable
 			try (FieldTransformStack ts = new FieldTransformStack(canvas, e.gc, midfieldLocation, scaleAdjustment))
 			{
 				e.gc.drawImage(this.field, 0, 0);
-				for (final PlayerState player : this.players.values())
+				for (final Player player : this.players.getPlayers())
 				{
-					this.drawPlayer(ts, player);
+					this.drawPlayer(ts, this.players.getState(player));
 				}
 
 				this.debugMessageHandler.draw(e.gc);
@@ -636,10 +547,11 @@ public class PlayerTestViewer implements Runnable
 					else
 					{
 						Location loc = ts.transformToLocation(p);
-						PlayerState playerState = players.get(PlayerTestViewer.this.player);
+						PlayerState playerState = players.getState(PlayerTestViewer.this.currentPlayer);
 						Path path = new Path(new Waypoint(loc, playerState.getSpeedMatrix().getJoggingSpeed(),
 								playerState.getMaxSpeed(), PlayerTestViewer.this.nextDestinationAction));
-						players.put(playerState.getPlayer(), playerState.newFrom(null, null, null, path, null));
+						playerState = playerState.newFrom(null, null, null, path, null);
+						players.reset(playerState);
 					}
 				}
 				catch (final Exception e1)
@@ -677,8 +589,8 @@ public class PlayerTestViewer implements Runnable
 
 		PlayerState playerState = new PlayerState(pl, null, new Location(lineOfScrimmage + 5, Field.MIDFIELD_Y, 0),
 				new AngularVelocity(Math.PI, 0, 0), null, Posture.upright);
-		this.players.put(pl, playerState);
-		this.runner = this.player = pl;
+		this.players.addPlayer(playerState);
+		this.runner = this.currentPlayer = pl;
 		Football.theFootball.setPlayerInPossession(this.runner);
 
 		pl = new Player(PlayerPosition.RG);
@@ -687,7 +599,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setWeight(250);
 		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage, Field.MIDFIELD_Y - 2, 0),
 				new AngularVelocity(Math.PI, 0, 0), null, Posture.upright);
-		this.players.put(pl, playerState);
+		this.players.addPlayer(playerState);
 		this.blockers.put(pl.getPlayerID(), pl);
 
 		pl = new Player(PlayerPosition.C);
@@ -696,7 +608,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setWeight(270);
 		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage, Field.MIDFIELD_Y, 0),
 				new AngularVelocity(Math.PI, 0, 0), null, Posture.upright);
-		this.players.put(pl, playerState);
+		this.players.addPlayer(playerState);
 		this.blockers.put(pl.getPlayerID(), pl);
 
 		pl = new Player(PlayerPosition.RT);
@@ -705,7 +617,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setWeight(260);
 		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage, Field.MIDFIELD_Y + 2, 0),
 				new AngularVelocity(Math.PI, 0, 0), null, Posture.upright);
-		this.players.put(pl, playerState);
+		this.players.addPlayer(playerState);
 		this.blockers.put(pl.getPlayerID(), pl);
 
 		// defense
@@ -715,7 +627,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setWeight(280);
 		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage - 1, Field.MIDFIELD_Y + 2, 0),
 				new AngularVelocity(0, 0, 0), null, Posture.upright);
-		this.players.put(pl, playerState);
+		this.players.addPlayer(playerState);
 		this.defenders.put(pl.getPlayerID(), pl);
 
 		pl = new Player(PlayerPosition.DE);
@@ -724,7 +636,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setWeight(280);
 		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage - 1, Field.MIDFIELD_Y - 2, 0),
 				new AngularVelocity(0, 0, 0), null, Posture.upright);
-		this.players.put(pl, playerState);
+		this.players.addPlayer(playerState);
 		this.defenders.put(pl.getPlayerID(), pl);
 
 		pl = new Player(PlayerPosition.LLB);
@@ -733,7 +645,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setWeight(255);
 		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage - 6, Field.MIDFIELD_Y - 2, 0),
 				new AngularVelocity(0, 0, 0), null, Posture.upright);
-		this.players.put(pl, playerState);
+		this.players.addPlayer(playerState);
 		this.defenders.put(pl.getPlayerID(), pl);
 
 		pl = new Player(PlayerPosition.RLB);
@@ -742,7 +654,7 @@ public class PlayerTestViewer implements Runnable
 		pl.setWeight(255);
 		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage - 6, Field.MIDFIELD_Y + 2, 0),
 				new AngularVelocity(0, 0, 0), null, Posture.upright);
-		this.players.put(pl, playerState);
+		this.players.addPlayer(playerState);
 		this.defenders.put(pl.getPlayerID(), pl);
 	}
 
@@ -809,7 +721,7 @@ public class PlayerTestViewer implements Runnable
 			gc.fillOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
 		}
 
-		if (player.getPlayer() == this.player)
+		if (player.getPlayer() == this.currentPlayer)
 		{
 			gc.setForeground(this.shell.getDisplay().getSystemColor(SWT.COLOR_RED));
 			gc.setLineWidth(lineWidth);
@@ -850,9 +762,9 @@ public class PlayerTestViewer implements Runnable
 
 	private void drawSelectedPlayerData(final GC gc)
 	{
-		PlayerState playerState = this.players.get(player);
+		PlayerState playerState = this.players.getState(currentPlayer);
 		final StringBuilder str = new StringBuilder();
-		str.append(String.format("Name            : %s %s\n", this.player.getFirstName(), this.player.getLastName()));
+		str.append(String.format("Name            : %s %s\n", this.currentPlayer.getFirstName(), this.currentPlayer.getLastName()));
 		str.append(String.format("Location        : %s\n", playerState.getLoc()));
 		str.append(String.format("Linear velocity : %s\n", playerState.getLV()));
 		str.append(String.format("Angular velocity: %s\n", playerState.getAV()));

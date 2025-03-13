@@ -1,16 +1,15 @@
-package jef.core.collisions;
+package jef.actions.collisions;
 
 import jef.core.Conversions;
-import jef.core.Randomizer;
+import jef.core.PlayerState;
 import jef.core.movement.Posture;
-import jef.core.movement.player.PlayerTracker;
 
 public class BlockingResolver extends CollisionResolverBase
 {
 	private static final double MAXIMUM_BLOCKING_ANGLE = Math.PI / 2;
 	private static final double MAXIMUM_BLOCKING_DISTANCE = 1;
 
-	public BlockingResolver(PlayerTracker blocker, PlayerTracker defender)
+	public BlockingResolver(PlayerState blocker, PlayerState defender)
 	{
 		super(blocker, defender);
 	}
@@ -30,19 +29,19 @@ public class BlockingResolver extends CollisionResolverBase
 //		double pct = distancePct * tackleAnglePct;
 //		if (Randomizer.nextDouble() < pct)
 		{
-			getBlocker().setPosture(Posture.fallingDown);
-			getDefender().setPosture(Posture.fallingDown);
+			this.setPlayerState1(getBlocker().newFrom(null, null, null, null, Posture.fallingDown));
+			this.setPlayerState2(getDefender().newFrom(null, null, null, null, Posture.fallingDown));
 		}
 	}
 
-	public PlayerTracker getBlocker()
+	public PlayerState getBlocker()
 	{
-		return this.getPlayerTracker1();
+		return this.getPlayerState1();
 	}
 
-	public PlayerTracker getDefender()
+	public PlayerState getDefender()
 	{
-		return this.getPlayerTracker2();
+		return this.getPlayerState2();
 	}
 
 }

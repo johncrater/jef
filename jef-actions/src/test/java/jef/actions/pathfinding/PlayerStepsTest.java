@@ -1,13 +1,18 @@
-package jef.core;
+package jef.actions.pathfinding;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import jef.actions.pathfinding.PlayerSteps;
+import jef.core.Field;
+import jef.core.Performance;
+import jef.core.Player;
+import jef.core.PlayerPosition;
+import jef.core.PlayerState;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
@@ -27,7 +32,7 @@ class PlayerStepsTest
 								state.getPlayer().getSpeedMatrix().getSprintingSpeed(), DestinationAction.noStop)),
 						null);
 
-		steps = new PlayerSteps(state, 50);
+		steps = new PlayerSteps(state, 50, Performance.frameInterval);
 	}
 	
 	@Test
@@ -36,7 +41,7 @@ class PlayerStepsTest
 		assertEquals(50, steps.getCapacity());
 	}
 	
-	@Test
+	@Test	
 	void testGetState()
 	{
 		PlayerState testState = steps.getState(0);

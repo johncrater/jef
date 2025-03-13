@@ -7,10 +7,10 @@ import jef.core.Location;
 import jef.core.PlayerState;
 import jef.core.movement.player.Path;
 
-public interface Pathfinder extends IterativeCalculation
+public interface Pathfinder
 {
 	public Path getPath();
 	public PlayerState getPlayerState();
-	public List<Location> getSteps();
 	public Direction getDirection();
+	public boolean calculate(PlayerState runner, List<PlayerState> defenders, List<PlayerState> blockers, long deltaNanos);
 }

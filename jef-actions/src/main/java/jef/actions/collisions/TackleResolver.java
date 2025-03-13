@@ -1,9 +1,8 @@
-package jef.core.collisions;
+package jef.actions.collisions;
 
 import jef.core.Conversions;
-import jef.core.Randomizer;
+import jef.core.PlayerState;
 import jef.core.movement.Posture;
-import jef.core.movement.player.PlayerTracker;
 
 public class TackleResolver extends CollisionResolverBase
 {
@@ -11,7 +10,7 @@ public class TackleResolver extends CollisionResolverBase
 	private static final double MAXIMUM_TACKLE_DISTANCE = 1;
 	private static final double MINIMUM_BUMP_DISTANCE = 1.0 / 3.0;
 
-	public TackleResolver(PlayerTracker runner, PlayerTracker defender)
+	public TackleResolver(PlayerState runner, PlayerState defender)
 	{
 		super(runner, defender);
 	}
@@ -30,18 +29,18 @@ public class TackleResolver extends CollisionResolverBase
 //		double pct = distancePct * tackleAnglePct;
 //		if (Randomizer.nextDouble() < pct)
 		{
-			getRunner().setPosture(Posture.fallingDown);
-			getDefender().setPosture(Posture.fallingDown);
+			this.setPlayerState1(getRunner().newFrom(null, null, null, null, Posture.fallingDown));
+			this.setPlayerState2(getDefender().newFrom(null, null, null, null, Posture.fallingDown));
 		}
 	}
 
-	public PlayerTracker getRunner()
+	public PlayerState getRunner()
 	{
-		return this.getPlayerTracker1();
+		return this.getPlayerState1();
 	}
 	
-	public PlayerTracker getDefender()
+	public PlayerState getDefender()
 	{
-		return this.getPlayerTracker2();
+		return this.getPlayerState2();
 	}
 }

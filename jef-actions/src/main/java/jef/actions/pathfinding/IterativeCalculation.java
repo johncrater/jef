@@ -2,11 +2,9 @@ package jef.actions.pathfinding;
 
 import java.util.List;
 
-import jef.actions.pathfinding.blocking.BlockerPathfinder;
-import jef.actions.pathfinding.defenders.DefenderPathfinder;
-import jef.actions.pathfinding.runners.RunnerPathfinder;
+import jef.core.PlayerState;
 
 public interface IterativeCalculation
 {
-	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders, List<? extends BlockerPathfinder> blockers, long deltaNanos);
+	public boolean calculate(PlayerState runner, List<PlayerState> defenders, List<PlayerState> blockers, long deltaNanos);
 }

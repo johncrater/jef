@@ -39,8 +39,8 @@ public class PlayerStepsCalculator implements IterativeCalculation
 		return this.steps;
 	}
 
-	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders,
-			List<? extends BlockerPathfinder> blockers, long deltaNanos)
+	public boolean calculate(PlayerState runner, List<PlayerState> defenders,
+			List<PlayerState> blockers, long deltaNanos)
 	{
 		long nanos = System.nanoTime();
 

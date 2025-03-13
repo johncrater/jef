@@ -1,18 +1,17 @@
-package jef.core.collisions;
+package jef.actions.collisions;
 
 import java.util.Objects;
 
 import jef.core.Location;
-import jef.core.Location;
-import jef.core.movement.player.PlayerTracker;
+import jef.core.PlayerState;
 
 public class Collision
 {
-	private PlayerTracker occupier1;
-	private PlayerTracker occupier2;
+	private PlayerState occupier1;
+	private PlayerState occupier2;
 	private int tickCountOfcollision;
 
-	public Collision(PlayerTracker occupier1, PlayerTracker occupier2, int tickCountOfcollision)
+	public Collision(PlayerState occupier1, PlayerState occupier2, int tickCountOfcollision)
 	{
 		super();
 		this.occupier1 = occupier1;
@@ -48,12 +47,12 @@ public class Collision
 		return occupier2.getLV().getAzimuth() - occupier2.getLoc().angleTo(occupier1.getLoc());
 	}
 
-	public PlayerTracker getOccupier1()
+	public PlayerState getOccupier1()
 	{
 		return this.occupier1;
 	}
 
-	public PlayerTracker getOccupier2()
+	public PlayerState getOccupier2()
 	{
 		return this.occupier2;
 	}
