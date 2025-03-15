@@ -8,9 +8,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import jef.actions.pathfinding.AbstractPathfinder;
-import jef.actions.pathfinding.blocking.BlockerPathfinder;
-import jef.actions.pathfinding.defenders.DefenderPathfinder;
+import jef.actions.pathfinding.PathfinderBase;
+import jef.actions.pathfinding.PlayerStates;
 import jef.core.Direction;
 import jef.core.Field;
 import jef.core.LinearVelocity;
@@ -23,26 +22,28 @@ import jef.core.movement.player.Path;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
 
-public class DefaultEvadeInterceptors extends AbstractPathfinder implements RunnerPathfinder
+public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPathfinder
 {
-
-	public DefaultEvadeInterceptors(PlayerState playerState, Direction direction)
+	private Collection<Player> defenders;
+	private Collection<Player> blockers;
+	
+	public DefaultEvadeInterceptors(PlayerStates players, Player player, Direction direction, Collection<Player> defenders, Collection<Player> blockers)
 	{
-		super(playerState, direction);
+		super(players, player, direction);
+		this.defenders = defenders;
+		this.blockers = blockers;
 	}
 
 	@Override
-	public boolean calculate(RunnerPathfinder runner, List<? extends DefenderPathfinder> defenders,
-			List<? extends BlockerPathfinder> blockers, long deltaNanos)
+	public void calculate()
 	{
-		List<PlayerState> interceptorPlayers = new ArrayList<>(
-				new HashSet<>(defenders.stream().map(pf -> pf.getPlayerState()).toList()));
+		List<PlayerState> interceptorPlayers = defenders.stream().map(p -> getPlayerStates().getState(p)).toList();
 
 		Set<Borderline> neutralBorderlines = buildNeutralBorderlines();
 //		neutralBorderlines.stream().forEach(bl -> MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
 //				DebugShape.drawLineSegment(bl.getLs(), "#00000000")));
 
-		Set<Borderline> borderlines = buildBorderlines(interceptorPlayers, blockers);
+		Set<Borderline> borderlines = buildBorderlines(interceptorPlayers, blockers.stream().map(p -> getPlayerStates().getState(p)).toList());
 //		borderlines.stream().forEach(bl -> MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
 //				DebugShape.drawLineSegment(bl.getLs(), "#FF000000")));
 
@@ -52,14 +53,12 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 //		reachableLocations.stream().forEach(rl -> MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
 //				DebugShape.fillLocation(rl, "#FF000000")));
 
-		reachableLocations = filterOutUnreachableLocations(runner.getPlayerState(), reachableLocations, borderlines);
+		reachableLocations = filterOutUnreachableLocations(getPlayerStates().getState(getPlayer()), reachableLocations, borderlines);
 //		reachableLocations.stream().forEach(rl -> MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
 //				DebugShape.fillLocation(rl, "#00FF0000")));
 
 		reachableLocations = sortReachableLocations(reachableLocations);
 		assignPath(reachableLocations);
-
-		return this.calculateSteps(runner, defenders, blockers, deltaNanos);
 	}
 
 	private void assignPath(List<Location> reachableLocations)
@@ -70,7 +69,7 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 					DestinationAction.noStop);
 			if (wp1.getDestination().isInEndZone(getDirection()))
 			{
-				this.setPath(new Path(wp1));
+				this.setPlayerSteps(new Path(wp1));
 			}
 			else
 			{
@@ -78,7 +77,7 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 						new Location(getDirection() == Direction.east ? Field.EAST_END_ZONE_X
 								: Field.WEST_END_ZONE_X, wp1.getDestination().getY()),
 						getPlayerState().getMaxSpeed(), DestinationAction.normalStop);
-				this.setPath(new Path(wp1, wp2));
+				this.setPlayerSteps(new Path(wp1, wp2));
 			}
 		}
 		else
@@ -87,7 +86,7 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 					new Location(getDirection() == Direction.east ? Field.EAST_END_ZONE_X
 							: Field.WEST_END_ZONE_X, getPlayerState().getLoc().getY()),
 					getPlayerState().getMaxSpeed(), DestinationAction.normalStop);
-			this.setPath(new Path(wp1));
+			this.setPlayerSteps(new Path(wp1));
 		}
 	}
 
@@ -173,7 +172,7 @@ public class DefaultEvadeInterceptors extends AbstractPathfinder implements Runn
 	}
 
 	private Set<Borderline> buildBorderlines(List<PlayerState> interceptorPlayers,
-			List<? extends BlockerPathfinder> blockers)
+			List<PlayerState> blockers)
 	{
 		Set<Borderline> segments = new HashSet<>();
 

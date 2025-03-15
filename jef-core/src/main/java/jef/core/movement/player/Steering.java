@@ -14,5 +14,4 @@ public interface Steering
 	
 	boolean next(PlayerTracker tracker);
 	int calculateTicks(PlayerTracker tracker);
-
 }

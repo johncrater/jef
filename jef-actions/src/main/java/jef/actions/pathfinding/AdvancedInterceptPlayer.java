@@ -21,7 +21,7 @@ import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
 
-public class AdvancedInterceptPlayer extends AbstractPathfinder
+public class AdvancedInterceptPlayer extends PathfinderBase
 {
 	public static final int IDEAL_INTERCEPT_TICKS_AHEAD = 2;
 

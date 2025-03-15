@@ -1,13 +1,13 @@
 package jef.actions.pathfinding;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import jef.actions.pathfinding.PlayerSteps;
 import jef.core.Field;
 import jef.core.Performance;
 import jef.core.Player;
@@ -32,7 +32,7 @@ class PlayerStepsTest
 								state.getPlayer().getSpeedMatrix().getSprintingSpeed(), DestinationAction.noStop)),
 						null);
 
-		steps = new PlayerSteps(state, 50, Performance.frameInterval);
+		steps = new PlayerSteps(state, 50, Performance.frameInterval, 0);
 	}
 	
 	@Test
@@ -60,6 +60,20 @@ class PlayerStepsTest
 		}
 	}
 
+	@Test
+	void testDestinationReached()
+	{
+		for (int i = 0; i < 185; i++)
+		{
+			steps.advance();
+//			System.out.println(i + " - " + steps.getDestinationReachedSteps() + " - " + steps.getLast().getLoc());
+			assertTrue(!steps.hasReachedDestination());
+		}
+		
+		steps.advance();
+		assertTrue(steps.hasReachedDestination());
+	}
+	
 	@Test
 	void testAdvance()
 	{

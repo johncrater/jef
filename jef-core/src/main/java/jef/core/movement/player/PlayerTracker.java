@@ -131,6 +131,15 @@ public class PlayerTracker extends Tracker
 		return (Math.pow(desiredSpeed, 2) - Math.pow(this.getLV().getSpeed(), 2)) / (2 * accelerationRate);
 	}
 
+	public boolean destinationReached()
+	{
+		final Waypoint waypoint = getPath().getCurrentWaypoint();
+		if (waypoint == null)
+			return true;
+
+		return getLoc().closeEnoughTo(this.getPath().getDestination());
+	}
+
 	public boolean hasPastDestination()
 	{
 		final Location origin = this.startingState.getLoc();

@@ -3,6 +3,7 @@ package jef.core.movement.player;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import jef.core.Location;
 
@@ -56,6 +57,25 @@ public class Path implements Iterable<Waypoint>
 	{
 		if (this.waypoints.size() > 0)
 			this.destination = this.waypoints.getLast().getDestination();
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(destination, waypoints);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Path other = (Path) obj;
+		return Objects.equals(this.destination, other.destination) && Objects.equals(this.waypoints, other.waypoints);
 	}
 
 	@Override

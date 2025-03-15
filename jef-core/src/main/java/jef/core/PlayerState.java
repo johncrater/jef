@@ -131,8 +131,8 @@ public class PlayerState
 	@Override
 	public String toString()
 	{
-		return "PlayerState [player=" + this.player + ", lv=" + this.lv + ", loc=" + this.loc + ", av=" + this.av
-				+ ", path=" + this.path + ", posture=" + this.posture + "]";
+		return this.player + "" + this.lv + ", " + this.loc + ", " + this.av
+				+ ", " + this.path + ", " + this.posture;
 	}
 	
 	

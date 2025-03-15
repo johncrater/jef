@@ -76,7 +76,7 @@ public class DefaultSteering implements Steering
 		tracker.turn(angleAdjustment);
 		tracker.move();
 
-		if (this.destinationReached(tracker) || tracker.hasPastDestination())
+		if (tracker.destinationReached() || tracker.hasPastDestination())
 		{
 			List<Waypoint> waypoints = tracker.getPath().getWaypoints();
 			waypoints.remove(0);
@@ -173,15 +173,6 @@ public class DefaultSteering implements Steering
 			return 12.1f + ((pctOfMaximumSpeed - .95f) / .5f);
 
 		return 12.1f;
-	}
-
-	private boolean destinationReached(final PlayerTracker tracker)
-	{
-		final Waypoint waypoint = tracker.getPath().getCurrentWaypoint();
-		if (waypoint == null)
-			return true;
-
-		return tracker.getLoc().closeEnoughTo(this.getDestination(tracker));
 	}
 
 	private Location getDestination(PlayerTracker tracker)
