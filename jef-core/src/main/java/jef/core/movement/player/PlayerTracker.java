@@ -13,11 +13,13 @@ public class PlayerTracker extends Tracker
 {
 	private PlayerState currentState;
 	private PlayerState startingState;
+	private Path currentPath;
 	
-	public PlayerTracker(PlayerState playerState, final double timeInterval)
+	public PlayerTracker(PlayerState playerState, Path currrentPath, final double timeInterval)
 	{
 		super(timeInterval);
 		this.startingState = this.currentState = playerState;
+		this.currentPath = currentPath;
 	}
 
 	public PlayerTracker(final PlayerTracker tracker)
@@ -34,17 +36,17 @@ public class PlayerTracker extends Tracker
 	
 	public void setLV(LinearVelocity lv)
 	{
-		this.currentState = this.currentState.newFrom(lv, null, null, null, null);
+		this.currentState = this.currentState.newFrom(lv, null, null, null);
 	}
 	
 	public void setLoc(Location loc)
 	{
-		this.currentState = this.currentState.newFrom(null, loc, null, null, null);
+		this.currentState = this.currentState.newFrom(null, loc, null, null);
 	}
 	
 	public void setAV(AngularVelocity av)
 	{
-		this.currentState = this.currentState.newFrom(null, null, av, null, null);
+		this.currentState = this.currentState.newFrom(null, null, av, null);
 	}
 	
 	public LinearVelocity getLV()
@@ -71,12 +73,12 @@ public class PlayerTracker extends Tracker
 
 	public void setPosture(Posture posture)
 	{
-		this.currentState = this.currentState.newFrom(null, null, null, null, posture);
+		this.currentState = this.currentState.newFrom(null, null, null, posture);
 	}
 
 	public void setPath(Path path)
 	{
-		this.currentState = this.currentState.newFrom(null, null, null, path, null);
+		this.currentPath = path;
 	}
 
 	public Location getLoc()
@@ -86,7 +88,7 @@ public class PlayerTracker extends Tracker
 
 	public Path getPath()
 	{
-		return this.currentState.getPath();
+		return this.currentPath;
 	}
 
 	public Posture getPosture()

@@ -6,7 +6,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry excluding="jef/actions/pathfinding/AdvancedInterceptPlayer.java|jef/actions/pathfinding/runners/AdvancedEvadeInterceptors.java|jef/actions/pathfinding/defenders/AdvancedPursueRunner.java|jef/actions/pathfinding/blocking/FollowTheLeader.java|jef/actions/pathfinding/blocking/BlockerWaypointPathfinder.java|jef/actions/pathfinding/blocking/BlockNearestThreat.java" kind="src" path="src/main/java"/>
+	<classpathentry excluding="jef/actions/pathfinding/AdvancedInterceptPlayer.java|jef/actions/pathfinding/runners/AdvancedEvadeInterceptors.java|jef/actions/pathfinding/defenders/AdvancedPursueRunner.java|jef/actions/pathfinding/blocking/FollowTheLeader.java|jef/actions/pathfinding/blocking/BlockerWaypointPathfinder.java|jef/actions/pathfinding/blocking/BlockNearestThreat.java|jef/pathfinding/AdvancedInterceptPlayer.java|jef/pathfinding/runners/AdvancedEvadeInterceptors.java|jef/pathfinding/defenders/AdvancedPursueRunner.java|jef/pathfinding/blocking/BlockerWaypointPathfinder.java|jef/pathfinding/blocking/BlockNearestThreat.java|jef/pathfinding/blocking/FollowTheLeader.java" kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
 		<attributes>

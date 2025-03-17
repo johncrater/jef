@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 import jef.core.Location;
+import jef.core.movement.player.Waypoint.DestinationAction;
 
 public class Path implements Iterable<Waypoint>
 {
@@ -16,6 +17,16 @@ public class Path implements Iterable<Waypoint>
 	{
 		this.waypoints = path.getWaypoints();
 		this.destination = path.getDestination();
+	}
+	
+	public Path(Location destination)
+	{
+		this(new Waypoint(destination, 0, DestinationAction.fastStop));
+	}
+	
+	public Path(Location destination, double maxSpeed, DestinationAction destinationAction)
+	{
+		this(new Waypoint(destination, maxSpeed, destinationAction));
 	}
 	
 	public Path(Waypoint...waypoints)

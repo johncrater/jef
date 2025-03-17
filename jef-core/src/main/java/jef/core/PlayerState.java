@@ -11,16 +11,15 @@ public class PlayerState
 	private LinearVelocity lv;
 	private Location loc;
 	private AngularVelocity av;
-	private Path path;
 	private Posture posture;
 	private Player player;
 	
 	public PlayerState(Player player)
 	{
-		this(player, null, null, null, null, null);
+		this(player, null, null, null, null);
 	}
 	
-	public PlayerState(Player player, LinearVelocity lv, Location loc, AngularVelocity av, Path path, Posture posture)
+	public PlayerState(Player player, LinearVelocity lv, Location loc, AngularVelocity av, Posture posture)
 	{
 		assert player != null;
 		this.player = player;
@@ -34,16 +33,12 @@ public class PlayerState
 		if (av == null)
 			av = new AngularVelocity();
 
-		if (path == null)
-			path = new Path();
-		
 		if (posture == null)
 			posture = Posture.upright;
 		
 		this.lv = lv;
 		this.loc = loc;
 		this.av = av;
-		this.path = path;
 		this.posture = posture;
 	}
 
@@ -60,11 +55,6 @@ public class PlayerState
 	public AngularVelocity getAV()
 	{
 		return this.av;
-	}
-
-	public Path getPath()
-	{
-		return this.path;
 	}
 
 	public Posture getPosture()
@@ -87,7 +77,7 @@ public class PlayerState
 		return player.getSpeedMatrix();
 	}
 	
-	public PlayerState newFrom(LinearVelocity lv, Location loc, AngularVelocity av, Path path, Posture posture)
+	public PlayerState newFrom(LinearVelocity lv, Location loc, AngularVelocity av, Posture posture)
 	{
 		if (lv == null)
 			lv = this.lv;
@@ -98,19 +88,16 @@ public class PlayerState
 		if (av == null)
 			av = this.av;
 		
-		if (path == null)
-			path = this.path;
-		
 		if (posture == null)
 			posture = this.posture;
 		
-		return new PlayerState(this.player, lv, loc, av, path, posture);
+		return new PlayerState(this.player, lv, loc, av, posture);
 	}
 	
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(av, loc, lv, path, player, posture);
+		return Objects.hash(av, loc, lv, player, posture);
 	}
 
 	@Override
@@ -124,7 +111,7 @@ public class PlayerState
 			return false;
 		PlayerState other = (PlayerState) obj;
 		return Objects.equals(this.av, other.av) && Objects.equals(this.loc, other.loc)
-				&& Objects.equals(this.lv, other.lv) && Objects.equals(this.path, other.path)
+				&& Objects.equals(this.lv, other.lv) 
 				&& Objects.equals(this.player, other.player) && this.posture == other.posture;
 	}
 
@@ -132,7 +119,7 @@ public class PlayerState
 	public String toString()
 	{
 		return this.player + "" + this.lv + ", " + this.loc + ", " + this.av
-				+ ", " + this.path + ", " + this.posture;
+				+ ", " + this.posture;
 	}
 	
 	

@@ -63,12 +63,12 @@ public class UIUtils
 
 	public static void fillCircle(final GC gc, final Location l, final int radius)
 	{
-		gc.fillOval(yardsToPixels(l.getX()) - radius, yardsToPixels(Field.DIM_TOTAL_WIDTH - l.getY()) - radius, radius * 2, radius * 2);
+		gc.fillOval(yardsToPixels(l.getX()) - radius, yardsToPixels(l.getY()) - radius, radius * 2, radius * 2);
 	}
 
 	public static void drawCircle(final GC gc, final Location l, final int radius)
 	{
-		gc.drawOval(yardsToPixels(l.getX()) - radius, yardsToPixels(Field.DIM_TOTAL_WIDTH - l.getY()) - radius, radius * 2, radius * 2);
+		gc.drawOval(yardsToPixels(l.getX()) - radius, yardsToPixels(l.getY()) - radius, radius * 2, radius * 2);
 	}
 
 	public static int yardsToPixels(double yards)
