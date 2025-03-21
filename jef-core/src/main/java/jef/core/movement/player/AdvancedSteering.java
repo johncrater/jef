@@ -39,8 +39,13 @@ public class AdvancedSteering implements Steering
 
 	public int calculateTicks(PlayerTracker tracker)
 	{
+		return calculateTicks(tracker, Integer.MAX_VALUE);
+	}
+	
+	public int calculateTicks(PlayerTracker tracker, int maxTicks)
+	{
 		int count = 0;
-		while (next(tracker) == false)
+		while (next(tracker) == false && count < maxTicks)
 		{
 			count += 1;
 			tracker.advance();
@@ -149,7 +154,7 @@ public class AdvancedSteering implements Steering
 			tracker.turn(angleAdjustment);
 		}
 
-		if (startingSpeed <= (tracker.getLV().getSpeed() + speedAdjustment))
+		if (tracker.getRemainingTime() > 0 && startingSpeed <= (tracker.getLV().getSpeed() + speedAdjustment))
 		{
 			if ((options & USE_ACCELERATION) > 0)
 			{
