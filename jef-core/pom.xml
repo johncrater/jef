@@ -32,19 +32,21 @@
 			<scope>system</scope>
 			<systemPath>${swt-systemPath}</systemPath>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.synerset/unitility-core -->
 		<dependency>
 			<groupId>com.synerset</groupId>
 			<artifactId>unitility-core</artifactId>
 			<version>2.4.2</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-math3 -->
+		<dependency>
+			<groupId>com.badlogicgames.gdx</groupId>
+			<artifactId>gdx-ai</artifactId>
+			<version>1.8.2</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-math3</artifactId>
-			<version>3.6.1</version>
+			<artifactId>commons-numbers-core</artifactId>
+			<version>1.2</version>
 		</dependency>
-<!--		https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>

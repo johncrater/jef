@@ -2,66 +2,44 @@ package jef.core.movement;
 
 import java.util.Objects;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
-import org.apache.commons.math3.util.Precision;
+import jef.core.Field;
+import jef.core.geometry.Vector;
+import jef.core.pathfinding.Direction;
 
 public class DefaultLocation implements Location
 {
-	private double x;
-	private double y;
-	private double z;
+	private final Vector v;
 
 	public DefaultLocation()
 	{
+		this(0, 0, 0);
 	}
-	
-	public DefaultLocation(double x, double y, double z)
+
+	public DefaultLocation(final double x, final double y)
 	{
-		this.x = Precision.round(x, 8);
-		this.y = Precision.round(y, 8);
-		this.z = Precision.round(z, 8);
+		this(x, y, 0);
 	}
-	
-	public DefaultLocation(Vector3D vector)
+
+	public DefaultLocation(final double x, final double y, final double z)
 	{
-		this(vector.getX(), vector.getY(), vector.getZ());
+		this.v = Vector.fromCartesianCoordinates(x, y, z);
+	}
+
+	public DefaultLocation(final Vector v)
+	{
+		this.v = v;
 	}
 
 	@Override
-	public double distanceBetween(Location loc)
+	public Location add(double x, double y, double z)
 	{
-		return Math.sqrt(Math.pow(getX() - loc.getX(), 2) + Math.pow(getY() - loc.getY(), 2) + Math.pow(getZ() - loc.getZ(), 2));
-	}
-	
-	@Override
-	public boolean closeEnoughTo(Location loc, double distance)
-	{
-		return distanceBetween(loc) <= distance;
-	}
-	
-	@Override
-	public boolean closeEnoughTo(Location loc)
-	{
-		return closeEnoughTo(loc, EPSILON);
-	}
-	
-	@Override
-	public double angleTo(Location loc)
-	{
-		return Math.atan2(loc.getY() - getY(), loc.getX() - getX());
-	}
-	
-	@Override
-	public DefaultLocation add(double x, double y, double z)
-	{
-		return new DefaultLocation(this.x + x, this.y + y, this.z + z);
+		return new DefaultLocation(getX() + x, getY() + y, getZ() + z);
 	}
 
 	@Override
-	public DefaultLocation add(LinearVelocity lv)
+	public Location negate()
 	{
-		return add(lv.getX(), lv.getY(), lv.getZ());
+		return new DefaultLocation(-getX(), -getY(), -getZ());
 	}
 
 	@Override
@@ -71,20 +49,69 @@ public class DefaultLocation implements Location
 	}
 
 	@Override
-	public Location newFrom(Double x, Double y, Double z)
+	public Location subtract(Location loc)
 	{
-		if (x == null)
-			x = getX();
-		
-		if (y == null)
-			y = getY();
-		
-		if (z == null)
-			z = getZ();
-		
-		return new DefaultLocation(x, y, z);
+		return new DefaultLocation(getX() - loc.getX(), getY() - loc.getY(), getZ() - loc.getZ());
 	}
-	
+
+	@Override
+	public boolean isInBounds()
+	{
+		if (getX() <= Field.WEST_END_ZONE_BACK_X)
+			return false;
+		
+		if (getX() >= Field.EAST_END_ZONE_BACK_X)
+			return false;
+		
+		if (getY() <= Field.SOUTH_SIDELINE_Y)
+			return false;
+		
+		if (getY() >= Field.NORTH_SIDELINE_Y)
+			return false;
+		
+		return true;
+	}
+
+	@Override
+	public boolean isInEndZone(Direction direction)
+	{
+		if (isInBounds() == false)
+			return false;
+		
+		if ((direction == null || direction == Direction.west) && getX() <= Field.WEST_END_ZONE_X)
+			return true;
+		
+		if ((direction == null || direction == Direction.east) && getX() >= Field.EAST_END_ZONE_X)
+			return true;
+		
+		return false;
+	}
+
+	@Override
+	public Location add(final LinearVelocity lv)
+	{
+		return new DefaultLocation(this.v.add(lv.toVector()));
+	}
+
+	@Override
+	public double angleTo(final Location loc)
+	{
+		return Math.atan2(loc.getY() - this.getY(), loc.getX() - this.getX());
+	}
+
+	@Override
+	public boolean closeEnoughTo(final Location loc)
+	{
+		return Location.EPSILON.eqZero(this.distanceBetween(loc));
+	}
+
+	@Override
+	public double distanceBetween(final Location loc)
+	{
+		return Math.sqrt(Math.pow(this.getX() - loc.getX(), 2) + Math.pow(this.getY() - loc.getY(), 2)
+				+ Math.pow(this.getZ() - loc.getZ(), 2));
+	}
+
 	@Override
 	public boolean equals(final Object obj)
 	{
@@ -96,50 +123,64 @@ public class DefaultLocation implements Location
 
 		final Location other = (Location) obj;
 
-		return getX() == other.getX() && getY() == other.getY() && getZ() == other.getZ();
+		return Location.EPSILON.eq(this.getX(), other.getX()) && Location.EPSILON.eq(this.getY(), other.getY())
+				&& Location.EPSILON.eq(this.getZ(), other.getZ());
 	}
 
 	@Override
 	public double getX()
 	{
-		return x;
+		return this.v.getX();
 	}
 
 	@Override
 	public double getY()
 	{
-		return y;
+		return this.v.getY();
 	}
 
 	@Override
 	public double getZ()
 	{
-		return z;
+		return this.v.getZ();
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(x, y, z);
-	}
-
-	
-	@Override
-	public Vector3D toVector3D()
-	{
-		return new Vector3D(x, y, z);
+		return Objects.hash(this.getX(), this.getY(), this.getZ());
 	}
 
 	@Override
-	public Vector2D toVector2D()
+	public Location newFrom(Double x, Double y, Double z)
 	{
-		return new Vector2D(x, y);
+		if (x == null)
+		{
+			x = this.getX();
+		}
+
+		if (y == null)
+		{
+			y = this.getY();
+		}
+
+		if (z == null)
+		{
+			z = this.getZ();
+		}
+
+		return new DefaultLocation(x, y, z);
 	}
 
 	@Override
 	public String toString()
 	{
-		return String.format("(%6.2f, %5.2f, %5.2f)", this.x, this.y, this.z);
+		return String.format("(%6.2f, %5.2f, %5.2f)", this.getX() - Field.WEST_END_ZONE_X, this.getY() - Field.FIELD_BORDER_WIDTH, this.getZ());
 	}
 
+	@Override
+	public Vector toVector()
+	{
+		return this.v;
+	}
 }

@@ -8,6 +8,7 @@ import java.util.Set;
 
 import jef.core.movement.Location;
 import jef.core.movement.player.PlayerTracker;
+import jef.core.movement.player.Steerable;
 
 class LocationIndexEntry
 {
@@ -52,7 +53,6 @@ class LocationIndexEntry
 		
 		if (obj instanceof PlayerTracker)
 		{
-			assert ((PlayerTracker) obj).getId().equals(player.getId());
 			this.occupiers[index] = null;
 			occupierCount -= 1;
 			assert occupierCount >= 0;
@@ -82,8 +82,8 @@ class LocationIndexEntry
 		}
 		else if (obj instanceof PlayerTracker)
 		{
-			PlayerTracker pObj = (PlayerTracker) obj;
-			if (pObj.getId().equals(player.getId()) == false)
+			PlayerTracker pObj = (PlayerTracker)obj;
+			if (pObj.getPlayer().getPlayerID().equals(player.getPlayer().getPlayerID()) == false)
 			{
 				Set<PlayerTracker> set = new HashSet<PlayerTracker>();
 				set.add(player);
@@ -110,13 +110,13 @@ class LocationIndexEntry
 		{
 			return 0;
 		}
-		else if (obj instanceof PlayerTracker)
+		else if (obj instanceof Steerable)
 		{
 			return 1;
 		}
 		else 
 		{
-			Set<PlayerTracker> set = (Set<PlayerTracker>)obj;
+			Set<Steerable> set = (Set<Steerable>)obj;
 			return set.size();
 		}
 	}

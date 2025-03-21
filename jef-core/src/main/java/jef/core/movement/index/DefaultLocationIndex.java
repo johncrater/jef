@@ -9,10 +9,12 @@ import java.util.List;
 import java.util.Map;
 
 import jef.core.Player;
-import jef.core.movement.Collision;
+import jef.core.collisions.Collision;
 import jef.core.movement.DefaultLocation;
 import jef.core.movement.Location;
+import jef.core.movement.player.DefaultSteerable;
 import jef.core.movement.player.PlayerTracker;
+import jef.core.movement.player.Steerable;
 
 public class DefaultLocationIndex implements LocationIndex
 {
@@ -42,7 +44,7 @@ public class DefaultLocationIndex implements LocationIndex
 
 		for (final LocationIndexEntry entry : this.locationToIndexEntry.values())
 		{
-			final List<Player> neighbors = new ArrayList<>();
+			final List<PlayerTracker> neighbors = new ArrayList<>();
 			final List<PlayerTracker> occupiers = entry.getOccupiers(ticksAhead);
 			final List<Location> surroundingLocs = this.getSurroundingLocations(entry.getCanonicalLocation());
 			for (final Location loc : surroundingLocs)
@@ -63,7 +65,7 @@ public class DefaultLocationIndex implements LocationIndex
 	}
 
 	@Override
-	public List<? extends Player> getOccupiers(final Location location, final int tick)
+	public List<? extends PlayerTracker> getOccupiers(final Location location, final int tick)
 	{
 		final LocationIndexEntry entries = this.locationToIndexEntry.get(location);
 		if (entries == null)
@@ -84,15 +86,13 @@ public class DefaultLocationIndex implements LocationIndex
 		initEntries(player);
 		
 		final int tick = 0;
-		PlayerTracker tracker = new PlayerTracker(player, this.getTimeInterval());
-
-		PlayerIndexEntry entry = this.idToIndexEntry.get(player.getId());
-		final Player currentTracker = entry.getPlayerTracker(tick);
+		PlayerIndexEntry entry = this.idToIndexEntry.get(player.getPlayerID());
+		final PlayerTracker currentTracker = entry.getPlayerTracker(tick);
 
 		if (currentTracker != null)
 		{
-			if (currentTracker.getLV().equals(tracker.getLV())
-				&& currentTracker.getLoc().equals(tracker.getLoc()))
+			if (currentTracker.getLV().equals(player.getLV())
+				&& currentTracker.getLoc().equals(player.getLoc()))
 			return; // no change, so no need to update entries
 
 			clearEntries(player);
@@ -101,6 +101,7 @@ public class DefaultLocationIndex implements LocationIndex
 		
 		for (int i = 0; i < this.numberOfTicks; i++)
 		{
+			PlayerTracker tracker = new PlayerTracker(player, this.timeInterval);	
 			tracker.move();
 			entry.update(i, tracker);
 
@@ -113,13 +114,12 @@ public class DefaultLocationIndex implements LocationIndex
 			}
 
 			locationEntry.addOccupier(tracker, i);
-			tracker = new PlayerTracker(tracker);
 		}
 	}
 
 	private void clearEntries(Player player)
 	{
-		PlayerIndexEntry entry = this.idToIndexEntry.get(player.getId());
+		PlayerIndexEntry entry = this.idToIndexEntry.get(player.getPlayerID());
 		for (int i = 0; i < this.numberOfTicks; i++)
 		{
 			Location loc = this.toCanonicalLocation(entry.getPlayerTracker(i).getLoc());
@@ -135,16 +135,16 @@ public class DefaultLocationIndex implements LocationIndex
 	
 	private void initEntries(Player player)
 	{
-		PlayerIndexEntry entry = this.idToIndexEntry.get(player.getId());
+		PlayerIndexEntry entry = this.idToIndexEntry.get(player.getPlayerID());
 		if (entry == null)
 		{
-			entry = new PlayerIndexEntry(player.getId(), this.getNumTicks());
-			this.idToIndexEntry.put(player.getId(), entry);
+			entry = new PlayerIndexEntry(player, this.getNumTicks());
+			this.idToIndexEntry.put(player.getPlayerID(), entry);
 		}
 	}
 	
-	private List<Collision> extractRealCollisions(final List<? extends Player> targetPlayers,
-			final List<? extends Player> surroundingPlayers, final int tick)
+	private List<Collision> extractRealCollisions(final List<? extends PlayerTracker> targetPlayers,
+			final List<? extends PlayerTracker> surroundingPlayers, final int tick)
 	{
 		final List<Collision> ret = new ArrayList<>();
 
@@ -152,15 +152,15 @@ public class DefaultLocationIndex implements LocationIndex
 		{
 			for (int j = i + 1; j < targetPlayers.size(); j++)
 			{
-				final Player p1 = targetPlayers.get(i);
-				final Player p2 = targetPlayers.get(j);
+				final PlayerTracker p1 = targetPlayers.get(i);
+				final PlayerTracker p2 = targetPlayers.get(j);
 
 				if (p1 == p2)
 				{
 					continue;
 				}
 
-				if (p1.getLoc().distanceBetween(p2.getLoc()) < Player.size)
+				if (p1.getLoc().distanceBetween(p2.getLoc()) < Player.SIZE)
 				{
 					ret.add(new Collision(p1, p2, tick));
 				}
@@ -171,15 +171,15 @@ public class DefaultLocationIndex implements LocationIndex
 		{
 			for (int j = 0; j < surroundingPlayers.size(); j++)
 			{
-				final Player p1 = targetPlayers.get(i);
-				final Player p2 = surroundingPlayers.get(j);
+				final PlayerTracker p1 = targetPlayers.get(i);
+				final PlayerTracker p2 = surroundingPlayers.get(j);
 
 				if (p1 == p2)
 				{
 					continue;
 				}
 
-				if (p1.getLoc().distanceBetween(p2.getLoc()) < Player.size)
+				if (p1.getLoc().distanceBetween(p2.getLoc()) < Player.SIZE)
 				{
 					ret.add(new Collision(p1, p2, tick));
 				}

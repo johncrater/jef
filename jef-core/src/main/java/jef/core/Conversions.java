@@ -1,14 +1,16 @@
 package jef.core;
 
 import com.synerset.unitility.unitsystem.common.Distance;
+import com.synerset.unitility.unitsystem.common.Velocity;
 
 import jef.core.movement.DUnits;
+import jef.core.movement.VUnits;
 
-public interface Conversions
+public class Conversions
 {
 	public static double yardsToMeters(double yards)
 	{
-		return Distance.of(yards,  DUnits.YARD).getInMeters();
+		return Distance.of(yards, DUnits.YARD).getInMeters();
 	}
 
 	public static double metersToYards(double meters)
@@ -31,15 +33,45 @@ public interface Conversions
 		return Math.round(value * 4.0) / 4.0;
 	}
 
-    public static double normalizeAngle(double angle) 
-    {
-        angle = angle % (2 * Math.PI); // Normalize to the range -2PI to 2PI
+	/**
+	 * @param angle
+	 * @return Normalize to the range [-π, π]
+	 */
+	public static double normalizeAngle(double angle)
+	{
+		angle = angle % (2 * Math.PI); // Normalize to the range [-2π, 2π]
 
-        if (angle > Math.PI) {
-            angle -= 2 * Math.PI;
-        } else if (angle < -Math.PI) {
-            angle += 2 * Math.PI;
-        }
+		if (angle > Math.PI)
+		{
+			angle -= 2 * Math.PI;
+		}
+		else if (angle < -Math.PI)
+		{
+			angle += 2 * Math.PI;
+		}
 
-        return angle;
-    }}
+		return angle;
+	}
+
+	/**
+	 * @param angle
+	 * @return Normalize to the range [0, 2π]
+	 */
+	public static double normalizeAngle2PI(double angle)
+	{
+		angle = angle % (2 * Math.PI); // Normalize to the range [-2π, 2π]
+
+		if (angle < 0)
+		{
+			angle = 2 * Math.PI + angle;
+		}
+
+		return angle;
+	}
+
+	public static double milesPerHourToYardsPerSecond(double d)
+	{
+		return Velocity.ofMilesPerHour(d).getInUnit(VUnits.YPS);
+	}
+
+}

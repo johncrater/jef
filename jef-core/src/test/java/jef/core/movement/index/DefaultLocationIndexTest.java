@@ -2,8 +2,10 @@ package jef.core.movement.index;
 
 import org.junit.jupiter.api.Test;
 
-import jef.core.TestPlayer;
+import jef.core.DefaultPlayer;
 import jef.core.movement.DefaultLinearVelocity;
+import jef.core.movement.player.DefaultSteerable;
+import jef.core.movement.player.Steerable;
 
 class DefaultLocationIndexTest
 {
@@ -12,8 +14,12 @@ class DefaultLocationIndexTest
 	{
 		DefaultLocationIndex index = new DefaultLocationIndex(.05, 20);
 		
-		TestPlayer player = new TestPlayer("Fran", "Tarkenton");
-		player.setLV(new DefaultLinearVelocity(10, 10, 0));
-		index.update(player);
+		DefaultPlayer player = new DefaultPlayer();
+		player.setFirstName("Fran");
+		player.setLastName("Tarkenton");
+		
+		Steerable steerable = new DefaultSteerable(player);
+		steerable.setLV(new DefaultLinearVelocity((double) 10, (double) 10, (double) 0));
+		index.update(steerable);
 	}
 }

@@ -13,6 +13,7 @@ public class Messages
 	private static final int ballPrefix 					= 0x00030000;
 	private static final int playerPrefix 					= 0x00040000;
 	private static final int scoreboardPrefix 				= 0x00050000;
+	private static final int debugPrefix 					= 0xFFFF0000;
 
 	// game messages
 	public static final int gameStarted 					= 1 | gamePrefix;
@@ -83,6 +84,19 @@ public class Messages
 	public static final int lineOfScrimmageChanged			= 7 | scoreboardPrefix;
 	public static final int timeChanged		 				= 8 | scoreboardPrefix;
 	
+	// debug messages
+	public static final int drawInterceptorPath							= 1 	| debugPrefix;
+	public static final int drawInterceptorDestination					= 3 	| debugPrefix;
+	public static final int drawRunnerPath								= 4 	| debugPrefix;
+	public static final int drawRunnerDestination						= 5 	| debugPrefix;
+	public static final int drawBlockerDestination						= 11	| debugPrefix;
+	public static final int drawBlockerPath								= 12	| debugPrefix;
+
+	public static final int drawRunnerInterceptorBoundingSegments		= 6 	| debugPrefix;
+	public static final int drawBlockerInterceptorBoundingSegments		= 7 	| debugPrefix;
+	
+	public static final int drawDebugShape								= 100 	| debugPrefix;
+
 	public static <T> void dispatchEvent(List<T> listeners, Consumer<T> event)
 	{
 		List<T> copy = new ArrayList<T>(listeners);

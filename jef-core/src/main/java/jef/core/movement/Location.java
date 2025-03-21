@@ -1,35 +1,47 @@
 package jef.core.movement;
 
-import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
+import org.apache.commons.numbers.core.Precision;
+
+import jef.core.geometry.Vector;
+import jef.core.pathfinding.Direction;
 
 /* @formatter:off */
 public interface Location
 {
-	public static final double EPSILON = .02;
+	public static final double EPSILON_VALUE = .02;
+	public static final Precision.DoubleEquivalence EPSILON = Precision.doubleEquivalenceOfEpsilon(EPSILON_VALUE);
 
 	public static boolean closeEnoughTo(double v1, double v2)
 	{
-		return Math.abs(v1 - v2) < EPSILON;
+		return EPSILON.eq(v1, v2);
 	}
 	
 	public double distanceBetween(Location loc);
-
-	public boolean closeEnoughTo(Location loc, double distance);
 	public boolean closeEnoughTo(Location loc);
-
 	public double angleTo(Location loc);
 
-	public Location add(double x, double y, double z);
 	public Location add(LinearVelocity lv);
+	public Location add(double x, double y, double z);
 	public Location add(Location loc);
+	public Location subtract(Location loc);
+	public Location negate();
 
 	public Location newFrom(Double x, Double y, Double z);
 
 	public double getX();
 	public double getY();
 	public double getZ();
-
-	public Vector3D toVector3D();
-	public Vector2D toVector2D();
+	
+	public Vector toVector();
+	
+	/**
+	 * @return true if the location is in bounds including in the end zones
+	 */
+	public boolean isInBounds();
+	
+	/**
+	 * @return true if the location is in bounds and in either one of the two end zones
+	 */
+	public boolean isInEndZone(Direction direction);
+	
 }

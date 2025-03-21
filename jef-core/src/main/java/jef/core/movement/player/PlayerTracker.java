@@ -1,29 +1,41 @@
 package jef.core.movement.player;
 
-
-
-import org.apache.commons.math3.geometry.euclidean.twod.SubLine;
-import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
-
 import jef.core.Player;
+import jef.core.geometry.LineSegment;
+import jef.core.movement.DefaultAngularVelocity;
+import jef.core.movement.LinearVelocity;
 import jef.core.movement.Location;
 import jef.core.movement.Posture;
 import jef.core.movement.Tracker;
 
-public class PlayerTracker extends Tracker implements Player
+public class PlayerTracker extends Tracker
 {
-	private Player player;
+	private final Player player;
+	private Path path;
+	private Posture posture;
 
-	public PlayerTracker(PlayerTracker tracker)
+	public PlayerTracker(Player player, final double timeInterval)
+	{
+		super(player.getLV(), player.getLoc(), player.getAV(), timeInterval);
+		this.player = player;
+		this.path = player.getPath();
+		this.posture = player.getPosture();
+	}
+
+	public PlayerTracker(Player player, Path path, final double timeInterval)
+	{
+		super(player.getLV(), player.getLoc(), player.getAV(), timeInterval);
+		this.player = player;
+		this.path = path;
+		this.posture = player.getPosture();
+	}
+
+	public PlayerTracker(final PlayerTracker tracker)
 	{
 		super(tracker);
-		this.player = tracker.getPlayer();
-	}
-	
-	public PlayerTracker(Player player, double timeInterval)
-	{
-		super(player, timeInterval);
-		this.player = player;
+		this.player = tracker.player;
+		this.path = tracker.path;
+		this.posture = tracker.getPosture();
 	}
 
 	public Player getPlayer()
@@ -31,114 +43,53 @@ public class PlayerTracker extends Tracker implements Player
 		return this.player;
 	}
 	
-	@Override
-	public double getMaxSpeed()
-	{
-		return player.getMaxSpeed();
-	}
-
-	@Override
-	public double getDesiredSpeed()
-	{
-		Waypoint wp = player.getPath().getCurrentWaypoint();
-		if (wp == null)
-			return 0;
-		
-		return wp.getMaxSpeed();
-	}
-
-	@Override
-	public double getMassInKilograms()
-	{
-		return player.getMassInKilograms();
-	}
-
-	@Override
-	public String getId()
-	{
-		return player.getId();
-	}
-
-	@Override
-	public String getFirstName()
-	{
-		return player.getFirstName();
-	}
-
-	@Override
-	public String getLastName()
-	{
-		return player.getLastName();
-	}
-
-	@Override
-	public double getSpeed(Type type)
-	{
-		return player.getSpeed(type);
-	}
-
-	@Override
-	public void setPath(Path path)
-	{
-		player.setPath(path);
-	}
-
-	@Override
 	public Posture getPosture()
 	{
-		return player.getPosture();
+		return this.posture;
 	}
 
-	@Override
-	public double getAccelerationCoefficient()
-	{
-		return player.getAccelerationCoefficient();
-	}
-
-	@Override
 	public void setPosture(Posture posture)
 	{
-		player.setPosture(posture);
+		this.posture = posture;
 	}
 
-	@Override
-	public double getHeightInMeters()
+	public double getAccelerationCoefficient()
 	{
-		return player.getHeightInMeters();
+		return this.player.getAccelerationCoefficient();
 	}
-
+	
+	public double getDesiredSpeed()
+	{
+		return player.getDesiredSpeed();
+	}
+	
 	public Path getPath()
 	{
-		return this.player.getPath();
+		return this.path;
 	}
 
-	public boolean hasPastDestination()
+	public double getMaxSpeed()
 	{
-		Vector2D origin = this.getStartingLoc().toVector2D();
-		Vector2D dest = this.getPath().getCurrentWaypoint().getDestination().toVector2D();
-		
-		Vector2D slopeVector = dest.subtract(origin);
-		Vector2D antiSlopVector = new Vector2D(slopeVector.getY(), slopeVector.getX() * -1);
-		
-		Vector2D perpVector = dest.add(antiSlopVector);
-		
-		SubLine perpLine = new SubLine(this.getPath().getCurrentWaypoint().getDestination().toVector2D(), perpVector, Location.EPSILON);
-
-		SubLine currentLine = new SubLine(this.getStartingLoc().toVector2D(), this.getLoc().toVector2D(), Location.EPSILON);
-		Vector2D intersection = perpLine.intersection(currentLine, true);
-		
-		return intersection != null;
+		return this.player.getMaxSpeed();
+	}
+	
+	public void setPath(Path path)
+	{
+		this.path = path;
 	}
 
 	/**
-	 * Simply adjust the linear velocity to point in the direction created by adding
-	 * the adjustment to the current velocity
+	 * Calculates the speed after the adjust taking into consideration of remaining
+	 * time and the lower limit of zero
 	 *
-	 * @param angleAdjustment
+	 * @param speedAdjustment y/s speed adjustment
+	 * @return The adjusted speed. Does not consider any limitations on maximum
+	 *         speed.
 	 */
-	public void turn(final double angleAdjustment)
+	public double calculateAdjustedSpeed(double speedAdjustment)
 	{
-		this.setLV(this.getLV().newFrom(null, this.getLV().getAzimuth() + angleAdjustment, null));
+		speedAdjustment = speedAdjustment * this.getRemainingTime();
+		return Math.max(0, this.getLV().getSpeed() + speedAdjustment);
 	}
 
 	/**
@@ -159,18 +110,79 @@ public class PlayerTracker extends Tracker implements Player
 		return (Math.pow(desiredSpeed, 2) - Math.pow(this.getLV().getSpeed(), 2)) / (2 * accelerationRate);
 	}
 
-	/**
-	 * Calculates the speed after the adjust taking into consideration of remaining
-	 * time and the lower limit of zero
-	 *
-	 * @param speedAdjustment y/s speed adjustment
-	 * @return The adjusted speed. Does not consider any limitations on maximum
-	 *         speed.
-	 */
-	public double calculateAdjustedSpeed(double speedAdjustment)
+	public boolean hasPastDestination()
 	{
-		speedAdjustment = speedAdjustment * this.getRemainingTime();
-		return Math.max(0, this.getLV().getSpeed() + speedAdjustment);
+		final Location origin = this.getStartingLoc();
+		final Location dest = this.getPath().getCurrentWaypoint().getDestination();
+
+		final LineSegment line = new LineSegment(origin, dest);
+		final LineSegment perpLine = line.getPerpendicularLine(dest, line.getLength());
+
+		final LineSegment currentLine = new LineSegment(this.getStartingLoc(), this.getLoc());
+		final Location intersection = perpLine.xyIntersection(currentLine);
+
+		return intersection != null;
+	}
+
+	@Override
+	public double move()
+	{
+		final double ret = super.move();
+
+		// when LV = 0, azimuth becomes 0 also and we don't want to change AV
+		// orientation in that case
+		if (this.getLV().getSpeed() > 0)
+		{
+			this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
+		}
+
+		return ret;
+	}
+
+	@Override
+	public double move(final LinearVelocity lvAdjustment, final Double maximumDistance)
+	{
+		final double ret = super.move(lvAdjustment, maximumDistance);
+
+		// when LV = 0, azimuth becomes 0 also and we don't want to change AV
+		// orientation in that case
+		if (this.getLV().getSpeed() > 0)
+		{
+			this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
+		}
+
+		return ret;
+	}
+
+	@Override
+	public void moveRemaining(final double speedAdjustment)
+	{
+		super.moveRemaining(speedAdjustment);
+
+		// when LV = 0, azimuth becomes 0 also and we don't want to change AV
+		// orientation in that case
+		if (this.getLV().getSpeed() > 0)
+		{
+			this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
+		}
+	}
+
+	/**
+	 * Simply adjust the linear velocity to point in the direction created by adding
+	 * the adjustment to the current velocity
+	 *
+	 * @param angleAdjustment
+	 */
+	public void turn(final double angleAdjustment)
+	{
+		this.setLV(this.getLV().newFrom(this.getLV().getAzimuth() + angleAdjustment, null, null));
+
+		// when LV = 0, azimuth becomes 0 also and we don't want to change AV
+		// orientation in that case
+		if (this.getLV().getSpeed() > 0)
+		{
+			this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
+		}
 	}
 
 }

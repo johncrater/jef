@@ -2,12 +2,8 @@ package jef.core.movement;
 
 import jef.core.Conversions;
 
-public class Tracker implements Moveable
+public class Tracker extends DefaultMoveable
 {
-	private LinearVelocity lv;
-	private Location loc;
-	private AngularVelocity av;
-
 	private LinearVelocity startingLv;
 	private Location startingLoc;
 	private AngularVelocity startingAv;
@@ -27,11 +23,13 @@ public class Tracker implements Moveable
 
 	public Tracker(final LinearVelocity lv, final Location loc, final AngularVelocity av, final double timeInterval)
 	{
-		this.lv = this.startingLv = lv;
-		this.loc = this.startingLoc = loc;
-		this.av = this.startingAv = av;
+		super(lv, loc, av);
 		this.pctRemaining = 1.0;
 		this.timeInterval = timeInterval;
+		
+		this.startingLv = lv;
+		this.startingLoc = loc;
+		this.startingAv = av;
 	}
 
 	public Tracker(final Moveable moveable, final double timeInterval)
@@ -63,28 +61,10 @@ public class Tracker implements Moveable
 	{
 		if (speed == null)
 		{
-			speed = this.lv.getSpeed();
+			speed = this.getLV().getSpeed();
 		}
 
 		return speed * this.getRemainingTime();
-	}
-
-	@Override
-	public AngularVelocity getAV()
-	{
-		return this.av;
-	}
-
-	@Override
-	public Location getLoc()
-	{
-		return this.loc;
-	}
-
-	@Override
-	public LinearVelocity getLV()
-	{
-		return this.lv;
 	}
 
 	public double getPctRemaining()
@@ -132,10 +112,10 @@ public class Tracker implements Moveable
 
 		if (lvAdjustment != null)
 		{
-			this.lv = this.lv.add(lvAdjustment.multiply(remainingTime));
+			this.setLV(this.getLV().add(lvAdjustment.multiply(remainingTime)));
 		}
 
-		final double traversableDistance = this.calculateTraversableDistance(this.lv.getSpeed());
+		final double traversableDistance = this.calculateTraversableDistance(this.getLV().getSpeed());
 		if (traversableDistance == 0)
 			return 0;
 
@@ -147,9 +127,9 @@ public class Tracker implements Moveable
 		maximumDistance = Math.min(traversableDistance, maximumDistance);
 		final double ratio = maximumDistance / traversableDistance;
 
-		final Location oldLocation = this.loc;
-		this.loc = this.loc.add(this.lv.multiply(ratio * remainingTime));
-		final double ret = this.loc.distanceBetween(oldLocation);
+		final Location oldLocation = this.getLoc();
+		this.setLoc(this.getLoc().add(this.getLV().multiply(ratio * remainingTime)));
+		final double ret = this.getLoc().distanceBetween(oldLocation);
 
 		this.pctRemaining -= this.pctRemaining * ratio;
 		return ret;
@@ -165,39 +145,29 @@ public class Tracker implements Moveable
 	 */
 	public void moveRemaining(final double speedAdjustment)
 	{
-		double adjustedLV = this.lv.getSpeed() + speedAdjustment * this.getRemainingTime();
+		double adjustedLV = this.getLV().getSpeed() + speedAdjustment * this.getRemainingTime();
 		adjustedLV = Math.max(0, adjustedLV);
 		
-		this.lv = this.lv.newFrom(null,  null, adjustedLV);
-		this.loc = this.loc.add(this.lv.multiply(this.getRemainingTime()));
+		this.setLV(this.getLV().newFrom(null,  null, adjustedLV));
+		this.setLoc(this.getLoc().add(this.getLV().multiply(this.getRemainingTime())));
 		this.pctRemaining = 0;
 		this.applyAngularVelocity();
 	}
 
 	public void reset()
 	{
-		this.lv = this.startingLv;
-		this.av = this.startingAv;
-		this.loc = this.startingLoc;
+		this.setLV(this.startingLv);
+		this.setAV(this.startingAv);
+		this.setLoc(this.startingLoc);
 		this.pctRemaining = 1.0;
 	}
-
-	@Override
-	public void setAV(final AngularVelocity angularVelocity)
+	
+	public void advance()
 	{
-		this.av = angularVelocity;
-	}
-
-	@Override
-	public void setLoc(final Location location)
-	{
-		this.loc = location;
-	}
-
-	@Override
-	public void setLV(final LinearVelocity lv)
-	{
-		this.lv = lv;
+		this.startingLv = this.getLV();
+		this.startingAv = this.getAV();
+		this.startingLoc = this.getLoc();
+		this.pctRemaining = 1.0;
 	}
 
 	public void setPctRemaining(final double pctRemaining)
@@ -207,26 +177,24 @@ public class Tracker implements Moveable
 
 	public void setRotation(final double rotation)
 	{
-		this.av = this.av.newFrom(null, rotation, null);
+		this.setAV(this.getAV().newFrom(null, rotation, null));
 	}
 
 	@Override
 	public String toString()
 	{
-		return String.format("%s %s %s %.2f", this.loc, this.lv, this.av, this.pctRemaining);
+		return String.format("%s %s %s %.2f", this.getLoc(), this.getLV(), this.getAV(), this.pctRemaining);
 	}
 
 	protected void applyAngularVelocity()
 	{
 		double spin = 0;
-		spin = Conversions.normalizeAngle(this.av.getOrientation() + (this.av.getRotation() * this.getRemainingTime()));
+		spin = Conversions.normalizeAngle(this.getAV().getOrientation() + (this.getAV().getRotation() * this.getRemainingTime()));
 
-		if ((this.av.getRotation() == 0) && (this.av.getSpiralVelocity() > 0))
-		{
-			spin = this.lv.getElevation();
-		}
+		if ((this.getAV().getRotation() == 0) && (this.getAV().getSpiralVelocity() > 0))
+			spin = this.getLV().getElevation();
 
-		this.av = new DefaultAngularVelocity(spin, this.av.getRotation(), this.av.getSpiralVelocity());
+		this.setAV(new DefaultAngularVelocity(spin, this.getAV().getRotation(), this.getAV().getSpiralVelocity()));
 	}
 
 }

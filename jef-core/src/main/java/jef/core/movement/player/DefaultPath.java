@@ -12,12 +12,19 @@ public class DefaultPath implements Iterable<Waypoint>, Path
 	private List<Waypoint> waypoints = new ArrayList<>();
 	private Location destination = new DefaultLocation();
 	
-	public DefaultPath()
+	public DefaultPath(Path path)
 	{
+		this.waypoints = path.getWaypoints();
+		this.destination = path.getDestination();
 	}
-
-	@Override
-	public void addWaypoint(Waypoint waypoint)
+	
+	public DefaultPath(Waypoint...waypoints)
+	{
+		for (Waypoint wp : waypoints)
+			addWaypoint(wp);
+	}
+	
+	private void addWaypoint(Waypoint waypoint)
 	{
 		this.waypoints.add(waypoint);
 		updateDestination();
@@ -29,12 +36,6 @@ public class DefaultPath implements Iterable<Waypoint>, Path
 		return new ArrayList<Waypoint>(waypoints);
 	}
 	
-	@Override
-	public void clear()
-	{
-		this.waypoints.clear();
-	}
-
 	public Iterator<Waypoint> iterator()
 	{
 		return this.waypoints.iterator();
@@ -52,13 +53,6 @@ public class DefaultPath implements Iterable<Waypoint>, Path
 		return this.destination;
 	}
 	
-	@Override
-	public void removeWaypoint(Waypoint waypoint)
-	{
-		this.waypoints.remove(waypoint);
-		updateDestination();
-	}
-
 	private void updateDestination()
 	{
 		if (this.waypoints.size() > 0)

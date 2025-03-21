@@ -56,7 +56,7 @@ public class LinearImpact extends IndexedCalculator
 	{
 		double reboundAngle = Math.toRadians(calculate(av, lv));
 		double cor = calculateCOR(av);
-		return lv.newFrom(reboundAngle, null, lv.getSpeed() * cor);
+		return lv.newFrom(null, reboundAngle, lv.getSpeed() * cor);
 	}
 
 	private double calculateCOR(final AngularVelocity av)
