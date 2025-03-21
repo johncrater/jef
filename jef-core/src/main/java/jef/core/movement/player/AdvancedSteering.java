@@ -149,7 +149,7 @@ public class AdvancedSteering implements Steering
 			tracker.turn(angleAdjustment);
 		}
 
-		if (startingSpeed <= (tracker.getLV().getSpeed() + speedAdjustment))
+		if (tracker.getRemainingTime() > 0 && startingSpeed <= (tracker.getLV().getSpeed() + speedAdjustment))
 		{
 			if ((options & USE_ACCELERATION) > 0)
 			{

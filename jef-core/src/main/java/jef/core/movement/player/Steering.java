@@ -4,12 +4,12 @@ public interface Steering
 {
 	public static Steering getInstance()
 	{
-		return new DefaultSteering();
+		return new AdvancedSteering();
 	}
 	
 	public static Steering getInstance(int options)
 	{
-		return new DefaultSteering();
+		return new AdvancedSteering();
 	}
 	
 	boolean next(PlayerTracker tracker);

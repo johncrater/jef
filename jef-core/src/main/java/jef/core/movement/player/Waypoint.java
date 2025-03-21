@@ -30,7 +30,7 @@ public class Waypoint
 	{
 		super();
 		this.destination = destination;
-		this.minTurnSpeed = maxSpeed;
+		this.minTurnSpeed = 0;
 		this.maxSpeed = maxSpeed;
 		this.destinationAction = destinationAction;
 	}
