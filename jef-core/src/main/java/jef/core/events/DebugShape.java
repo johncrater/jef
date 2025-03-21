@@ -6,6 +6,8 @@ import jef.core.geometry.LineSegment;
 
 public class DebugShape
 {
+	public enum LineType { solid, dash, dot, dashdot, dashdotdot}
+	
 	public Location location;
 	public LinearVelocity linearVelocity;
 	public LineSegment lineSegment;
@@ -17,6 +19,7 @@ public class DebugShape
 	public String backgroundRGBA;
 	public int lineWidth;
 	public int fontSize;
+	public LineType lineType = LineType.solid;
 	
 	public DebugShape()
 	{	

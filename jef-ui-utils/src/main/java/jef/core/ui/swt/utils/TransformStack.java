@@ -82,9 +82,10 @@ public class TransformStack implements AutoCloseable
 	@Override
 	public void close() throws Exception
 	{
-		currentTransform.dispose();
 		while (stack.size() > 0)
 			pop();
+
+		currentTransform.dispose();
 	}
 
 	public void getElements(float [] elements)
@@ -152,6 +153,7 @@ public class TransformStack implements AutoCloseable
 		stack.push(currentTransform);
 		currentTransform = new Transform(gc.getDevice());
 		gc.getTransform(currentTransform);
+		set();
 	}
 
 	public void rotateAroundZ(float x, float y, double angle)

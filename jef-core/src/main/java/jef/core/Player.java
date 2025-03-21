@@ -132,7 +132,6 @@ public class Player
 		return this.number;
 	}
 
-	
 	public String getPlayerID()
 	{
 		if (this.id == null)

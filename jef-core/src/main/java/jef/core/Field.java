@@ -30,7 +30,7 @@ public class Field
 	public static final double DIM_FIELD_GOAL_POST_INSET = 6.5f / 3f;
 	public static final double DIM_FIELD_GOAL_POST_UPRIGHTS = 35f / 3f;
 	public static final double DIM_FIELD_GOAL_POST_DEPTH = 0; 	// pre 1974
-//	public static final double DIM_FIELD_GOAL_POST_DEPTH = 10; // pos 1974
+//	public static final double DIM_FIELD_GOAL_POST_DEPTH = 10; // post 1974
 
 	public static final Location FIELD_NW_CORNER = new Location(0, 0);
 	public static final Location FIELD_NE_CORNER = new Location(DIM_TOTAL_LENGTH, 0);
@@ -67,15 +67,18 @@ public class Field
 	public static final LineSegment SIDELINE_SOUTH = new LineSegment(PLAYING_FIELD_SW_CORNER, PLAYING_FIELD_SE_CORNER);
 	public static final LineSegment SIDELINE_NORTH = new LineSegment(PLAYING_FIELD_NW_CORNER, PLAYING_FIELD_NE_CORNER);
 
+	public static final LineSegment EXTENDED_SIDELINE_SOUTH = new LineSegment(PLAYABLE_AREA_SW_CORNER, PLAYABLE_AREA_SE_CORNER);
+	public static final LineSegment EXTENDED_SIDELINE_NORTH = new LineSegment(PLAYABLE_AREA_NW_CORNER, PLAYABLE_AREA_NE_CORNER);
+
 	public static final LineSegment END_LINE_WEST = new LineSegment(PLAYABLE_AREA_NW_CORNER, PLAYABLE_AREA_SW_CORNER);
-	public static final LineSegment END_LINE_EAST = new LineSegment(PLAYABLE_AREA_SW_CORNER, PLAYABLE_AREA_SE_CORNER);
+	public static final LineSegment END_LINE_EAST = new LineSegment(PLAYABLE_AREA_NE_CORNER, PLAYABLE_AREA_SE_CORNER);
 
 	public static final double WEST_END_ZONE_BACK_X = DIM_SIDELINE_WIDTH;
 	public static final double WEST_END_ZONE_X = WEST_END_ZONE_BACK_X + DIM_END_ZONE_WIDTH;
 	public static final double EAST_END_ZONE_X = DIM_TOTAL_LENGTH - (DIM_SIDELINE_WIDTH + DIM_END_ZONE_WIDTH);
 	public static final double EAST_END_ZONE_BACK_X = DIM_TOTAL_LENGTH - DIM_SIDELINE_WIDTH;
-	public static final double NORTH_SIDELINE_Y = DIM_SIDELINE_WIDTH + DIM_FIELD_OF_PLAY_WIDTH;
-	public static final double SOUTH_SIDELINE_Y = DIM_SIDELINE_WIDTH;
+	public static final double NORTH_SIDELINE_Y = DIM_SIDELINE_WIDTH;
+	public static final double SOUTH_SIDELINE_Y = DIM_SIDELINE_WIDTH + DIM_FIELD_OF_PLAY_WIDTH;
 	
 	
 	public static final double FIELD_NEUTRAL_ZONE_LENGTH = 11f / 36.0f;

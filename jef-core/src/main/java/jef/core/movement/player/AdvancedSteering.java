@@ -4,7 +4,6 @@ import java.util.List;
 
 import jef.core.Conversions;
 import jef.core.LinearVelocity;
-import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.Player.DecelerationRate;
 import jef.core.movement.Posture;
@@ -28,12 +27,12 @@ public class AdvancedSteering implements Steering
 
 	private final int options;
 
-	private AdvancedSteering()
+	public AdvancedSteering()
 	{
 		options = USE_ALL;
 	}
 
-	private AdvancedSteering(int options)
+	public AdvancedSteering(int options)
 	{
 		this.options = options;
 	}
@@ -91,13 +90,12 @@ public class AdvancedSteering implements Steering
 			{
 				// too fast
 				this.outOfControl(tracker);
+				return false;
 			}
 			else
 			{
 				tracker.setLV(tracker.getLV().newFrom(null, null, tracker.getPlayer().getSpeedMatrix().getSprintingSpeed()));
 			}
-
-			return false;
 		}
 
 		if ((options & USE_POSTURE) > 0)

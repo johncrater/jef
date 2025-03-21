@@ -72,8 +72,8 @@ public class LineSegment
 
 	public LineSegment addLength(double length)
 	{
-		return new LineSegment(this.getLoc1(), this.getLoc2()
-				.add(new LinearVelocity(this.getLoc1(), this.getLoc2()).newFrom(null, null, length)));
+		return new LineSegment(this.getLoc1(),
+				this.getLoc2().add(new LinearVelocity(this.getLoc1(), this.getLoc2()).newFrom(null, null, length)));
 	}
 
 //	public Vector toQuadratic()
@@ -215,21 +215,27 @@ public class LineSegment
 		return loc1.add(getDirection().multiply(t));
 	}
 
+	public LineSegment restrictToBetweenEndZones(boolean includeEndZoneLine)
+	{
+		return restrictToBetweenEndZones(includeEndZoneLine, Location.EPSILON_VALUE);
+	}
 	/**
+	 * @param includeEndZoneLine
+	 * @param epsilon
 	 * @return a line segment which overlaps the original line segment where the
 	 *         starting and ending locations are in bounds and between the end zones
 	 *         exclusive
 	 */
-	public LineSegment restrictToBetweenEndZones(boolean includeEndZoneLine)
+	public LineSegment restrictToBetweenEndZones(boolean includeEndZoneLine, double epsilon)
 	{
 		Location l1 = null;
 
 		Location l = this.loc1;
-		if (l.isInBounds())
+		if (l.isInBounds(epsilon))
 			l1 = l;
 
 		l = this.loc2;
-		if (l.isInBounds() && !l.isInEndZone(null))
+		if (l.isInBounds(epsilon) && !l.isInEndZone(null))
 		{
 			if (l1 == null)
 				l1 = l;
@@ -237,8 +243,8 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.GOAL_LINE_EAST.move(includeEndZoneLine ? 0 : -Location.EPSILON_VALUE, 0, 0));
-		if (l != null && l.isInBounds())
+		l = this.xyIntersection(Field.GOAL_LINE_EAST.move(includeEndZoneLine ? 0 : -epsilon, 0, 0));
+		if (l != null && l.isInBounds(epsilon))
 		{
 			if (l1 == null)
 				l1 = l;
@@ -246,8 +252,8 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.GOAL_LINE_WEST.move(includeEndZoneLine ? 0 : Location.EPSILON_VALUE, 0, 0));
-		if (l != null && l.isInBounds())
+		l = this.xyIntersection(Field.GOAL_LINE_WEST.move(includeEndZoneLine ? 0 : epsilon, 0, 0));
+		if (l != null && l.isInBounds(epsilon))
 		{
 			if (l1 == null)
 				l1 = l;
@@ -255,7 +261,7 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.SIDELINE_NORTH.move(0, -Location.EPSILON_VALUE, 0));
+		l = this.xyIntersection(Field.SIDELINE_NORTH.move(0, -epsilon, 0));
 		if (l != null && !l.isInEndZone(null))
 		{
 			if (l1 == null)
@@ -264,7 +270,7 @@ public class LineSegment
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.SIDELINE_SOUTH.move(0, Location.EPSILON_VALUE, 0));
+		l = this.xyIntersection(Field.SIDELINE_SOUTH.move(0, epsilon, 0));
 		if (l != null && !l.isInEndZone(null))
 		{
 			if (l1 == null)
@@ -276,55 +282,79 @@ public class LineSegment
 		return null;
 	}
 
-	public LineSegment restrictToInBounds()
+	/**
+	 * @return a line segment overlapping this line segment but restricted to the in
+	 *         bounds area between the end lines.
+	 */
+	public LineSegment restrictToInBounds(double epsilon)
 	{
+		LineSegment ret = this;
+		
 		Location l1 = null;
 
 		Location l = this.loc1;
 		if (l.isInBounds())
+		{
 			l1 = l;
-
+			ret = new LineSegment(l1, getLoc2());
+		}
+		
 		l = this.loc2;
 		if (l.isInBounds())
 		{
 			if (l1 == null)
+			{
 				l1 = l;
+				ret = new LineSegment(l1, getLoc2());
+			}
 			else
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.END_LINE_EAST.move(-1, 0, 0));
+		l = ret.xyIntersection(Field.END_LINE_EAST.move(-epsilon, 0, 0));
 		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
+			{
 				l1 = l;
+				ret = new LineSegment(l1, getLoc2());
+			}
 			else
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.END_LINE_WEST.move(1, 0, 0));
+		l = ret.xyIntersection(Field.END_LINE_WEST.move(epsilon, 0, 0));
 		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
+			{
 				l1 = l;
+				ret = new LineSegment(l1, getLoc2());
+			}
 			else
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.SIDELINE_NORTH.move(0, -1, 0));
+		l = ret.xyIntersection(Field.EXTENDED_SIDELINE_NORTH.move(0, epsilon, 0));
 		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
+			{
 				l1 = l;
+				ret = new LineSegment(l1, getLoc2());
+			}
 			else
 				return new LineSegment(l1, l);
 		}
 
-		l = this.xyIntersection(Field.SIDELINE_SOUTH.move(0, 1, 0));
+		l = ret.xyIntersection(Field.EXTENDED_SIDELINE_SOUTH.move(0, -epsilon, 0));
 		if (l != null && l.isInBounds())
 		{
 			if (l1 == null)
+			{
 				l1 = l;
+				ret = new LineSegment(l1, getLoc2());
+			}
 			else
 				return new LineSegment(l1, l);
 		}

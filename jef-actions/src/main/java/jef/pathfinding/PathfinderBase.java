@@ -1,16 +1,17 @@
 package jef.pathfinding;
 
+import jef.IPlayers;
 import jef.core.Direction;
 import jef.core.Player;
 import jef.core.PlayerState;
 
 public abstract class PathfinderBase implements Pathfinder
 {
-	private final Players players;
+	private final IPlayers players;
 	private final Player player;
 	private final Direction direction;
 
-	public PathfinderBase(final Players players, final Player player, final Direction direction)
+	public PathfinderBase(final IPlayers players, final Player player, final Direction direction)
 	{
 		this.players = players;
 		this.player = player;
@@ -27,7 +28,7 @@ public abstract class PathfinderBase implements Pathfinder
 		return this.player;
 	}
 
-	public Players getPlayers()
+	public IPlayers getPlayers()
 	{
 		return this.players;
 	}

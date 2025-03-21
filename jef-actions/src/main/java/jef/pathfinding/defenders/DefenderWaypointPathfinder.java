@@ -2,6 +2,7 @@ package jef.pathfinding.defenders;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
+import jef.IPlayers;
 import jef.core.Direction;
 import jef.core.Player;
 import jef.core.events.Messages;
@@ -9,12 +10,11 @@ import jef.core.geometry.LineSegment;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.Waypoint;
 import jef.pathfinding.PathfinderBase;
-import jef.pathfinding.Players;
 
 public class DefenderWaypointPathfinder extends PathfinderBase implements DefenderPathfinder
 {
 
-	public DefenderWaypointPathfinder(Players players, Player player, Direction direction)
+	public DefenderWaypointPathfinder(IPlayers players, Player player, Direction direction)
 	{
 		super(players, player, direction);
 	}

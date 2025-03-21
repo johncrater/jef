@@ -15,7 +15,7 @@ public class PlayerTracker extends Tracker
 	private PlayerState startingState;
 	private Path currentPath;
 	
-	public PlayerTracker(PlayerState playerState, Path currrentPath, final double timeInterval)
+	public PlayerTracker(PlayerState playerState, Path currentPath, final double timeInterval)
 	{
 		super(timeInterval);
 		this.startingState = this.currentState = playerState;

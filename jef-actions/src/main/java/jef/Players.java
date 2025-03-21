@@ -1,4 +1,4 @@
-package jef.pathfinding;
+package jef;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +21,7 @@ import jef.pathfinding.collisions.Collision;
 import jef.pathfinding.collisions.CollisionResolution;
 import jef.pathfinding.collisions.CollisionResolver;
 
-public class Players
+public abstract class Players implements IPlayers
 {
 	public class PlayerSteps
 	{
@@ -127,7 +127,7 @@ public class Players
 
 			this.destinationReachedSteps = -1;
 			final Steering steering = Steering.getInstance();
-			final PlayerTracker tracker = new PlayerTracker(startingState, path, Players.this.getTimerInterval());
+			final PlayerTracker tracker = new PlayerTracker(startingState, this.path, Players.this.getTimerInterval());
 			this.steps[Players.this.getIndex(0)] = tracker.getState();
 			tracker.advance();
 			if (tracker.destinationReached())
@@ -138,7 +138,7 @@ public class Players
 			for (int i = 1; i < this.steps.length; i++)
 			{
 				final boolean destinationReached = steering.next(tracker);
-				if (destinationReached)
+				if (destinationReached && this.destinationReachedSteps == -1)
 				{
 					this.destinationReachedSteps = i;
 				}
@@ -448,6 +448,8 @@ public class Players
 			this.reset(playerState, null);
 		}
 
+		this.determinePaths();
+		
 		for (final Player player : this.steps.keySet())
 		{
 			final PlayerSteps steps = this.steps.get(player);
@@ -464,6 +466,9 @@ public class Players
 		}
 	}
 
+	protected abstract void determinePaths();
+
+	@Override
 	public PlayerSteps createSteps(final PlayerState startingState, final Path path)
 	{
 		return new PlayerSteps(startingState, path);
@@ -474,41 +479,49 @@ public class Players
 		return this.locationIndex.getCollisions(ticksAhead);
 	}
 
+	@Override
 	public Path getPath(final Player player)
 	{
 		return this.getSteps(player).getPath();
 	}
 
+	@Override
 	public Set<Player> getPlayers()
 	{
 		return this.steps.keySet();
 	}
 
+	@Override
 	public int getStartOffset()
 	{
 		return this.startOffset;
 	}
 
+	@Override
 	public PlayerState getState(final Player player)
 	{
 		return this.getSteps(player).getState(0);
 	}
 
+	@Override
 	public PlayerState getState(final Player player, final int offset)
 	{
 		return this.getSteps(player).getState(this.getIndex(offset));
 	}
 
+	@Override
 	public int getStepCapacity()
 	{
 		return this.stepCapacity;
 	}
 
+	@Override
 	public PlayerSteps getSteps(final Player player)
 	{
 		return this.steps.get(player);
 	}
 
+	@Override
 	public double getTimerInterval()
 	{
 		return this.timerInterval;

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 
@@ -33,8 +34,6 @@ public class DebugMessageHandler implements Telegraph
 
 	private Color defaultColor = new Color(0, 0, 0);
 	private Map<Integer, Color> colors = new HashMap<>();
-	private Map<Integer, List<Location>> locationsMap = new HashMap<>();
-	private Map<Integer, List<LineSegment>> segmentsMap = new HashMap<>();
 	private Map<String, Color> colorMap = new HashMap<>();
 
 	private List<DebugShape> debugShapes = new ArrayList<>();
@@ -70,82 +69,18 @@ public class DebugMessageHandler implements Telegraph
 
 	public void clear()
 	{
-		this.locationsMap.clear();
-		this.segmentsMap.clear();
 		this.debugShapes.clear();
 	}
 
 	@Override
 	public boolean handleMessage(Telegram msg)
 	{
-		if (msg.extraInfo instanceof Location)
-		{
-			List<Location> locList = locationsMap.get(msg.message);
-			if (locList == null)
-			{
-				locList = new ArrayList<>();
-				locationsMap.put(msg.message, locList);
-			}
-
-			locList.add((Location) msg.extraInfo);
-		}
-		else if (msg.extraInfo instanceof LineSegment)
-		{
-			List<LineSegment> segList = segmentsMap.get(msg.message);
-			if (segList == null)
-			{
-				segList = new ArrayList<>();
-				segmentsMap.put(msg.message, segList);
-			}
-
-			segList.add((LineSegment) msg.extraInfo);
-		}
-		else if (msg.extraInfo instanceof DebugShape)
-		{
-			this.debugShapes.add((DebugShape) msg.extraInfo);
-		}
-
+		this.debugShapes.add((DebugShape) msg.extraInfo);
 		return true;
 	}
 
 	public void draw(GC gc)
 	{
-		for (Integer message : segmentsMap.keySet())
-		{
-			Color color = colors.getOrDefault(message, defaultColor);
-			gc.setForeground(color);
-			gc.setLineWidth(0);
-
-			List<LineSegment> segments = segmentsMap.get(message);
-			if (segments == null)
-				continue;
-
-			for (LineSegment segment : segments)
-			{
-				gc.drawLine(UIUtils.yardsToPixels(segment.getLoc1().getX()),
-						UIUtils.yardsToPixels(segment.getLoc1().getY()),
-						UIUtils.yardsToPixels(segment.getLoc2().getX()),
-						UIUtils.yardsToPixels(segment.getLoc2().getY()));
-			}
-		}
-
-		for (Integer message : locationsMap.keySet())
-		{
-			Color color = colors.getOrDefault(message, defaultColor);
-			gc.setForeground(color);
-			gc.setBackground(color);
-			gc.setLineWidth(0);
-
-			List<Location> locations = locationsMap.get(message);
-			if (locations == null)
-				continue;
-
-			for (Location location : locations)
-			{
-				UIUtils.fillCircle(gc, location, 10);
-			}
-		}
-
 		for (DebugShape debugShape : this.debugShapes)
 		{
 			Color foregroundColor = this.colorMap.get(debugShape.foregroundRGBA);
@@ -172,6 +107,7 @@ public class DebugMessageHandler implements Telegraph
 
 			double lineWidth = debugShape.lineWidth;
 			double radius = debugShape.radius;
+
 			try (TransformStack ts = new TransformStack(gc))
 			{
 				float scale = ts.getXScale();
@@ -183,6 +119,7 @@ public class DebugMessageHandler implements Telegraph
 			}
 
 			gc.setLineWidth((int)Math.round(lineWidth));
+			gc.setLineStyle(getLineTypeNumber(debugShape.lineType));
 
 			if (debugShape.location != null)
 			{
@@ -227,5 +164,18 @@ public class DebugMessageHandler implements Telegraph
 				}
 			}
 		}
+	}
+
+	private int getLineTypeNumber(DebugShape.LineType lineType)
+	{
+		return switch (lineType)
+		{
+			case dash -> SWT.LINE_DASH;
+			case dashdot -> SWT.LINE_DASHDOT;
+			case dashdotdot -> SWT.LINE_DASHDOTDOT;
+			case dot -> SWT.LINE_DOT;
+			case solid -> SWT.LINE_SOLID;
+			default -> SWT.LINE_SOLID;
+		};
 	}
 }

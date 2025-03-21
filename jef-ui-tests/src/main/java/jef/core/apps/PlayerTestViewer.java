@@ -41,6 +41,8 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
+import jef.Players;
+import jef.Players.PlayerSteps;
 import jef.core.AngularVelocity;
 import jef.core.Conversions;
 import jef.core.Direction;
@@ -62,8 +64,10 @@ import jef.core.ui.swt.utils.DebugMessageHandler;
 import jef.core.ui.swt.utils.GIFMarkup;
 import jef.core.ui.swt.utils.UIUtils;
 import jef.pathfinding.Pathfinder;
-import jef.pathfinding.Players;
-import jef.pathfinding.Players.PlayerSteps;
+import jef.pathfinding.blocking.BlockNearestThreat;
+import jef.pathfinding.blocking.BlockPlayer;
+import jef.pathfinding.blocking.BlockerPathfinder;
+import jef.pathfinding.blocking.BlockerWaypointPathfinder;
 import jef.pathfinding.blocking.BlockersAction;
 import jef.pathfinding.defenders.DefaultPursueRunner;
 import jef.pathfinding.defenders.DefenderPathfinder;
@@ -114,7 +118,7 @@ public class PlayerTestViewer implements Runnable
 	private Player runner;
 	private final Map<String, Player> defenders = new HashMap<>();
 	private final Map<String, Player> blockers = new HashMap<>();
-	private final Players players = new Players();
+	private final Players players = new TestPlayers();
 	private final Map<Player, Pathfinder> pathfinders = new HashMap<>();
 
 	private DestinationAction nextDestinationAction = DestinationAction.fastStop;
@@ -144,6 +148,41 @@ public class PlayerTestViewer implements Runnable
 
 	private Location midfieldLocation = Field.MIDFIELD;
 
+	private class TestPlayers extends Players
+	{
+
+		@Override
+		protected void determinePaths()
+		{
+			final RunnerPathfinder runnerPathfinder = getRunnerPathfinder();
+			final List<DefenderPathfinder> defenderPathfinders = getDefenderPathfinders();
+
+			Path newRunnerPath = runnerPathfinder.calculatePath();
+			setPath(runner, newRunnerPath);
+			
+			for (Pathfinder pf : defenderPathfinders)
+			{
+				Path path = pf.calculatePath();
+				setPath(pf.getPlayer(), path);
+			}
+			
+			final List<BlockerPathfinder> blockerPathfinders = getBlockerPathfinders();
+
+			for (Pathfinder pf : blockerPathfinders)
+			{
+				Path path = pf.calculatePath();
+				setPath(pf.getPlayer(), path);
+			}
+			
+			BlockersAction blockersAction = new BlockersAction(this, runner,
+					defenders.values(), getGroupBlockingPlayers(), Direction.west);
+			blockersAction.move();
+
+			getGroupBlockingPlayers().forEach(blocker -> players.setPath(blocker, blockersAction.getPath(blocker)));
+		}
+		
+	}
+	
 	@SuppressWarnings("deprecation")
 	public PlayerTestViewer()
 	{
@@ -234,7 +273,7 @@ public class PlayerTestViewer implements Runnable
 		}
 	}
 
-	public void process()
+	private void process()
 	{
 		if (this.pathfinders.size() > 0)
 		{
@@ -242,23 +281,6 @@ public class PlayerTestViewer implements Runnable
 
 			if (runnerPathfinder != null)
 			{
-				final List<DefenderPathfinder> defenderPathfinders = this.getDefenderPathfinders();
-
-				Path newRunnerPath = runnerPathfinder.calculatePath();
-				this.players.setPath(runner, newRunnerPath);
-				
-				for (Pathfinder pf : defenderPathfinders)
-				{
-					Path path = pf.calculatePath();
-					this.players.setPath(pf.getPlayer(), path);
-				}
-				
-				BlockersAction blockersAction = new BlockersAction(this.players, this.runner,
-						this.defenders.values(), this.blockers.values(), Direction.west);
-				blockersAction.move();
-
-				this.blockers.values().forEach(blocker -> players.setPath(blocker, blockersAction.getPath(blocker)));
-
 				this.players.advance();
 				
 				final PlayerState runnerState = this.players.getState(this.runner);
@@ -269,8 +291,6 @@ public class PlayerTestViewer implements Runnable
 				}
 			}
 		}
-
-		this.players.advance();
 	}
 
 	@Override
@@ -411,16 +431,19 @@ public class PlayerTestViewer implements Runnable
 				strategyCombo.add("Waypoint");
 				strategyCombo.add("No Action");
 			}
-//			else if (this.blockers.containsValue(p))
-//			{
-//				strategyCombo.add("Block Nearest Threat");
-//				strategyCombo.setData(strategyCombo.getItem(strategyCombo.getItemCount() - 1),
-//						BlockNearestThreat.class);
-//
-//				strategyCombo.add("Waypoint");
-//				strategyCombo.setData(strategyCombo.getItem(strategyCombo.getItemCount() - 1),
-//						BlockerWaypointPathfinder.class);
-//			}
+			else if (this.blockers.containsValue(p))
+			{
+				strategyCombo.add("Group Action");
+				strategyCombo.add("Nearest dist");
+				strategyCombo.add("Nearest int");
+				strategyCombo.add("Nearest runr");
+				strategyCombo.add("Waypoint");
+				
+				for (Player defender : this.defenders.values())
+				{
+					strategyCombo.add("Block " + defender.getPlayerID());
+				}
+			}
 			else
 			{
 				continue;
@@ -515,6 +538,7 @@ public class PlayerTestViewer implements Runnable
 			}
 
 			this.drawPerformance(e.gc);
+			e.gc.setLineStyle(3);
 			this.drawSelectedPlayerData(e.gc);
 
 			Performance.drawTime.endCycle();
@@ -585,32 +609,32 @@ public class PlayerTestViewer implements Runnable
 		this.runner = this.currentPlayer = pl;
 		Football.theFootball.setPlayerInPossession(this.runner);
 
-//		pl = new Player(PlayerPosition.RG);
-//		pl.setFirstName("Ed");
-//		pl.setLastName("White");
-//		pl.setWeight(250);
-//		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage + Player.SIZE / 2, Field.MIDFIELD_Y - 2, 0),
-//				new AngularVelocity(Math.PI, 0, 0), Posture.upright);
-//		this.playerStates.addPlayer(playerState);
-//		this.blockers.put(pl.getPlayerID(), pl);
-//
-//		pl = new Player(PlayerPosition.C);
-//		pl.setFirstName("Mick");
-//		pl.setLastName("Tinglehoff");
-//		pl.setWeight(270);
-//		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage + Player.SIZE / 2, Field.MIDFIELD_Y, 0),
-//				new AngularVelocity(Math.PI, 0, 0), Posture.upright);
-//		this.playerStates.addPlayer(playerState);
-//		this.blockers.put(pl.getPlayerID(), pl);
-//
-//		pl = new Player(PlayerPosition.RT);
-//		pl.setFirstName("Ron");
-//		pl.setLastName("Yary");
-//		pl.setWeight(260);
-//		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage + Player.SIZE / 2, Field.MIDFIELD_Y + 2, 0),
-//				new AngularVelocity(Math.PI, 0, 0), Posture.upright);
-//		this.playerStates.addPlayer(playerState);
-//		this.blockers.put(pl.getPlayerID(), pl);
+		pl = new Player(PlayerPosition.RG);
+		pl.setFirstName("Ed");
+		pl.setLastName("White");
+		pl.setWeight(250);
+		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage + Player.SIZE / 2, Field.MIDFIELD_Y - 2, 0),
+				new AngularVelocity(Math.PI, 0, 0), Posture.upright);
+		this.players.addPlayer(playerState);
+		this.blockers.put(pl.getPlayerID(), pl);
+
+		pl = new Player(PlayerPosition.C);
+		pl.setFirstName("Mick");
+		pl.setLastName("Tinglehoff");
+		pl.setWeight(270);
+		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage + Player.SIZE / 2, Field.MIDFIELD_Y, 0),
+				new AngularVelocity(Math.PI, 0, 0), Posture.upright);
+		this.players.addPlayer(playerState);
+		this.blockers.put(pl.getPlayerID(), pl);
+
+		pl = new Player(PlayerPosition.RT);
+		pl.setFirstName("Ron");
+		pl.setLastName("Yary");
+		pl.setWeight(260);
+		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage + Player.SIZE / 2, Field.MIDFIELD_Y + 2, 0),
+				new AngularVelocity(Math.PI, 0, 0), Posture.upright);
+		this.players.addPlayer(playerState);
+		this.blockers.put(pl.getPlayerID(), pl);
 
 		// defense
 		pl = new Player(PlayerPosition.DT);
@@ -629,25 +653,25 @@ public class PlayerTestViewer implements Runnable
 //		pl.setWeight(280);
 //		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage - 1 - Player.SIZE / 2, Field.MIDFIELD_Y - 2, 0),
 //				new AngularVelocity(0, 0, 0), Posture.upright);
-//		this.playerStates.addPlayer(playerState);
+//		this.players.addPlayer(playerState);
 //		this.defenders.put(pl.getPlayerID(), pl);
 //
-//		pl = new Player(PlayerPosition.LLB);
-//		pl.setFirstName("Matt");
-//		pl.setLastName("Blair");
-//		pl.setWeight(255);
-//		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage - 6, Field.MIDFIELD_Y - 2, 0),
-//				new AngularVelocity(0, 0, 0), Posture.upright);
-//		this.playerStates.addPlayer(playerState);
-//		this.defenders.put(pl.getPlayerID(), pl);
-//
+		pl = new Player(PlayerPosition.LLB);
+		pl.setFirstName("Matt");
+		pl.setLastName("Blair");
+		pl.setWeight(255);
+		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage - 6, Field.MIDFIELD_Y - 2, 0),
+				new AngularVelocity(0, 0, 0), Posture.upright);
+		this.players.addPlayer(playerState);
+		this.defenders.put(pl.getPlayerID(), pl);
+
 //		pl = new Player(PlayerPosition.RLB);
 //		pl.setFirstName("Wally");
 //		pl.setLastName("Hilgenberg");
 //		pl.setWeight(255);
 //		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage - 6, Field.MIDFIELD_Y + 2, 0),
 //				new AngularVelocity(0, 0, 0), Posture.upright);
-//		this.playerStates.addPlayer(playerState);
+//		this.players.addPlayer(playerState);
 //		this.defenders.put(pl.getPlayerID(), pl);
 	}
 
@@ -804,6 +828,18 @@ public class PlayerTestViewer implements Runnable
 				.map(pf -> (DefenderPathfinder) pf).toList();
 	}
 
+	private List<BlockerPathfinder> getBlockerPathfinders()
+	{
+		return this.pathfinders.values().stream().filter(BlockerPathfinder.class::isInstance)
+				.map(pf -> (BlockerPathfinder) pf).toList();
+	}
+
+	private List<Player> getGroupBlockingPlayers()
+	{
+		List<Player> pathfinderPlayers = getBlockerPathfinders().stream().map(pf -> pf.getPlayer()).toList();
+		return this.blockers.values().stream().filter(blocker -> pathfinderPlayers.contains(blocker) == false).toList();
+	}
+	
 	private RunnerPathfinder getRunnerPathfinder()
 	{
 		return (RunnerPathfinder) this.pathfinders.values().stream().filter(RunnerPathfinder.class::isInstance)
@@ -831,6 +867,36 @@ public class PlayerTestViewer implements Runnable
 						new DefaultPursueRunner(this.players, player, Direction.west, this.runner));
 			else if ("Waypoint".equals(pathfinderName))
 				this.pathfinders.put(player, new DefenderWaypointPathfinder(this.players, player, Direction.west));
+		}
+		else if (this.blockers.containsValue(player))
+		{
+			if ("GroupAction".equals(pathfinderName))
+			{
+				
+			}
+			else if ("Nearest dist".equals(pathfinderName))
+			{
+				this.pathfinders.put(player,
+						new BlockNearestThreat(this.players, this.runner, player, this.defenders.values(), BlockNearestThreat.Option.distance, Direction.west));
+			}
+			else if ("Nearest int".equals(pathfinderName))
+			{
+				this.pathfinders.put(player,
+						new BlockNearestThreat(this.players, this.runner, player, this.defenders.values(), BlockNearestThreat.Option.interception, Direction.west));
+			}
+			else if ("Nearest runr".equals(pathfinderName))
+			{
+				this.pathfinders.put(player,
+						new BlockNearestThreat(this.players, this.runner, player, this.defenders.values(), BlockNearestThreat.Option.distanceToRunner, Direction.west));
+			}
+			else if ("Waypoint".equals(pathfinderName))
+			{
+				this.pathfinders.put(player, new BlockerWaypointPathfinder(this.players, player, Direction.west));
+			}
+			else if (pathfinderName.startsWith("Block "))
+			{
+				this.pathfinders.put(player, new BlockPlayer(this.players, player, Direction.west, this.defenders.get(pathfinderName.substring(6).trim())));
+			}
 		}
 	}
 }

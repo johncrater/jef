@@ -5,30 +5,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
+import jef.IPlayers;
+import jef.Players.PlayerSteps;
 import jef.core.Direction;
 import jef.core.Player;
 import jef.core.events.DebugShape;
 import jef.core.events.Messages;
 import jef.core.movement.player.Path;
 import jef.pathfinding.DefaultInterceptPlayer;
-import jef.pathfinding.Players;
-import jef.pathfinding.Players.PlayerSteps;
 
 public class BlockersAction
 {
-	private Players players;
+	private IPlayers players;
 //	private Player runner;
 	private Collection<Player> defenders;
 	private Collection<Player> blockers;
 	private Direction direction;
 	private Map<Player, Path> newPaths = new HashMap<>();
 	
-	public BlockersAction(Players players, Player runner, Collection<Player> defenders,
+	public BlockersAction(IPlayers players, Player runner, Collection<Player> defenders,
 			Collection<Player> blockers, Direction direction)
 	{
 		super();
@@ -177,5 +178,10 @@ public class BlockersAction
 			return "BlockerInterceptRating [bpf=" + this.blocker + ", steps=" + this.steps + ", distance=" + this.distance
 					+ "]";
 		}
+	}
+
+	public Collection<Player> getBlockers()
+	{
+		return this.blockers;
 	}
 }

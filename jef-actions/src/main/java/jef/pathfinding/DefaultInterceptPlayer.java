@@ -1,5 +1,7 @@
 package jef.pathfinding;
 
+import jef.IPlayers;
+import jef.Players.PlayerSteps;
 import jef.core.Direction;
 import jef.core.Performance;
 import jef.core.Player;
@@ -9,7 +11,6 @@ import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
-import jef.pathfinding.Players.PlayerSteps;
 
 public class DefaultInterceptPlayer extends PathfinderBase
 {
@@ -17,7 +18,7 @@ public class DefaultInterceptPlayer extends PathfinderBase
 
 	private Player targetPlayer;
 
-	public DefaultInterceptPlayer(Players players, Player player, Direction direction, Player targetPlayer)
+	public DefaultInterceptPlayer(IPlayers players, Player player, Direction direction, Player targetPlayer)
 	{
 		super(players, player, direction);
 		this.targetPlayer = targetPlayer;

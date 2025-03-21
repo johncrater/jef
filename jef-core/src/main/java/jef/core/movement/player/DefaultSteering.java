@@ -29,9 +29,12 @@ public class DefaultSteering implements Steering
 	@Override
 	public boolean next(final PlayerTracker tracker)
 	{
+		tracker.move();
+
 		if (tracker.getPath() != null && tracker.getPath().getCurrentWaypoint() != null
 				&& tracker.getLoc().closeEnoughTo(this.getDestination(tracker)) && tracker.getLV().isNotMoving())
 		{
+			// if we reached the current waypoint remove it and continue on
 			List<Waypoint> waypoints = tracker.getPath().getWaypoints();
 			waypoints.remove(0);
 			tracker.setPath(new Path(waypoints.toArray(new Waypoint[waypoints.size()])));
@@ -39,6 +42,7 @@ public class DefaultSteering implements Steering
 
 		if (tracker.getPath() == null || tracker.getPath().getWaypoints().size() == 0)
 		{
+			// if we are out of waypoints, coast to a stop
 			tracker.setLV(tracker.getLV().newFrom(null, null, 0.0));
 			return true;
 		}
@@ -74,7 +78,6 @@ public class DefaultSteering implements Steering
 					String.format("%-25s: \t\t%4f\u00B0", "Angle Adjustment", Math.toDegrees(angleAdjustment)));
 
 		tracker.turn(angleAdjustment);
-		tracker.move();
 
 		if (tracker.destinationReached() || tracker.hasPastDestination())
 		{
