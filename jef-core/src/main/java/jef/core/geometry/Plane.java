@@ -1,13 +1,13 @@
 package jef.core.geometry;
 
-import jef.core.movement.DefaultLinearVelocity;
-import jef.core.movement.DefaultLocation;
-import jef.core.movement.LinearVelocity;
-import jef.core.movement.Location;
+import jef.core.LinearVelocity;
+import jef.core.Location;
+import jef.core.LinearVelocity;
+import jef.core.Location;
 
 public class Plane
 {
-	public static final Plane THE_FIELD = new Plane(new DefaultLocation(),
+	public static final Plane THE_FIELD = new Plane(new Location(),
 			Vector.fromCartesianCoordinates(0, 0, 1));
 
 	private Location loc;

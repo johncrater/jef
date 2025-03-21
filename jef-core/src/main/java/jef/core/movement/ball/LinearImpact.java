@@ -1,7 +1,7 @@
 package jef.core.movement.ball;
 
-import jef.core.movement.AngularVelocity;
-import jef.core.movement.LinearVelocity;
+import jef.core.AngularVelocity;
+import jef.core.LinearVelocity;
 
 public class LinearImpact extends IndexedCalculator
 {

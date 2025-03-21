@@ -2,14 +2,14 @@ package jef.core.ui.swt.utils;
 
 import org.eclipse.swt.graphics.GC;
 
-import jef.core.movement.Location;
-import jef.core.movement.player.Steerable;
+import jef.core.Location;
+import jef.core.PlayerState;
 
 public class PlayerDrawable implements DrawableItem
 {
-	private Steerable player;
+	private PlayerState player;
 	
-	public PlayerDrawable(Steerable player)
+	public PlayerDrawable(PlayerState player)
 	{
 		this.player = player;
 	}

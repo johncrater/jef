@@ -1,7 +1,7 @@
 package jef.core.movement;
 
 import jef.core.Conversions;
-import jef.core.pathfinding.Direction;
+import jef.core.Direction;
 
 public enum RelativeLocation
 {

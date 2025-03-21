@@ -12,7 +12,6 @@
 	<artifactId>jef-ui-tests</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<build>
-		<testSourceDirectory>src/main/test</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -35,6 +34,11 @@
 		<dependency>
 			<groupId>jef</groupId>
 			<artifactId>jef-core</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>jef</groupId>
+			<artifactId>jef-actions</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>

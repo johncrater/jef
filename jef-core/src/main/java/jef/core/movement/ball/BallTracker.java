@@ -1,35 +1,55 @@
 package jef.core.movement.ball;
 
 
+import jef.core.AngularVelocity;
+import jef.core.Football;
+import jef.core.LinearVelocity;
+import jef.core.Location;
 import jef.core.geometry.LineSegment;
 import jef.core.geometry.Plane;
-import jef.core.movement.AngularVelocity;
-import jef.core.movement.DefaultAngularVelocity;
-import jef.core.movement.LinearVelocity;
-import jef.core.movement.Location;
-import jef.core.movement.Moveable;
 import jef.core.movement.Tracker;
 
 public class BallTracker extends Tracker
 {
-	public BallTracker(double timeInterval)
+	private Football startingState;
+	private Football currentState;
+	
+	public BallTracker(Football ballState, double timeInterval)
 	{
 		super(timeInterval);
-		// TODO Auto-generated constructor stub
+		this.currentState = ballState;
 	}
 
-	public BallTracker(LinearVelocity lv, Location loc, AngularVelocity av, double timeInterval)
+	public LinearVelocity getLV()
 	{
-		super(lv, loc, av, timeInterval);
-		// TODO Auto-generated constructor stub
+		return this.currentState.getLV();
 	}
 
-	public BallTracker(Moveable moveable, double timeInterval)
+	public Location getLoc()
 	{
-		super(moveable, timeInterval);
-		// TODO Auto-generated constructor stub
+		return this.currentState.getLoc();
 	}
 
+	public AngularVelocity getAV()
+	{
+		return this.currentState.getAV();
+	}
+
+	public void setLV(LinearVelocity lv)
+	{
+		this.currentState = this.currentState.newFrom(lv, null, null);
+	}
+	
+	public void setLoc(Location loc)
+	{
+		this.currentState = this.currentState.newFrom(null, loc, null);
+	}
+	
+	public void setAV(AngularVelocity av)
+	{
+		this.currentState = this.currentState.newFrom(null, null, av);
+	}
+	
 	/**
 	 * Moves the tracker until getLoc().getZ() is 0 or as far as it can go with the
 	 * given linear velocity adjusted by the lv argument, starting location, time
@@ -74,6 +94,17 @@ public class BallTracker extends Tracker
 		}
 	}
 
+	public void reset()
+	{
+		this.currentState = this.startingState;
+		this.setPctRemaining(1.0);
+	}
+	
+	public void advance()
+	{
+		this.startingState = this.currentState;
+		this.setPctRemaining(1.0);
+	}
 	/**
 	 * Makes the location, velocity and orientation of the ball make physical sense
 	 * 
@@ -87,7 +118,7 @@ public class BallTracker extends Tracker
 		{
 			setLoc(getLoc().newFrom(null, null, 0.0));
 			setLV(getLV().newFrom(null, 0.0, null));
-			setAV(new DefaultAngularVelocity());
+			setAV(new AngularVelocity());
 		}
 		
 		// if the ball is not moving and it is sitting within EPSILON of the ground, we
@@ -96,13 +127,13 @@ public class BallTracker extends Tracker
 		if (Location.closeEnoughTo(0, getLoc().getZ()) && getLV().isNotMoving())
 		{
 			setLV(getLV().newFrom(null, 0.0, null));
-			setAV(new DefaultAngularVelocity());
+			setAV(new AngularVelocity());
 		}
 
 		if (getLoc().getZ() == 0 && getLV().getElevation() < 0)
 		{
 			setLV(getLV().newFrom(null, 0.0, null));
-			setAV(new DefaultAngularVelocity());
+			setAV(new AngularVelocity());
 		}
 	}
 

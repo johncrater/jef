@@ -1,8 +1,5 @@
 package jef.core;
 
-import jef.core.movement.AngularVelocity;
-import jef.core.movement.LinearVelocity;
-
 public class BallUtils
 {
 	public static boolean hasTopSpin(AngularVelocity av, LinearVelocity lv)

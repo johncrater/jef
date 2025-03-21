@@ -1,11 +1,13 @@
 package jef.core.events;
 
+import jef.core.LinearVelocity;
+import jef.core.Location;
 import jef.core.geometry.LineSegment;
-import jef.core.movement.LinearVelocity;
-import jef.core.movement.Location;
 
 public class DebugShape
 {
+	public enum LineType { solid, dash, dot, dashdot, dashdotdot}
+	
 	public Location location;
 	public LinearVelocity linearVelocity;
 	public LineSegment lineSegment;
@@ -17,6 +19,7 @@ public class DebugShape
 	public String backgroundRGBA;
 	public int lineWidth;
 	public int fontSize;
+	public LineType lineType = LineType.solid;
 	
 	public DebugShape()
 	{	

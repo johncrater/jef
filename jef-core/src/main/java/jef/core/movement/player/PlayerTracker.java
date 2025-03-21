@@ -1,81 +1,104 @@
 package jef.core.movement.player;
 
+import jef.core.AngularVelocity;
+import jef.core.LinearVelocity;
+import jef.core.Location;
 import jef.core.Player;
+import jef.core.PlayerState;
 import jef.core.geometry.LineSegment;
-import jef.core.movement.DefaultAngularVelocity;
-import jef.core.movement.LinearVelocity;
-import jef.core.movement.Location;
 import jef.core.movement.Posture;
 import jef.core.movement.Tracker;
 
 public class PlayerTracker extends Tracker
 {
-	private final Player player;
-	private Path path;
-	private Posture posture;
-
-	public PlayerTracker(Player player, final double timeInterval)
+	private PlayerState currentState;
+	private PlayerState startingState;
+	private Path currentPath;
+	
+	public PlayerTracker(PlayerState playerState, Path currentPath, final double timeInterval)
 	{
-		super(player.getLV(), player.getLoc(), player.getAV(), timeInterval);
-		this.player = player;
-		this.path = player.getPath();
-		this.posture = player.getPosture();
-	}
-
-	public PlayerTracker(Player player, Path path, final double timeInterval)
-	{
-		super(player.getLV(), player.getLoc(), player.getAV(), timeInterval);
-		this.player = player;
-		this.path = path;
-		this.posture = player.getPosture();
+		super(timeInterval);
+		this.startingState = this.currentState = playerState;
+		this.currentPath = currentPath;
 	}
 
 	public PlayerTracker(final PlayerTracker tracker)
 	{
 		super(tracker);
-		this.player = tracker.player;
-		this.path = tracker.path;
-		this.posture = tracker.getPosture();
+		this.currentState = tracker.currentState;
+		this.startingState = tracker.startingState;
 	}
 
-	public Player getPlayer()
+	public PlayerState getState()
 	{
-		return this.player;
+		return this.currentState;
 	}
 	
-	public Posture getPosture()
+	public void setLV(LinearVelocity lv)
 	{
-		return this.posture;
+		this.currentState = this.currentState.newFrom(lv, null, null, null);
+	}
+	
+	public void setLoc(Location loc)
+	{
+		this.currentState = this.currentState.newFrom(null, loc, null, null);
+	}
+	
+	public void setAV(AngularVelocity av)
+	{
+		this.currentState = this.currentState.newFrom(null, null, av, null);
+	}
+	
+	public LinearVelocity getLV()
+	{
+		return this.currentState.getLV();
+	}
+
+	public AngularVelocity getAV()
+	{
+		return this.currentState.getAV();
+	}
+
+	public void reset()
+	{
+		this.currentState = this.startingState;
+		this.setPctRemaining(1.0);
+	}
+	
+	public void advance()
+	{
+		this.startingState = this.currentState;
+		this.setPctRemaining(1.0);
 	}
 
 	public void setPosture(Posture posture)
 	{
-		this.posture = posture;
+		this.currentState = this.currentState.newFrom(null, null, null, posture);
 	}
 
-	public double getAccelerationCoefficient()
-	{
-		return this.player.getAccelerationCoefficient();
-	}
-	
-	public double getDesiredSpeed()
-	{
-		return player.getDesiredSpeed();
-	}
-	
-	public Path getPath()
-	{
-		return this.path;
-	}
-
-	public double getMaxSpeed()
-	{
-		return this.player.getMaxSpeed();
-	}
-	
 	public void setPath(Path path)
 	{
-		this.path = path;
+		this.currentPath = path;
+	}
+
+	public Location getLoc()
+	{
+		return this.currentState.getLoc();
+	}
+
+	public Path getPath()
+	{
+		return this.currentPath;
+	}
+
+	public Posture getPosture()
+	{
+		return this.currentState.getPosture();
+	}
+
+	public Player getPlayer()
+	{
+		return this.currentState.getPlayer();
 	}
 
 	/**
@@ -110,15 +133,24 @@ public class PlayerTracker extends Tracker
 		return (Math.pow(desiredSpeed, 2) - Math.pow(this.getLV().getSpeed(), 2)) / (2 * accelerationRate);
 	}
 
+	public boolean destinationReached()
+	{
+		final Waypoint waypoint = getPath().getCurrentWaypoint();
+		if (waypoint == null)
+			return true;
+
+		return getLoc().closeEnoughTo(this.getPath().getDestination());
+	}
+
 	public boolean hasPastDestination()
 	{
-		final Location origin = this.getStartingLoc();
+		final Location origin = this.startingState.getLoc();
 		final Location dest = this.getPath().getCurrentWaypoint().getDestination();
 
 		final LineSegment line = new LineSegment(origin, dest);
 		final LineSegment perpLine = line.getPerpendicularLine(dest, line.getLength());
 
-		final LineSegment currentLine = new LineSegment(this.getStartingLoc(), this.getLoc());
+		final LineSegment currentLine = new LineSegment(this.startingState.getLoc(), this.getLoc());
 		final Location intersection = perpLine.xyIntersection(currentLine);
 
 		return intersection != null;
@@ -133,7 +165,7 @@ public class PlayerTracker extends Tracker
 		// orientation in that case
 		if (this.getLV().getSpeed() > 0)
 		{
-			this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
+			this.setAV(new AngularVelocity(this.getLV().getAzimuth(), 0, 0));
 		}
 
 		return ret;
@@ -148,7 +180,7 @@ public class PlayerTracker extends Tracker
 		// orientation in that case
 		if (this.getLV().getSpeed() > 0)
 		{
-			this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
+			this.setAV(new AngularVelocity(this.getLV().getAzimuth(), 0, 0));
 		}
 
 		return ret;
@@ -163,7 +195,7 @@ public class PlayerTracker extends Tracker
 		// orientation in that case
 		if (this.getLV().getSpeed() > 0)
 		{
-			this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
+			this.setAV(new AngularVelocity(this.getLV().getAzimuth(), 0, 0));
 		}
 	}
 
@@ -181,7 +213,7 @@ public class PlayerTracker extends Tracker
 		// orientation in that case
 		if (this.getLV().getSpeed() > 0)
 		{
-			this.setAV(new DefaultAngularVelocity(this.getLV().getAzimuth(), 0, 0));
+			this.setAV(new AngularVelocity(this.getLV().getAzimuth(), 0, 0));
 		}
 	}
 

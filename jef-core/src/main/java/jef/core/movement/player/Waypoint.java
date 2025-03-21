@@ -1,6 +1,8 @@
 package jef.core.movement.player;
 
-import jef.core.movement.Location;
+import java.util.Objects;
+
+import jef.core.Location;
 
 public class Waypoint
 {
@@ -66,6 +68,27 @@ public class Waypoint
 	public void setDestinationAction(DestinationAction destinationAction)
 	{
 		this.destinationAction = destinationAction;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(destination, destinationAction, maxSpeed, minTurnSpeed);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Waypoint other = (Waypoint) obj;
+		return Objects.equals(this.destination, other.destination) && this.destinationAction == other.destinationAction
+				&& Double.doubleToLongBits(this.maxSpeed) == Double.doubleToLongBits(other.maxSpeed)
+				&& Double.doubleToLongBits(this.minTurnSpeed) == Double.doubleToLongBits(other.minTurnSpeed);
 	}
 
 	@Override

@@ -2,17 +2,11 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<properties>
-		<swt-systemPath>
-			C:\Users\Albert\.m2\repository\jfg-swt\swt\3.0.0\swt-3.0.0.jar</swt-systemPath>
-	</properties>
-
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>jef</groupId>
 	<artifactId>jef-core</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<build>
-		<sourceDirectory>src</sourceDirectory>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -24,14 +18,6 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/org.eclipse/swt -->
-		<dependency>
-			<groupId>jfg.swt</groupId>
-			<artifactId>swt</artifactId>
-			<version>3.0.0</version>
-			<scope>system</scope>
-			<systemPath>${swt-systemPath}</systemPath>
-		</dependency>
 		<dependency>
 			<groupId>com.synerset</groupId>
 			<artifactId>unitility-core</artifactId>
