@@ -5,6 +5,7 @@ import com.badlogic.gdx.ai.msg.MessageManager;
 import jef.Players;
 import jef.core.Direction;
 import jef.core.Player;
+import jef.core.events.DebugShape;
 import jef.core.events.Messages;
 import jef.core.geometry.LineSegment;
 import jef.core.movement.player.Path;
@@ -22,22 +23,10 @@ public class BlockerWaypointPathfinder extends PathfinderBase implements Blocker
 	@Override
 	public Path calculatePath()
 	{
-		Waypoint previousWp = null;
-		for (Waypoint wp : getPlayers().getPath(getPlayer()).getWaypoints())
-		{
-			MessageManager.getInstance().dispatchMessage(Messages.drawBlockerDestination, wp.getDestination());
-
-			if (previousWp == null)
-				MessageManager.getInstance().dispatchMessage(Messages.drawBlockerPath,
-						new LineSegment(this.getPlayerState().getLoc(), wp.getDestination()));
-			else
-				MessageManager.getInstance().dispatchMessage(Messages.drawBlockerPath,
-						new LineSegment(previousWp.getDestination(), wp.getDestination()));
-			
-			previousWp = wp;
-		}
-		
-		return null;
+		Path path = getPlayers().getPath(getPlayer());
+		MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
+				DebugShape.drawPath(this.getPlayerState().getLoc(), path, "#0000FF00"));
+		return path;
 	}
 
 }

@@ -5,8 +5,8 @@ import com.badlogic.gdx.ai.msg.MessageManager;
 import jef.IPlayers;
 import jef.core.Direction;
 import jef.core.Player;
+import jef.core.events.DebugShape;
 import jef.core.events.Messages;
-import jef.core.geometry.LineSegment;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.Waypoint;
 import jef.pathfinding.PathfinderBase;
@@ -23,22 +23,8 @@ public class RunnerWaypointPathfinder extends PathfinderBase implements RunnerPa
 	public Path calculatePath()
 	{
 		// this is just for debugging. It can be deleted when finished.
-		Waypoint previousWp = null;
 		Path path = this.getPlayers().getSteps(getPlayer()).getPath();
-		for (Waypoint wp : path.getWaypoints())
-		{
-			MessageManager.getInstance().dispatchMessage(Messages.drawRunnerDestination, wp.getDestination());
-
-			if (previousWp == null)
-				MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
-						new LineSegment(this.getPlayerState().getLoc(), wp.getDestination()));
-			else
-				MessageManager.getInstance().dispatchMessage(Messages.drawRunnerPath,
-						new LineSegment(previousWp.getDestination(), wp.getDestination()));
-			
-			previousWp = wp;
-		}
-
+		MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape, DebugShape.drawPath(this.getPlayerState().getLoc(), path, "#00FF0000"));
 		return path;
 	}	
 }

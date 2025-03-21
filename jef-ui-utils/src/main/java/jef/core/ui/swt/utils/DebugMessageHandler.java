@@ -13,12 +13,10 @@ import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
 
-import jef.core.Conversions;
-import jef.core.Field;
 import jef.core.Location;
 import jef.core.events.DebugShape;
 import jef.core.events.Messages;
-import jef.core.geometry.LineSegment;
+import jef.core.movement.player.Waypoint;
 
 public class DebugMessageHandler implements Telegraph
 {
@@ -32,8 +30,6 @@ public class DebugMessageHandler implements Telegraph
 	public static Color runnerInterceptorColor = new Color(0xff, 0xff, 0x00);
 	public static Color blockerInterceptorColor = new Color(0xff, 0x00, 0xff);
 
-	private Color defaultColor = new Color(0, 0, 0);
-	private Map<Integer, Color> colors = new HashMap<>();
 	private Map<String, Color> colorMap = new HashMap<>();
 
 	private List<DebugShape> debugShapes = new ArrayList<>();
@@ -41,30 +37,6 @@ public class DebugMessageHandler implements Telegraph
 	public DebugMessageHandler()
 	{
 		MessageManager.getInstance().addListener(this, Messages.drawDebugShape);
-
-		colors.put(Messages.drawInterceptorDestination, interceptorColor);
-		MessageManager.getInstance().addListener(this, Messages.drawInterceptorDestination);
-
-		colors.put(Messages.drawInterceptorPath, interceptorColor);
-		MessageManager.getInstance().addListener(this, Messages.drawInterceptorPath);
-
-		colors.put(Messages.drawRunnerDestination, runnerColor);
-		MessageManager.getInstance().addListener(this, Messages.drawRunnerDestination);
-
-		colors.put(Messages.drawRunnerPath, runnerColor);
-		MessageManager.getInstance().addListener(this, Messages.drawRunnerPath);
-
-		colors.put(Messages.drawBlockerDestination, blockerColor);
-		MessageManager.getInstance().addListener(this, Messages.drawBlockerDestination);
-
-		colors.put(Messages.drawBlockerPath, blockerColor);
-		MessageManager.getInstance().addListener(this, Messages.drawBlockerPath);
-
-		colors.put(Messages.drawRunnerInterceptorBoundingSegments, runnerInterceptorColor);
-		MessageManager.getInstance().addListener(this, Messages.drawRunnerInterceptorBoundingSegments);
-
-		colors.put(Messages.drawBlockerInterceptorBoundingSegments, blockerInterceptorColor);
-		MessageManager.getInstance().addListener(this, Messages.drawBlockerInterceptorBoundingSegments);
 	}
 
 	public void clear()
@@ -161,6 +133,19 @@ public class DebugMessageHandler implements Telegraph
 								UIUtils.yardsToPixels(debugShape.lineSegment.getLoc1().getY()),
 								UIUtils.yardsToPixels(debugShape.lineSegment.getLoc2().getX()),
 								UIUtils.yardsToPixels(debugShape.lineSegment.getLoc2().getY()));
+				}
+			}
+			
+			if (debugShape.path != null)
+			{
+				Location prev = debugShape.location;
+				for (Waypoint wp : debugShape.path)
+				{
+					gc.drawLine(UIUtils.yardsToPixels(prev.getX()),
+							UIUtils.yardsToPixels(prev.getY()),
+							UIUtils.yardsToPixels(wp.getDestination().getX()),
+							UIUtils.yardsToPixels(wp.getDestination().getY()));
+					prev = wp.getDestination();
 				}
 			}
 		}

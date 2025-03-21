@@ -3,6 +3,7 @@ package jef.core.events;
 import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.geometry.LineSegment;
+import jef.core.movement.player.Path;
 
 public class DebugShape
 {
@@ -11,6 +12,7 @@ public class DebugShape
 	public Location location;
 	public LinearVelocity linearVelocity;
 	public LineSegment lineSegment;
+	public Path path;
 	public Location [] locations;
 	public String text;
 	
@@ -23,6 +25,15 @@ public class DebugShape
 	
 	public DebugShape()
 	{	
+	}
+	
+	public static DebugShape drawPath(Location startingLoc, Path path, String foregroundRGBA)
+	{
+		DebugShape ret = new DebugShape();
+		ret.location = startingLoc;
+		ret.path = path;
+		ret.foregroundRGBA = foregroundRGBA;
+		return ret;
 	}
 	
 	public static DebugShape drawText(String text, Location location, String foregroundRGBA, int fontSize)
