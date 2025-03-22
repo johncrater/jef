@@ -1,7 +1,7 @@
-package jef.pathfinding;
+package jef.core.pathfinding;
 
-import jef.IPlayers;
 import jef.core.Direction;
+import jef.core.IPlayers;
 import jef.core.Player;
 import jef.core.PlayerState;
 

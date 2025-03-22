@@ -1,6 +1,6 @@
-package jef.pathfinding.blocking;
+package jef.core.pathfinding.blocking;
 
-import jef.pathfinding.Pathfinder;
+import jef.core.pathfinding.Pathfinder;
 
 public interface BlockerPathfinder extends Pathfinder
 {

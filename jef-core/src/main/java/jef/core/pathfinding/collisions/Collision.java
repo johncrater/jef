@@ -1,4 +1,4 @@
-package jef.pathfinding.collisions;
+package jef.core.pathfinding.collisions;
 
 import java.util.Objects;
 

@@ -1,4 +1,4 @@
-package jef.pathfinding;
+package jef.core.pathfinding;
 
 import java.util.HashMap;
 import java.util.List;
@@ -6,9 +6,6 @@ import java.util.Map;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
-import jef.actions.pathfinding.blocking.BlockerPathfinder;
-import jef.actions.pathfinding.defenders.DefenderPathfinder;
-import jef.actions.pathfinding.runners.RunnerPathfinder;
 import jef.core.Direction;
 import jef.core.Location;
 import jef.core.Performance;
@@ -20,6 +17,9 @@ import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
+import jef.core.pathfinding.blocking.BlockerPathfinder;
+import jef.core.pathfinding.defenders.DefenderPathfinder;
+import jef.core.pathfinding.runners.RunnerPathfinder;
 
 public class AdvancedInterceptPlayer extends PathfinderBase
 {

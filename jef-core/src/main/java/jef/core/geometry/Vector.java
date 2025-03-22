@@ -2,8 +2,6 @@ package jef.core.geometry;
 
 import java.util.Objects;
 
-import jef.core.Conversions;
-
 public class Vector
 {
 	private double x;

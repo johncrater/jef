@@ -1,4 +1,4 @@
-package jef.pathfinding.runners;
+package jef.core.pathfinding.runners;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,10 +10,9 @@ import java.util.Set;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
-import jef.IPlayers;
 import jef.core.Direction;
 import jef.core.Field;
-import jef.core.LinearVelocity;
+import jef.core.IPlayers;
 import jef.core.Location;
 import jef.core.Performance;
 import jef.core.Player;
@@ -22,11 +21,10 @@ import jef.core.events.DebugShape;
 import jef.core.events.Messages;
 import jef.core.geometry.Circle;
 import jef.core.geometry.LineSegment;
-import jef.core.movement.Posture;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
-import jef.pathfinding.PathfinderBase;
+import jef.core.pathfinding.PathfinderBase;
 
 public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPathfinder
 {
@@ -181,11 +179,6 @@ public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPa
 		return this.blockers.contains(player);
 	}
 
-	private boolean isDefender(Player player)
-	{
-		return this.defenders.contains(player);
-	}
-
 	private Path assignPath(List<Location> reachableLocations)
 	{
 		if (reachableLocations.size() > 0)
@@ -297,22 +290,22 @@ public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPa
 				new Borderline(Field.SIDELINE_SOUTH.move(0, Location.EPSILON_VALUE, 0), null, null)));
 	}
 
-	private Set<Borderline> buildBorderlines(List<PlayerState> interceptorPlayers, List<PlayerState> blockers)
-	{
-		Set<Borderline> segments = new HashSet<>();
-
-		final HashSet<Borderline> runnerInterceptorSegments = this.getBorderlines(getPlayerState(), interceptorPlayers);
-		segments.addAll(runnerInterceptorSegments);
-
-		final HashSet<Borderline> blockerInterceptorSegments = new HashSet<>();
-		for (final PlayerState interceptor : interceptorPlayers)
-			blockerInterceptorSegments.addAll(this.getBorderlines(interceptor, blockers));
-
-		segments.addAll(blockerInterceptorSegments);
-
-		return segments;
-	}
-
+//	private Set<Borderline> buildBorderlines(List<PlayerState> interceptorPlayers, List<PlayerState> blockers)
+//	{
+//		Set<Borderline> segments = new HashSet<>();
+//
+//		final HashSet<Borderline> runnerInterceptorSegments = this.getBorderlines(getPlayerState(), interceptorPlayers);
+//		segments.addAll(runnerInterceptorSegments);
+//
+//		final HashSet<Borderline> blockerInterceptorSegments = new HashSet<>();
+//		for (final PlayerState interceptor : interceptorPlayers)
+//			blockerInterceptorSegments.addAll(this.getBorderlines(interceptor, blockers));
+//
+//		segments.addAll(blockerInterceptorSegments);
+//
+//		return segments;
+//	}
+//
 	private Set<Borderline> splitLines(final Set<Borderline> segments)
 	{
 		final var borderlinesQueue = new HashSet<>(segments);
@@ -437,29 +430,29 @@ public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPa
 		}
 	}
 
-	private HashSet<Borderline> getBorderlines(PlayerState p1, Collection<PlayerState> players)
-	{
-		return new HashSet<>(players.stream().map(p2 ->
-		{
-			if (p2.getPosture() != Posture.upright)
-				return new Borderline(null, p1, p2);
-
-			double ratio = .5;
-			final double denom = p1.getLV().getSpeed() + p2.getLV().getSpeed();
-			if (denom != 0)
-			{
-				ratio = p1.getLV().getSpeed() / denom;
-			}
-
-			final LineSegment seg = new LineSegment(p1.getLoc(), p2.getLoc());
-			LinearVelocity segLV = seg.getDirection();
-			Location pointAlong = seg.getPoint(ratio);
-
-			// make it longer than field distances and then chop it down to size to make
-			// sure it fits
-			return new Borderline(new LineSegment(pointAlong.add(segLV.add(-Math.PI / 2, 0, 200)),
-					pointAlong.add(segLV.add(Math.PI / 2, 0, 200))).restrictToBetweenEndZones(true), p1, p2);
-		}).filter(l -> l.getLs() != null).toList());
-	}
-
+//	private HashSet<Borderline> getBorderlines(PlayerState p1, Collection<PlayerState> players)
+//	{
+//		return new HashSet<>(players.stream().map(p2 ->
+//		{
+//			if (p2.getPosture() != Posture.upright)
+//				return new Borderline(null, p1, p2);
+//
+//			double ratio = .5;
+//			final double denom = p1.getLV().getSpeed() + p2.getLV().getSpeed();
+//			if (denom != 0)
+//			{
+//				ratio = p1.getLV().getSpeed() / denom;
+//			}
+//
+//			final LineSegment seg = new LineSegment(p1.getLoc(), p2.getLoc());
+//			LinearVelocity segLV = seg.getDirection();
+//			Location pointAlong = seg.getPoint(ratio);
+//
+//			// make it longer than field distances and then chop it down to size to make
+//			// sure it fits
+//			return new Borderline(new LineSegment(pointAlong.add(segLV.add(-Math.PI / 2, 0, 200)),
+//					pointAlong.add(segLV.add(Math.PI / 2, 0, 200))).restrictToBetweenEndZones(true), p1, p2);
+//		}).filter(l -> l.getLs() != null).toList());
+//	}
+//
 }

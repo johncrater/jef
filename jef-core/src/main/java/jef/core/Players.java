@@ -1,4 +1,4 @@
-package jef;
+package jef.core;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,17 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import jef.core.Football;
-import jef.core.Location;
-import jef.core.Performance;
-import jef.core.Player;
-import jef.core.PlayerState;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;
-import jef.pathfinding.collisions.Collision;
-import jef.pathfinding.collisions.CollisionResolution;
-import jef.pathfinding.collisions.CollisionResolver;
+import jef.core.pathfinding.collisions.Collision;
+import jef.core.pathfinding.collisions.CollisionResolution;
+import jef.core.pathfinding.collisions.CollisionResolver;
 
 public abstract class Players implements IPlayers
 {

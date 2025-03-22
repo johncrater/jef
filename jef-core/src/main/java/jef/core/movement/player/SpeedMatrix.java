@@ -3,11 +3,8 @@ package jef.core.movement.player;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.synerset.unitility.unitsystem.common.Velocity;
-
 import jef.core.Conversions;
 import jef.core.PlayerPosition;
-import jef.core.movement.VUnits;
 
 public class SpeedMatrix
 {

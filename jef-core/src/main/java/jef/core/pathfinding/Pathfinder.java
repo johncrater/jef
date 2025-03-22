@@ -1,4 +1,4 @@
-package jef.pathfinding;
+package jef.core.pathfinding;
 
 import jef.core.Player;
 import jef.core.movement.player.Path;

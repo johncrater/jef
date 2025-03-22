@@ -1,4 +1,4 @@
-package jef.pathfinding.runners;
+package jef.core.pathfinding.runners;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,8 +10,7 @@ import java.util.Set;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
-import jef.actions.pathfinding.PathfinderBase;
-import jef.actions.pathfinding.PlayerStates;
+import jef.IPlayers;
 import jef.core.Direction;
 import jef.core.Field;
 import jef.core.LinearVelocity;
@@ -27,20 +26,21 @@ import jef.core.movement.player.AdvancedSteering;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
+import jef.core.pathfinding.PathfinderBase;
 
 public class AdvancedEvadeInterceptors extends PathfinderBase implements RunnerPathfinder
 {
-	public AdvancedEvadeInterceptors(PlayerStates players, final Player player, final Direction direction)
+	public AdvancedEvadeInterceptors(IPlayers players, final Player player, final Direction direction)
 	{
 		super(players, player, direction);
 	}
 
 	@Override
-	public void calculate(long deltaNanos)
+	public Path calculatePath()
 	{
 		long nanos = System.nanoTime();
 
-		List<PlayerState> interceptorPlayers = getPlayerStates().getDefenderStates();
+		List<PlayerState> interceptorPlayers = getPlayers().getDefenderStates();
 
 		List<PlayerState> tmpPlayers = new ArrayList<PlayerState>();
 		tmpPlayers.add(getPlayerState());

@@ -11,7 +11,6 @@ import com.synerset.unitility.unitsystem.thermodynamic.Density;
 import jef.core.AngularVelocity;
 import jef.core.Conversions;
 import jef.core.LinearVelocity;
-import jef.core.LinearVelocity;
 import jef.core.movement.VUnits;
 
 public class BallPhysics

@@ -1,14 +1,12 @@
 package jef.core.apps;
 
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,8 +39,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
-import jef.Players;
-import jef.Players.PlayerSteps;
 import jef.core.AngularVelocity;
 import jef.core.Conversions;
 import jef.core.Direction;
@@ -53,6 +49,8 @@ import jef.core.Performance;
 import jef.core.Player;
 import jef.core.PlayerPosition;
 import jef.core.PlayerState;
+import jef.core.Players;
+import jef.core.Players.PlayerSteps;
 import jef.core.events.DebugShape;
 import jef.core.events.Messages;
 import jef.core.geometry.LineSegment;
@@ -60,32 +58,27 @@ import jef.core.movement.Posture;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
+import jef.core.pathfinding.Pathfinder;
+import jef.core.pathfinding.blocking.BlockNearestThreat;
+import jef.core.pathfinding.blocking.BlockPlayer;
+import jef.core.pathfinding.blocking.BlockerPathfinder;
+import jef.core.pathfinding.blocking.BlockerWaypointPathfinder;
+import jef.core.pathfinding.blocking.BlockersAction;
+import jef.core.pathfinding.defenders.DefaultPursueRunner;
+import jef.core.pathfinding.defenders.DefenderPathfinder;
+import jef.core.pathfinding.defenders.DefenderWaypointPathfinder;
+import jef.core.pathfinding.runners.DefaultEvadeInterceptors;
+import jef.core.pathfinding.runners.RunForGlory;
+import jef.core.pathfinding.runners.RunnerPathfinder;
+import jef.core.pathfinding.runners.RunnerWaypointPathfinder;
 import jef.core.ui.swt.utils.DebugMessageHandler;
-import jef.core.ui.swt.utils.GIFMarkup;
 import jef.core.ui.swt.utils.UIUtils;
-import jef.pathfinding.Pathfinder;
-import jef.pathfinding.blocking.BlockNearestThreat;
-import jef.pathfinding.blocking.BlockPlayer;
-import jef.pathfinding.blocking.BlockerPathfinder;
-import jef.pathfinding.blocking.BlockerWaypointPathfinder;
-import jef.pathfinding.blocking.BlockersAction;
-import jef.pathfinding.defenders.DefaultPursueRunner;
-import jef.pathfinding.defenders.DefenderPathfinder;
-import jef.pathfinding.defenders.DefenderWaypointPathfinder;
-import jef.pathfinding.runners.DefaultEvadeInterceptors;
-import jef.pathfinding.runners.RunForGlory;
-import jef.pathfinding.runners.RunnerPathfinder;
-import jef.pathfinding.runners.RunnerWaypointPathfinder;
 
 public class PlayerTestViewer implements Runnable
 {
-	private static final double TIMER_INTERVAL = .04;
-
-	private static final Color white = new Color(255, 255, 255);
 	private static final Color yellow = new Color(255, 255, 0);
 	private static final Color black = new Color(0, 0, 0);
 
-	private static final Color red = new Color(255, 0, 0);
 	private static FontData playerFontData = new FontData("Courier New", 16, SWT.NORMAL);
 	private static FontData playerDataFontData = new FontData("Courier New", 8, SWT.NORMAL);
 	private static Font playerFont;
@@ -110,8 +103,6 @@ public class PlayerTestViewer implements Runnable
 	private long lastMilliseconds;
 	private Image field;
 
-	private Image playerImage;
-	private GIFMarkup player1Gif;
 	private boolean pause = true;
 	private Player currentPlayer;
 
@@ -339,7 +330,6 @@ public class PlayerTestViewer implements Runnable
 		this.shell.getDisplay().asyncExec(this);
 	}
 
-	@SuppressWarnings("unchecked")
 	private void createButtons()
 	{
 		final Composite buttonRow = new Composite(this.shell, SWT.NONE);
@@ -505,8 +495,6 @@ public class PlayerTestViewer implements Runnable
 
 			final ByteArrayOutputStream os = new ByteArrayOutputStream();
 			ImageIO.write(bi, "png", os);
-			final InputStream is = new ByteArrayInputStream(os.toByteArray());
-			this.playerImage = new Image(this.shell.getDisplay(), is);
 		}
 		catch (final IOException e)
 		{
@@ -516,7 +504,6 @@ public class PlayerTestViewer implements Runnable
 
 		final ImageLoader imageLoader = new ImageLoader();
 		imageLoader.load(this.getClass().getResourceAsStream("/untitled.gif"));
-		this.player1Gif = new GIFMarkup(imageLoader);
 
 		this.canvas.addPaintListener(e ->
 		{

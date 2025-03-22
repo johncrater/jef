@@ -1,14 +1,14 @@
-package jef.pathfinding.runners;
+package jef.core.pathfinding.runners;
 
-import jef.IPlayers;
 import jef.core.Direction;
 import jef.core.Field;
+import jef.core.IPlayers;
 import jef.core.Location;
 import jef.core.Player;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.Waypoint;
 import jef.core.movement.player.Waypoint.DestinationAction;
-import jef.pathfinding.PathfinderBase;
+import jef.core.pathfinding.PathfinderBase;
 
 /**
  * Runner heads directly for the nearest part of the end zone

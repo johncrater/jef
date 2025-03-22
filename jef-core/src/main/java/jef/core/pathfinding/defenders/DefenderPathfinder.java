@@ -1,6 +1,6 @@
-package jef.pathfinding.defenders;
+package jef.core.pathfinding.defenders;
 
-import jef.pathfinding.Pathfinder;
+import jef.core.pathfinding.Pathfinder;
 
 public interface DefenderPathfinder extends Pathfinder
 {

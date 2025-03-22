@@ -1,11 +1,11 @@
-package jef.pathfinding;
+package jef.core.pathfinding;
 
-import jef.IPlayers;
-import jef.Players.PlayerSteps;
 import jef.core.Direction;
+import jef.core.IPlayers;
 import jef.core.Performance;
 import jef.core.Player;
 import jef.core.PlayerState;
+import jef.core.Players.PlayerSteps;
 import jef.core.movement.player.Path;
 import jef.core.movement.player.PlayerTracker;
 import jef.core.movement.player.Steering;

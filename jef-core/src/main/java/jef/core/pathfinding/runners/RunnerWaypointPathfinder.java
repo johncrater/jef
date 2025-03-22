@@ -1,15 +1,14 @@
-package jef.pathfinding.runners;
+package jef.core.pathfinding.runners;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
-import jef.IPlayers;
 import jef.core.Direction;
+import jef.core.IPlayers;
 import jef.core.Player;
 import jef.core.events.DebugShape;
 import jef.core.events.Messages;
 import jef.core.movement.player.Path;
-import jef.core.movement.player.Waypoint;
-import jef.pathfinding.PathfinderBase;
+import jef.core.pathfinding.PathfinderBase;
 
 public class RunnerWaypointPathfinder extends PathfinderBase implements RunnerPathfinder
 {

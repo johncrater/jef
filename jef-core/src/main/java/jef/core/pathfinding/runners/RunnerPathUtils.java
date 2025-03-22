@@ -1,4 +1,4 @@
-package jef.pathfinding.runners;
+package jef.core.pathfinding.runners;
 
 import jef.core.Direction;
 import jef.core.Field;

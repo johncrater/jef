@@ -1,4 +1,4 @@
-package jef.pathfinding.collisions;
+package jef.core.pathfinding.collisions;
 
 import jef.core.PlayerState;
 import jef.core.movement.Posture;

@@ -1,4 +1,4 @@
-package jef.pathfinding.threats;
+package jef.core.pathfinding.threats;
 
 import jef.core.Player;
 

@@ -1,9 +1,9 @@
-package jef.pathfinding.blocking;
+package jef.core.pathfinding.blocking;
 
-import jef.IPlayers;
 import jef.core.Direction;
+import jef.core.IPlayers;
 import jef.core.Player;
-import jef.pathfinding.DefaultInterceptPlayer;
+import jef.core.pathfinding.DefaultInterceptPlayer;
 
 public class BlockPlayer extends DefaultInterceptPlayer implements BlockerPathfinder
 {

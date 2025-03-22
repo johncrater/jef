@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import jef.IPlayers;
+import jef.core.IPlayers;
 import jef.core.Player;
 import jef.core.movement.player.Path;
 

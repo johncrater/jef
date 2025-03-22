@@ -1,24 +1,23 @@
-package jef.pathfinding.blocking;
+package jef.core.pathfinding.blocking;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
-import jef.IPlayers;
-import jef.Players.PlayerSteps;
 import jef.core.Direction;
+import jef.core.IPlayers;
 import jef.core.Player;
+import jef.core.Players.PlayerSteps;
 import jef.core.events.DebugShape;
 import jef.core.events.Messages;
 import jef.core.movement.player.Path;
-import jef.pathfinding.DefaultInterceptPlayer;
+import jef.core.pathfinding.DefaultInterceptPlayer;
 
 public class BlockersAction
 {

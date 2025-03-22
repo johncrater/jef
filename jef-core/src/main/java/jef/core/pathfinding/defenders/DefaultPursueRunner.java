@@ -1,9 +1,9 @@
-package jef.pathfinding.defenders;
+package jef.core.pathfinding.defenders;
 
-import jef.IPlayers;
 import jef.core.Direction;
+import jef.core.IPlayers;
 import jef.core.Player;
-import jef.pathfinding.DefaultInterceptPlayer;
+import jef.core.pathfinding.DefaultInterceptPlayer;
 
 public class DefaultPursueRunner extends DefaultInterceptPlayer implements DefenderPathfinder
 {

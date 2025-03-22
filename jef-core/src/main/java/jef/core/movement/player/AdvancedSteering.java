@@ -237,7 +237,7 @@ public class AdvancedSteering implements Steering
 
 	private double calculateDistanceNeededToCompleteTurn(final PlayerTracker tracker, final double newAngle)
 	{
-		final double minTurnRadius = this.calculateTightestRadiusTurnAtSpeed(tracker.getLV().getSpeed(),
+		final double minTurnRadius = calculateTightestRadiusTurnAtSpeed(tracker.getLV().getSpeed(),
 				tracker.getPlayer().getSpeedMatrix().getSprintingSpeed());
 		return Math.abs(minTurnRadius * newAngle);
 	}

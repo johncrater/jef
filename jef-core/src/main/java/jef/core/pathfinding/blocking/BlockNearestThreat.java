@@ -1,17 +1,17 @@
-package jef.pathfinding.blocking;
+package jef.core.pathfinding.blocking;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import jef.Players;
-import jef.Players.PlayerSteps;
 import jef.core.Direction;
 import jef.core.Player;
+import jef.core.Players;
+import jef.core.Players.PlayerSteps;
 import jef.core.movement.player.Path;
-import jef.pathfinding.DefaultInterceptPlayer;
-import jef.pathfinding.PathfinderBase;
-import jef.pathfinding.threats.ThreatAssessment;
+import jef.core.pathfinding.DefaultInterceptPlayer;
+import jef.core.pathfinding.PathfinderBase;
+import jef.core.pathfinding.threats.ThreatAssessment;
 
 /**
  * A BlockingEscort stays between the runner and the biggest defensive threat

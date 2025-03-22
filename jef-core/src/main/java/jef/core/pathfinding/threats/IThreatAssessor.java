@@ -1,4 +1,4 @@
-package jef.pathfinding.threats;
+package jef.core.pathfinding.threats;
 
 import java.util.Collection;
 import java.util.List;

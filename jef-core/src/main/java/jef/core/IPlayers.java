@@ -1,10 +1,8 @@
-package jef;
+package jef.core;
 
 import java.util.Set;
 
-import jef.Players.PlayerSteps;
-import jef.core.Player;
-import jef.core.PlayerState;
+import jef.core.Players.PlayerSteps;
 import jef.core.movement.player.Path;
 
 public interface IPlayers

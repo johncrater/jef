@@ -1,8 +1,5 @@
 package jef.core.geometry;
 
-import jef.core.LinearVelocity;
-import jef.core.Location;
-import jef.core.LinearVelocity;
 import jef.core.Location;
 
 public class Plane
