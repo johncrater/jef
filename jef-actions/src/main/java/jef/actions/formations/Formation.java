@@ -1,16 +1,16 @@
 package jef.actions.formations;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
-public class Formation
+public class Formation implements Iterable<FormationPosition>
 {
 	private final String name;
 	private final boolean isOffense;
-	private final List<FormationPosition> formationPositions = new ArrayList<>();
+	private final Map<String, FormationPosition> formationPositions = new HashMap<>();
 
 	public Formation(final String name, final boolean isOffense)
 	{
@@ -18,26 +18,28 @@ public class Formation
 		this.isOffense = isOffense;
 	}
 
-	public Formation(final String name, final boolean isOffense, final FormationPosition... formationPositions)
-	{
-		this.name = name;
-		this.isOffense = isOffense;
-		this.formationPositions.addAll(Arrays.asList(formationPositions));
-	}
-
 	public Formation addPosition(final FormationPosition pos)
 	{
-		if (!this.formationPositions.contains(pos))
-			this.formationPositions.add(pos);
-
+		this.formationPositions.put(pos.getName(), pos);
 		return this;
+	}
+
+	@Override
+	public Iterator<FormationPosition> iterator()
+	{
+		return this.formationPositions.values().iterator();
 	}
 
 	public Collection<FormationPosition> getFormationPositions()
 	{
-		return Collections.unmodifiableCollection(this.formationPositions);
+		return Collections.unmodifiableCollection(this.formationPositions.values());
 	}
 
+	public FormationPosition getPosition(String name)
+	{
+		return this.formationPositions.get(name);
+	}
+	
 	public String getName()
 	{
 		return this.name;

@@ -1,14 +1,23 @@
 package jef.core.apps;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.Properties;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -29,22 +38,32 @@ public abstract class TestViewer implements Runnable
 {
 	public static final Color black = new Color(0, 0, 0);
 
+	private static Font playerFont;
+	private static FontData playerFontData = new FontData("Courier New", 16, SWT.NORMAL);
+
+	protected static Font getPlayerFont()
+	{
+		return TestViewer.playerFont;
+	}
+
 	private final Shell shell;
 	private Canvas canvas;
+
 	private Image field;
 
 	private final DebugMessageHandler debugMessageHandler = new DebugMessageHandler();
-
 	// field scaling and centering
 	private Location midfieldLocation = Field.MIDFIELD;
+
 	private float scaleAdjustment = 1.0f;
 
 	private Players players;
-
 	private long lastMilliseconds;
 	private boolean paused = true;
+
 	private boolean autoPauseActive;
 
+	@SuppressWarnings("deprecation")
 	public TestViewer(final String title)
 	{
 		this.shell = new Shell();
@@ -52,6 +71,45 @@ public abstract class TestViewer implements Runnable
 		this.shell.setText(title);
 
 		this.shell.setLayout(new GridLayout(1, false));
+
+		TestViewer.playerFont = new Font(this.getShell().getDisplay(), TestViewer.playerFontData);
+
+		try
+		{
+			final FileInputStream fis = new FileInputStream(new File(title + ".props"));
+			final Properties props = new Properties();
+			props.load(fis);
+			final Rectangle rect = new Rectangle(Integer.parseInt(props.getProperty("bounds.x")),
+					Integer.parseInt(props.getProperty("bounds.y")),
+					Integer.parseInt(props.getProperty("bounds.width")),
+					Integer.parseInt(props.getProperty("bounds.height")));
+			this.getShell().setBounds(rect);
+		}
+		catch (final Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		this.getShell().addListener(SWT.Close, e ->
+		{
+			final Rectangle bounds = this.getShell().getBounds();
+			final Properties properties = new Properties();
+			properties.put("bounds.x", "" + bounds.x);
+			properties.put("bounds.y", "" + bounds.y);
+			properties.put("bounds.width", "" + bounds.width);
+			properties.put("bounds.height", "" + bounds.height);
+
+			try
+			{
+				properties.save(new FileOutputStream(new File(title + ".props")), "");
+			}
+			catch (final FileNotFoundException e1)
+			{
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		});
 
 	}
 
@@ -146,19 +204,40 @@ public abstract class TestViewer implements Runnable
 		this.paused = pause;
 	}
 
-	protected Canvas getCanvas()
+	protected Composite createButtons()
 	{
-		return this.canvas;
-	}
-	
-	protected float getScaleAdjustment()
-	{
-		return this.scaleAdjustment;
-	}
+		final Composite buttonRow = new Composite(this.getShell(), SWT.NONE);
+		buttonRow.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL));
+		buttonRow.setLayout(new FillLayout(SWT.HORIZONTAL));
 
-	protected Location getMidfieldLocation()
-	{
-		return this.midfieldLocation;
+		final Composite c2 = new Composite(buttonRow, SWT.NONE);
+		c2.setLayout(new FillLayout(SWT.HORIZONTAL));
+
+		final Button autoPauseButton = new Button(c2, SWT.PUSH);
+		autoPauseButton.setText("Auto Pause: Off");
+		autoPauseButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(final SelectionEvent e)
+			{
+				TestViewer.this.setAutoPauseActive(!TestViewer.this.isAutoPauseActive());
+				autoPauseButton.setText(TestViewer.this.isAutoPauseActive() ? "Auto Pause: On" : "Auto Pause: Off");
+			}
+		});
+
+		final Button pauseButton = new Button(c2, SWT.PUSH);
+		pauseButton.setText("Un Pause");
+		pauseButton.addSelectionListener(new SelectionAdapter()
+		{
+			@Override
+			public void widgetSelected(final SelectionEvent e)
+			{
+				TestViewer.this.setPaused(!TestViewer.this.isPaused());
+				pauseButton.setText(TestViewer.this.isPaused() ? "Un Pause" : "Pause");
+			}
+		});
+
+		return buttonRow;
 	}
 
 	protected void createCanvas()
@@ -226,42 +305,6 @@ public abstract class TestViewer implements Runnable
 
 	}
 
-	protected Composite createButtons()
-	{
-		final Composite buttonRow = new Composite(this.getShell(), SWT.NONE);
-		buttonRow.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL | GridData.GRAB_HORIZONTAL));
-		buttonRow.setLayout(new FillLayout(SWT.HORIZONTAL));
-
-		final Composite c2 = new Composite(buttonRow, SWT.NONE);
-		c2.setLayout(new FillLayout(SWT.HORIZONTAL));
-
-		final Button autoPauseButton = new Button(c2, SWT.PUSH);
-		autoPauseButton.setText("Auto Pause: Off");
-		autoPauseButton.addSelectionListener(new SelectionAdapter()
-		{
-			@Override
-			public void widgetSelected(final SelectionEvent e)
-			{
-				TestViewer.this.setAutoPauseActive(!TestViewer.this.isAutoPauseActive());
-				autoPauseButton.setText(TestViewer.this.isAutoPauseActive() ? "Auto Pause: On" : "Auto Pause: Off");
-			}
-		});
-
-		final Button pauseButton = new Button(c2, SWT.PUSH);
-		pauseButton.setText("Un Pause");
-		pauseButton.addSelectionListener(new SelectionAdapter()
-		{
-			@Override
-			public void widgetSelected(final SelectionEvent e)
-			{
-				TestViewer.this.setPaused(!TestViewer.this.isPaused());
-				pauseButton.setText(TestViewer.this.isPaused() ? "Un Pause" : "Pause");
-			}
-		});
-
-		return buttonRow;
-	}
-
 	protected abstract Players createPlayers();
 
 	protected abstract void drawPlayer(FieldTransformStack ts, PlayerState playerState);
@@ -287,9 +330,24 @@ public abstract class TestViewer implements Runnable
 		this.debugMessageHandler.draw(ts.getGC());
 	}
 
+	protected Canvas getCanvas()
+	{
+		return this.canvas;
+	}
+
+	protected Location getMidfieldLocation()
+	{
+		return this.midfieldLocation;
+	}
+
 	protected Players getPlayers()
 	{
 		return this.players;
+	}
+
+	protected float getScaleAdjustment()
+	{
+		return this.scaleAdjustment;
 	}
 
 	protected Shell getShell()

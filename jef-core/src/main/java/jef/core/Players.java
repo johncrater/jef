@@ -16,8 +16,179 @@ import jef.core.pathfinding.collisions.Collision;
 import jef.core.pathfinding.collisions.CollisionResolution;
 import jef.core.pathfinding.collisions.CollisionResolver;
 
-public abstract class Players implements IPlayers
+public class Players implements IPlayers
 {
+	public static final int DEFAULT_STEP_CAPACITY = 200;
+
+	private static Location toCanonicalLocation(final Location loc)
+	{
+		return new Location(Math.round(loc.getX()), Math.round(loc.getY()), 0);
+	}
+
+	private final Map<Player, PlayerSteps> steps = new HashMap<>();
+
+	private final LocationIndex locationIndex;
+
+	private final int stepCapacity;
+
+	private final double timerInterval;
+	private int startOffset;
+	private final Map<Player, Path> nextPaths = new HashMap<>();
+
+	public Players()
+	{
+		this(Players.DEFAULT_STEP_CAPACITY, Performance.frameInterval);
+	}
+
+	public Players(final int stepCapacity, final double timerInterval)
+	{
+		this.stepCapacity = stepCapacity;
+		this.timerInterval = timerInterval;
+		this.locationIndex = new LocationIndex();
+	}
+
+	public void addPlayer(final PlayerState state)
+	{
+		assert !this.getPlayers().contains(state.getPlayer());
+
+		this.steps.put(state.getPlayer(), new PlayerSteps(state, null));
+
+		this.reset(state, null);
+	}
+
+	public void addPlayer(final PlayerState state, final Path path)
+	{
+		assert !this.getPlayers().contains(state.getPlayer());
+		this.reset(state, path);
+	}
+
+	public void advance()
+	{
+		for (final Player player : this.nextPaths.keySet())
+		{
+			final Path newPath = this.nextPaths.get(player);
+			this.steps.get(player).path = newPath;
+			this.reset(this.getState(player), newPath);
+		}
+
+		final List<Collision> collisions = this.getCollisions(0);
+		final Set<CollisionResolver> resolvers = new HashSet<>();
+		for (final Collision c : collisions)
+		{
+			resolvers.add(CollisionResolution.createResolution(c, Football.theFootball));
+		}
+
+		for (final CollisionResolver resolver : resolvers)
+		{
+			resolver.resolveCollision();
+
+			PlayerState playerState = resolver.getPlayerState1();
+			this.reset(playerState, null);
+
+			playerState = resolver.getPlayerState2();
+			this.reset(playerState, null);
+		}
+
+		this.determinePaths();
+
+		for (final Player player : this.steps.keySet())
+		{
+			final PlayerSteps steps = this.steps.get(player);
+			this.locationIndex.clearLocations(steps);
+			steps.advance();
+		}
+
+		this.startOffset += 1;
+
+		for (final Player player : this.steps.keySet())
+		{
+			final PlayerSteps steps = this.steps.get(player);
+			this.locationIndex.setLocations(steps);
+		}
+	}
+
+	@Override
+	public PlayerSteps createSteps(final PlayerState startingState, final Path path)
+	{
+		return new PlayerSteps(startingState, path);
+	}
+
+	public List<Collision> getCollisions(final int ticksAhead)
+	{
+		return this.locationIndex.getCollisions(ticksAhead);
+	}
+
+	@Override
+	public Path getPath(final Player player)
+	{
+		return this.getSteps(player).getPath();
+	}
+
+	@Override
+	public Set<Player> getPlayers()
+	{
+		return this.steps.keySet();
+	}
+
+	@Override
+	public int getStartOffset()
+	{
+		return this.startOffset;
+	}
+
+	@Override
+	public PlayerState getState(final Player player)
+	{
+		return this.getSteps(player).getState(0);
+	}
+
+	@Override
+	public PlayerState getState(final Player player, final int offset)
+	{
+		return this.getSteps(player).getState(this.getIndex(offset));
+	}
+
+	@Override
+	public int getStepCapacity()
+	{
+		return this.stepCapacity;
+	}
+
+	@Override
+	public PlayerSteps getSteps(final Player player)
+	{
+		return this.steps.get(player);
+	}
+
+	@Override
+	public double getTimerInterval()
+	{
+		return this.timerInterval;
+	}
+
+	public void setPath(final Player player, final Path path)
+	{
+		this.nextPaths.put(player, path);
+	}
+
+	protected void determinePaths()
+	{
+	}
+
+	private int getIndex(final int offset)
+	{
+		return (this.startOffset + offset) % this.stepCapacity;
+	}
+
+	private void reset(final PlayerState startingState, final Path path)
+	{
+		final PlayerSteps steps = this.steps.get(startingState.getPlayer());
+
+		this.locationIndex.clearLocations(steps);
+		steps.reset(startingState, path);
+		this.locationIndex.setLocations(steps);
+	}
+
 	public class PlayerSteps
 	{
 		private final PlayerState[] steps;
@@ -87,9 +258,8 @@ public abstract class Players implements IPlayers
 
 		void advance()
 		{
-			final PlayerTracker tracker = new PlayerTracker(
-					this.steps[Players.this.getIndex(this.steps.length - 1)], this.path,
-					Players.this.getTimerInterval());
+			final PlayerTracker tracker = new PlayerTracker(this.steps[Players.this.getIndex(this.steps.length - 1)],
+					this.path, Players.this.getTimerInterval());
 			final Steering steering = Steering.getInstance();
 			final boolean destinationReached = steering.next(tracker);
 			this.steps[Players.this.getIndex(0)] = tracker.getState();
@@ -133,7 +303,7 @@ public abstract class Players implements IPlayers
 			for (int i = 1; i < this.steps.length; i++)
 			{
 				final boolean destinationReached = steering.next(tracker);
-				if (destinationReached && this.destinationReachedSteps == -1)
+				if (destinationReached && (this.destinationReachedSteps == -1))
 				{
 					this.destinationReachedSteps = i;
 				}
@@ -146,92 +316,6 @@ public abstract class Players implements IPlayers
 
 	private class LocationIndex
 	{
-		private class LocationIndexEntry
-		{
-			private final Object[] occupiers;
-			private int occupierCount;
-			private final Location canonicalLocation;
-
-			public LocationIndexEntry(final Location canonicalLocation)
-			{
-				this.canonicalLocation = canonicalLocation;
-				this.occupiers = new Object[Players.this.stepCapacity];
-			}
-
-			@SuppressWarnings("unchecked")
-			public void addOccupier(final PlayerState playerState, final int tick)
-			{
-				final int index = Players.this.getIndex(tick);
-				final Object obj = this.occupiers[index];
-				if (obj == null)
-				{
-					this.occupiers[index] = playerState;
-					this.occupierCount += 1;
-				}
-				else if (obj instanceof final PlayerState pObj)
-				{
-					if (!pObj.equals(playerState))
-					{
-						final Set<PlayerState> set = new HashSet<>();
-						set.add(playerState);
-						set.add(pObj);
-						this.occupiers[index] = set;
-						this.occupierCount += 1;
-					}
-				}
-				else
-				{
-					final Set<PlayerState> set = (Set<PlayerState>) obj;
-					if (set.add(playerState))
-					{
-						this.occupierCount += 1;
-					}
-				}
-
-			}
-
-			public Location getCanonicalLocation()
-			{
-				return this.canonicalLocation;
-			}
-
-			@SuppressWarnings("unchecked")
-			public List<PlayerState> getOccupiers(final int tick)
-			{
-				final Object obj = this.occupiers[Players.this.getIndex(tick)];
-				if (obj == null)
-					return Collections.emptyList();
-				if (obj instanceof PlayerState)
-					return Collections.singletonList((PlayerState) obj);
-				return new ArrayList<>((Set<PlayerState>) obj);
-			}
-
-			@SuppressWarnings("unchecked")
-			public int removeOccupier(final PlayerState playerState, final int tick)
-			{
-				final int index = Players.this.getIndex(tick);
-				final Object obj = this.occupiers[index];
-
-				if (obj instanceof PlayerState)
-				{
-					this.occupiers[index] = null;
-					this.occupierCount -= 1;
-					assert this.occupierCount >= 0;
-				}
-				else
-				{
-					final Set<PlayerState> set = (Set<PlayerState>) obj;
-					if (set.remove(playerState))
-					{
-						this.occupierCount -= 1;
-						assert this.occupierCount >= 0;
-					}
-				}
-
-				return this.occupierCount;
-			}
-		}
-
 		private final Map<Location, LocationIndexEntry> locationToIndex = new HashMap<>();
 
 		public LocationIndex()
@@ -371,173 +455,91 @@ public abstract class Players implements IPlayers
 
 			ret.addOccupier(playerState, i);
 		}
-	}
 
-	public static final int DEFAULT_STEP_CAPACITY = 200;
-
-	private static Location toCanonicalLocation(final Location loc)
-	{
-		return new Location(Math.round(loc.getX()), Math.round(loc.getY()), 0);
-	}
-
-	private final Map<Player, PlayerSteps> steps = new HashMap<>();
-
-	private final LocationIndex locationIndex;
-	private final int stepCapacity;
-	private final double timerInterval;
-	private int startOffset;
-
-	private final Map<Player, Path> nextPaths = new HashMap<>();
-
-	public Players()
-	{
-		this(Players.DEFAULT_STEP_CAPACITY, Performance.frameInterval);
-	}
-
-	public Players(final int stepCapacity, final double timerInterval)
-	{
-		this.stepCapacity = stepCapacity;
-		this.timerInterval = timerInterval;
-		this.locationIndex = new LocationIndex();
-	}
-
-	public void addPlayer(final PlayerState state)
-	{
-		assert !this.getPlayers().contains(state.getPlayer());
-
-		this.steps.put(state.getPlayer(), new PlayerSteps(state, null));
-
-		this.reset(state, null);
-	}
-
-	public void addPlayer(final PlayerState state, final Path path)
-	{
-		assert !this.getPlayers().contains(state.getPlayer());
-		this.reset(state, path);
-	}
-
-	public void advance()
-	{
-		for (final Player player : this.nextPaths.keySet())
+		private class LocationIndexEntry
 		{
-			final Path newPath = this.nextPaths.get(player);
-			this.steps.get(player).path = newPath;
-			this.reset(this.getState(player), newPath);
+			private final Object[] occupiers;
+			private int occupierCount;
+			private final Location canonicalLocation;
+
+			public LocationIndexEntry(final Location canonicalLocation)
+			{
+				this.canonicalLocation = canonicalLocation;
+				this.occupiers = new Object[Players.this.stepCapacity];
+			}
+
+			@SuppressWarnings("unchecked")
+			public void addOccupier(final PlayerState playerState, final int tick)
+			{
+				final int index = Players.this.getIndex(tick);
+				final Object obj = this.occupiers[index];
+				if (obj == null)
+				{
+					this.occupiers[index] = playerState;
+					this.occupierCount += 1;
+				}
+				else if (obj instanceof final PlayerState pObj)
+				{
+					if (!pObj.equals(playerState))
+					{
+						final Set<PlayerState> set = new HashSet<>();
+						set.add(playerState);
+						set.add(pObj);
+						this.occupiers[index] = set;
+						this.occupierCount += 1;
+					}
+				}
+				else
+				{
+					final Set<PlayerState> set = (Set<PlayerState>) obj;
+					if (set.add(playerState))
+					{
+						this.occupierCount += 1;
+					}
+				}
+
+			}
+
+			public Location getCanonicalLocation()
+			{
+				return this.canonicalLocation;
+			}
+
+			@SuppressWarnings("unchecked")
+			public List<PlayerState> getOccupiers(final int tick)
+			{
+				final Object obj = this.occupiers[Players.this.getIndex(tick)];
+				if (obj == null)
+					return Collections.emptyList();
+				if (obj instanceof PlayerState)
+					return Collections.singletonList((PlayerState) obj);
+				return new ArrayList<>((Set<PlayerState>) obj);
+			}
+
+			@SuppressWarnings("unchecked")
+			public int removeOccupier(final PlayerState playerState, final int tick)
+			{
+				final int index = Players.this.getIndex(tick);
+				final Object obj = this.occupiers[index];
+
+				if (obj instanceof PlayerState)
+				{
+					this.occupiers[index] = null;
+					this.occupierCount -= 1;
+					assert this.occupierCount >= 0;
+				}
+				else
+				{
+					final Set<PlayerState> set = (Set<PlayerState>) obj;
+					if (set.remove(playerState))
+					{
+						this.occupierCount -= 1;
+						assert this.occupierCount >= 0;
+					}
+				}
+
+				return this.occupierCount;
+			}
 		}
-
-		final List<Collision> collisions = this.getCollisions(0);
-		final Set<CollisionResolver> resolvers = new HashSet<>();
-		for (final Collision c : collisions)
-		{
-			resolvers.add(CollisionResolution.createResolution(c, Football.theFootball));
-		}
-
-		for (final CollisionResolver resolver : resolvers)
-		{
-			resolver.resolveCollision();
-
-			PlayerState playerState = resolver.getPlayerState1();
-			this.reset(playerState, null);
-
-			playerState = resolver.getPlayerState2();
-			this.reset(playerState, null);
-		}
-
-		this.determinePaths();
-		
-		for (final Player player : this.steps.keySet())
-		{
-			final PlayerSteps steps = this.steps.get(player);
-			this.locationIndex.clearLocations(steps);
-			steps.advance();
-		}
-
-		this.startOffset += 1;
-
-		for (final Player player : this.steps.keySet())
-		{
-			final PlayerSteps steps = this.steps.get(player);
-			this.locationIndex.setLocations(steps);
-		}
-	}
-
-	protected abstract void determinePaths();
-
-	@Override
-	public PlayerSteps createSteps(final PlayerState startingState, final Path path)
-	{
-		return new PlayerSteps(startingState, path);
-	}
-
-	public List<Collision> getCollisions(final int ticksAhead)
-	{
-		return this.locationIndex.getCollisions(ticksAhead);
-	}
-
-	@Override
-	public Path getPath(final Player player)
-	{
-		return this.getSteps(player).getPath();
-	}
-
-	@Override
-	public Set<Player> getPlayers()
-	{
-		return this.steps.keySet();
-	}
-
-	@Override
-	public int getStartOffset()
-	{
-		return this.startOffset;
-	}
-
-	@Override
-	public PlayerState getState(final Player player)
-	{
-		return this.getSteps(player).getState(0);
-	}
-
-	@Override
-	public PlayerState getState(final Player player, final int offset)
-	{
-		return this.getSteps(player).getState(this.getIndex(offset));
-	}
-
-	@Override
-	public int getStepCapacity()
-	{
-		return this.stepCapacity;
-	}
-
-	@Override
-	public PlayerSteps getSteps(final Player player)
-	{
-		return this.steps.get(player);
-	}
-
-	@Override
-	public double getTimerInterval()
-	{
-		return this.timerInterval;
-	}
-
-	public void setPath(final Player player, final Path path)
-	{
-		this.nextPaths.put(player, path);
-	}
-
-	private int getIndex(final int offset)
-	{
-		return (this.startOffset + offset) % this.stepCapacity;
-	}
-
-	private void reset(final PlayerState startingState, final Path path)
-	{
-		final PlayerSteps steps = this.steps.get(startingState.getPlayer());
-
-		this.locationIndex.clearLocations(steps);
-		steps.reset(startingState, path);
-		this.locationIndex.setLocations(steps);
 	}
 }

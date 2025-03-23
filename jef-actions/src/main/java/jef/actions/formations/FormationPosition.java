@@ -97,13 +97,20 @@ public class FormationPosition
 	public static final double OFFENSIVE_LINE_WIDTH_X_RECEIVER = 10.0;
 	public static final double OFFENSIVE_LINE_WIDTH_Z_RECEIVER = -10.0;
 	
+	private String name;
 	private Location loc;
 	private List<PlayerPosition> playerPositions;
 
-	public FormationPosition(Location loc, PlayerPosition...playerPositions)
+	public FormationPosition(String name, Location loc, PlayerPosition...playerPositions)
 	{
+		this.name = name;
 		this.loc = loc;
 		this.playerPositions = Arrays.asList(playerPositions);
+	}
+
+	public String getName()
+	{
+		return this.name;
 	}
 
 	public List<PlayerPosition> getPlayerPositions()
@@ -116,4 +123,8 @@ public class FormationPosition
 		return this.loc;
 	}
 
+	public Location place(Location ballSpot)
+	{
+		return ballSpot.add(getLoc());
+	}
 }

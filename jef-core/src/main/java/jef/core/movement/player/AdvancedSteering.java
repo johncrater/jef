@@ -57,6 +57,14 @@ public class AdvancedSteering implements Steering
 	@Override
 	public boolean next(final PlayerTracker tracker)
 	{
+		if (tracker.destinationReached() || tracker.hasPastDestination())
+		{
+			// if we have reached out destination, stop 
+			tracker.setPath(null);
+			tracker.setLV(tracker.getLV().newFrom(null, null, 0.0));
+			return true;
+		}
+
 		if (tracker.getPath() != null && tracker.getPath().getCurrentWaypoint() != null
 				&& tracker.getLoc().closeEnoughTo(this.getDestination(tracker)) && tracker.getLV().isNotMoving())
 		{

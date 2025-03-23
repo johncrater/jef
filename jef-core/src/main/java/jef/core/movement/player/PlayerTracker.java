@@ -135,6 +135,9 @@ public class PlayerTracker extends Tracker
 
 	public boolean destinationReached()
 	{
+		if (getPath() == null)
+			return true;
+		
 		final Waypoint waypoint = getPath().getCurrentWaypoint();
 		if (waypoint == null)
 			return true;

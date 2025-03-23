@@ -67,9 +67,7 @@ public class PlayerTestViewer extends TestViewer
 {
 	private static final Color yellow = new Color(255, 255, 0);
 
-	private static FontData playerFontData = new FontData("Courier New", 16, SWT.NORMAL);
 	private static FontData playerDataFontData = new FontData("Courier New", 8, SWT.NORMAL);
-	private static Font playerFont;
 
 	private static Font playerDataFont;
 
@@ -93,8 +91,7 @@ public class PlayerTestViewer extends TestViewer
 	private final Map<String, Player> blockers = new HashMap<>();
 	private final Map<Player, Pathfinder> pathfinders = new HashMap<>();
 
-	private DestinationAction nextDestinationAction = DestinationAction.fastStop;
-
+	private final DestinationAction nextDestinationAction = DestinationAction.fastStop;
 
 	double cycleRate = Performance.cycleTime.getFrameRate();
 	double cycleTimePerFrame = Performance.cycleTime.getAvgTime();
@@ -109,115 +106,19 @@ public class PlayerTestViewer extends TestViewer
 
 	long maxMemory = Runtime.getRuntime().totalMemory();
 
-	private class TestPlayers extends Players
-	{
-
-		@Override
-		protected void determinePaths()
-		{
-			final RunnerPathfinder runnerPathfinder = getRunnerPathfinder();
-			final List<DefenderPathfinder> defenderPathfinders = getDefenderPathfinders();
-
-			Path newRunnerPath = runnerPathfinder.calculatePath();
-			setPath(runner, newRunnerPath);
-			
-			for (Pathfinder pf : defenderPathfinders)
-			{
-				Path path = pf.calculatePath();
-				setPath(pf.getPlayer(), path);
-			}
-			
-			final List<BlockerPathfinder> blockerPathfinders = getBlockerPathfinders();
-
-			for (Pathfinder pf : blockerPathfinders)
-			{
-				Path path = pf.calculatePath();
-				setPath(pf.getPlayer(), path);
-			}
-			
-			BlockersAction blockersAction = new BlockersAction(this, runner,
-					defenders.values(), getGroupBlockingPlayers(), Direction.west);
-			blockersAction.move();
-
-			getGroupBlockingPlayers().forEach(blocker -> setPath(blocker, blockersAction.getPath(blocker)));
-		}
-		
-	}
-	
 	@SuppressWarnings("deprecation")
 	public PlayerTestViewer()
 	{
 		super("Player Test Viewer");
 
-		PlayerTestViewer.playerFont = new Font(getShell().getDisplay(), PlayerTestViewer.playerFontData);
-		PlayerTestViewer.playerDataFont = new Font(getShell().getDisplay(), PlayerTestViewer.playerDataFontData);
-
-		try
-		{
-			final FileInputStream fis = new FileInputStream(new File("FieldTestViewer.props"));
-			final Properties props = new Properties();
-			props.load(fis);
-			final Rectangle rect = new Rectangle(Integer.parseInt(props.getProperty("bounds.x")),
-					Integer.parseInt(props.getProperty("bounds.y")),
-					Integer.parseInt(props.getProperty("bounds.width")),
-					Integer.parseInt(props.getProperty("bounds.height")));
-			getShell().setBounds(rect);
-		}
-		catch (final Exception e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		getShell().addListener(SWT.Close, e ->
-		{
-			final Rectangle bounds = getShell().getBounds();
-			final Properties properties = new Properties();
-			properties.put("bounds.x", "" + bounds.x);
-			properties.put("bounds.y", "" + bounds.y);
-			properties.put("bounds.width", "" + bounds.width);
-			properties.put("bounds.height", "" + bounds.height);
-
-			try
-			{
-				properties.save(new FileOutputStream(new File("FieldTestViewer.props")), "");
-			}
-			catch (final FileNotFoundException e1)
-			{
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		});
+		PlayerTestViewer.playerDataFont = new Font(this.getShell().getDisplay(), PlayerTestViewer.playerDataFontData);
 
 	}
 
-	protected void process()
-	{
-		if (this.pathfinders.size() > 0)
-		{
-			final RunnerPathfinder runnerPathfinder = this.getRunnerPathfinder();
-
-			if (runnerPathfinder != null)
-			{
-				this.getPlayers().advance();
-				
-				final PlayerState runnerState = this.getPlayers().getState(this.runner);
-				if ((runnerState.getPosture() == Posture.onTheGround) || !runnerState.getLoc().isInBounds()
-						|| runnerState.getLoc().isInEndZone(null))
-				{
-					this.pathfinders.clear();
-				}
-			}
-
-			this.drawPath(this.runner, "#00FF0000");
-			this.defenders.values().forEach(p -> this.drawPath(p, "#FF000000"));
-			this.blockers.values().forEach(p -> this.drawPath(p, "#0000FF00"));
-		}
-	}
-
+	@Override
 	protected Composite createButtons()
 	{
-		Composite buttonRow = super.createButtons();
+		final Composite buttonRow = super.createButtons();
 		for (final Player p : this.getPlayers().getPlayers())
 		{
 			final Composite composite = new Composite(buttonRow, SWT.NONE);
@@ -242,7 +143,7 @@ public class PlayerTestViewer extends TestViewer
 				@Override
 				public void widgetSelected(final SelectionEvent e)
 				{
-					addPathfinder(p, strategyCombo.getItem(strategyCombo.getSelectionIndex()));
+					PlayerTestViewer.this.addPathfinder(p, strategyCombo.getItem(strategyCombo.getSelectionIndex()));
 				}
 			});
 
@@ -266,8 +167,8 @@ public class PlayerTestViewer extends TestViewer
 				strategyCombo.add("Nearest int");
 				strategyCombo.add("Nearest runr");
 				strategyCombo.add("Waypoint");
-				
-				for (Player defender : this.defenders.values())
+
+				for (final Player defender : this.defenders.values())
 				{
 					strategyCombo.add("Block " + defender.getPlayerID());
 				}
@@ -280,22 +181,16 @@ public class PlayerTestViewer extends TestViewer
 			strategyCombo.select(0);
 			this.addPathfinder(p, strategyCombo.getItem(0));
 		}
-		
+
 		return buttonRow;
 	}
 
-	protected void drawPostTransformedCanvas(GC gc)
-	{
-		this.drawPerformance(gc);
-		gc.setLineStyle(3);
-		this.drawSelectedPlayerData(gc);
-	}
-
+	@Override
 	protected void createCanvas()
 	{
 		super.createCanvas();
 
-		Canvas canvas = this.getCanvas();
+		final Canvas canvas = this.getCanvas();
 		canvas.addMouseListener(new MouseAdapter()
 		{
 
@@ -307,16 +202,16 @@ public class PlayerTestViewer extends TestViewer
 				final Point p = new Point(e.x, e.y);
 
 				try (FieldTransformStack ts = new FieldTransformStack(canvas,
-						getMidfieldLocation(), getScaleAdjustment()))
+						PlayerTestViewer.this.getMidfieldLocation(), PlayerTestViewer.this.getScaleAdjustment()))
 				{
 					if ((e.stateMask & SWT.CONTROL) == 0)
 					{
 						final Location loc = ts.transformToLocation(p);
-						PlayerState playerState = PlayerTestViewer.this.getPlayers()
+						final PlayerState playerState = PlayerTestViewer.this.getPlayers()
 								.getState(PlayerTestViewer.this.currentPlayer);
 						final Path path = new Path(new Waypoint(loc, playerState.getSpeedMatrix().getJoggingSpeed(),
 								playerState.getMaxSpeed(), PlayerTestViewer.this.nextDestinationAction));
-						getPlayers().setPath(currentPlayer, path);
+						PlayerTestViewer.this.getPlayers().setPath(PlayerTestViewer.this.currentPlayer, path);
 					}
 				}
 				catch (final Exception e1)
@@ -330,9 +225,10 @@ public class PlayerTestViewer extends TestViewer
 
 	}
 
+	@Override
 	protected Players createPlayers()
 	{
-		Players players = new TestPlayers();
+		final Players players = new TestPlayers();
 		// offense
 
 		final double lineOfScrimmage = Field.yardLine(30, Direction.west);
@@ -352,7 +248,8 @@ public class PlayerTestViewer extends TestViewer
 		pl.setFirstName("Ed");
 		pl.setLastName("White");
 		pl.setWeight(250);
-		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage + Player.SIZE / 2, Field.MIDFIELD_Y - 2, 0),
+		playerState = new PlayerState(pl, null,
+				new Location(lineOfScrimmage + (Player.SIZE / 2), Field.MIDFIELD_Y - 2, 0),
 				new AngularVelocity(Math.PI, 0, 0), Posture.upright);
 		players.addPlayer(playerState);
 		this.blockers.put(pl.getPlayerID(), pl);
@@ -361,7 +258,7 @@ public class PlayerTestViewer extends TestViewer
 		pl.setFirstName("Mick");
 		pl.setLastName("Tinglehoff");
 		pl.setWeight(270);
-		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage + Player.SIZE / 2, Field.MIDFIELD_Y, 0),
+		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage + (Player.SIZE / 2), Field.MIDFIELD_Y, 0),
 				new AngularVelocity(Math.PI, 0, 0), Posture.upright);
 		players.addPlayer(playerState);
 		this.blockers.put(pl.getPlayerID(), pl);
@@ -370,7 +267,8 @@ public class PlayerTestViewer extends TestViewer
 		pl.setFirstName("Ron");
 		pl.setLastName("Yary");
 		pl.setWeight(260);
-		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage + Player.SIZE / 2, Field.MIDFIELD_Y + 2, 0),
+		playerState = new PlayerState(pl, null,
+				new Location(lineOfScrimmage + (Player.SIZE / 2), Field.MIDFIELD_Y + 2, 0),
 				new AngularVelocity(Math.PI, 0, 0), Posture.upright);
 		players.addPlayer(playerState);
 		this.blockers.put(pl.getPlayerID(), pl);
@@ -381,7 +279,7 @@ public class PlayerTestViewer extends TestViewer
 		pl.setLastName("Page");
 		pl.setWeight(280);
 		playerState = new PlayerState(pl, null,
-				new Location(lineOfScrimmage - 1 - Player.SIZE / 2, Field.MIDFIELD_Y + 2, 0),
+				new Location(lineOfScrimmage - 1 - (Player.SIZE / 2), Field.MIDFIELD_Y + 2, 0),
 				new AngularVelocity(0, 0, 0), Posture.upright);
 		players.addPlayer(playerState);
 		this.defenders.put(pl.getPlayerID(), pl);
@@ -412,19 +310,180 @@ public class PlayerTestViewer extends TestViewer
 //				new AngularVelocity(0, 0, 0), Posture.upright);
 //		players.addPlayer(playerState);
 //		this.defenders.put(pl.getPlayerID(), pl);
-		
+
 		return players;
+	}
+
+	@Override
+	protected void drawPlayer(final FieldTransformStack fts, final PlayerState player)
+	{
+		final int lineWidth = 3;
+		final int offset = (int) Conversions.yardsToInches((Player.SIZE) / 2.0);
+
+		final GC gc = fts.getGC();
+		gc.setFont(getPlayerFont());
+		final Point p = UIUtils.locationToPoint(player.getLoc());
+
+		if (this.defenders.containsValue(player.getPlayer()))
+		{
+			gc.setForeground(this.getShell().getDisplay().getSystemColor(SWT.COLOR_WHITE));
+			gc.setBackground(this.getShell().getDisplay().getSystemColor(SWT.COLOR_DARK_MAGENTA));
+			gc.fillOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
+		}
+		else if (this.blockers.containsValue(player.getPlayer()) || (this.runner == player.getPlayer()))
+		{
+			gc.setForeground(this.getShell().getDisplay().getSystemColor(SWT.COLOR_DARK_MAGENTA));
+			gc.setBackground(this.getShell().getDisplay().getSystemColor(SWT.COLOR_WHITE));
+			gc.fillOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
+		}
+
+		if (player.getPlayer() == this.currentPlayer)
+		{
+			gc.setForeground(this.getShell().getDisplay().getSystemColor(SWT.COLOR_RED));
+			gc.setLineWidth(lineWidth);
+			gc.drawOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
+		}
+
+		fts.push();
+		fts.translate(p);
+		fts.rotate(player.getAV().getOrientation());
+		fts.set();
+		gc.fillPolygon(new int[]
+		{ 0, -offset + lineWidth, 0, offset - lineWidth, 2 * offset - 2 * lineWidth, 0 });
+
+		fts.pop();
+
+		final String playerNumber = "" + player.getPlayer().getFirstName().charAt(0)
+				+ player.getPlayer().getLastName().charAt(0);
+		final Point extent = gc.textExtent(playerNumber);
+
+		gc.drawText(playerNumber, p.x - (extent.x / 2), p.y - (extent.y / 2), true);
+
+//		try (TransformStack ts = new TransformStack(gc))
+//		{
+//			ts.translate(p.x, p.y);
+//			ts.rotate(Angle.ofDegrees(-90 + Math.toDegrees(player.getAV().getOrientation())));
+//			ts.set();
+//
+//			this.player1Gif.setDisplayPoint(p);
+//			this.player1Gif.draw(gc);
+////			gc.drawImage(playerImage, -playerImage.getImageData().width / 2, -playerImage.getImageData().width / 2);
+//		}
+//		catch (Exception e)
+//		{
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//
+	}
+
+	@Override
+	protected void drawPostTransformedCanvas(final GC gc)
+	{
+		this.drawPerformance(gc);
+		gc.setLineStyle(3);
+		this.drawSelectedPlayerData(gc);
+	}
+
+	@Override
+	protected void process()
+	{
+		if (this.pathfinders.size() > 0)
+		{
+			final RunnerPathfinder runnerPathfinder = this.getRunnerPathfinder();
+
+			if (runnerPathfinder != null)
+			{
+				this.getPlayers().advance();
+
+				final PlayerState runnerState = this.getPlayers().getState(this.runner);
+				if ((runnerState.getPosture() == Posture.onTheGround) || !runnerState.getLoc().isInBounds()
+						|| runnerState.getLoc().isInEndZone(null))
+				{
+					this.pathfinders.clear();
+				}
+			}
+
+			this.drawPath(this.runner, "#00FF0000");
+			this.defenders.values().forEach(p -> this.drawPath(p, "#FF000000"));
+			this.blockers.values().forEach(p -> this.drawPath(p, "#0000FF00"));
+		}
+	}
+
+	private void addPathfinder(final Player player, final String pathfinderName)
+	{
+		this.pathfinders.remove(player);
+
+		if (player == this.runner)
+		{
+			if ("Evade Interceptors".equals(pathfinderName))
+			{
+				this.pathfinders.put(player, new DefaultEvadeInterceptors(this.getPlayers(), player, Direction.west,
+						this.defenders.values(), this.blockers.values()));
+			}
+			else if ("Waypoint".equals(pathfinderName))
+			{
+				this.pathfinders.put(player, new RunnerWaypointPathfinder(this.getPlayers(), player, Direction.west));
+			}
+			else if ("Run For Glory".equals(pathfinderName))
+			{
+				this.pathfinders.put(player, new RunForGlory(this.getPlayers(), player, Direction.west));
+			}
+		}
+		else if (this.defenders.containsValue(player))
+		{
+			if ("Pursue Runner".equals(pathfinderName))
+			{
+				this.pathfinders.put(player,
+						new DefaultPursueRunner(this.getPlayers(), player, Direction.west, this.runner));
+			}
+			else if ("Waypoint".equals(pathfinderName))
+			{
+				this.pathfinders.put(player, new DefenderWaypointPathfinder(this.getPlayers(), player, Direction.west));
+			}
+		}
+		else if (this.blockers.containsValue(player))
+		{
+			if ("GroupAction".equals(pathfinderName))
+			{
+
+			}
+			else if ("Nearest dist".equals(pathfinderName))
+			{
+				this.pathfinders.put(player, new BlockNearestThreat(this.getPlayers(), this.runner, player,
+						this.defenders.values(), BlockNearestThreat.Option.distance, Direction.west));
+			}
+			else if ("Nearest int".equals(pathfinderName))
+			{
+				this.pathfinders.put(player, new BlockNearestThreat(this.getPlayers(), this.runner, player,
+						this.defenders.values(), BlockNearestThreat.Option.interception, Direction.west));
+			}
+			else if ("Nearest runr".equals(pathfinderName))
+			{
+				this.pathfinders.put(player, new BlockNearestThreat(this.getPlayers(), this.runner, player,
+						this.defenders.values(), BlockNearestThreat.Option.distanceToRunner, Direction.west));
+			}
+			else if ("Waypoint".equals(pathfinderName))
+			{
+				this.pathfinders.put(player, new BlockerWaypointPathfinder(this.getPlayers(), player, Direction.west));
+			}
+			else if (pathfinderName.startsWith("Block "))
+			{
+				this.pathfinders.put(player, new BlockPlayer(this.getPlayers(), player, Direction.west,
+						this.defenders.get(pathfinderName.substring(6).trim())));
+			}
+		}
 	}
 
 	private void drawPath(final Player player, final String color)
 	{
-		Path playerPath = this.getPlayers().getPath(player);
+		final Path playerPath = this.getPlayers().getPath(player);
 		if (playerPath == null)
 			return;
 
 		final List<Location> locs = new ArrayList<>(
 				playerPath.getWaypoints().stream().map(Waypoint::getDestination).toList());
-		locs.addFirst(getPlayers().getState(player).getLoc());
+		locs.addFirst(this.getPlayers().getState(player).getLoc());
 		for (int i = 1; i < locs.size(); i++)
 		{
 			MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
@@ -435,7 +494,7 @@ public class PlayerTestViewer extends TestViewer
 	private void drawPerformance(final GC gc)
 	{
 		gc.setFont(PlayerTestViewer.playerDataFont);
-		gc.setBackground(PlayerTestViewer.black);
+		gc.setBackground(TestViewer.black);
 		gc.setForeground(PlayerTestViewer.yellow);
 
 		final long current = System.currentTimeMillis();
@@ -473,67 +532,6 @@ public class PlayerTestViewer extends TestViewer
 		gc.drawText(msg.toString(), 10, 10, false);
 	}
 
-	protected void drawPlayer(final FieldTransformStack fts, final PlayerState player)
-	{
-		final int lineWidth = 3;
-		final int offset = (int) Conversions.yardsToInches((Player.SIZE) / 2.0);
-
-		final GC gc = fts.getGC();
-		gc.setFont(PlayerTestViewer.playerFont);
-		final Point p = UIUtils.locationToPoint(player.getLoc());
-
-		if (this.defenders.containsValue(player.getPlayer()))
-		{
-			gc.setForeground(getShell().getDisplay().getSystemColor(SWT.COLOR_WHITE));
-			gc.setBackground(getShell().getDisplay().getSystemColor(SWT.COLOR_DARK_MAGENTA));
-			gc.fillOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
-		}
-		else if (this.blockers.containsValue(player.getPlayer()) || (this.runner == player.getPlayer()))
-		{
-			gc.setForeground(getShell().getDisplay().getSystemColor(SWT.COLOR_DARK_MAGENTA));
-			gc.setBackground(getShell().getDisplay().getSystemColor(SWT.COLOR_WHITE));
-			gc.fillOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
-		}
-
-		if (player.getPlayer() == this.currentPlayer)
-		{
-			gc.setForeground(getShell().getDisplay().getSystemColor(SWT.COLOR_RED));
-			gc.setLineWidth(lineWidth);
-			gc.drawOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
-		}
-
-//		fts.push();
-//		fts.translate(p);
-//		fts.rotate(player.getAV().getOrientation());
-//		fts.set();
-//		gc.fillPolygon(new int[]
-//		{ 0, -offset + lineWidth, 0, offset - lineWidth, 2 * offset - 2 * lineWidth, 0 });
-//
-//		fts.pop();
-//
-//		final String playerNumber = "" + player.getFirstName().charAt(0) + player.getLastName().charAt(0);
-//		final Point extent = gc.textExtent(playerNumber);
-//
-//		gc.drawText(playerNumber, p.x - (extent.x / 2), p.y - (extent.y / 2), true);
-
-//		try (TransformStack ts = new TransformStack(gc))
-//		{
-//			ts.translate(p.x, p.y);
-//			ts.rotate(Angle.ofDegrees(-90 + Math.toDegrees(player.getAV().getOrientation())));
-//			ts.set();
-//
-//			this.player1Gif.setDisplayPoint(p);
-//			this.player1Gif.draw(gc);
-////			gc.drawImage(playerImage, -playerImage.getImageData().width / 2, -playerImage.getImageData().width / 2);
-//		}
-//		catch (Exception e)
-//		{
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//
-	}
-
 	private void drawSelectedPlayerData(final GC gc)
 	{
 		final PlayerState playerState = this.getPlayers().getState(this.currentPlayer);
@@ -546,10 +544,10 @@ public class PlayerTestViewer extends TestViewer
 		str.append(String.format("Posture		  : %s\n", playerState.getPosture()));
 		str.append(String.format("\n"));
 
-		Path path = getPlayers().getPath(currentPlayer);
+		final Path path = this.getPlayers().getPath(this.currentPlayer);
 		if (path != null)
 		{
-			PlayerSteps playerSteps = this.getPlayers().getSteps(currentPlayer);
+			final PlayerSteps playerSteps = this.getPlayers().getSteps(this.currentPlayer);
 			for (final Waypoint wp : path.getWaypoints())
 			{
 				str.append(String.format("       waypoint : %s - Steps: %d\n", wp,
@@ -559,14 +557,8 @@ public class PlayerTestViewer extends TestViewer
 
 		gc.setFont(PlayerTestViewer.playerDataFont);
 		gc.setForeground(PlayerTestViewer.yellow);
-		gc.setBackground(getShell().getDisplay().getSystemColor(SWT.COLOR_BLACK));
+		gc.setBackground(this.getShell().getDisplay().getSystemColor(SWT.COLOR_BLACK));
 		gc.drawText(str.toString(), 1400, 20);
-	}
-
-	private List<DefenderPathfinder> getDefenderPathfinders()
-	{
-		return this.pathfinders.values().stream().filter(DefenderPathfinder.class::isInstance)
-				.map(pf -> (DefenderPathfinder) pf).toList();
 	}
 
 	private List<BlockerPathfinder> getBlockerPathfinders()
@@ -575,69 +567,59 @@ public class PlayerTestViewer extends TestViewer
 				.map(pf -> (BlockerPathfinder) pf).toList();
 	}
 
+	private List<DefenderPathfinder> getDefenderPathfinders()
+	{
+		return this.pathfinders.values().stream().filter(DefenderPathfinder.class::isInstance)
+				.map(pf -> (DefenderPathfinder) pf).toList();
+	}
+
 	private List<Player> getGroupBlockingPlayers()
 	{
-		List<Player> pathfinderPlayers = getBlockerPathfinders().stream().map(pf -> pf.getPlayer()).toList();
-		return this.blockers.values().stream().filter(blocker -> pathfinderPlayers.contains(blocker) == false).toList();
+		final List<Player> pathfinderPlayers = this.getBlockerPathfinders().stream().map(BlockerPathfinder::getPlayer)
+				.toList();
+		return this.blockers.values().stream().filter(blocker -> !pathfinderPlayers.contains(blocker)).toList();
 	}
-	
+
 	private RunnerPathfinder getRunnerPathfinder()
 	{
 		return (RunnerPathfinder) this.pathfinders.values().stream().filter(RunnerPathfinder.class::isInstance)
 				.findFirst().orElse(null);
 	}
 
-	private void addPathfinder(Player player, String pathfinderName)
+	private class TestPlayers extends Players
 	{
-		this.pathfinders.remove(player);
 
-		if (player == this.runner)
+		@Override
+		protected void determinePaths()
 		{
-			if ("Evade Interceptors".equals(pathfinderName))
-				this.pathfinders.put(player, new DefaultEvadeInterceptors(this.getPlayers(), player, Direction.west,
-						this.defenders.values(), this.blockers.values()));
-			else if ("Waypoint".equals(pathfinderName))
-				this.pathfinders.put(player, new RunnerWaypointPathfinder(this.getPlayers(), player, Direction.west));
-			else if ("Run For Glory".equals(pathfinderName))
-				this.pathfinders.put(player, new RunForGlory(this.getPlayers(), player, Direction.west));
+			final RunnerPathfinder runnerPathfinder = PlayerTestViewer.this.getRunnerPathfinder();
+			final List<DefenderPathfinder> defenderPathfinders = PlayerTestViewer.this.getDefenderPathfinders();
+
+			final Path newRunnerPath = runnerPathfinder.calculatePath();
+			this.setPath(PlayerTestViewer.this.runner, newRunnerPath);
+
+			for (final Pathfinder pf : defenderPathfinders)
+			{
+				final Path path = pf.calculatePath();
+				this.setPath(pf.getPlayer(), path);
+			}
+
+			final List<BlockerPathfinder> blockerPathfinders = PlayerTestViewer.this.getBlockerPathfinders();
+
+			for (final Pathfinder pf : blockerPathfinders)
+			{
+				final Path path = pf.calculatePath();
+				this.setPath(pf.getPlayer(), path);
+			}
+
+			final BlockersAction blockersAction = new BlockersAction(this, PlayerTestViewer.this.runner,
+					PlayerTestViewer.this.defenders.values(), PlayerTestViewer.this.getGroupBlockingPlayers(),
+					Direction.west);
+			blockersAction.move();
+
+			PlayerTestViewer.this.getGroupBlockingPlayers()
+					.forEach(blocker -> this.setPath(blocker, blockersAction.getPath(blocker)));
 		}
-		else if (this.defenders.containsValue(player))
-		{
-			if ("Pursue Runner".equals(pathfinderName))
-				this.pathfinders.put(player,
-						new DefaultPursueRunner(this.getPlayers(), player, Direction.west, this.runner));
-			else if ("Waypoint".equals(pathfinderName))
-				this.pathfinders.put(player, new DefenderWaypointPathfinder(this.getPlayers(), player, Direction.west));
-		}
-		else if (this.blockers.containsValue(player))
-		{
-			if ("GroupAction".equals(pathfinderName))
-			{
-				
-			}
-			else if ("Nearest dist".equals(pathfinderName))
-			{
-				this.pathfinders.put(player,
-						new BlockNearestThreat(this.getPlayers(), this.runner, player, this.defenders.values(), BlockNearestThreat.Option.distance, Direction.west));
-			}
-			else if ("Nearest int".equals(pathfinderName))
-			{
-				this.pathfinders.put(player,
-						new BlockNearestThreat(this.getPlayers(), this.runner, player, this.defenders.values(), BlockNearestThreat.Option.interception, Direction.west));
-			}
-			else if ("Nearest runr".equals(pathfinderName))
-			{
-				this.pathfinders.put(player,
-						new BlockNearestThreat(this.getPlayers(), this.runner, player, this.defenders.values(), BlockNearestThreat.Option.distanceToRunner, Direction.west));
-			}
-			else if ("Waypoint".equals(pathfinderName))
-			{
-				this.pathfinders.put(player, new BlockerWaypointPathfinder(this.getPlayers(), player, Direction.west));
-			}
-			else if (pathfinderName.startsWith("Block "))
-			{
-				this.pathfinders.put(player, new BlockPlayer(this.getPlayers(), player, Direction.west, this.defenders.get(pathfinderName.substring(6).trim())));
-			}
-		}
+
 	}
 }

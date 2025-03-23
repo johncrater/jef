@@ -25,14 +25,20 @@ public class DefaultSteering implements Steering
 	{
 	}
 
-	
 	@Override
 	public boolean next(final PlayerTracker tracker)
 	{
-		tracker.move();
+		if (tracker.destinationReached() || tracker.hasPastDestination())
+		{
+			// if we have reached out destination, stop 
+			tracker.setPath(null);
+			tracker.setLV(tracker.getLV().newFrom(null, null, 0.0));
+			return true;
+		}
 
 		if (tracker.getPath() != null && tracker.getPath().getCurrentWaypoint() != null
-				&& tracker.getLoc().closeEnoughTo(this.getDestination(tracker)) && tracker.getLV().isNotMoving())
+				&& tracker.getLoc().closeEnoughTo(tracker.getPath().getCurrentWaypoint().getDestination())
+				&& tracker.getLV().isNotMoving())
 		{
 			// if we reached the current waypoint remove it and continue on
 			List<Waypoint> waypoints = tracker.getPath().getWaypoints();
@@ -42,11 +48,11 @@ public class DefaultSteering implements Steering
 
 		if (tracker.getPath() == null || tracker.getPath().getWaypoints().size() == 0)
 		{
-			// if we are out of waypoints, coast to a stop
+			// if we are out of waypoints, stop
 			tracker.setLV(tracker.getLV().newFrom(null, null, 0.0));
 			return true;
 		}
-		
+
 		if (SHOW_MESSAGES)
 			this.buildMessage(String.format("%-25s: %s", "Initial",
 					String.format("%3.2f %s %s", tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
@@ -66,18 +72,20 @@ public class DefaultSteering implements Steering
 				tracker.setPosture(tracker.getPosture().adjustUp());
 				break;
 			default:
-				tracker.setLV(tracker.getLV().newFrom(null, null, tracker.getPlayer().getSpeedMatrix().getSprintingSpeed()));
+				tracker.setLV(
+						tracker.getLV().newFrom(null, null, tracker.getPlayer().getSpeedMatrix().getSprintingSpeed()));
 				break;
 		}
 
-		final double angleAdjustment = this.calculateAngleOfTurn(tracker.getLoc(), this.getDestination(tracker),
-				tracker.getLV().getAzimuth());
+		final double angleAdjustment = this.calculateAngleOfTurn(tracker.getLoc(),
+				tracker.getPath().getCurrentWaypoint().getDestination(), tracker.getLV().getAzimuth());
 
 		if (SHOW_MESSAGES)
 			this.buildMessage(
 					String.format("%-25s: \t\t%4f\u00B0", "Angle Adjustment", Math.toDegrees(angleAdjustment)));
 
 		tracker.turn(angleAdjustment);
+		tracker.move();
 
 		if (tracker.destinationReached() || tracker.hasPastDestination())
 		{
@@ -119,7 +127,6 @@ public class DefaultSteering implements Steering
 		final double angularDiff = desiredAngle - currentAngle;
 		return Conversions.normalizeAngle(angularDiff);
 	}
-
 
 	/**
 	 * @formatter:off
@@ -176,11 +183,6 @@ public class DefaultSteering implements Steering
 			return 12.1f + ((pctOfMaximumSpeed - .95f) / .5f);
 
 		return 12.1f;
-	}
-
-	private Location getDestination(PlayerTracker tracker)
-	{
-		return tracker.getPath().getCurrentWaypoint().getDestination();
 	}
 
 }
