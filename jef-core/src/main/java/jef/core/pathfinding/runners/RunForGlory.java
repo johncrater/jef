@@ -25,7 +25,7 @@ public class RunForGlory extends PathfinderBase implements RunnerPathfinder
 	{
 		Path path = new Path(
 				new Waypoint(new Location(Field.yardLine(110, getDirection()), getPlayerState().getLoc().getY()),
-						getPlayerState().getMaxSpeed(), getPlayerState().getMaxSpeed(), DestinationAction.noStop));
+						getPlayerState().getMaxSpeed(), DestinationAction.noStop));
 
 		return path;
 	}

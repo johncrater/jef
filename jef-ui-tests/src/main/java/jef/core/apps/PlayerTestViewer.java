@@ -1,14 +1,9 @@
 package jef.core.apps;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
@@ -20,7 +15,6 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
@@ -106,7 +100,6 @@ public class PlayerTestViewer extends TestViewer
 
 	long maxMemory = Runtime.getRuntime().totalMemory();
 
-	@SuppressWarnings("deprecation")
 	public PlayerTestViewer()
 	{
 		super("Player Test Viewer");
@@ -209,8 +202,8 @@ public class PlayerTestViewer extends TestViewer
 						final Location loc = ts.transformToLocation(p);
 						final PlayerState playerState = PlayerTestViewer.this.getPlayers()
 								.getState(PlayerTestViewer.this.currentPlayer);
-						final Path path = new Path(new Waypoint(loc, playerState.getSpeedMatrix().getJoggingSpeed(),
-								playerState.getMaxSpeed(), PlayerTestViewer.this.nextDestinationAction));
+						final Path path = new Path(loc,
+								playerState.getMaxSpeed(), PlayerTestViewer.this.nextDestinationAction, playerState.getSpeedMatrix().getJoggingSpeed(), null);
 						PlayerTestViewer.this.getPlayers().setPath(PlayerTestViewer.this.currentPlayer, path);
 					}
 				}
@@ -482,7 +475,7 @@ public class PlayerTestViewer extends TestViewer
 			return;
 
 		final List<Location> locs = new ArrayList<>(
-				playerPath.getWaypoints().stream().map(Waypoint::getDestination).toList());
+				playerPath.getWaypoints().stream().map(Waypoint::getWaypointDestination).toList());
 		locs.addFirst(this.getPlayers().getState(player).getLoc());
 		for (int i = 1; i < locs.size(); i++)
 		{
@@ -551,7 +544,7 @@ public class PlayerTestViewer extends TestViewer
 			for (final Waypoint wp : path.getWaypoints())
 			{
 				str.append(String.format("       waypoint : %s - Steps: %d\n", wp,
-						playerSteps.getStepsToLocation(wp.getDestination())));
+						playerSteps.getStepsToLocation(wp.getWaypointDestination())));
 			}
 		}
 
@@ -617,7 +610,7 @@ public class PlayerTestViewer extends TestViewer
 					Direction.west);
 			blockersAction.move();
 
-			PlayerTestViewer.this.getGroupBlockingPlayers()
+			PlayerTestViewer.this.getGroupBlockingPlayers().stream().filter(blocker -> blockersAction.getPath(blocker) != null)
 					.forEach(blocker -> this.setPath(blocker, blockersAction.getPath(blocker)));
 		}
 

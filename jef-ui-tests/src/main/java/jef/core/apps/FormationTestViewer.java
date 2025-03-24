@@ -14,6 +14,7 @@ import jef.actions.formations.Formation;
 import jef.actions.formations.OffensiveFormations;
 import jef.core.AngularVelocity;
 import jef.core.Conversions;
+import jef.core.Direction;
 import jef.core.Field;
 import jef.core.Location;
 import jef.core.Player;
@@ -245,7 +246,7 @@ public class FormationTestViewer extends TestViewer
 		public void lineup(Formation formation, Location ballSpot)
 		{
 			getPlayers().setPath(chuckForeman, new Path(formation.getPosition("RB").place(ballSpot),
-					chuckForeman.getSpeedMatrix().getRunningSpeed(), DestinationAction.normalStop));
+					chuckForeman.getSpeedMatrix().getRunningSpeed(), DestinationAction.normalStop, 0, Direction.west.getAngle()));
 
 //			getPlayers().setPath(brentMcClanahan, new Path(formation.getPosition("FB").place(ballSpot),
 //					brentMcClanahan.getSpeedMatrix().getRunningSpeed(), DestinationAction.normalStop));

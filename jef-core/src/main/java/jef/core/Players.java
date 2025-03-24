@@ -51,13 +51,14 @@ public class Players implements IPlayers
 	{
 		assert !this.getPlayers().contains(state.getPlayer());
 
-		this.steps.put(state.getPlayer(), new PlayerSteps(state, null));
+		this.steps.put(state.getPlayer(), new PlayerSteps(state, new Path(state.getLoc())));
 
-		this.reset(state, null);
+		this.reset(state, new Path(state.getLoc()));
 	}
 
 	public void addPlayer(final PlayerState state, final Path path)
 	{
+		assert path != null;
 		assert !this.getPlayers().contains(state.getPlayer());
 		this.reset(state, path);
 	}
@@ -110,6 +111,7 @@ public class Players implements IPlayers
 	@Override
 	public PlayerSteps createSteps(final PlayerState startingState, final Path path)
 	{
+		assert path != null;
 		return new PlayerSteps(startingState, path);
 	}
 
@@ -168,6 +170,7 @@ public class Players implements IPlayers
 
 	public void setPath(final Player player, final Path path)
 	{
+		assert path != null;
 		this.nextPaths.put(player, path);
 	}
 
@@ -197,6 +200,8 @@ public class Players implements IPlayers
 
 		public PlayerSteps(final PlayerState startingState, final Path path)
 		{
+			assert path != null;
+
 			this.steps = new PlayerState[Players.this.getStepCapacity()];
 			this.destinationReachedSteps = -1;
 			this.reset(startingState, path);
@@ -288,6 +293,8 @@ public class Players implements IPlayers
 				this.path = path;
 			}
 
+			assert this.path != null;
+
 			Arrays.fill(this.steps, null);
 
 			this.destinationReachedSteps = -1;
@@ -295,7 +302,7 @@ public class Players implements IPlayers
 			final PlayerTracker tracker = new PlayerTracker(startingState, this.path, Players.this.getTimerInterval());
 			this.steps[Players.this.getIndex(0)] = tracker.getState();
 			tracker.advance();
-			if (tracker.destinationReached())
+			if (tracker.waypointDestinationReached())
 			{
 				this.destinationReachedSteps = 0;
 			}

@@ -185,7 +185,7 @@ public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPa
 		{
 			Waypoint wp1 = new Waypoint(reachableLocations.getFirst(), getPlayerState().getMaxSpeed(),
 					DestinationAction.noStop);
-			if (wp1.getDestination().isInEndZone(getDirection()))
+			if (wp1.getWaypointDestination().isInEndZone(getDirection()))
 			{
 				return new Path(wp1);
 			}
@@ -193,7 +193,7 @@ public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPa
 			{
 				Waypoint wp2 = new Waypoint(
 						new Location(getDirection() == Direction.east ? Field.EAST_END_ZONE_X : Field.WEST_END_ZONE_X,
-								wp1.getDestination().getY()),
+								wp1.getWaypointDestination().getY()),
 						getPlayerState().getMaxSpeed(), DestinationAction.normalStop);
 				return new Path(wp1, wp2);
 			}

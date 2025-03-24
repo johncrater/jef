@@ -14,10 +14,13 @@ public class PlayerTracker extends Tracker
 	private PlayerState currentState;
 	private PlayerState startingState;
 	private Path currentPath;
-	
-	public PlayerTracker(PlayerState playerState, Path currentPath, final double timeInterval)
+
+	public PlayerTracker(final PlayerState playerState, final Path currentPath, final double timeInterval)
 	{
 		super(timeInterval);
+
+		assert currentPath != null;
+
 		this.startingState = this.currentState = playerState;
 		this.currentPath = currentPath;
 	}
@@ -29,76 +32,10 @@ public class PlayerTracker extends Tracker
 		this.startingState = tracker.startingState;
 	}
 
-	public PlayerState getState()
-	{
-		return this.currentState;
-	}
-	
-	public void setLV(LinearVelocity lv)
-	{
-		this.currentState = this.currentState.newFrom(lv, null, null, null);
-	}
-	
-	public void setLoc(Location loc)
-	{
-		this.currentState = this.currentState.newFrom(null, loc, null, null);
-	}
-	
-	public void setAV(AngularVelocity av)
-	{
-		this.currentState = this.currentState.newFrom(null, null, av, null);
-	}
-	
-	public LinearVelocity getLV()
-	{
-		return this.currentState.getLV();
-	}
-
-	public AngularVelocity getAV()
-	{
-		return this.currentState.getAV();
-	}
-
-	public void reset()
-	{
-		this.currentState = this.startingState;
-		this.setPctRemaining(1.0);
-	}
-	
 	public void advance()
 	{
 		this.startingState = this.currentState;
 		this.setPctRemaining(1.0);
-	}
-
-	public void setPosture(Posture posture)
-	{
-		this.currentState = this.currentState.newFrom(null, null, null, posture);
-	}
-
-	public void setPath(Path path)
-	{
-		this.currentPath = path;
-	}
-
-	public Location getLoc()
-	{
-		return this.currentState.getLoc();
-	}
-
-	public Path getPath()
-	{
-		return this.currentPath;
-	}
-
-	public Posture getPosture()
-	{
-		return this.currentState.getPosture();
-	}
-
-	public Player getPlayer()
-	{
-		return this.currentState.getPlayer();
 	}
 
 	/**
@@ -133,22 +70,67 @@ public class PlayerTracker extends Tracker
 		return (Math.pow(desiredSpeed, 2) - Math.pow(this.getLV().getSpeed(), 2)) / (2 * accelerationRate);
 	}
 
-	public boolean destinationReached()
+	public boolean finalDestinationReached()
 	{
-		if (getPath() == null)
-			return true;
-		
-		final Waypoint waypoint = getPath().getCurrentWaypoint();
-		if (waypoint == null)
-			return true;
-
-		return getLoc().closeEnoughTo(this.getPath().getDestination());
+		return this.getLoc().closeEnoughTo(this.getPath().getDestination());
 	}
 
-	public boolean hasPastDestination()
+	@Override
+	public AngularVelocity getAV()
+	{
+		return this.currentState.getAV();
+	}
+
+	@Override
+	public Location getLoc()
+	{
+		return this.currentState.getLoc();
+	}
+
+	@Override
+	public LinearVelocity getLV()
+	{
+		return this.currentState.getLV();
+	}
+
+	public Path getPath()
+	{
+		return this.currentPath;
+	}
+
+	public Player getPlayer()
+	{
+		return this.currentState.getPlayer();
+	}
+
+	public Posture getPosture()
+	{
+		return this.currentState.getPosture();
+	}
+
+	public PlayerState getState()
+	{
+		return this.currentState;
+	}
+
+	public boolean hasPastFinalDestination()
 	{
 		final Location origin = this.startingState.getLoc();
-		final Location dest = this.getPath().getCurrentWaypoint().getDestination();
+		final Location dest = this.getPath().getDestination();
+
+		final LineSegment line = new LineSegment(origin, dest);
+		final LineSegment perpLine = line.getPerpendicularLine(dest, line.getLength());
+
+		final LineSegment currentLine = new LineSegment(this.startingState.getLoc(), this.getLoc());
+		final Location intersection = perpLine.xyIntersection(currentLine);
+
+		return intersection != null;
+	}
+
+	public boolean hasPastWaypointDestination()
+	{
+		final Location origin = this.startingState.getLoc();
+		final Location dest = this.getPath().getCurrentWaypoint().getWaypointDestination();
 
 		final LineSegment line = new LineSegment(origin, dest);
 		final LineSegment perpLine = line.getPerpendicularLine(dest, line.getLength());
@@ -171,6 +153,7 @@ public class PlayerTracker extends Tracker
 			this.setAV(new AngularVelocity(this.getLV().getAzimuth(), 0, 0));
 		}
 
+		this.updatePath();
 		return ret;
 	}
 
@@ -186,6 +169,7 @@ public class PlayerTracker extends Tracker
 			this.setAV(new AngularVelocity(this.getLV().getAzimuth(), 0, 0));
 		}
 
+		this.updatePath();
 		return ret;
 	}
 
@@ -200,6 +184,43 @@ public class PlayerTracker extends Tracker
 		{
 			this.setAV(new AngularVelocity(this.getLV().getAzimuth(), 0, 0));
 		}
+
+		this.updatePath();
+	}
+
+	public void reset()
+	{
+		this.currentState = this.startingState;
+		this.setPctRemaining(1.0);
+	}
+
+	@Override
+	public void setAV(final AngularVelocity av)
+	{
+		this.currentState = this.currentState.newFrom(null, null, av, null);
+	}
+
+	@Override
+	public void setLoc(final Location loc)
+	{
+		this.currentState = this.currentState.newFrom(null, loc, null, null);
+	}
+
+	@Override
+	public void setLV(final LinearVelocity lv)
+	{
+		this.currentState = this.currentState.newFrom(lv, null, null, null);
+	}
+
+	public void setPath(final Path path)
+	{
+		assert path != null;
+		this.currentPath = path;
+	}
+
+	public void setPosture(final Posture posture)
+	{
+		this.currentState = this.currentState.newFrom(null, null, null, posture);
 	}
 
 	/**
@@ -218,6 +239,32 @@ public class PlayerTracker extends Tracker
 		{
 			this.setAV(new AngularVelocity(this.getLV().getAzimuth(), 0, 0));
 		}
+	}
+
+	public boolean waypointDestinationReached()
+	{
+		return this.getLoc().closeEnoughTo(this.getPath().getCurrentWaypoint().getWaypointDestination());
+	}
+
+	private void updatePath()
+	{
+		if (this.finalDestinationReached() || this.hasPastFinalDestination())
+		{
+			// if we have reached out destination, stop and orient
+			final Double destinationOrientation = this.getPath().getDestinationOrientation();
+			this.setLV(this.getLV().newFrom(destinationOrientation, null, 0.0));
+			this.setLoc(this.getPath().getDestination());
+
+			while (!this.getPath().isComplete())
+			{
+				this.setPath(Path.removeCurrentWaypoint(this.getPath()));
+			}
+		}
+		else if (this.waypointDestinationReached() || this.hasPastWaypointDestination())
+		{
+			this.setPath(Path.removeCurrentWaypoint(this.getPath()));
+		}
+
 	}
 
 }

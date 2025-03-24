@@ -2,10 +2,22 @@ package jef.core;
 
 public enum Direction
 {
-	east, west;
+	east(0), west(Math.PI);
+	
+	private double angle;
+	
+	private Direction(double angle)
+	{
+		this.angle = angle;
+	}
 	
 	public Direction opposite()
 	{
 		return this == east ? west : east;
+	}
+	
+	public double getAngle()
+	{
+		return angle;
 	}
 }

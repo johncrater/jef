@@ -12,40 +12,37 @@ public class Waypoint
 	private double maxSpeed;
 	private double minTurnSpeed;
 	private DestinationAction destinationAction;
+	private Double destinationOrientation;
 	
-	public Waypoint()
-	{
-	}
-
-	public Waypoint(Location destination, double minTurnSpeed, double maxSpeed, DestinationAction destinationAction)
+	public Waypoint(Location destination, double maxSpeed, DestinationAction destinationAction, double minTurnSpeed, Double destinationOrientation)
 	{
 		super();
 		this.destination = destination;
 		this.minTurnSpeed = minTurnSpeed;
 		this.maxSpeed = maxSpeed;
 		this.destinationAction = destinationAction;
+		this.destinationOrientation = destinationOrientation;
 	}
 
 	public Waypoint(Location destination, double maxSpeed, DestinationAction destinationAction)
 	{
 		super();
 		this.destination = destination;
-		this.minTurnSpeed = 0;
 		this.maxSpeed = maxSpeed;
 		this.destinationAction = destinationAction;
 	}
 
-	public Location getDestination()
+	public Double getDestinationOrientation()
+	{
+		return this.destinationOrientation;
+	}
+
+	public Location getWaypointDestination()
 	{
 		return this.destination;
 	}
 
-	public void setDestination(Location destination)
-	{
-		this.destination = destination;
-	}
-
-	protected double getMinTurnSpeed()
+	public double getMinTurnSpeed()
 	{
 		return this.minTurnSpeed;
 	}
@@ -55,19 +52,9 @@ public class Waypoint
 		return this.maxSpeed;
 	}
 
-	public void setMaxSpeed(double maxSpeed)
-	{
-		this.maxSpeed = maxSpeed;
-	}
-
 	public DestinationAction getDestinationAction()
 	{
 		return this.destinationAction;
-	}
-
-	public void setDestinationAction(DestinationAction destinationAction)
-	{
-		this.destinationAction = destinationAction;
 	}
 
 	@Override

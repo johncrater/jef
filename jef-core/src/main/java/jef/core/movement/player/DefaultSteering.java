@@ -28,35 +28,9 @@ public class DefaultSteering implements Steering
 	@Override
 	public boolean next(final PlayerTracker tracker)
 	{
-		if (tracker.destinationReached() || tracker.hasPastDestination())
-		{
-			// if we have reached out destination, stop 
-			tracker.setPath(null);
-			tracker.setLV(tracker.getLV().newFrom(null, null, 0.0));
+		if (tracker.getPath().isComplete())
 			return true;
-		}
-
-		if (tracker.getPath() != null && tracker.getPath().getCurrentWaypoint() != null
-				&& tracker.getLoc().closeEnoughTo(tracker.getPath().getCurrentWaypoint().getDestination())
-				&& tracker.getLV().isNotMoving())
-		{
-			// if we reached the current waypoint remove it and continue on
-			List<Waypoint> waypoints = tracker.getPath().getWaypoints();
-			waypoints.remove(0);
-			tracker.setPath(new Path(waypoints.toArray(new Waypoint[waypoints.size()])));
-		}
-
-		if (tracker.getPath() == null || tracker.getPath().getWaypoints().size() == 0)
-		{
-			// if we are out of waypoints, stop
-			tracker.setLV(tracker.getLV().newFrom(null, null, 0.0));
-			return true;
-		}
-
-		if (SHOW_MESSAGES)
-			this.buildMessage(String.format("%-25s: %s", "Initial",
-					String.format("%3.2f %s %s", tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
-
+		
 		switch (tracker.getPosture())
 		{
 			case fallingDown:
@@ -78,47 +52,15 @@ public class DefaultSteering implements Steering
 		}
 
 		final double angleAdjustment = this.calculateAngleOfTurn(tracker.getLoc(),
-				tracker.getPath().getCurrentWaypoint().getDestination(), tracker.getLV().getAzimuth());
-
-		if (SHOW_MESSAGES)
-			this.buildMessage(
-					String.format("%-25s: \t\t%4f\u00B0", "Angle Adjustment", Math.toDegrees(angleAdjustment)));
+				tracker.getPath().getCurrentWaypoint().getWaypointDestination(), tracker.getLV().getAzimuth());
 
 		tracker.turn(angleAdjustment);
 		tracker.move();
 
-		if (tracker.destinationReached() || tracker.hasPastDestination())
-		{
-			List<Waypoint> waypoints = tracker.getPath().getWaypoints();
-			waypoints.remove(0);
-			tracker.setPath(new Path(waypoints.toArray(new Waypoint[waypoints.size()])));
+		if (tracker.getPctRemaining() > 0)
+			return next(tracker);
 
-			if (tracker.getPath().getWaypoints().size() > 0)
-			{
-				if (SHOW_MESSAGES)
-					this.buildMessage(String.format("%-25s: %s", "Destination Reached", String.format("%3.2f %s %s",
-							tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
-				return this.next(tracker);
-			}
-			else
-			{
-				if (SHOW_MESSAGES)
-					this.buildMessage(String.format("%-25s: %s", "Waypoint Reached", String.format("%3.2f %s %s",
-							tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
-				return true;
-			}
-		}
-
-		if (SHOW_MESSAGES)
-			this.buildMessage(String.format("%-25s: %s", "Final",
-					String.format("%3.2f %s %s", tracker.getPctRemaining(), tracker.getLV(), tracker.getLoc())));
-
-		return false;
-	}
-
-	private void buildMessage(final String msg)
-	{
-		System.out.println(msg);
+		return tracker.getPath().isComplete();
 	}
 
 	private double calculateAngleOfTurn(final Location loc, final Location destination, final double currentAngle)

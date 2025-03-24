@@ -143,9 +143,9 @@ public class DebugMessageHandler implements Telegraph
 				{
 					gc.drawLine(UIUtils.yardsToPixels(prev.getX()),
 							UIUtils.yardsToPixels(prev.getY()),
-							UIUtils.yardsToPixels(wp.getDestination().getX()),
-							UIUtils.yardsToPixels(wp.getDestination().getY()));
-					prev = wp.getDestination();
+							UIUtils.yardsToPixels(wp.getWaypointDestination().getX()),
+							UIUtils.yardsToPixels(wp.getWaypointDestination().getY()));
+					prev = wp.getWaypointDestination();
 				}
 			}
 		}

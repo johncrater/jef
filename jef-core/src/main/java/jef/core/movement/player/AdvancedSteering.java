@@ -57,34 +57,33 @@ public class AdvancedSteering implements Steering
 	@Override
 	public boolean next(final PlayerTracker tracker)
 	{
-		if (tracker.destinationReached() || tracker.hasPastDestination())
-		{
-			// if we have reached out destination, stop 
-			tracker.setPath(null);
-			tracker.setLV(tracker.getLV().newFrom(null, null, 0.0));
-			return true;
-		}
-
-		if (tracker.getPath() != null && tracker.getPath().getCurrentWaypoint() != null
-				&& tracker.getLoc().closeEnoughTo(this.getDestination(tracker)) && tracker.getLV().isNotMoving())
-		{
-			List<Waypoint> waypoints = tracker.getPath().getWaypoints();
-			waypoints.remove(0);
-			tracker.setPath(new Path(waypoints.toArray(new Waypoint[waypoints.size()])));
-		}
-
-		if (tracker.getPath() == null || tracker.getPath().getWaypoints().size() == 0)
+		if (tracker.waypointDestinationReached() || tracker.hasPastWaypointDestination())
 		{
 			if ((options & USE_COAST_TO_STOP) > 0)
 			{
 				// coasting to a stop
 				this.coastToAStop(tracker);
 				if (tracker.getLV().isNotMoving())
+				{
+					// if we have reached out destination, stop and orient
+					Double destinationOrientation = tracker.getPath().getDestinationOrientation();
+					if (destinationOrientation != null)
+						tracker.turn(tracker.getAV().getOrientation() - destinationOrientation);
+
+					tracker.setLV(tracker.getLV().newFrom(null, null, 0.0));
+					tracker.setPath(Path.removeCurrentWaypoint(tracker.getPath()));
 					return true;
+				}
 			}
 			else
 			{
+				// if we have reached out destination, stop and orient
+				Double destinationOrientation = tracker.getPath().getDestinationOrientation();
+				if (destinationOrientation != null)
+					tracker.turn(tracker.getAV().getOrientation() - destinationOrientation);
+
 				tracker.setLV(tracker.getLV().newFrom(null, null, 0.0));
+				tracker.setPath(Path.removeCurrentWaypoint(tracker.getPath()));
 				return true;
 			}
 
@@ -144,7 +143,7 @@ public class AdvancedSteering implements Steering
 			speedAdjustment = this.calculateDecelerationAdjustment(tracker);
 		}
 
-		final double angleAdjustment = this.calculateAngleOfTurn(tracker.getLoc(), this.getDestination(tracker),
+		final double angleAdjustment = this.calculateAngleOfTurn(tracker.getLoc(), tracker.getPath().getCurrentWaypoint().getWaypointDestination(),
 				tracker.getLV().getAzimuth());
 
 		if (SHOW_MESSAGES)
@@ -187,14 +186,12 @@ public class AdvancedSteering implements Steering
 
 		tracker.move(new LinearVelocity(newAngle, 0.0, speedAdjustment), null);
 
-		if (this.destinationReached(tracker) || (tracker.hasPastDestination()
+		if (tracker.waypointDestinationReached() || (tracker.hasPastWaypointDestination()
 				&& tracker.getPath().getCurrentWaypoint().getDestinationAction() == DestinationAction.noStop))
 		{
-			List<Waypoint> waypoints = tracker.getPath().getWaypoints();
-			waypoints.remove(0);
-			tracker.setPath(new Path(waypoints.toArray(new Waypoint[waypoints.size()])));
+			tracker.setPath(Path.removeCurrentWaypoint(tracker.getPath()));
 
-			if (tracker.getPath().getWaypoints().size() > 1)
+			if (tracker.getPath().isComplete() == false)
 			{
 				if (SHOW_MESSAGES)
 					this.buildMessage(String.format("%-25s: %s", "Destination Reached", String.format("%3.2f %s %s",
@@ -231,7 +228,7 @@ public class AdvancedSteering implements Steering
 
 	private double calculateDecelerationAdjustment(final PlayerTracker tracker)
 	{
-		final double distanceRemainingToDestination = tracker.getLoc().distanceBetween(this.getDestination(tracker));
+		final double distanceRemainingToDestination = tracker.getLoc().distanceBetween(tracker.getPath().getCurrentWaypoint().getWaypointDestination());
 
 		double decelerationAdjustment = this.decelerate(tracker, 0, distanceRemainingToDestination);
 		if (decelerationAdjustment != 0)
@@ -481,20 +478,6 @@ public class AdvancedSteering implements Steering
 				maxDecelerationRate.getRate());
 	}
 
-	private boolean destinationReached(final PlayerTracker tracker)
-	{
-		final Waypoint waypoint = tracker.getPath().getCurrentWaypoint();
-		if (waypoint == null)
-			return true;
-
-		return tracker.getLoc().closeEnoughTo(this.getDestination(tracker));
-	}
-
-	private Location getDestination(PlayerTracker tracker)
-	{
-		return tracker.getPath().getCurrentWaypoint().getDestination();
-	}
-
 	private void outOfControl(final PlayerTracker tracker)
 	{
 		// we are out of control and will fall if we can't decelerate below
@@ -539,7 +522,7 @@ public class AdvancedSteering implements Steering
 			if (SHOW_MESSAGES)
 				this.buildMessage(String.format("%-25s: \t%4f", "Traversable Distance", traversableDistance));
 
-			final double distanceUsed = Math.min(tracker.getLoc().distanceBetween(this.getDestination(tracker)),
+			final double distanceUsed = Math.min(tracker.getLoc().distanceBetween(tracker.getPath().getCurrentWaypoint().getWaypointDestination()),
 					Math.min(traversableDistance, distanceNeededToCompleteTurn));
 			if (SHOW_MESSAGES)
 				this.buildMessage(String.format("%-25s: \t%4f", "Distance Used", distanceUsed));
