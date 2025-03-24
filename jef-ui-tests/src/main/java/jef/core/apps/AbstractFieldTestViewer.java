@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.util.Properties;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -26,6 +28,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
+import jef.core.Conversions;
 import jef.core.Field;
 import jef.core.Location;
 import jef.core.Performance;
@@ -50,6 +53,7 @@ public abstract class AbstractFieldTestViewer implements Runnable
 	private Canvas canvas;
 
 	private Image field;
+	private Image transformedImage;
 
 	private final DebugMessageHandler debugMessageHandler = new DebugMessageHandler();
 	// field scaling and centering
@@ -251,6 +255,21 @@ public abstract class AbstractFieldTestViewer implements Runnable
 
 		this.field = new Image(this.shell.getDisplay(), this.getClass().getResourceAsStream("/field-4500x2124.png"));
 
+		this.canvas.addControlListener(new ControlListener()
+		{
+
+			@Override
+			public void controlMoved(final ControlEvent e)
+			{
+			}
+
+			@Override
+			public void controlResized(final ControlEvent e)
+			{
+				transformedImage = null;
+			}
+		});
+
 		this.canvas.addPaintListener(e ->
 		{
 			Performance.drawTime.beginCycle();
@@ -288,6 +307,7 @@ public abstract class AbstractFieldTestViewer implements Runnable
 					if ((e.stateMask & SWT.CONTROL) != 0)
 					{
 						AbstractFieldTestViewer.this.midfieldLocation = ts.transformToLocation(p);
+						transformedImage = null;
 					}
 				}
 				catch (final Exception e1)
@@ -302,11 +322,40 @@ public abstract class AbstractFieldTestViewer implements Runnable
 			if ((e.stateMask & SWT.CONTROL) != 0)
 			{
 				this.scaleAdjustment = (float) Math.max(.25, this.scaleAdjustment + (Math.signum(e.count) * .25));
+				this.transformedImage = null;
 			}
 		});
 
 	}
 
+	protected void updateFieldImage()
+	{
+		try (FieldTransformStack ts = new FieldTransformStack(AbstractFieldTestViewer.this.canvas,
+				AbstractFieldTestViewer.this.midfieldLocation, AbstractFieldTestViewer.this.scaleAdjustment))
+		{
+
+			Image tmp = canvas.getBackgroundImage();
+			
+			final var bounds = new Rectangle(0, 0, (int)Conversions.yardsToInches(Field.DIM_TOTAL_LENGTH * scaleAdjustment),
+					(int)Conversions.yardsToInches(Field.DIM_TOTAL_WIDTH * scaleAdjustment));
+			final var fieldImage = new Image(getShell().getDisplay(), bounds);
+			final var gc = new GC(fieldImage);
+			gc.setAdvanced(true);
+			gc.setTransform(ts.getCurrentTransform());
+			gc.drawImage(field, 0, 0);
+			gc.dispose();
+
+			canvas.setBackgroundImage(fieldImage);
+			this.transformedImage = fieldImage;
+			
+			if (tmp != null)
+				tmp.dispose();
+		}
+		catch (final Exception e1)
+		{
+		}
+	}
+	
 	protected abstract Players createPlayers();
 
 	protected abstract void drawPlayer(FieldTransformStack ts, PlayerState playerState);
@@ -323,7 +372,10 @@ public abstract class AbstractFieldTestViewer implements Runnable
 
 	protected void drawTransformedCanvas(final FieldTransformStack ts)
 	{
-		ts.getGC().drawImage(this.field, 0, 0);
+		if (transformedImage == null)
+			this.updateFieldImage();
+		
+//		ts.getGC().drawImage(this.field, 0, 0);
 		for (final Player player : this.players.getPlayers())
 		{
 			this.drawPlayer(ts, this.players.getState(player));
