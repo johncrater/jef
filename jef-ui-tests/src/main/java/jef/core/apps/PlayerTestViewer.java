@@ -57,12 +57,11 @@ import jef.core.pathfinding.runners.RunnerPathfinder;
 import jef.core.pathfinding.runners.RunnerWaypointPathfinder;
 import jef.core.ui.swt.utils.UIUtils;
 
-public class PlayerTestViewer extends TestViewer
+public class PlayerTestViewer extends AbstractFieldTestViewer
 {
 	private static final Color yellow = new Color(255, 255, 0);
 
 	private static FontData playerDataFontData = new FontData("Courier New", 8, SWT.NORMAL);
-
 	private static Font playerDataFont;
 
 	public static int colorStringToColor(final String colorString)
@@ -487,7 +486,7 @@ public class PlayerTestViewer extends TestViewer
 	private void drawPerformance(final GC gc)
 	{
 		gc.setFont(PlayerTestViewer.playerDataFont);
-		gc.setBackground(TestViewer.black);
+		gc.setBackground(AbstractFieldTestViewer.black);
 		gc.setForeground(PlayerTestViewer.yellow);
 
 		final long current = System.currentTimeMillis();

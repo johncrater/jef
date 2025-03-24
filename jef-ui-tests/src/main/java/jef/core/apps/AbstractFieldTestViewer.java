@@ -34,7 +34,7 @@ import jef.core.PlayerState;
 import jef.core.Players;
 import jef.core.ui.swt.utils.DebugMessageHandler;
 
-public abstract class TestViewer implements Runnable
+public abstract class AbstractFieldTestViewer implements Runnable
 {
 	public static final Color black = new Color(0, 0, 0);
 
@@ -43,7 +43,7 @@ public abstract class TestViewer implements Runnable
 
 	protected static Font getPlayerFont()
 	{
-		return TestViewer.playerFont;
+		return AbstractFieldTestViewer.playerFont;
 	}
 
 	private final Shell shell;
@@ -64,7 +64,7 @@ public abstract class TestViewer implements Runnable
 	private boolean autoPauseActive;
 
 	@SuppressWarnings("deprecation")
-	public TestViewer(final String title)
+	public AbstractFieldTestViewer(final String title)
 	{
 		this.shell = new Shell();
 		this.shell.setMaximized(true);
@@ -72,7 +72,8 @@ public abstract class TestViewer implements Runnable
 
 		this.shell.setLayout(new GridLayout(1, false));
 
-		TestViewer.playerFont = new Font(this.getShell().getDisplay(), TestViewer.playerFontData);
+		AbstractFieldTestViewer.playerFont = new Font(this.getShell().getDisplay(),
+				AbstractFieldTestViewer.playerFontData);
 
 		try
 		{
@@ -220,8 +221,9 @@ public abstract class TestViewer implements Runnable
 			@Override
 			public void widgetSelected(final SelectionEvent e)
 			{
-				TestViewer.this.setAutoPauseActive(!TestViewer.this.isAutoPauseActive());
-				autoPauseButton.setText(TestViewer.this.isAutoPauseActive() ? "Auto Pause: On" : "Auto Pause: Off");
+				AbstractFieldTestViewer.this.setAutoPauseActive(!AbstractFieldTestViewer.this.isAutoPauseActive());
+				autoPauseButton.setText(
+						AbstractFieldTestViewer.this.isAutoPauseActive() ? "Auto Pause: On" : "Auto Pause: Off");
 			}
 		});
 
@@ -232,8 +234,8 @@ public abstract class TestViewer implements Runnable
 			@Override
 			public void widgetSelected(final SelectionEvent e)
 			{
-				TestViewer.this.setPaused(!TestViewer.this.isPaused());
-				pauseButton.setText(TestViewer.this.isPaused() ? "Un Pause" : "Pause");
+				AbstractFieldTestViewer.this.setPaused(!AbstractFieldTestViewer.this.isPaused());
+				pauseButton.setText(AbstractFieldTestViewer.this.isPaused() ? "Un Pause" : "Pause");
 			}
 		});
 
@@ -244,7 +246,7 @@ public abstract class TestViewer implements Runnable
 	{
 		this.canvas = new Canvas(this.shell, SWT.DOUBLE_BUFFERED);
 		this.canvas.setLayoutData(new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.FILL_VERTICAL));
-		this.canvas.setBackground(TestViewer.black);
+		this.canvas.setBackground(AbstractFieldTestViewer.black);
 		this.canvas.layout(true);
 
 		this.field = new Image(this.shell.getDisplay(), this.getClass().getResourceAsStream("/field-4500x2124.png"));
@@ -280,12 +282,12 @@ public abstract class TestViewer implements Runnable
 
 				final Point p = new Point(e.x, e.y);
 
-				try (FieldTransformStack ts = new FieldTransformStack(TestViewer.this.canvas,
-						TestViewer.this.midfieldLocation, TestViewer.this.scaleAdjustment))
+				try (FieldTransformStack ts = new FieldTransformStack(AbstractFieldTestViewer.this.canvas,
+						AbstractFieldTestViewer.this.midfieldLocation, AbstractFieldTestViewer.this.scaleAdjustment))
 				{
 					if ((e.stateMask & SWT.CONTROL) != 0)
 					{
-						TestViewer.this.midfieldLocation = ts.transformToLocation(p);
+						AbstractFieldTestViewer.this.midfieldLocation = ts.transformToLocation(p);
 					}
 				}
 				catch (final Exception e1)
@@ -333,6 +335,11 @@ public abstract class TestViewer implements Runnable
 	protected Canvas getCanvas()
 	{
 		return this.canvas;
+	}
+
+	protected DebugMessageHandler getDebugMessageHandler()
+	{
+		return this.debugMessageHandler;
 	}
 
 	protected Location getMidfieldLocation()

@@ -26,7 +26,7 @@ import jef.core.movement.player.Path;
 import jef.core.movement.player.Waypoint.DestinationAction;
 import jef.core.ui.swt.utils.UIUtils;
 
-public class FormationTestViewer extends TestViewer
+public class FormationTestViewer extends AbstractFieldTestViewer
 {
 	public static void main(String[] args)
 	{

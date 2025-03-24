@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
@@ -97,8 +99,14 @@ public class DebugMessageHandler implements Telegraph
 			{
 				if (debugShape.text != null)
 				{
-					gc.drawString(debugShape.text, UIUtils.yardsToPixels(debugShape.location.getX()),
+					FontData standardFontData = new FontData("Courier New", debugShape.fontSize, SWT.BOLD);
+					Font standardFont = new Font(gc.getDevice(), standardFontData);
+					gc.setFont(standardFont);
+					gc.setForeground(gc.getDevice().getSystemColor(SWT.COLOR_YELLOW));
+					gc.setBackground(gc.getDevice().getSystemColor(SWT.COLOR_BLACK));
+					gc.drawText(debugShape.text, UIUtils.yardsToPixels(debugShape.location.getX()),
 							UIUtils.yardsToPixels(debugShape.location.getY()), true);
+					standardFont.dispose();
 				}
 				else
 				{
