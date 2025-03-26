@@ -12,8 +12,11 @@ public interface IPlayers
 	public Set<Player> getPlayers();
 	public int getStartOffset();
 	public PlayerState getState(Player player);
+	public PlayerState getPerceivedState(Player player);
 	public PlayerState getState(Player player, int offset);
+	public PlayerState getPerceivedState(Player player, int offset);
 	public int getStepCapacity();
+	public double getLookAheadSeconds();
 	public PlayerSteps getSteps(Player player);
 	public double getTimerInterval();
 

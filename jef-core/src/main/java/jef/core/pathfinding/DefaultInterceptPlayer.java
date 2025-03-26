@@ -36,7 +36,7 @@ public class DefaultInterceptPlayer extends PathfinderBase
 
 		for (int i = 0; i < interceptionPoints.getStepCapacity(); i++)
 		{
-			PlayerState targetPlayerState = interceptionPoints.getState(i);
+			PlayerState targetPlayerState = interceptionPoints.getPerceivedState(i);
 			Path path = new Path(new Waypoint(targetPlayerState.getLoc(), this.getPlayerState().getMaxSpeed(),
 							DestinationAction.noStop));
 			
@@ -51,7 +51,7 @@ public class DefaultInterceptPlayer extends PathfinderBase
 
 		// if we can't catch him at all, just run straight for him to put on a good show
 		// of it
-		PlayerState playerState = getPlayers().getState(targetPlayer);
+		PlayerState playerState = getPlayers().getPerceivedState(targetPlayer);
 		return new Path(new Waypoint(playerState.getLoc(), playerState.getMaxSpeed(), DestinationAction.noStop));
 	}
 

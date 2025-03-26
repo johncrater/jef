@@ -62,7 +62,7 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 	private static Font playerDataFont;
 
 	private static Font playerFont;
-	private static FontData playerFontData = new FontData("Courier New", 16, SWT.BOLD);
+	private static FontData playerFontData = new FontData("Courier New", 16, SWT.NORMAL);
 
 	public static int colorStringToColor(final String colorString)
 	{
@@ -88,9 +88,12 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 
 	public PlayerTestViewer()
 	{
-		super("Player Test Viewer", OPTIONS_SHOW_MOUSE_LOCATION | OPTIONS_SHOW_PLAYERS | OPTIONS_SHOW_PERFORMANCE);
-		playerFont = new Font(this.getShell().getDisplay(), playerFontData);
-		playerDataFont = new Font(this.getShell().getDisplay(), PlayerTestViewer.playerDataFontData);
+		super("Player Test Viewer",
+				AbstractFieldTestViewer.OPTIONS_SHOW_MOUSE_LOCATION | AbstractFieldTestViewer.OPTIONS_SHOW_PLAYERS
+						| AbstractFieldTestViewer.OPTIONS_SHOW_PERFORMANCE
+						| AbstractFieldTestViewer.OPTIONS_SHOW_DEBUG_SHAPES);
+		PlayerTestViewer.playerFont = new Font(this.getShell().getDisplay(), PlayerTestViewer.playerFontData);
+		PlayerTestViewer.playerDataFont = new Font(this.getShell().getDisplay(), PlayerTestViewer.playerDataFontData);
 
 	}
 
@@ -188,8 +191,9 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 						final Location loc = ts.transformToLocation(p);
 						final PlayerState playerState = PlayerTestViewer.this.getPlayers()
 								.getState(PlayerTestViewer.this.currentPlayer);
-						final Path path = new Path(loc,
-								playerState.getMaxSpeed(), PlayerTestViewer.this.nextDestinationAction, playerState.getSpeedMatrix().getJoggingSpeed(), null);
+						final Path path = new Path(loc, playerState.getMaxSpeed(),
+								PlayerTestViewer.this.nextDestinationAction,
+								playerState.getSpeedMatrix().getJoggingSpeed(), null);
 						PlayerTestViewer.this.getPlayers().setPath(PlayerTestViewer.this.currentPlayer, path);
 					}
 				}
@@ -300,7 +304,7 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 		final int offset = (int) Conversions.yardsToInches((Player.SIZE) / 2.0);
 
 		final GC gc = fts.getGC();
-		gc.setFont(playerFont);
+		gc.setFont(PlayerTestViewer.playerFont);
 		final Point p = UIUtils.locationToPoint(player.getLoc());
 
 		if (this.defenders.containsValue(player.getPlayer()))
@@ -323,14 +327,14 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 			gc.drawOval(p.x - offset, p.y - offset, offset * 2, offset * 2);
 		}
 
-		fts.push();
-		fts.translate(p);
-		fts.rotate(player.getAV().getOrientation());
-		fts.set();
-		gc.fillPolygon(new int[]
-		{ 0, -offset + lineWidth, 0, offset - lineWidth, 2 * offset - 2 * lineWidth, 0 });
-
-		fts.pop();
+//		fts.push();
+//		fts.translate(p);
+//		fts.rotate(player.getAV().getOrientation());
+//		fts.set();
+//		gc.fillPolygon(new int[]
+//		{ 0, -offset + lineWidth, 0, offset - lineWidth, (2 * offset) - (2 * lineWidth), 0 });
+//
+//		fts.pop();
 
 		final String playerNumber = "" + player.getPlayer().getFirstName().charAt(0)
 				+ player.getPlayer().getLastName().charAt(0);
@@ -357,7 +361,7 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 	}
 
 	@Override
-	protected void drawPostTransformedCanvas(TransformStack ts)
+	protected void drawPostTransformedCanvas(final TransformStack ts)
 	{
 		super.drawPostTransformedCanvas(ts);
 		this.drawSelectedPlayerData(ts);
@@ -554,7 +558,8 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 					Direction.west);
 			blockersAction.move();
 
-			PlayerTestViewer.this.getGroupBlockingPlayers().stream().filter(blocker -> blockersAction.getPath(blocker) != null)
+			PlayerTestViewer.this.getGroupBlockingPlayers().stream()
+					.filter(blocker -> blockersAction.getPath(blocker) != null)
 					.forEach(blocker -> this.setPath(blocker, blockersAction.getPath(blocker)));
 		}
 

@@ -51,14 +51,14 @@ public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPa
 	@Override
 	public Path calculatePath()
 	{
-		List<PlayerState> interceptorPlayers = defenders.stream().map(p -> getPlayers().getState(p)).toList();
+		List<PlayerState> interceptorPlayers = defenders.stream().map(p -> getPlayers().getPerceivedState(p)).toList();
 
 		Set<Borderline> neutralBorderlines = buildNeutralBorderlines();
 		neutralBorderlines.stream().forEach(bl -> MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
 				drawBorderLine(bl.getLs(), "#00000000")));
 
 		Set<Borderline> borderlines = buildCircularBorderlines(interceptorPlayers,
-				blockers.stream().map(p -> getPlayers().getState(p)).toList());
+				blockers.stream().map(p -> getPlayers().getPerceivedState(p)).toList());
 //		Set<Borderline> borderlines = buildBorderlines(interceptorPlayers,
 //				blockers.stream().map(p -> getPlayers().getState(p)).toList());
 		borderlines.stream().filter(b1 -> b1.isRunnerLine()).forEach(bl -> MessageManager.getInstance()

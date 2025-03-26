@@ -18,7 +18,10 @@ import jef.core.pathfinding.collisions.CollisionResolver;
 
 public class Players implements IPlayers
 {
-	public static final int DEFAULT_STEP_CAPACITY = 200;
+	public static final double LOOK_AHEAD_SECONDS = 5.0;
+	
+	// we subtract 1 because current movements are never considered in the same tick they are calculated
+	public static final int LOOK_BEHIND_STEPS = (int)Math.round(1.0 / Player.VISUAL_REACTION_TIME) - 1;
 
 	private static Location toCanonicalLocation(final Location loc)
 	{
@@ -29,7 +32,7 @@ public class Players implements IPlayers
 
 	private final LocationIndex locationIndex;
 
-	private final int stepCapacity;
+	private final double lookAheadSeconds;
 
 	private final double timerInterval;
 	private int startOffset;
@@ -37,12 +40,12 @@ public class Players implements IPlayers
 
 	public Players()
 	{
-		this(Players.DEFAULT_STEP_CAPACITY, Performance.frameInterval);
+		this(Players.LOOK_AHEAD_SECONDS, Performance.frameInterval);
 	}
 
-	public Players(final int stepCapacity, final double timerInterval)
+	public Players(final double lookAheadSeconds, final double timerInterval)
 	{
-		this.stepCapacity = stepCapacity;
+		this.lookAheadSeconds = lookAheadSeconds;
 		this.timerInterval = timerInterval;
 		this.locationIndex = new LocationIndex();
 	}
@@ -145,15 +148,33 @@ public class Players implements IPlayers
 	}
 
 	@Override
+	public PlayerState getPerceivedState(Player player)
+	{
+		return this.getSteps(player).getState(-LOOK_BEHIND_STEPS);
+	}
+
+	@Override
+	public PlayerState getPerceivedState(Player player, int offset)
+	{
+		return getState(player, offset - LOOK_BEHIND_STEPS);
+	}
+
+	@Override
 	public PlayerState getState(final Player player, final int offset)
 	{
 		return this.getSteps(player).getState(this.getIndex(offset));
 	}
 
 	@Override
+	public double getLookAheadSeconds()
+	{
+		return this.lookAheadSeconds;
+	}
+
+	@Override
 	public int getStepCapacity()
 	{
-		return this.stepCapacity;
+		return (int)(this.lookAheadSeconds / this.timerInterval);
 	}
 
 	@Override
@@ -178,9 +199,13 @@ public class Players implements IPlayers
 	{
 	}
 
-	private int getIndex(final int offset)
+	private int getIndex(int offset)
 	{
-		return (this.startOffset + offset) % this.stepCapacity;
+		assert offset < this.getStepCapacity();
+		assert offset >= -LOOK_BEHIND_STEPS;
+		
+		offset += LOOK_BEHIND_STEPS;
+		return (this.startOffset + offset) % (this.getStepCapacity() + LOOK_BEHIND_STEPS);
 	}
 
 	private void reset(final PlayerState startingState, final Path path)
@@ -202,7 +227,7 @@ public class Players implements IPlayers
 		{
 			assert path != null;
 
-			this.steps = new PlayerState[Players.this.getStepCapacity()];
+			this.steps = new PlayerState[Players.this.getStepCapacity() + LOOK_BEHIND_STEPS];
 			this.destinationReachedSteps = -1;
 			this.reset(startingState, path);
 		}
@@ -238,9 +263,15 @@ public class Players implements IPlayers
 			return this.steps[index];
 		}
 
+		public PlayerState getPerceivedState(final int offset)
+		{
+			final int index = Players.this.getIndex(offset - LOOK_BEHIND_STEPS);
+			return this.steps[index];
+		}
+
 		public int getStepCapacity()
 		{
-			return Players.this.stepCapacity;
+			return Players.this.getStepCapacity();
 		}
 
 		public int getStepsToLocation(final Location loc)
@@ -256,6 +287,19 @@ public class Players implements IPlayers
 			return -1;
 		}
 
+		public int getPerceivedStepsToLocation(final Location loc)
+		{
+			for (int i = -LOOK_BEHIND_STEPS; i < Players.this.getStepCapacity(); i++)
+			{
+				final PlayerState tmpState = this.getState(i);
+				final Location tmpLoc = tmpState.getLoc();
+				if (tmpLoc.distanceBetween(loc) <= 1)
+					return Math.max(i, 0);
+			}
+
+			return -1;
+		}
+
 		public boolean hasReachedDestination()
 		{
 			return this.destinationReachedSteps > -1;
@@ -263,7 +307,7 @@ public class Players implements IPlayers
 
 		void advance()
 		{
-			final PlayerTracker tracker = new PlayerTracker(this.steps[Players.this.getIndex(this.steps.length - 1)],
+			final PlayerTracker tracker = new PlayerTracker(this.getLast(),
 					this.path, Players.this.getTimerInterval());
 			final Steering steering = Steering.getInstance();
 			final boolean destinationReached = steering.next(tracker);
@@ -271,7 +315,7 @@ public class Players implements IPlayers
 
 			if (destinationReached && (this.destinationReachedSteps == -1))
 			{
-				this.destinationReachedSteps = this.steps.length - 1;
+				this.destinationReachedSteps = this.getStepCapacity() - 1;
 			}
 			else if (this.destinationReachedSteps > 0)
 			{
@@ -300,14 +344,16 @@ public class Players implements IPlayers
 			this.destinationReachedSteps = -1;
 			final Steering steering = Steering.getInstance();
 			final PlayerTracker tracker = new PlayerTracker(startingState, this.path, Players.this.getTimerInterval());
-			this.steps[Players.this.getIndex(0)] = tracker.getState();
+			for (int i = -LOOK_BEHIND_STEPS; i <= 0; i++)
+				this.steps[Players.this.getIndex(i)] = tracker.getState();
+			
 			tracker.advance();
 			if (tracker.waypointDestinationReached())
 			{
 				this.destinationReachedSteps = 0;
 			}
 
-			for (int i = 1; i < this.steps.length; i++)
+			for (int i = 1; i < this.getStepCapacity(); i++)
 			{
 				final boolean destinationReached = steering.next(tracker);
 				if (destinationReached && (this.destinationReachedSteps == -1))
@@ -345,7 +391,7 @@ public class Players implements IPlayers
 
 		public void clearLocations(final PlayerSteps steps)
 		{
-			for (int i = 0; i < Players.this.getStepCapacity(); i++)
+			for (int i = -LOOK_BEHIND_STEPS; i < Players.this.getStepCapacity(); i++)
 			{
 				final PlayerState playerState = steps.getState(i);
 				this.clearLocation(playerState, i);
@@ -383,7 +429,7 @@ public class Players implements IPlayers
 
 		public void setLocations(final PlayerSteps steps)
 		{
-			for (int i = 0; i < Players.this.getStepCapacity(); i++)
+			for (int i = -LOOK_BEHIND_STEPS; i < Players.this.getStepCapacity(); i++)
 			{
 				final PlayerState playerState = steps.getState(i);
 				if (playerState == null)
@@ -472,7 +518,7 @@ public class Players implements IPlayers
 			public LocationIndexEntry(final Location canonicalLocation)
 			{
 				this.canonicalLocation = canonicalLocation;
-				this.occupiers = new Object[Players.this.stepCapacity];
+				this.occupiers = new Object[Players.this.getStepCapacity() + LOOK_BEHIND_STEPS];
 			}
 
 			@SuppressWarnings("unchecked")
