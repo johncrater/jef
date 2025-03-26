@@ -6,7 +6,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 
 import jef.core.Conversions;
-import jef.core.Location;
 import jef.core.Field;
 import jef.core.Location;
 import jef.core.ui.swt.utils.TransformStack;
@@ -23,6 +22,11 @@ public class FieldTransformStack extends TransformStack
 	{
 		this(canvas, new GC(canvas.getDisplay()), midfield, zoomFactor);
 		this.disposeGC = true;
+	}
+	
+	public FieldTransformStack(Canvas canvas, GC gc)
+	{
+		this(canvas, gc, Field.MIDFIELD, 1.0);
 	}
 	
 	public FieldTransformStack(Canvas canvas, GC gc, Location midfield, double zoomFactor)

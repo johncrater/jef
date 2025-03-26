@@ -9,7 +9,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.GC;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
@@ -53,7 +52,7 @@ public class DebugMessageHandler implements Telegraph
 		return true;
 	}
 
-	public void draw(GC gc)
+	public void draw(TransformStack ts)
 	{
 		for (DebugShape debugShape : this.debugShapes)
 		{
@@ -62,7 +61,7 @@ public class DebugMessageHandler implements Telegraph
 			{
 				foregroundColor = UIUtils.colorStringToColor(debugShape.foregroundRGBA);
 				this.colorMap.put(debugShape.foregroundRGBA, foregroundColor);
-				gc.setForeground(foregroundColor);
+				ts.setForeground(foregroundColor);
 			}
 
 			Color backgroundColor = this.colorMap.get(debugShape.backgroundRGBA);
@@ -70,59 +69,49 @@ public class DebugMessageHandler implements Telegraph
 			{
 				backgroundColor = UIUtils.colorStringToColor(debugShape.backgroundRGBA);
 				this.colorMap.put(debugShape.backgroundRGBA, backgroundColor);
-				gc.setBackground(backgroundColor);
+				ts.setBackground(backgroundColor);
 			}
 
 			if (foregroundColor != null)
-				gc.setForeground(foregroundColor);
+				ts.setForeground(foregroundColor);
 
 			if (backgroundColor != null)
-				gc.setBackground(backgroundColor);
+				ts.setBackground(backgroundColor);
 
 			double lineWidth = debugShape.lineWidth;
 			double radius = debugShape.radius;
 
-			try (TransformStack ts = new TransformStack(gc))
-			{
-				float scale = ts.getXScale();
-				lineWidth = lineWidth / scale;
-				radius = radius / scale;
-			}
-			catch (Exception e)
-			{
-			}
+			float scale = ts.getXScale();
+			lineWidth = lineWidth / scale;
+			radius = radius / scale;
 
-			gc.setLineWidth((int)Math.round(lineWidth));
-			gc.setLineStyle(getLineTypeNumber(debugShape.lineType));
+			ts.setLineWidth((int)Math.round(lineWidth));
+			ts.setLineStyle(getLineTypeNumber(debugShape.lineType));
 
 			if (debugShape.location != null)
 			{
 				if (debugShape.text != null)
 				{
 					FontData standardFontData = new FontData("Courier New", debugShape.fontSize, SWT.BOLD);
-					Font standardFont = new Font(gc.getDevice(), standardFontData);
-					gc.setFont(standardFont);
-					gc.setForeground(gc.getDevice().getSystemColor(SWT.COLOR_YELLOW));
-					gc.setBackground(gc.getDevice().getSystemColor(SWT.COLOR_BLACK));
-					gc.drawText(debugShape.text, UIUtils.yardsToPixels(debugShape.location.getX()),
-							UIUtils.yardsToPixels(debugShape.location.getY()), true);
+					Font standardFont = ts.createFont(standardFontData);
+					ts.setFont(standardFont);
+					ts.setForeground(ts.getSystemColor(SWT.COLOR_YELLOW));
+					ts.setBackground(ts.getSystemColor(SWT.COLOR_BLACK));
+					ts.drawText(debugShape.text, debugShape.location, true);
 					standardFont.dispose();
 				}
 				else
 				{
 					if (backgroundColor != null)
-						UIUtils.fillCircle(gc, debugShape.location, UIUtils.yardsToPixels(radius));
+						ts.fillCircle(debugShape.location, radius);
 	
 					if (foregroundColor != null)
-						UIUtils.drawCircle(gc, debugShape.location, UIUtils.yardsToPixels(radius));
+						ts.drawCircle(debugShape.location, radius);
 	
 					if (debugShape.linearVelocity != null)
 					{
 						if (foregroundColor != null)
-							gc.drawLine(UIUtils.yardsToPixels(debugShape.location.getX()),
-									UIUtils.yardsToPixels(debugShape.location.getY()),
-									UIUtils.yardsToPixels(debugShape.linearVelocity.getX()),
-									UIUtils.yardsToPixels(debugShape.linearVelocity.getY()));
+							ts.drawLine(debugShape.location, debugShape.linearVelocity);
 					}
 				}
 			}
@@ -131,16 +120,13 @@ public class DebugMessageHandler implements Telegraph
 			{
 				if (backgroundColor != null)
 				{
-					UIUtils.fillCircle(gc, debugShape.lineSegment.getLoc1(), UIUtils.yardsToPixels(radius));
-					UIUtils.fillCircle(gc, debugShape.lineSegment.getLoc2(), UIUtils.yardsToPixels(radius));
+					ts.fillCircle(debugShape.lineSegment.getLoc1(), radius);
+					ts.fillCircle(debugShape.lineSegment.getLoc2(), radius);
 				}
 
 				if (foregroundColor != null)
 				{
-						gc.drawLine(UIUtils.yardsToPixels(debugShape.lineSegment.getLoc1().getX()),
-								UIUtils.yardsToPixels(debugShape.lineSegment.getLoc1().getY()),
-								UIUtils.yardsToPixels(debugShape.lineSegment.getLoc2().getX()),
-								UIUtils.yardsToPixels(debugShape.lineSegment.getLoc2().getY()));
+						ts.drawLine(debugShape.lineSegment);
 				}
 			}
 			
@@ -149,10 +135,7 @@ public class DebugMessageHandler implements Telegraph
 				Location prev = debugShape.location;
 				for (Waypoint wp : debugShape.path)
 				{
-					gc.drawLine(UIUtils.yardsToPixels(prev.getX()),
-							UIUtils.yardsToPixels(prev.getY()),
-							UIUtils.yardsToPixels(wp.getWaypointDestination().getX()),
-							UIUtils.yardsToPixels(wp.getWaypointDestination().getY()));
+					ts.drawLine(prev, wp.getWaypointDestination());
 					prev = wp.getWaypointDestination();
 				}
 			}

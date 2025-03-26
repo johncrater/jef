@@ -13,9 +13,7 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -36,48 +34,61 @@ import jef.core.Player;
 import jef.core.PlayerState;
 import jef.core.Players;
 import jef.core.ui.swt.utils.DebugMessageHandler;
+import jef.core.ui.swt.utils.TransformStack;
 
 public abstract class AbstractFieldTestViewer implements Runnable
 {
-	public static final Color black = new Color(0, 0, 0);
+	private Location mouseLocation;
 
-	private static Font playerFont;
-	private static FontData playerFontData = new FontData("Courier New", 16, SWT.NORMAL);
-
-	protected static Font getPlayerFont()
-	{
-		return AbstractFieldTestViewer.playerFont;
-	}
-
+	// graphics elements
 	private final Shell shell;
 	private Canvas canvas;
-
 	private Image field;
 	private Image transformedImage;
+	private Font systemFont;
 
-	private final DebugMessageHandler debugMessageHandler = new DebugMessageHandler();
 	// field scaling and centering
 	private Location midfieldLocation = Field.MIDFIELD;
-
 	private float scaleAdjustment = 1.0f;
 
-	private Players players;
+	// pause 
 	private long lastMilliseconds;
 	private boolean paused = true;
-
 	private boolean autoPauseActive;
 
+	// options
+	private int options;
+	public static final int OPTIONS_NONE = 0x00000000;
+	public static final int OPTIONS_SHOW_MOUSE_LOCATION = 0x00000001;
+	public static final int OPTIONS_SHOW_DEBUG_SHAPES = 0x00000002;
+	public static final int OPTIONS_SHOW_PLAYERS = 0x00000004;
+	public static final int OPTIONS_SHOW_PERFORMANCE = 0x00000008;
+
+	// performance display
+	double cycleRate = Performance.cycleTime.getFrameRate();
+	double cycleTimePerFrame = Performance.cycleTime.getAvgTime();
+	double processRate = Performance.processTime.getAvgTime();
+	double drawRate = Performance.cycleTime.getAvgTime();
+	double otherRate = this.cycleTimePerFrame - this.processRate - this.drawRate;
+	long refreshCycleCount = System.currentTimeMillis();
+	long freeMemory = Runtime.getRuntime().freeMemory();
+	long totalMemory = Runtime.getRuntime().totalMemory();
+	long maxMemory = Runtime.getRuntime().totalMemory();
+
+	private final DebugMessageHandler debugMessageHandler = new DebugMessageHandler();
+
+	private Players players;
+	
 	@SuppressWarnings("deprecation")
-	public AbstractFieldTestViewer(final String title)
+	public AbstractFieldTestViewer(final String title, int options)
 	{
 		this.shell = new Shell();
 		this.shell.setMaximized(true);
 		this.shell.setText(title);
+		
+		this.options = options;
 
 		this.shell.setLayout(new GridLayout(1, false));
-
-		AbstractFieldTestViewer.playerFont = new Font(this.getShell().getDisplay(),
-				AbstractFieldTestViewer.playerFontData);
 
 		try
 		{
@@ -116,6 +127,7 @@ public abstract class AbstractFieldTestViewer implements Runnable
 			}
 		});
 
+		this.systemFont = shell.getDisplay().getSystemFont();
 	}
 
 	public boolean isAutoPauseActive()
@@ -160,8 +172,8 @@ public abstract class AbstractFieldTestViewer implements Runnable
 	@Override
 	public void run()
 	{
-		final long interval = System.currentTimeMillis() - this.lastMilliseconds;
-		if (interval < 24)
+		final double interval = (System.currentTimeMillis() - this.lastMilliseconds) / 1000.0;
+		if (interval < Performance.frameInterval)
 		{
 			this.getShell().getDisplay().asyncExec(this);
 			return;
@@ -250,7 +262,7 @@ public abstract class AbstractFieldTestViewer implements Runnable
 	{
 		this.canvas = new Canvas(this.shell, SWT.DOUBLE_BUFFERED);
 		this.canvas.setLayoutData(new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.FILL_VERTICAL));
-		this.canvas.setBackground(AbstractFieldTestViewer.black);
+		this.canvas.setBackground(this.getShell().getDisplay().getSystemColor(SWT.COLOR_BLACK));
 		this.canvas.layout(true);
 
 		this.field = new Image(this.shell.getDisplay(), this.getClass().getResourceAsStream("/field-4500x2124.png"));
@@ -274,7 +286,14 @@ public abstract class AbstractFieldTestViewer implements Runnable
 		{
 			Performance.drawTime.beginCycle();
 
-			this.drawPreTransformedCanvas(e.gc);
+			try (TransformStack ts = new TransformStack(e.gc))
+			{
+				this.drawPreTransformedCanvas(ts);
+			}
+			catch (Exception e1)
+			{
+				e1.printStackTrace();
+			}
 
 			try (FieldTransformStack ts = new FieldTransformStack(this.canvas, e.gc, this.midfieldLocation,
 					this.scaleAdjustment))
@@ -286,9 +305,29 @@ public abstract class AbstractFieldTestViewer implements Runnable
 				e1.printStackTrace();
 			}
 
-			this.drawPostTransformedCanvas(e.gc);
+			try (TransformStack ts = new TransformStack(e.gc))
+			{
+				this.drawPostTransformedCanvas(ts);
+			}
+			catch (Exception e1)
+			{
+				e1.printStackTrace();
+			}
 
 			Performance.drawTime.endCycle();
+		});
+
+		this.canvas.addMouseMoveListener(e ->
+		{
+			try (FieldTransformStack ts = new FieldTransformStack(AbstractFieldTestViewer.this.canvas,
+					AbstractFieldTestViewer.this.midfieldLocation, AbstractFieldTestViewer.this.scaleAdjustment))
+			{
+				final Point p = new Point(e.x, e.y);
+				this.mouseLocation = ts.transformToLocation(p);
+			}
+			catch (final Exception e1)
+			{
+			}
 		});
 
 		this.canvas.addMouseListener(new MouseAdapter()
@@ -299,13 +338,12 @@ public abstract class AbstractFieldTestViewer implements Runnable
 			{
 				super.mouseUp(e);
 
-				final Point p = new Point(e.x, e.y);
-
 				try (FieldTransformStack ts = new FieldTransformStack(AbstractFieldTestViewer.this.canvas,
 						AbstractFieldTestViewer.this.midfieldLocation, AbstractFieldTestViewer.this.scaleAdjustment))
 				{
 					if ((e.stateMask & SWT.CONTROL) != 0)
 					{
+						final Point p = new Point(e.x, e.y);
 						AbstractFieldTestViewer.this.midfieldLocation = ts.transformToLocation(p);
 						transformedImage = null;
 					}
@@ -328,44 +366,59 @@ public abstract class AbstractFieldTestViewer implements Runnable
 
 	}
 
-	protected void updateFieldImage()
+	protected void updateFieldImage(FieldTransformStack fts)
 	{
-		try (FieldTransformStack ts = new FieldTransformStack(AbstractFieldTestViewer.this.canvas,
-				AbstractFieldTestViewer.this.midfieldLocation, AbstractFieldTestViewer.this.scaleAdjustment))
-		{
+		Image tmp = canvas.getBackgroundImage();
 
-			Image tmp = canvas.getBackgroundImage();
-			
-			final var bounds = new Rectangle(0, 0, (int)Conversions.yardsToInches(Field.DIM_TOTAL_LENGTH * scaleAdjustment),
-					(int)Conversions.yardsToInches(Field.DIM_TOTAL_WIDTH * scaleAdjustment));
-			final var fieldImage = new Image(getShell().getDisplay(), bounds);
-			final var gc = new GC(fieldImage);
-			gc.setAdvanced(true);
-			gc.setTransform(ts.getCurrentTransform());
-			gc.drawImage(field, 0, 0);
-			gc.dispose();
+		final var bounds = new Rectangle(0, 0,
+				(int) Conversions.yardsToInches(Field.DIM_TOTAL_LENGTH * scaleAdjustment),
+				(int) Conversions.yardsToInches(Field.DIM_TOTAL_WIDTH * scaleAdjustment));
+		final var fieldImage = new Image(getShell().getDisplay(), bounds);
+		final var gc = new GC(fieldImage);
+		gc.setAdvanced(true);
+		gc.setTransform(fts.getCurrentTransform());
+		gc.drawImage(field, 0, 0);
+		gc.dispose();
 
-			canvas.setBackgroundImage(fieldImage);
-			this.transformedImage = fieldImage;
-			
-			if (tmp != null)
-				tmp.dispose();
-		}
-		catch (final Exception e1)
-		{
-		}
+		canvas.setBackgroundImage(fieldImage);
+		this.transformedImage = fieldImage;
+
+		if (tmp != null)
+			tmp.dispose();
 	}
-	
+
 	protected abstract Players createPlayers();
 
 	protected abstract void drawPlayer(FieldTransformStack ts, PlayerState playerState);
 
-	protected void drawPostTransformedCanvas(final GC gc)
+	protected void drawPostTransformedCanvas(TransformStack fts)
 	{
+		if ((options & OPTIONS_SHOW_MOUSE_LOCATION) != 0)
+		{
+			drawMouseLocation(fts);
+		}
 
+		if ((options & OPTIONS_SHOW_PERFORMANCE) != 0)
+		{
+			this.drawPerformance(fts);
+		}
 	}
 
-	protected void drawPreTransformedCanvas(final GC gc)
+	protected void drawMouseLocation(TransformStack ts)
+	{
+		ts.setBackground(SWT.COLOR_BLACK);
+		ts.setForeground(SWT.COLOR_YELLOW);
+		
+		if (mouseLocation != null)
+		{
+			String msg = this.mouseLocation.toString();
+			ts.setFont(systemFont);
+			Location textExtent = ts.textExtent(msg);
+			ts.drawText(msg, ts.transformToLocation(new Point(canvas.getClientArea().width, canvas.getClientArea().height)).subtract(textExtent.add(1, 1, 0)), false);
+		}
+	}
+	
+	protected void drawPreTransformedCanvas(final TransformStack ts)
 	{
 
 	}
@@ -373,15 +426,20 @@ public abstract class AbstractFieldTestViewer implements Runnable
 	protected void drawTransformedCanvas(final FieldTransformStack ts)
 	{
 		if (transformedImage == null)
-			this.updateFieldImage();
-		
-//		ts.getGC().drawImage(this.field, 0, 0);
-		for (final Player player : this.players.getPlayers())
-		{
-			this.drawPlayer(ts, this.players.getState(player));
-		}
+			this.updateFieldImage(ts);
 
-		this.debugMessageHandler.draw(ts.getGC());
+		if ((options & OPTIONS_SHOW_PLAYERS) != 0)
+		{
+			for (final Player player : this.players.getPlayers())
+			{
+				this.drawPlayer(ts, this.players.getState(player));
+			}
+		}
+		
+		if ((options & OPTIONS_SHOW_DEBUG_SHAPES) != 0)
+		{
+			this.debugMessageHandler.draw(ts);
+		}
 	}
 
 	protected Canvas getCanvas()
@@ -415,4 +473,45 @@ public abstract class AbstractFieldTestViewer implements Runnable
 	}
 
 	protected abstract void process();
+
+	protected void drawPerformance(final TransformStack fts)
+	{
+		fts.setBackground(SWT.COLOR_BLACK);
+		fts.setForeground(SWT.COLOR_YELLOW);
+	
+		final long current = System.currentTimeMillis();
+		if ((current - this.refreshCycleCount) > 1000)
+		{
+			this.cycleRate = Performance.cycleTime.getFrameRate();
+			this.cycleTimePerFrame = Performance.cycleTime.getAvgTime();
+			if (this.cycleTimePerFrame == 0)
+				return;
+	
+			this.processRate = Performance.processTime.getAvgTime();
+			this.drawRate = Performance.drawTime.getAvgTime();
+			this.otherRate = this.cycleTimePerFrame - this.processRate - this.drawRate;
+			this.refreshCycleCount = current;
+	
+			this.freeMemory = Runtime.getRuntime().freeMemory();
+			this.totalMemory = Runtime.getRuntime().totalMemory();
+			this.maxMemory = Runtime.getRuntime().totalMemory();
+		}
+	
+		final StringBuilder msg = new StringBuilder();
+		msg.append(String.format("Tick Count  : %d\n", Performance.processTime.getTickCount()));
+		msg.append(String.format("Frame Rate  : %.1f fps\n", this.cycleRate));
+		msg.append(String.format("Process Rate: %.1f%% (%.1f ns)\n", (this.processRate * 100) / this.cycleTimePerFrame,
+				this.processRate));
+		msg.append(String.format("Draw Rate   : %.1f%% (%.1f ns)\n", (this.drawRate * 100) / this.cycleTimePerFrame,
+				this.drawRate));
+		msg.append(String.format("Other Rate  : %.1f%%\n", (this.otherRate * 100) / this.cycleTimePerFrame));
+		msg.append("\n");
+		msg.append(String.format("Max Memory  : %d MB\n", this.maxMemory / 1000000));
+		msg.append(String.format("Total Memory: %d MB\n", this.totalMemory / 1000000));
+		msg.append(String.format("Free Memory : %d MB \n", this.freeMemory / 1000000));
+		msg.append("\n");
+	
+		fts.setFont(systemFont);
+		fts.drawText(msg.toString(), new Location(1, 1), false);
+	}
 }

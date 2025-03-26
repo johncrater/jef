@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import jef.core.Location;
+import jef.core.Player;
 import jef.core.PlayerPosition;
 
 public class OffensiveFormations implements Iterable<Formation>
@@ -38,11 +39,11 @@ public class OffensiveFormations implements Iterable<Formation>
 		final Formation formation = new Formation("Pro Set", true);
 
 		// 5 offensive linemen
-		this.addStandardLine(formation, FormationPosition.OFFENSIVE_LINE_WIDTH_STANDARD_SPLIT);
+		this.addStandardLine(formation, Player.SIZE + FormationPosition.OFFENSIVE_LINE_WIDTH_STANDARD_SPLIT);
 
 		// tight end
 		formation.addPosition(new FormationPosition("TE", new Location(FormationPosition.DIM_DEPTH_OFFSENSIVE_LINE,
-				-FormationPosition.OFFENSIVE_LINE_WIDTH_STANDARD_SPLIT * 3), PlayerPosition.TE));
+				-(Player.SIZE + FormationPosition.OFFENSIVE_LINE_WIDTH_STANDARD_SPLIT) * 3), PlayerPosition.TE));
 
 		// X receiver
 		formation.addPosition(new FormationPosition("X", new Location(FormationPosition.DIM_DEPTH_OFFSENSIVE_LINE,
@@ -59,10 +60,11 @@ public class OffensiveFormations implements Iterable<Formation>
 
 		// RB
 		formation.addPosition(new FormationPosition("RB",
-				new Location(FormationPosition.DIM_DEPTH_TB, FormationPosition.OFFENSIVE_LINE_WIDTH_STANDARD_SPLIT),
+				new Location(FormationPosition.DIM_DEPTH_FB, Player.SIZE + FormationPosition.OFFENSIVE_LINE_WIDTH_STANDARD_SPLIT),
 				PlayerPosition.RB));
+		
 		formation.addPosition(new FormationPosition("FB",
-				new Location(FormationPosition.DIM_DEPTH_FB, -FormationPosition.OFFENSIVE_LINE_WIDTH_STANDARD_SPLIT),
+				new Location(FormationPosition.DIM_DEPTH_FB, -(Player.SIZE + FormationPosition.OFFENSIVE_LINE_WIDTH_STANDARD_SPLIT)),
 				PlayerPosition.RB));
 
 		return formation;

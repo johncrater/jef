@@ -10,7 +10,6 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
@@ -29,7 +28,6 @@ import jef.core.Direction;
 import jef.core.Field;
 import jef.core.Football;
 import jef.core.Location;
-import jef.core.Performance;
 import jef.core.Player;
 import jef.core.PlayerPosition;
 import jef.core.PlayerState;
@@ -55,14 +53,16 @@ import jef.core.pathfinding.runners.DefaultEvadeInterceptors;
 import jef.core.pathfinding.runners.RunForGlory;
 import jef.core.pathfinding.runners.RunnerPathfinder;
 import jef.core.pathfinding.runners.RunnerWaypointPathfinder;
+import jef.core.ui.swt.utils.TransformStack;
 import jef.core.ui.swt.utils.UIUtils;
 
 public class PlayerTestViewer extends AbstractFieldTestViewer
 {
-	private static final Color yellow = new Color(255, 255, 0);
-
 	private static FontData playerDataFontData = new FontData("Courier New", 8, SWT.NORMAL);
 	private static Font playerDataFont;
+
+	private static Font playerFont;
+	private static FontData playerFontData = new FontData("Courier New", 16, SWT.BOLD);
 
 	public static int colorStringToColor(final String colorString)
 	{
@@ -86,24 +86,11 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 
 	private final DestinationAction nextDestinationAction = DestinationAction.fastStop;
 
-	double cycleRate = Performance.cycleTime.getFrameRate();
-	double cycleTimePerFrame = Performance.cycleTime.getAvgTime();
-	double processRate = Performance.processTime.getAvgTime();
-	double drawRate = Performance.cycleTime.getAvgTime();
-	double otherRate = this.cycleTimePerFrame - this.processRate - this.drawRate;
-
-	long refreshCycleCount = System.currentTimeMillis();
-
-	long freeMemory = Runtime.getRuntime().freeMemory();
-	long totalMemory = Runtime.getRuntime().totalMemory();
-
-	long maxMemory = Runtime.getRuntime().totalMemory();
-
 	public PlayerTestViewer()
 	{
-		super("Player Test Viewer");
-
-		PlayerTestViewer.playerDataFont = new Font(this.getShell().getDisplay(), PlayerTestViewer.playerDataFontData);
+		super("Player Test Viewer", OPTIONS_SHOW_MOUSE_LOCATION | OPTIONS_SHOW_PLAYERS | OPTIONS_SHOW_PERFORMANCE);
+		playerFont = new Font(this.getShell().getDisplay(), playerFontData);
+		playerDataFont = new Font(this.getShell().getDisplay(), PlayerTestViewer.playerDataFontData);
 
 	}
 
@@ -313,7 +300,7 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 		final int offset = (int) Conversions.yardsToInches((Player.SIZE) / 2.0);
 
 		final GC gc = fts.getGC();
-		gc.setFont(getPlayerFont());
+		gc.setFont(playerFont);
 		final Point p = UIUtils.locationToPoint(player.getLoc());
 
 		if (this.defenders.containsValue(player.getPlayer()))
@@ -370,11 +357,10 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 	}
 
 	@Override
-	protected void drawPostTransformedCanvas(final GC gc)
+	protected void drawPostTransformedCanvas(TransformStack ts)
 	{
-		this.drawPerformance(gc);
-		gc.setLineStyle(3);
-		this.drawSelectedPlayerData(gc);
+		super.drawPostTransformedCanvas(ts);
+		this.drawSelectedPlayerData(ts);
 	}
 
 	@Override
@@ -483,48 +469,7 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 		}
 	}
 
-	private void drawPerformance(final GC gc)
-	{
-		gc.setFont(PlayerTestViewer.playerDataFont);
-		gc.setBackground(AbstractFieldTestViewer.black);
-		gc.setForeground(PlayerTestViewer.yellow);
-
-		final long current = System.currentTimeMillis();
-		if ((current - this.refreshCycleCount) > 1000)
-		{
-			this.cycleRate = Performance.cycleTime.getFrameRate();
-			this.cycleTimePerFrame = Performance.cycleTime.getAvgTime();
-			if (this.cycleTimePerFrame == 0)
-				return;
-
-			this.processRate = Performance.processTime.getAvgTime();
-			this.drawRate = Performance.drawTime.getAvgTime();
-			this.otherRate = this.cycleTimePerFrame - this.processRate - this.drawRate;
-			this.refreshCycleCount = current;
-
-			this.freeMemory = Runtime.getRuntime().freeMemory();
-			this.totalMemory = Runtime.getRuntime().totalMemory();
-			this.maxMemory = Runtime.getRuntime().totalMemory();
-		}
-
-		final StringBuilder msg = new StringBuilder();
-		msg.append(String.format("Tick Count  : %d\n", Performance.processTime.getTickCount()));
-		msg.append(String.format("Frame Rate  : %.1f fps\n", this.cycleRate));
-		msg.append(String.format("Process Rate: %.1f%% (%.1f ns)\n", (this.processRate * 100) / this.cycleTimePerFrame,
-				this.processRate));
-		msg.append(String.format("Draw Rate   : %.1f%% (%.1f ns)\n", (this.drawRate * 100) / this.cycleTimePerFrame,
-				this.drawRate));
-		msg.append(String.format("Other Rate  : %.1f%%\n", (this.otherRate * 100) / this.cycleTimePerFrame));
-		msg.append("\n");
-		msg.append(String.format("Max Memory  : %d MB\n", this.maxMemory / 1000000));
-		msg.append(String.format("Total Memory: %d MB\n", this.totalMemory / 1000000));
-		msg.append(String.format("Free Memory : %d MB \n", this.freeMemory / 1000000));
-		msg.append("\n");
-
-		gc.drawText(msg.toString(), 10, 10, false);
-	}
-
-	private void drawSelectedPlayerData(final GC gc)
+	private void drawSelectedPlayerData(final TransformStack ts)
 	{
 		final PlayerState playerState = this.getPlayers().getState(this.currentPlayer);
 		final StringBuilder str = new StringBuilder();
@@ -547,10 +492,10 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 			}
 		}
 
-		gc.setFont(PlayerTestViewer.playerDataFont);
-		gc.setForeground(PlayerTestViewer.yellow);
-		gc.setBackground(this.getShell().getDisplay().getSystemColor(SWT.COLOR_BLACK));
-		gc.drawText(str.toString(), 1400, 20);
+		ts.setFont(PlayerTestViewer.playerDataFont);
+		ts.setForeground(SWT.COLOR_YELLOW);
+		ts.setBackground(this.getShell().getDisplay().getSystemColor(SWT.COLOR_BLACK));
+		ts.drawText(str.toString(), ts.transformToLocation(new Point(1400, 20)), false);
 	}
 
 	private List<BlockerPathfinder> getBlockerPathfinders()

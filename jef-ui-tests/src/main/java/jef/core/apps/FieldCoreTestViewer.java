@@ -3,14 +3,11 @@ package jef.core.apps;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Canvas;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
-import jef.core.AngularVelocity;
-import jef.core.Conversions;
 import jef.core.Field;
 import jef.core.LinearVelocity;
 import jef.core.Location;
@@ -19,7 +16,6 @@ import jef.core.Players;
 import jef.core.events.DebugShape;
 import jef.core.events.Messages;
 import jef.core.geometry.LineSegment;
-import jef.core.ui.swt.utils.UIUtils;
 
 public class FieldCoreTestViewer extends AbstractFieldTestViewer
 {
@@ -30,7 +26,7 @@ public class FieldCoreTestViewer extends AbstractFieldTestViewer
 
 	public FieldCoreTestViewer()
 	{
-		super("Field Core Test Viewer");
+		super("Field Core Test Viewer", OPTIONS_SHOW_MOUSE_LOCATION | OPTIONS_SHOW_DEBUG_SHAPES | OPTIONS_SHOW_PERFORMANCE);
 	}
 
 	@Override
@@ -55,11 +51,10 @@ public class FieldCoreTestViewer extends AbstractFieldTestViewer
 			{
 				super.mouseUp(e);
 
-				final Point p = new Point(e.x, e.y);
-
 				try (FieldTransformStack ts = new FieldTransformStack(canvas, getMidfieldLocation(),
 						getScaleAdjustment()))
 				{
+					final Point p = new Point(e.x, e.y);
 					final Location loc = ts.transformToLocation(p);
 
 					if ((e.stateMask & SWT.CONTROL) == 0)
@@ -89,17 +84,10 @@ public class FieldCoreTestViewer extends AbstractFieldTestViewer
 	}
 
 	@Override
-	protected void drawPostTransformedCanvas(GC gc)
-	{
-		super.drawPostTransformedCanvas(gc);
-	}
-
-	@Override
 	protected void drawTransformedCanvas(FieldTransformStack ts)
 	{
 		super.drawTransformedCanvas(ts);
-
-		UIUtils.fillCircle(ts.getGC(), anchorPoint, (int) Conversions.yardsToInches(.5));
+		ts.fillCircle(anchorPoint, .5);
 	}
 
 	@Override

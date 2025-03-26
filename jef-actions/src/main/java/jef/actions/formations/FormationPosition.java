@@ -94,8 +94,8 @@ public class FormationPosition
 	public static final double OFFENSIVE_LINE_WIDTH_WIDE_SPLIT = 1.0;
 
 	// X receiver left width from center
-	public static final double OFFENSIVE_LINE_WIDTH_X_RECEIVER = 10.0;
-	public static final double OFFENSIVE_LINE_WIDTH_Z_RECEIVER = -10.0;
+	public static final double OFFENSIVE_LINE_WIDTH_X_RECEIVER = 15.0;
+	public static final double OFFENSIVE_LINE_WIDTH_Z_RECEIVER = -15.0;
 	
 	private String name;
 	private Location loc;
