@@ -1,4 +1,4 @@
-package jef.core.movement;
+package jef.core.movement.player;
 
 public enum Posture
 {

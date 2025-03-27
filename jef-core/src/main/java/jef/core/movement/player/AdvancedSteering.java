@@ -6,7 +6,6 @@ import jef.core.Conversions;
 import jef.core.LinearVelocity;
 import jef.core.Location;
 import jef.core.Player.DecelerationRate;
-import jef.core.movement.Posture;
 import jef.core.movement.player.Waypoint.DestinationAction;
 
 public class AdvancedSteering implements Steering

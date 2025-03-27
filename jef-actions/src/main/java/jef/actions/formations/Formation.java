@@ -9,13 +9,11 @@ import java.util.Map;
 public class Formation implements Iterable<FormationPosition>
 {
 	private final String name;
-	private final boolean isOffense;
 	private final Map<String, FormationPosition> formationPositions = new HashMap<>();
 
-	public Formation(final String name, final boolean isOffense)
+	public Formation(final String name)
 	{
 		this.name = name;
-		this.isOffense = isOffense;
 	}
 
 	public Formation addPosition(final FormationPosition pos)
@@ -43,10 +41,5 @@ public class Formation implements Iterable<FormationPosition>
 	public String getName()
 	{
 		return this.name;
-	}
-
-	public boolean isOffense()
-	{
-		return this.isOffense;
 	}
 }

@@ -21,8 +21,8 @@ import jef.core.Player;
 import jef.core.PlayerPosition;
 import jef.core.PlayerState;
 import jef.core.Players;
-import jef.core.movement.Posture;
 import jef.core.movement.player.Path;
+import jef.core.movement.player.Posture;
 import jef.core.movement.player.Waypoint.DestinationAction;
 
 public class FormationTestViewer extends AbstractFieldTestViewer

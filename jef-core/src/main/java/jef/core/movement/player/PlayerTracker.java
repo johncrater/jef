@@ -6,7 +6,6 @@ import jef.core.Location;
 import jef.core.Player;
 import jef.core.PlayerState;
 import jef.core.geometry.LineSegment;
-import jef.core.movement.Posture;
 import jef.core.movement.Tracker;
 
 public class PlayerTracker extends Tracker

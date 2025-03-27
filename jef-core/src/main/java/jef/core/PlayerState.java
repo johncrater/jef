@@ -2,7 +2,7 @@ package jef.core;
 
 import java.util.Objects;
 
-import jef.core.movement.Posture;
+import jef.core.movement.player.Posture;
 import jef.core.movement.player.SpeedMatrix;
 
 public class PlayerState

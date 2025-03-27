@@ -1,7 +1,7 @@
 package jef.core.pathfinding.collisions;
 
 import jef.core.PlayerState;
-import jef.core.movement.Posture;
+import jef.core.movement.player.Posture;
 
 public class TackleResolver extends CollisionResolverBase
 {
