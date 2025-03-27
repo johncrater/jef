@@ -12,18 +12,17 @@ import org.eclipse.swt.widgets.Label;
 
 import jef.actions.formations.Formation;
 import jef.actions.formations.OffensiveFormations;
-import jef.core.AngularVelocity;
-import jef.core.Direction;
-import jef.core.Field;
-import jef.core.Football;
-import jef.core.Location;
 import jef.core.Player;
 import jef.core.PlayerPosition;
-import jef.core.PlayerState;
-import jef.core.Players;
-import jef.core.movement.player.Path;
-import jef.core.movement.player.Posture;
-import jef.core.movement.player.Waypoint.DestinationAction;
+import jef.geometry.AngularVelocity;
+import jef.geometry.Direction;
+import jef.geometry.Field;
+import jef.geometry.Location;
+import jef.movement.ball.Football;
+import jef.movement.player.Path;
+import jef.movement.player.PlayerState;
+import jef.movement.player.Waypoint.DestinationAction;
+import jef.pathfinding.Players;
 
 public class FormationTestViewer extends AbstractFieldTestViewer
 {
@@ -145,7 +144,7 @@ public class FormationTestViewer extends AbstractFieldTestViewer
 			pl.setLastName("Foreman");
 			pl.setWeight(210);
 			PlayerState playerState = new PlayerState(pl, null, new Location(), new AngularVelocity(Math.PI, 0, 0),
-					Posture.upright);
+					PlayerState.Posture.upright);
 			players.addPlayer(playerState);
 			chuckForeman = pl;
 
@@ -154,7 +153,7 @@ public class FormationTestViewer extends AbstractFieldTestViewer
 			pl.setLastName("McClanahan");
 			pl.setWeight(202);
 			playerState = new PlayerState(pl, null, new Location(), new AngularVelocity(Math.PI, 0, 0),
-					Posture.upright);
+					PlayerState.Posture.upright);
 			players.addPlayer(playerState);
 			brentMcClanahan = pl;
 
@@ -163,7 +162,7 @@ public class FormationTestViewer extends AbstractFieldTestViewer
 			pl.setLastName("Tarkenton");
 			pl.setWeight(190);
 			playerState = new PlayerState(pl, null, new Location(), new AngularVelocity(Math.PI, 0, 0),
-					Posture.upright);
+					PlayerState.Posture.upright);
 			players.addPlayer(playerState);
 			franTarkenton = pl;
 
@@ -172,7 +171,7 @@ public class FormationTestViewer extends AbstractFieldTestViewer
 			pl.setLastName("Rashad");
 			pl.setWeight(205);
 			playerState = new PlayerState(pl, null, new Location(), new AngularVelocity(Math.PI, 0, 0),
-					Posture.upright);
+					PlayerState.Posture.upright);
 			players.addPlayer(playerState);
 			ahmadRashad = pl;
 
@@ -181,7 +180,7 @@ public class FormationTestViewer extends AbstractFieldTestViewer
 			pl.setLastName("White");
 			pl.setWeight(190);
 			playerState = new PlayerState(pl, null, new Location(), new AngularVelocity(Math.PI, 0, 0),
-					Posture.upright);
+					PlayerState.Posture.upright);
 			players.addPlayer(playerState);
 			sammyWhite = pl;
 
@@ -190,7 +189,7 @@ public class FormationTestViewer extends AbstractFieldTestViewer
 			pl.setLastName("Voigt");
 			pl.setWeight(223);
 			playerState = new PlayerState(pl, null, new Location(), new AngularVelocity(Math.PI, 0, 0),
-					Posture.upright);
+					PlayerState.Posture.upright);
 			players.addPlayer(playerState);
 			stuVoigt = pl;
 
@@ -199,7 +198,7 @@ public class FormationTestViewer extends AbstractFieldTestViewer
 			pl.setLastName("White");
 			pl.setWeight(269);
 			playerState = new PlayerState(pl, null, new Location(), new AngularVelocity(Math.PI, 0, 0),
-					Posture.upright);
+					PlayerState.Posture.upright);
 			players.addPlayer(playerState);
 			edWhite = pl;
 
@@ -208,7 +207,7 @@ public class FormationTestViewer extends AbstractFieldTestViewer
 			pl.setLastName("Tinglehoff");
 			pl.setWeight(237);
 			playerState = new PlayerState(pl, null, new Location(), new AngularVelocity(Math.PI, 0, 0),
-					Posture.upright);
+					PlayerState.Posture.upright);
 			players.addPlayer(playerState);
 			mickTinglehoff = pl;
 
@@ -217,7 +216,7 @@ public class FormationTestViewer extends AbstractFieldTestViewer
 			pl.setLastName("Yary");
 			pl.setWeight(255);
 			playerState = new PlayerState(pl, null, new Location(), new AngularVelocity(Math.PI, 0, 0),
-					Posture.upright);
+					PlayerState.Posture.upright);
 			players.addPlayer(playerState);
 			ronYary = pl;
 
@@ -226,7 +225,7 @@ public class FormationTestViewer extends AbstractFieldTestViewer
 			pl.setLastName("Riley");
 			pl.setWeight(258);
 			playerState = new PlayerState(pl, null, new Location(), new AngularVelocity(Math.PI, 0, 0),
-					Posture.upright);
+					PlayerState.Posture.upright);
 			players.addPlayer(playerState);
 			steveRiley = pl;
 
@@ -235,7 +234,7 @@ public class FormationTestViewer extends AbstractFieldTestViewer
 			pl.setLastName("Goodrum");
 			pl.setWeight(256);
 			playerState = new PlayerState(pl, null, new Location(), new AngularVelocity(Math.PI, 0, 0),
-					Posture.upright);
+					PlayerState.Posture.upright);
 			players.addPlayer(playerState);
 			charlesGoodrum = pl;
 		}

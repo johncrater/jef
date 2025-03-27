@@ -4,20 +4,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import jef.core.movement.player.SpeedMatrix;
-
 public class Player
 {
 	public enum DecelerationRate
 	{
-		INSTANT(Conversions.metersToYards(Double.MIN_VALUE)),
-		MAXIMUM(Conversions.metersToYards(-6)),
-		RAPID(Conversions.metersToYards(-5)),
-		NORMAL(Conversions.metersToYards(-4)),
-		LEISURELY(Conversions.metersToYards(-3)),
-		SLOW(Conversions.metersToYards(-2)), 
-		MINIMAL(Conversions.metersToYards(-1)), 
-		NONE(Conversions.metersToYards(0));
+		INSTANT(Double.MIN_VALUE),
+		MAXIMUM(-6),
+		RAPID(-5),
+		NORMAL(-4),
+		LEISURELY(-3),
+		SLOW(-2), 
+		MINIMAL(-1), 
+		NONE(0);
 
 		private double rate;
 
@@ -102,6 +100,11 @@ public class Player
 	public SpeedMatrix getSpeedMatrix()
 	{
 		return new SpeedMatrix(this.currentPosition);
+	}
+	
+	public double getMaxSpeed()
+	{
+		return this.getSpeedMatrix().getSprintingSpeed();
 	}
 	
 	public int getAge()

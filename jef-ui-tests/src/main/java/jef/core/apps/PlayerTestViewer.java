@@ -22,39 +22,38 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
-import jef.core.AngularVelocity;
-import jef.core.Conversions;
-import jef.core.Direction;
-import jef.core.Field;
-import jef.core.Football;
-import jef.core.Location;
 import jef.core.Player;
 import jef.core.PlayerPosition;
-import jef.core.PlayerState;
-import jef.core.Players;
-import jef.core.Players.PlayerSteps;
-import jef.core.events.DebugShape;
 import jef.core.events.Messages;
-import jef.core.geometry.LineSegment;
-import jef.core.movement.player.Path;
-import jef.core.movement.player.Posture;
-import jef.core.movement.player.Waypoint;
-import jef.core.movement.player.Waypoint.DestinationAction;
-import jef.core.pathfinding.Pathfinder;
-import jef.core.pathfinding.blocking.BlockNearestThreat;
-import jef.core.pathfinding.blocking.BlockPlayer;
-import jef.core.pathfinding.blocking.BlockerPathfinder;
-import jef.core.pathfinding.blocking.BlockerWaypointPathfinder;
-import jef.core.pathfinding.blocking.BlockersAction;
-import jef.core.pathfinding.defenders.DefaultPursueRunner;
-import jef.core.pathfinding.defenders.DefenderPathfinder;
-import jef.core.pathfinding.defenders.DefenderWaypointPathfinder;
-import jef.core.pathfinding.runners.DefaultEvadeInterceptors;
-import jef.core.pathfinding.runners.RunForGlory;
-import jef.core.pathfinding.runners.RunnerPathfinder;
-import jef.core.pathfinding.runners.RunnerWaypointPathfinder;
-import jef.core.ui.swt.utils.TransformStack;
-import jef.core.ui.swt.utils.UIUtils;
+import jef.geometry.AngularVelocity;
+import jef.geometry.Conversions;
+import jef.geometry.Direction;
+import jef.geometry.Field;
+import jef.geometry.LineSegment;
+import jef.geometry.Location;
+import jef.movement.DebugShape;
+import jef.movement.ball.Football;
+import jef.movement.player.Path;
+import jef.movement.player.PlayerState;
+import jef.movement.player.Waypoint;
+import jef.movement.player.Waypoint.DestinationAction;
+import jef.pathfinding.Pathfinder;
+import jef.pathfinding.Players;
+import jef.pathfinding.Players.PlayerSteps;
+import jef.pathfinding.blocking.BlockNearestThreat;
+import jef.pathfinding.blocking.BlockPlayer;
+import jef.pathfinding.blocking.BlockerPathfinder;
+import jef.pathfinding.blocking.BlockerWaypointPathfinder;
+import jef.pathfinding.blocking.BlockersAction;
+import jef.pathfinding.defenders.DefaultPursueRunner;
+import jef.pathfinding.defenders.DefenderPathfinder;
+import jef.pathfinding.defenders.DefenderWaypointPathfinder;
+import jef.pathfinding.runners.DefaultEvadeInterceptors;
+import jef.pathfinding.runners.RunForGlory;
+import jef.pathfinding.runners.RunnerPathfinder;
+import jef.pathfinding.runners.RunnerWaypointPathfinder;
+import jef.ui.swt.utils.TransformStack;
+import jef.ui.swt.utils.UIUtils;
 
 public class PlayerTestViewer extends AbstractFieldTestViewer
 {
@@ -191,9 +190,9 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 						final Location loc = ts.transformToLocation(p);
 						final PlayerState playerState = PlayerTestViewer.this.getPlayers()
 								.getState(PlayerTestViewer.this.currentPlayer);
-						final Path path = new Path(loc, playerState.getMaxSpeed(),
+						final Path path = new Path(loc, playerState.getPlayer().getMaxSpeed(),
 								PlayerTestViewer.this.nextDestinationAction,
-								playerState.getSpeedMatrix().getJoggingSpeed(), null);
+								playerState.getPlayer().getSpeedMatrix().getJoggingSpeed(), null);
 						PlayerTestViewer.this.getPlayers().setPath(PlayerTestViewer.this.currentPlayer, path);
 					}
 				}
@@ -222,7 +221,7 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 		pl.setWeight(215);
 
 		PlayerState playerState = new PlayerState(pl, null, new Location(lineOfScrimmage + 5, Field.MIDFIELD_Y, 0),
-				new AngularVelocity(Math.PI, 0, 0), Posture.upright);
+				new AngularVelocity(Math.PI, 0, 0), PlayerState.Posture.upright);
 		players.addPlayer(playerState);
 		this.runner = this.currentPlayer = pl;
 		Football.theFootball.setPlayerInPossession(this.runner);
@@ -233,7 +232,7 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 		pl.setWeight(250);
 		playerState = new PlayerState(pl, null,
 				new Location(lineOfScrimmage + (Player.SIZE / 2), Field.MIDFIELD_Y - 2, 0),
-				new AngularVelocity(Math.PI, 0, 0), Posture.upright);
+				new AngularVelocity(Math.PI, 0, 0), PlayerState.Posture.upright);
 		players.addPlayer(playerState);
 		this.blockers.put(pl.getPlayerID(), pl);
 
@@ -242,7 +241,7 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 		pl.setLastName("Tinglehoff");
 		pl.setWeight(270);
 		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage + (Player.SIZE / 2), Field.MIDFIELD_Y, 0),
-				new AngularVelocity(Math.PI, 0, 0), Posture.upright);
+				new AngularVelocity(Math.PI, 0, 0), PlayerState.Posture.upright);
 		players.addPlayer(playerState);
 		this.blockers.put(pl.getPlayerID(), pl);
 
@@ -252,7 +251,7 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 		pl.setWeight(260);
 		playerState = new PlayerState(pl, null,
 				new Location(lineOfScrimmage + (Player.SIZE / 2), Field.MIDFIELD_Y + 2, 0),
-				new AngularVelocity(Math.PI, 0, 0), Posture.upright);
+				new AngularVelocity(Math.PI, 0, 0), PlayerState.Posture.upright);
 		players.addPlayer(playerState);
 		this.blockers.put(pl.getPlayerID(), pl);
 
@@ -263,7 +262,7 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 		pl.setWeight(280);
 		playerState = new PlayerState(pl, null,
 				new Location(lineOfScrimmage - 1 - (Player.SIZE / 2), Field.MIDFIELD_Y + 2, 0),
-				new AngularVelocity(0, 0, 0), Posture.upright);
+				new AngularVelocity(0, 0, 0), PlayerState.Posture.upright);
 		players.addPlayer(playerState);
 		this.defenders.put(pl.getPlayerID(), pl);
 
@@ -272,7 +271,7 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 //		pl.setLastName("Eller");
 //		pl.setWeight(280);
 //		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage - 1 - Player.SIZE / 2, Field.MIDFIELD_Y - 2, 0),
-//				new AngularVelocity(0, 0, 0), Posture.upright);
+//				new AngularVelocity(0, 0, 0), PlayerState.Posture.upright);
 //		players.addPlayer(playerState);
 //		this.defenders.put(pl.getPlayerID(), pl);
 //
@@ -281,7 +280,7 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 		pl.setLastName("Blair");
 		pl.setWeight(255);
 		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage - 6, Field.MIDFIELD_Y - 2, 0),
-				new AngularVelocity(0, 0, 0), Posture.upright);
+				new AngularVelocity(0, 0, 0), PlayerState.Posture.upright);
 		players.addPlayer(playerState);
 		this.defenders.put(pl.getPlayerID(), pl);
 
@@ -290,7 +289,7 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 //		pl.setLastName("Hilgenberg");
 //		pl.setWeight(255);
 //		playerState = new PlayerState(pl, null, new Location(lineOfScrimmage - 6, Field.MIDFIELD_Y + 2, 0),
-//				new AngularVelocity(0, 0, 0), Posture.upright);
+//				new AngularVelocity(0, 0, 0), PlayerState.Posture.upright);
 //		players.addPlayer(playerState);
 //		this.defenders.put(pl.getPlayerID(), pl);
 
@@ -379,7 +378,7 @@ public class PlayerTestViewer extends AbstractFieldTestViewer
 				this.getPlayers().advance();
 
 				final PlayerState runnerState = this.getPlayers().getState(this.runner);
-				if ((runnerState.getPosture() == Posture.onTheGround) || !runnerState.getLoc().isInBounds()
+				if ((runnerState.getPosture() == PlayerState.Posture.onTheGround) || !runnerState.getLoc().isInBounds()
 						|| runnerState.getLoc().isInEndZone(null))
 				{
 					this.pathfinders.clear();

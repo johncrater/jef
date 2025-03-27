@@ -6,9 +6,9 @@ import java.util.Map;
 
 import jef.actions.formations.Formation;
 import jef.actions.formations.FormationPosition;
-import jef.core.Location;
-import jef.core.Player;
 import jef.core.PlayerPosition;
+import jef.core.movement.Player;
+import jef.geometry.Location;
 
 public class DefensiveFormations implements Iterable<Formation>
 {
@@ -37,7 +37,7 @@ public class DefensiveFormations implements Iterable<Formation>
 
 	public Formation create43()
 	{
-		final Formation formation = new Formation("43", true);
+		final Formation formation = new Formation("43");
 
 		formation.addPosition(
 				new FormationPosition("LDT", new Location(FormationPosition.DIM_DEPTH_DL, 0), PlayerPosition.C));

@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import jef.core.Location;
 import jef.core.Player;
 import jef.core.PlayerPosition;
+import jef.geometry.Location;
 
 public class OffensiveFormations implements Iterable<Formation>
 {
@@ -25,7 +25,7 @@ public class OffensiveFormations implements Iterable<Formation>
 
 	public void setCurrentFormation(Formation currentFormation)
 	{
-		this.currentFormation = currentFormation;
+		this.currentFormation = currentFormation;	
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class OffensiveFormations implements Iterable<Formation>
 
 	public Formation createProSet()
 	{
-		final Formation formation = new Formation("Pro Set", true);
+		final Formation formation = new Formation("Pro Set");
 
 		// 5 offensive linemen
 		this.addStandardLine(formation, Player.SIZE + FormationPosition.OFFENSIVE_LINE_WIDTH_STANDARD_SPLIT);

@@ -5,10 +5,10 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 
-import jef.core.Conversions;
-import jef.core.Field;
-import jef.core.Location;
-import jef.core.ui.swt.utils.TransformStack;
+import jef.geometry.Conversions;
+import jef.geometry.Field;
+import jef.geometry.Location;
+import jef.ui.swt.utils.TransformStack;
 
 public class FieldTransformStack extends TransformStack
 {

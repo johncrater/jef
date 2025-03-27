@@ -8,14 +8,14 @@ import org.eclipse.swt.widgets.Canvas;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
-import jef.core.Field;
-import jef.core.LinearVelocity;
-import jef.core.Location;
-import jef.core.PlayerState;
-import jef.core.Players;
-import jef.core.events.DebugShape;
 import jef.core.events.Messages;
-import jef.core.geometry.LineSegment;
+import jef.geometry.Field;
+import jef.geometry.LineSegment;
+import jef.geometry.LinearVelocity;
+import jef.geometry.Location;
+import jef.movement.DebugShape;
+import jef.movement.player.PlayerState;
+import jef.pathfinding.Players;
 
 public class FieldCoreTestViewer extends AbstractFieldTestViewer
 {

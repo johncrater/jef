@@ -4,10 +4,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import jef.core.Football;
-import jef.core.Location;
 import jef.core.Player;
 import jef.core.PlayerPosition;
+import jef.geometry.Location;
+import jef.movement.ball.Football;
 
 /**
  * A Location relative to the location of the forward tip of the ball placement

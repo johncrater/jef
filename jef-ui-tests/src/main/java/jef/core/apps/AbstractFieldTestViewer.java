@@ -26,15 +26,15 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 
-import jef.core.Conversions;
-import jef.core.Field;
-import jef.core.Location;
 import jef.core.Performance;
 import jef.core.Player;
-import jef.core.PlayerState;
-import jef.core.Players;
-import jef.core.ui.swt.utils.DebugMessageHandler;
-import jef.core.ui.swt.utils.TransformStack;
+import jef.geometry.Conversions;
+import jef.geometry.Field;
+import jef.geometry.Location;
+import jef.movement.player.PlayerState;
+import jef.pathfinding.Players;
+import jef.ui.swt.utils.DebugMessageHandler;
+import jef.ui.swt.utils.TransformStack;
 
 public abstract class AbstractFieldTestViewer implements Runnable
 {
@@ -86,7 +86,7 @@ public abstract class AbstractFieldTestViewer implements Runnable
 		this.shell.setMaximized(true);
 		this.shell.setText(title);
 		
-		this.options = options;
+			this.options = options;
 
 		this.shell.setLayout(new GridLayout(1, false));
 
