@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
+import jef.core.Football;
 import jef.core.Player;
 import jef.core.PlayerPosition;
 import jef.core.events.Messages;
@@ -32,7 +33,6 @@ import jef.geometry.Field;
 import jef.geometry.LineSegment;
 import jef.geometry.Location;
 import jef.movement.DebugShape;
-import jef.movement.ball.Football;
 import jef.movement.player.Path;
 import jef.movement.player.PlayerState;
 import jef.movement.player.Waypoint;

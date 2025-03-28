@@ -10,15 +10,15 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
-import jef.actions.formations.Formation;
 import jef.actions.formations.OffensiveFormations;
+import jef.core.Football;
+import jef.core.Formation;
 import jef.core.Player;
 import jef.core.PlayerPosition;
 import jef.geometry.AngularVelocity;
 import jef.geometry.Direction;
 import jef.geometry.Field;
 import jef.geometry.Location;
-import jef.movement.ball.Football;
 import jef.movement.player.Path;
 import jef.movement.player.PlayerState;
 import jef.movement.player.Waypoint.DestinationAction;

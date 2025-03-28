@@ -1,6 +1,7 @@
 package jef.movement.ball;
 
 
+import jef.core.Football;
 import jef.geometry.AngularVelocity;
 import jef.geometry.LineSegment;
 import jef.geometry.LinearVelocity;

@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import jef.core.Football;
 import jef.core.Performance;
 import jef.core.Player;
 import jef.geometry.Location;
-import jef.movement.ball.Football;
 import jef.movement.player.Path;
 import jef.movement.player.PlayerState;
 import jef.movement.player.PlayerTracker;

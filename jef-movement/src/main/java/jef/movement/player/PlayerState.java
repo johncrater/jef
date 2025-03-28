@@ -43,7 +43,22 @@ public class PlayerState
 		// transition, the
 		// player cannot move, kick, pass. They may block or tackling can reduced
 		// effectiveness.
-		standingUp;
+		standingUp,
+		
+		// center with hands on the ball on the ground ready to snap
+		snapping,
+
+		// standard 3 point stance, right hand on the ground
+		threePointStance,
+		
+		// standard four point stance
+		fourPointStance,
+		
+		// holder for a right footed kicker to the left of the "tee"
+		holderLeft,
+		
+		// holder for a left footed kicker to the right of the "tee"
+		holderRight;
 
 		public Posture adjustDown()
 		{
@@ -54,6 +69,11 @@ public class PlayerState
 				case standingUp -> onTheGround;
 				case stumbling -> fallingDown;
 				case upright -> stumbling;
+				case snapping -> onTheGround;
+				case threePointStance -> onTheGround;
+				case fourPointStance -> onTheGround;
+				case holderLeft -> onTheGround;
+				case holderRight -> onTheGround;
 			};
 		}
 
@@ -66,6 +86,11 @@ public class PlayerState
 				case standingUp -> upright;
 				case stumbling -> upright;
 				case upright -> upright;
+				case snapping -> standingUp;
+				case threePointStance -> standingUp;
+				case fourPointStance -> standingUp;
+				case holderLeft -> standingUp;
+				case holderRight -> standingUp;
 			};
 		}
 	}

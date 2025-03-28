@@ -1,6 +1,6 @@
 package jef.pathfinding.collisions;
 
-import jef.movement.ball.Football;
+import jef.core.Football;
 import jef.movement.player.PlayerState;
 
 public class CollisionResolution

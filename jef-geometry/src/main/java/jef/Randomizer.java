@@ -1,4 +1,4 @@
-package jef.core;
+package jef;
 
 import java.util.Random;
 

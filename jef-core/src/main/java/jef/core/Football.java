@@ -1,8 +1,7 @@
-package jef.movement.ball;
+package jef.core;
 
 import com.synerset.unitility.unitsystem.common.Distance;
 
-import jef.core.Player;
 import jef.geometry.AngularVelocity;
 import jef.geometry.DUnits;
 import jef.geometry.LinearVelocity;

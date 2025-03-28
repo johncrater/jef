@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import jef.core.Football;
 import jef.core.Performance;
 import jef.geometry.AngularVelocity;
 import jef.geometry.Conversions;
@@ -37,7 +38,6 @@ import jef.geometry.LinearVelocity;
 import jef.geometry.Location;
 import jef.movement.ball.BallPhysics;
 import jef.movement.ball.BallTracker;
-import jef.movement.ball.Football;
 import jef.ui.swt.utils.TransformStack;
 
 public class BallTestViewer implements Runnable

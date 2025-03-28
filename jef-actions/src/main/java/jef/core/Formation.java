@@ -1,4 +1,4 @@
-package jef.actions.formations;
+package jef.core;
 
 import java.util.Collection;
 import java.util.Collections;
