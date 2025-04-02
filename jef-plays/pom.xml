@@ -1,11 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>jef</groupId>
-  <artifactId>jef-league</artifactId>
+  <artifactId>jef-plays</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <build>
+    <sourceDirectory>src</sourceDirectory>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -16,22 +18,32 @@
       </plugin>
     </plugins>
   </build>
-  <dependencies>
-  		<dependency>
-			<groupId>jef</groupId>
-			<artifactId>jef-geometry</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-  		<dependency>
-			<groupId>jef</groupId>
-			<artifactId>jef-movement</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
+	<dependencies>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
 			<version>5.11.3</version>
 			<scope>test</scope>
 		</dependency>
-</dependencies>
+		<dependency>
+			<groupId>jef</groupId>
+			<artifactId>jef-geometry</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>jef</groupId>
+			<artifactId>jef-movement</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>jef</groupId>
+			<artifactId>jef-pathfinding</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>jef</groupId>
+			<artifactId>jef-formations</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
 </project>

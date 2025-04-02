@@ -22,7 +22,6 @@ import org.eclipse.swt.widgets.Composite;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
-import jef.core.events.Messages;
 import jef.formations.IFormationPlayer;
 import jef.formations.Performance;
 import jef.formations.PlayerPosition;
@@ -44,6 +43,7 @@ import jef.movement.player.Waypoint;
 import jef.movement.player.Waypoint.DestinationAction;
 import jef.pathfinding.IPathfinder;
 import jef.pathfinding.IPlayerSteps;
+import jef.pathfinding.PathfindingMessages;
 import jef.pathfinding.PathfindingState;
 import jef.pathfinding.blocking.BlockNearestThreat;
 import jef.pathfinding.blocking.BlockPlayer;
@@ -479,7 +479,7 @@ public class PlayerTestViewer extends AbstractFieldTestViewer<TestViewerPlayer>
 		locs.addFirst(this.getTestState().getPlayerState(formationPlayer.getId()).getLoc());
 		for (int i = 1; i < locs.size(); i++)
 		{
-			MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
+			MessageManager.getInstance().dispatchMessage(PathfindingMessages.drawDebugShape,
 					DebugShape.drawLineSegment(new LineSegment(locs.get(i - 1), locs.get(i)), color));
 		}
 	}

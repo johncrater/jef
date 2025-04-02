@@ -110,7 +110,7 @@ public class FormationTestViewer extends AbstractFieldTestViewer<TestViewerPlaye
 	@Override
 	protected void process()
 	{
-		this.getTestState().advance();
+		this.getTestState().advance(null);
 	}
 
 	@Override
@@ -124,6 +124,7 @@ public class FormationTestViewer extends AbstractFieldTestViewer<TestViewerPlaye
 	public void init()
 	{
 		this.vikings = new MinnesotaVikings1976();
+		this.getTestState().addFootball(null);
 	}
 
 	protected MinnesotaVikings1976 getVikings()

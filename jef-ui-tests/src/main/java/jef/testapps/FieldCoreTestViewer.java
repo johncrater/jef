@@ -8,7 +8,6 @@ import org.eclipse.swt.widgets.Canvas;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
-import jef.core.events.Messages;
 import jef.formations.Performance;
 import jef.geometry.Field;
 import jef.geometry.LineSegment;
@@ -16,6 +15,7 @@ import jef.geometry.LinearVelocity;
 import jef.geometry.Location;
 import jef.movement.DebugShape;
 import jef.movement.player.PlayerState;
+import jef.pathfinding.PathfindingMessages;
 import jef.pathfinding.PathfindingState;
 
 public class FieldCoreTestViewer extends AbstractFieldTestViewer<TestViewerPlayer>
@@ -61,16 +61,16 @@ public class FieldCoreTestViewer extends AbstractFieldTestViewer<TestViewerPlaye
 					if ((e.stateMask & SWT.CONTROL) == 0)
 					{
 						getDebugMessageHandler().clear();
-						MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
+						MessageManager.getInstance().dispatchMessage(PathfindingMessages.drawDebugShape,
 								DebugShape.fillLocation(loc, "#FF000000"));
-						MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
+						MessageManager.getInstance().dispatchMessage(PathfindingMessages.drawDebugShape,
 								DebugShape.drawLineSegment(new LineSegment(anchorPoint, loc), "#FF000000"));
 
 						StringBuilder builder = new StringBuilder();
 						builder.append("        Location: ").append(loc).append("\n");
 						builder.append("Linear  Velocity: ").append(new LinearVelocity(anchorPoint, loc)).append("\n");
 						
-						MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape, DebugShape
+						MessageManager.getInstance().dispatchMessage(PathfindingMessages.drawDebugShape, DebugShape
 								.drawText(builder.toString(), Field.PLAYABLE_AREA_NW_CORNER, "#FFFF0000", 36));
 					}
 				}

@@ -1,4 +1,4 @@
-package jef.core.events;
+package jef.league.events;
 
 public interface FootballEventListener
 {

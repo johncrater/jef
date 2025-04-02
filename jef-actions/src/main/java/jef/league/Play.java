@@ -1,4 +1,4 @@
-package jef.core;
+package jef.league;
 
 public abstract class Play
 {

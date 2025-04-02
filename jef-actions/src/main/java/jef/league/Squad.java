@@ -1,4 +1,4 @@
-package jef.core;
+package jef.league;
 
 import java.util.ArrayList;
 import java.util.Collection;

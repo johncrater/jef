@@ -1,4 +1,4 @@
-package jef.core;
+package jef.league;
 
 import java.util.Collection;
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package jef.core.events;
+package jef.league.events;
 
 import java.util.ArrayList;
 import java.util.List;

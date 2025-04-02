@@ -127,11 +127,15 @@ public class PathfindingState<T extends IPathfinderPlayer> implements IPathfinde
 	public void addFootball(FootballState startingState)
 	{
 		assert this.footballSteps == null;
-		if (startingState.getPlayerInPossession() != PlayerId.NONE)
-			assert this.idToPlayer.containsKey(startingState.getPlayerInPossession());
-		
 		this.footballSteps = new FootballSteps(FootballState.beginGame());
-		this.footballSteps.update(startingState);
+
+		
+		if (startingState != null && startingState.getPlayerInPossession() != PlayerId.NONE)
+		{
+			assert this.idToPlayer.containsKey(startingState.getPlayerInPossession());
+			this.footballSteps.update(startingState);
+		}
+		
 		validateFootball();
 	}
 	
@@ -201,6 +205,9 @@ public class PathfindingState<T extends IPathfinderPlayer> implements IPathfinde
 			steps.advance();
 		}
 
+		if (footballState == null)
+			footballState = this.getFootballState();
+		
 		this.footballSteps.update(footballState);
 		
 		this.startOffset += 1;
