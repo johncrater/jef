@@ -10,9 +10,6 @@ import java.util.Set;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
-import jef.core.Performance;
-import jef.core.Player;
-import jef.core.events.Messages;
 import jef.geometry.Circle;
 import jef.geometry.Direction;
 import jef.geometry.Field;
@@ -23,20 +20,22 @@ import jef.movement.player.Path;
 import jef.movement.player.PlayerState;
 import jef.movement.player.Waypoint;
 import jef.movement.player.Waypoint.DestinationAction;
-import jef.pathfinding.IPlayers;
+import jef.pathfinding.IPathfinderPlayer;
+import jef.pathfinding.IPathfinderState;
 import jef.pathfinding.PathfinderBase;
+import jef.pathfinding.PathfindingMessages;
 
-public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPathfinder
+public class DefaultEvadeInterceptors<T extends IPathfinderPlayer> extends PathfinderBase<T> implements IRunnerPathfinder
 {
 	public static double INBOUND_EPSILON = 1;
 
-	private Collection<Player> defenders;
-	private Collection<Player> blockers;
+	private Collection<T> defenders;
+	private Collection<T> blockers;
 
-	public DefaultEvadeInterceptors(IPlayers players, Player player, Direction direction, Collection<Player> defenders,
-			Collection<Player> blockers)
+	public DefaultEvadeInterceptors(IPathfinderState<T> pathfinderState, T player, Collection<T> defenders,
+			Collection<T> blockers)
 	{
-		super(players, player, direction);
+		super(pathfinderState, player);
 		this.defenders = defenders;
 		this.blockers = blockers;
 	}
@@ -51,31 +50,31 @@ public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPa
 	@Override
 	public Path calculatePath()
 	{
-		List<PlayerState> interceptorPlayers = defenders.stream().map(p -> getPlayers().getPerceivedState(p)).toList();
+		List<PlayerState> interceptorPlayers = defenders.stream().map(p -> getPathfinderState().getPerceivedPlayerState(p.getId())).toList();
 
 		Set<Borderline> neutralBorderlines = buildNeutralBorderlines();
-		neutralBorderlines.stream().forEach(bl -> MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
+		neutralBorderlines.stream().forEach(bl -> MessageManager.getInstance().dispatchMessage(PathfindingMessages.drawDebugShape,
 				drawBorderLine(bl.getLs(), "#00000000")));
 
 		Set<Borderline> borderlines = buildCircularBorderlines(interceptorPlayers,
-				blockers.stream().map(p -> getPlayers().getPerceivedState(p)).toList());
+				blockers.stream().map(p -> getPathfinderState().getPerceivedPlayerState(p.getId())).toList());
 //		Set<Borderline> borderlines = buildBorderlines(interceptorPlayers,
 //				blockers.stream().map(p -> getPlayers().getState(p)).toList());
 		borderlines.stream().filter(b1 -> b1.isRunnerLine()).forEach(bl -> MessageManager.getInstance()
-				.dispatchMessage(Messages.drawDebugShape, drawBorderLine(bl.getLs(), "#FF000000")));
+				.dispatchMessage(PathfindingMessages.drawDebugShape, drawBorderLine(bl.getLs(), "#FF000000")));
 		borderlines.stream().filter(b1 -> b1.isBlockerLine()).forEach(bl -> MessageManager.getInstance()
-				.dispatchMessage(Messages.drawDebugShape, drawBorderLine(bl.getLs(), "#0000FF00")));
+				.dispatchMessage(PathfindingMessages.drawDebugShape, drawBorderLine(bl.getLs(), "#0000FF00")));
 
 		borderlines.addAll(neutralBorderlines);
 		borderlines = this.splitLines(borderlines);
 
 		List<Location> potentiallyReachableLocations = buildReachableLocations(borderlines);
 		potentiallyReachableLocations.stream().forEach(rl -> MessageManager.getInstance()
-				.dispatchMessage(Messages.drawDebugShape, DebugShape.fillLocation(rl, "#FF000000")));
+				.dispatchMessage(PathfindingMessages.drawDebugShape, DebugShape.fillLocation(rl, "#FF000000")));
 
-		List<Location> reachableLocations = filterOutUnreachableLocations(getPlayers().getState(getPlayer()),
+		List<Location> reachableLocations = filterOutUnreachableLocations(getPathfinderState().getPlayerState(getPlayer().getId()),
 				potentiallyReachableLocations, borderlines);
-		reachableLocations.stream().forEach(rl -> MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
+		reachableLocations.stream().forEach(rl -> MessageManager.getInstance().dispatchMessage(PathfindingMessages.drawDebugShape,
 				DebugShape.fillLocation(rl, "#00FF0000")));
 
 		reachableLocations = sortReachableLocations(reachableLocations);
@@ -87,32 +86,32 @@ public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPa
 	{
 		Set<Borderline> segments = new HashSet<>();
 
-		double runnerRadius = this.getPlayerState().getLV().getSpeed() * Performance.frameInterval;
+		double runnerRadius = this.getPlayerState().getLV().getSpeed() * this.getPathfinderState().getTimerInterval();
 		for (PlayerState defender : interceptorPlayers)
 		{
-			Location runnerLoc = getPlayers().getState(getPlayer()).getLoc();
+			Location runnerLoc = getPathfinderState().getPlayerState(getPlayer().getId()).getLoc();
 
 			double speedRatio = getPlayer().getSpeedMatrix().getSprintingSpeed()
 					/ (getPlayer().getSpeedMatrix().getSprintingSpeed()
-							+ defender.getPlayer().getSpeedMatrix().getSprintingSpeed());
+							+ defender.getSpeedMatrix().getSprintingSpeed());
 
 			double denominator = defender.getLV().getSpeed() + this.getPlayerState().getLV().getSpeed();
 			if (denominator != 0)
 				speedRatio = this.getPlayerState().getLV().getSpeed() / denominator;
 
-			LineSegment ls = new LineSegment(runnerLoc, defender.getLoc().moveTowards(runnerLoc, Player.SIZE));
+			LineSegment ls = new LineSegment(runnerLoc, defender.getLoc().moveTowards(runnerLoc, IPathfinderPlayer.SIZE));
 			Location centerPoint = ls.getPoint(speedRatio);
 
 			Location loc1 = centerPoint;
 			Location loc2 = centerPoint;
 
-			double defenderRadius = defender.getLV().getSpeed() * Performance.frameInterval;
+			double defenderRadius = defender.getLV().getSpeed() * this.getPathfinderState().getTimerInterval();
 
-			for (int i = 0; i < this.getPlayers().getStepCapacity(); i += 8)
+			for (int i = 0; i < this.getPathfinderState().getStepCapacity(); i += 8)
 			{
 				Circle defenderCircle = new Circle(defender.getLoc(), defenderRadius * i);
-				Circle runnerCircle = new Circle(this.getPlayers().getState(getPlayer()).getLoc(),
-						runnerRadius * i - Player.SIZE);
+				Circle runnerCircle = new Circle(this.getPathfinderState().getPlayerState(getPlayer().getId()).getLoc(),
+						runnerRadius * i - IPathfinderPlayer.SIZE);
 
 				LineSegment intersectionSegment = runnerCircle.intersects(defenderCircle);
 				if (intersectionSegment == null)
@@ -126,7 +125,7 @@ public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPa
 					if (borderlineLineSegment != null)
 					{
 						Borderline borderline = new Borderline(borderlineLineSegment,
-								getPlayers().getState(getPlayer()), defender);
+								getPathfinderState().getPlayerState(getPlayer().getId()), defender);
 						segments.add(borderline);
 
 						loc1 = intersectionSegment.getLoc1();
@@ -144,7 +143,7 @@ public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPa
 					if (borderlineLineSegment != null)
 					{
 						Borderline borderline = new Borderline(borderlineLineSegment,
-								getPlayers().getState(getPlayer()), defender);
+								getPathfinderState().getPlayerState(getPlayer().getId()), defender);
 						segments.add(borderline);
 
 						loc2 = intersectionSegment.getLoc2();
@@ -174,7 +173,7 @@ public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPa
 		return segments;
 	}
 
-	private boolean isBlocker(Player player)
+	private boolean isBlocker(IPathfinderPlayer player)
 	{
 		return this.blockers.contains(player);
 	}
@@ -183,7 +182,7 @@ public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPa
 	{
 		if (reachableLocations.size() > 0)
 		{
-			Waypoint wp1 = new Waypoint(reachableLocations.getFirst(), getPlayerState().getPlayer().getMaxSpeed(),
+			Waypoint wp1 = new Waypoint(reachableLocations.getFirst(), getPlayerState().getMaxSpeed(),
 					DestinationAction.noStop);
 			if (wp1.getWaypointDestination().isInEndZone(getDirection()))
 			{
@@ -194,7 +193,7 @@ public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPa
 				Waypoint wp2 = new Waypoint(
 						new Location(getDirection() == Direction.east ? Field.EAST_END_ZONE_X : Field.WEST_END_ZONE_X,
 								wp1.getWaypointDestination().getY()),
-						getPlayerState().getPlayer().getMaxSpeed(), DestinationAction.normalStop);
+						getPlayerState().getMaxSpeed(), DestinationAction.normalStop);
 				return new Path(wp1, wp2);
 			}
 		}
@@ -203,7 +202,7 @@ public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPa
 			Waypoint wp1 = new Waypoint(
 					new Location(getDirection() == Direction.east ? Field.EAST_END_ZONE_X : Field.WEST_END_ZONE_X,
 							getPlayerState().getLoc().getY()),
-					getPlayerState().getPlayer().getMaxSpeed(), DestinationAction.normalStop);
+					getPlayerState().getMaxSpeed(), DestinationAction.normalStop);
 			return new Path(wp1);
 		}
 	}
@@ -390,12 +389,12 @@ public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPa
 
 		public boolean isBlockerLine()
 		{
-			return isBlocker(playerState1.getPlayer()) || isBlocker(playerState2.getPlayer());
+			return isBlocker(getPathfinderState().getPlayer(playerState1.getPlayerId())) || isBlocker(getPathfinderState().getPlayer(playerState2.getPlayerId()));
 		}
 
 		public boolean isRunnerLine()
 		{
-			return getPlayer().equals(playerState1.getPlayer()) || getPlayer().equals(playerState2.getPlayer());
+			return getPlayer().getId().equals(playerState1.getPlayerId()) || getPlayer().getId().equals(playerState2.getPlayerId());
 		}
 
 		@Override
@@ -416,6 +415,7 @@ public class DefaultEvadeInterceptors extends PathfinderBase implements RunnerPa
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
+			@SuppressWarnings("unchecked")
 			Borderline other = (Borderline) obj;
 
 			return Objects.equals(this.ls, other.ls) && Objects.equals(this.playerState1, other.playerState1)

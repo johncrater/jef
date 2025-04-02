@@ -1,7 +1,6 @@
 package jef.movement.ball;
 
 
-import jef.core.Football;
 import jef.geometry.AngularVelocity;
 import jef.geometry.LineSegment;
 import jef.geometry.LinearVelocity;
@@ -11,15 +10,20 @@ import jef.movement.Tracker;
 
 public class BallTracker extends Tracker
 {
-	private Football startingState;
-	private Football currentState;
+	private FootballState startingState;
+	private FootballState currentState;
 	
-	public BallTracker(Football ballState, double timeInterval)
+	public BallTracker(FootballState ballState, double timeInterval)
 	{
 		super(timeInterval);
 		this.currentState = ballState;
 	}
 
+	public FootballState getState()
+	{
+		return this.currentState;
+	}
+	
 	public LinearVelocity getLV()
 	{
 		return this.currentState.getLV();
@@ -37,17 +41,17 @@ public class BallTracker extends Tracker
 
 	public void setLV(LinearVelocity lv)
 	{
-		this.currentState = this.currentState.newFrom(lv, null, null);
+		this.currentState = this.currentState.move(lv, null, null);
 	}
 	
 	public void setLoc(Location loc)
 	{
-		this.currentState = this.currentState.newFrom(null, loc, null);
+		this.currentState = this.currentState.move(null, loc, null);
 	}
 	
 	public void setAV(AngularVelocity av)
 	{
-		this.currentState = this.currentState.newFrom(null, null, av);
+		this.currentState = this.currentState.move(null, null, av);
 	}
 	
 	/**

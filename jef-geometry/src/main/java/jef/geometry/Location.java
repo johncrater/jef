@@ -77,6 +77,9 @@ public class Location implements Comparable<Location>
 		return this.distanceBetween(loc) <= epsilon;
 	}
 
+	/**
+	 * compares ony the X and Y values of the location
+	 */
 	@Override
 	public int compareTo(final Location o)
 	{

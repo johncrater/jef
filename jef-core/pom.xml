@@ -4,7 +4,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>jef</groupId>
-	<artifactId>jef-core</artifactId>
+	<artifactId>jef-formations</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<build>
 		<plugins>
@@ -21,6 +21,11 @@
 		<dependency>
 			<groupId>jef</groupId>
 			<artifactId>jef-geometry</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>jef</groupId>
+			<artifactId>jef-pathfinding</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>

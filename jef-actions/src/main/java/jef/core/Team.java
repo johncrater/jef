@@ -13,8 +13,9 @@ public class Team
 	private String placeName;
 	private String nickName;
 	private Division division;
-	private Map<String, Unit> units = new HashMap<>();
+
 	private Set<Player> players = new HashSet<>();
+	private Map<UnitType, Unit> units = new HashMap<>();
 	
 	public Team(Division division, int year, String placeName, String nickName)
 	{
@@ -25,12 +26,19 @@ public class Team
 		this.nickName = nickName;
 		
 		this.division.addTeam(this);
-		
-		this.addUnit(new OffensiveUnit(this));
-		this.addUnit(new DefensiveUnit(this));
-		this.addUnit(new KickoffUnit(this));
 	}
 
+	// only used by unit constructor
+	void addUnit(Unit unit)
+	{
+		this.units.put(unit.getUnitType(), unit);
+	}
+	
+	public Unit getUnit(UnitType unitType)
+	{
+		return this.units.get(unitType);
+	}
+	
 	public Collection<Player> players()
 	{
 		return this.players;
@@ -39,11 +47,6 @@ public class Team
 	public void addPlayer(Player player)
 	{
 		this.players.add(player);
-	}
-	
-	public Collection<Unit> units()
-	{
-		return this.units.values();
 	}
 	
 	public String getFullName()
@@ -69,11 +72,6 @@ public class Team
 	public Division getDivision()
 	{
 		return this.division;
-	}
-
-	private void addUnit(Unit unit)
-	{
-		this.units.put(unit.getName(), unit);
 	}
 
 	@Override

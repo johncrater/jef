@@ -13,8 +13,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.jdom.JDOMException;
 import org.xml.sax.SAXException;
 
-import jef.core.PlayerPosition;
-import jef.core.PlayerRatings;
+import jef.formations.PlayerPosition;
 
 public class CardGenerator
 {

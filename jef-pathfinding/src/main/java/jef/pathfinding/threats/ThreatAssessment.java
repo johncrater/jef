@@ -1,13 +1,13 @@
 package jef.pathfinding.threats;
 
-import jef.core.Player;
+import jef.pathfinding.IPathfinderPlayer;
 
-public class ThreatAssessment implements Comparable<ThreatAssessment>
+public class ThreatAssessment<T extends IPathfinderPlayer> implements Comparable<ThreatAssessment<T>>
 {
 	private double threatLevel;
-	private Player player;
+	private T player;
 
-	public ThreatAssessment(Player player, double threatLevel)
+	public ThreatAssessment(T player, double threatLevel)
 	{
 		super();
 		this.player = player;
@@ -24,13 +24,13 @@ public class ThreatAssessment implements Comparable<ThreatAssessment>
 		return this.threatLevel;
 	}
 
-	public Player getPlayer()
+	public T getPlayer()
 	{
 		return this.player;
 	}
 
 	@Override
-	public int compareTo(ThreatAssessment o)
+	public int compareTo(ThreatAssessment<T> o)
 	{
 		return  -1 * Double.compare(threatLevel, o.threatLevel);
 	}

@@ -19,7 +19,8 @@ public class Division
 		this.conference.addDivision(this);
 	}
 
-	public void addTeam(Team team)
+	// only used by Team constructor
+	void addTeam(Team team)
 	{
 		this.teams.put(team.getFullName(), team);
 	}

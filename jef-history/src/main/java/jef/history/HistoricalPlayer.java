@@ -4,12 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import jef.core.PlayerInfo;
-import jef.core.PlayerPosition;
-import jef.core.PlayerRatings;
-import jef.core.PlayerStats;
+import jef.formations.PlayerPosition;
 
-public class HistoricalPlayer implements PlayerRatings, PlayerStats, PlayerInfo
+public class HistoricalPlayer implements PlayerRatings, IPlayerStats, PlayerInfo
 {
 	private final HistoricalTeam team;
 	private final String playerID;
@@ -402,23 +399,23 @@ public class HistoricalPlayer implements PlayerRatings, PlayerStats, PlayerInfo
 	@Override
 	public String getFieldValue(final PlayerPosition posType, final String field)
 	{
-		if (PlayerStats.G.equalsIgnoreCase(field))
+		if (IPlayerStats.G.equalsIgnoreCase(field))
 			return "" + this.getGames();
-		if (PlayerStats.GS.equalsIgnoreCase(field))
+		if (IPlayerStats.GS.equalsIgnoreCase(field))
 			return "" + this.getStarts();
-		if (PlayerStats.G_S.equalsIgnoreCase(field))
+		if (IPlayerStats.G_S.equalsIgnoreCase(field))
 			return "" + this.getGames() + "/" + this.getStarts();
-		else if (PlayerStats.Pos.equalsIgnoreCase(field))
+		else if (IPlayerStats.Pos.equalsIgnoreCase(field))
 			return this.getPrimaryPosition().toString();
-		else if (PlayerStats.PBR.equalsIgnoreCase(field))
+		else if (IPlayerStats.PBR.equalsIgnoreCase(field))
 			return "" + this.getRatingPassBlocking();
-		else if (PlayerStats.RBR.equalsIgnoreCase(field))
+		else if (IPlayerStats.RBR.equalsIgnoreCase(field))
 			return "" + this.getRatingBlocking();
-		else if (PlayerStats.PB_RB.equalsIgnoreCase(field))
+		else if (IPlayerStats.PB_RB.equalsIgnoreCase(field))
 			return "" + this.getRatingPassBlocking() + "/" + this.getRatingBlocking();
-		else if (PlayerStats.CMP_PCT.equalsIgnoreCase(field))
+		else if (IPlayerStats.CMP_PCT.equalsIgnoreCase(field))
 			return "" + Conversions.avgToPctString(this.getPassingAvg());
-		else if (PlayerStats.Att.equalsIgnoreCase(field))
+		else if (IPlayerStats.Att.equalsIgnoreCase(field))
 		{
 			if (posType.isA(PlayerPosition.QB))
 				return "" + this.getPassingAttempts();
@@ -437,9 +434,9 @@ public class HistoricalPlayer implements PlayerRatings, PlayerStats, PlayerInfo
 			else if (posType.isA(PlayerPosition.P))
 				return "" + this.getPunts();
 		}
-		else if (PlayerStats.CMP.equalsIgnoreCase(field))
+		else if (IPlayerStats.CMP.equalsIgnoreCase(field))
 			return "" + this.getPassingCompletions();
-		else if (PlayerStats.YDS.equalsIgnoreCase(field))
+		else if (IPlayerStats.YDS.equalsIgnoreCase(field))
 		{
 			if (posType.isA(PlayerPosition.QB))
 				return "" + this.getPassingYards();
@@ -452,7 +449,7 @@ public class HistoricalPlayer implements PlayerRatings, PlayerStats, PlayerInfo
 			else if (posType.isA(PlayerPosition.PR))
 				return "" + this.getPuntsReturnedYards();
 		}
-		else if (PlayerStats.TDS.equalsIgnoreCase(field))
+		else if (IPlayerStats.TDS.equalsIgnoreCase(field))
 		{
 			if (posType.isA(PlayerPosition.QB))
 				return "" + this.getPassingTDs();
@@ -465,14 +462,14 @@ public class HistoricalPlayer implements PlayerRatings, PlayerStats, PlayerInfo
 			else if (posType.isA(PlayerPosition.PR))
 				return "" + this.getPuntsReturnedTDs();
 		}
-		else if (PlayerStats.INT.equalsIgnoreCase(field))
+		else if (IPlayerStats.INT.equalsIgnoreCase(field))
 		{
 			if (posType.isA(PlayerPosition.QB))
 				return "" + this.getPassingInterceptions();
 			else
 				return "" + this.getInterceptions();
 		}
-		else if (PlayerStats.Y_A.equalsIgnoreCase(field))
+		else if (IPlayerStats.Y_A.equalsIgnoreCase(field))
 		{
 			if (posType.isA(PlayerPosition.QB))
 				return "" + Conversions.avgToString(this.getPassingYardsAverage());
@@ -491,7 +488,7 @@ public class HistoricalPlayer implements PlayerRatings, PlayerStats, PlayerInfo
 			else if (posType.isA(PlayerPosition.P))
 				return "" + Conversions.avgToString(this.getPuntsAvg());
 		}
-		else if (PlayerStats.LNG.equalsIgnoreCase(field))
+		else if (IPlayerStats.LNG.equalsIgnoreCase(field))
 		{
 			if (posType.isA(PlayerPosition.QB))
 				return "" + this.getPassingLongest();
@@ -508,29 +505,29 @@ public class HistoricalPlayer implements PlayerRatings, PlayerStats, PlayerInfo
 			else if (posType.isA(PlayerPosition.P))
 				return "" + this.getPuntsLongest();
 		}
-		else if (PlayerStats._20.equalsIgnoreCase(field))
+		else if (IPlayerStats._20.equalsIgnoreCase(field))
 			return "" + this.getFgMade19() + "/" + this.getFgAttempted19();
-		else if (PlayerStats._30.equalsIgnoreCase(field))
+		else if (IPlayerStats._30.equalsIgnoreCase(field))
 			return "" + this.getFgMade29() + "/" + this.getFgAttempted29();
-		else if (PlayerStats._40.equalsIgnoreCase(field))
+		else if (IPlayerStats._40.equalsIgnoreCase(field))
 			return "" + this.getFgMade39() + "/" + this.getFgAttempted39();
-		else if (PlayerStats._50.equalsIgnoreCase(field))
+		else if (IPlayerStats._50.equalsIgnoreCase(field))
 			return "" + this.getFgMade49() + "/" + this.getFgAttempted49();
-		else if (PlayerStats._50PLUS.equalsIgnoreCase(field))
+		else if (IPlayerStats._50PLUS.equalsIgnoreCase(field))
 			return "" + this.getFgMade50() + "/" + this.getFgAttempted50();
-		else if (PlayerStats.XPPCT.equalsIgnoreCase(field))
+		else if (IPlayerStats.XPPCT.equalsIgnoreCase(field))
 			return "" + Conversions.avgToPctString(this.getXpAttempted() == 0 ? 0 : this.getXpMade() / (float) this.getXpAttempted());
-		else if (PlayerStats.TBPCT.equalsIgnoreCase(field))
+		else if (IPlayerStats.TBPCT.equalsIgnoreCase(field))
 			return "" + Conversions.avgToPctString(this.getKickoffs() == 0 ? 0 : this.getKickoffsTouchbacks() / (float) this.getKickoffs());
-		else if (PlayerStats.PRR.equalsIgnoreCase(field))
+		else if (IPlayerStats.PRR.equalsIgnoreCase(field))
 			return "" + this.getRatingPassRush();
-		else if (PlayerStats.PDR.equalsIgnoreCase(field))
+		else if (IPlayerStats.PDR.equalsIgnoreCase(field))
 			return "" + this.getRatingPassDefense();
-		else if (PlayerStats.Sks.equalsIgnoreCase(field))
+		else if (IPlayerStats.Sks.equalsIgnoreCase(field))
 			return "" + Conversions.avgToString(this.getSacks());
-		else if (PlayerStats.TkR.equalsIgnoreCase(field))
+		else if (IPlayerStats.TkR.equalsIgnoreCase(field))
 			return "" + this.getRatingTackles();
-		else if (PlayerStats.PD_PR_Tk.equalsIgnoreCase(field))
+		else if (IPlayerStats.PD_PR_Tk.equalsIgnoreCase(field))
 			return "" + this.getRatingPassDefense() + "/" + this.getRatingPassRush() + "/" + this.getRatingTackles();
 
 		return "";
@@ -980,9 +977,9 @@ public class HistoricalPlayer implements PlayerRatings, PlayerStats, PlayerInfo
 		{
 			case BB, FGS, FL, HB, K, KOS, KR, LE, LH, LHB, LKR, LUB, OE, P, PR, QB, RB, RE, RH, RHB, RKR, RUB, SE, TB,
 					TE, WB, WR ->
-				this.getFieldValue(posType, PlayerStats.Att);
+				this.getFieldValue(posType, IPlayerStats.Att);
 
-			default -> this.getFieldValue(posType, PlayerStats.GS);
+			default -> this.getFieldValue(posType, IPlayerStats.GS);
 		});
 	}
 

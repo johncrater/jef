@@ -18,7 +18,8 @@ public class Conference
 		this.league.addConference(this);
 	}
 
-	public void addDivision(Division division)
+	// only used by division constructor
+	void addDivision(Division division)
 	{
 		this.divisions.put(division.getName(), division);
 	}

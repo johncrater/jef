@@ -2,15 +2,17 @@ package jef.pathfinding.collisions;
 
 import jef.geometry.Location;
 import jef.movement.player.PlayerState;
+import jef.pathfinding.IPathfinderPlayer;
+import jef.pathfinding.PathfindingState;
 
-public class BumpResolver extends CollisionResolverBase
+public class BumpResolver<T extends IPathfinderPlayer> extends CollisionResolverBase<T>
 {
 //	private static final double MAXIMUM_BUMP_ANGLE = Math.PI / 4;
 //	private static final double MAXIMUM_BUMP_DISTANCE = .5;
 	
-	public BumpResolver(PlayerState player1, PlayerState player2, Location location)
+	public BumpResolver(PathfindingState<T> pathfindingState, PlayerState player1, PlayerState player2, Location location)
 	{
-		super(player1, player2);
+		super(pathfindingState, player1, player2);
 		assert player1 != null;
 		assert player2 != null;
 	}

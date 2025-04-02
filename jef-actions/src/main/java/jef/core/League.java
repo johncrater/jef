@@ -41,7 +41,8 @@ public class League
 		return this.teams().stream().flatMap(t -> t.players().stream()).toList();
 	}
 	
-	public void addConference(Conference conference)
+	// only used by Conference constructor
+	void addConference(Conference conference)
 	{
 		conferences.put(conference.getName(), conference);
 	}

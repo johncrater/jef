@@ -1,17 +1,16 @@
 package jef.pathfinding.blocking;
 
-import jef.core.Player;
-import jef.geometry.Direction;
 import jef.pathfinding.DefaultInterceptPlayer;
-import jef.pathfinding.IPlayers;
+import jef.pathfinding.IPathfinderPlayer;
+import jef.pathfinding.IPathfinderState;
 
-public class BlockPlayer extends DefaultInterceptPlayer implements BlockerPathfinder
+public class BlockPlayer<T extends IPathfinderPlayer> extends DefaultInterceptPlayer<T> implements IBlockerPathfinder
 {
 
-	public BlockPlayer(IPlayers players, Player player, Direction direction, Player targetPlayer)
+	public BlockPlayer(IPathfinderState<T> pathfinderState, T player,
+			T targetPlayer)
 	{
-		super(players, player, direction, targetPlayer);
-		// TODO Auto-generated constructor stub
+		super(pathfinderState, player, targetPlayer);
 	}
 
 }

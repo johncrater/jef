@@ -2,28 +2,27 @@ package jef.pathfinding.defenders;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
-import jef.core.Player;
-import jef.core.events.Messages;
-import jef.geometry.Direction;
 import jef.movement.DebugShape;
 import jef.movement.player.Path;
-import jef.pathfinding.IPlayers;
+import jef.pathfinding.IPathfinderPlayer;
+import jef.pathfinding.IPathfinderState;
 import jef.pathfinding.PathfinderBase;
+import jef.pathfinding.PathfindingMessages;
 
-public class DefenderWaypointPathfinder extends PathfinderBase implements DefenderPathfinder
+public class DefenderWaypointPathfinder<T extends IPathfinderPlayer> extends PathfinderBase<T> implements IDefenderPathfinder
 {
 
-	public DefenderWaypointPathfinder(IPlayers players, Player player, Direction direction)
+	public DefenderWaypointPathfinder(IPathfinderState<T> pathfinderState, T player)
 	{
-		super(players, player, direction);
+		super(pathfinderState, player);
 	}
-
 
 	@Override
 	public Path calculatePath()
 	{
-		Path path = this.getPlayers().getSteps(getPlayer()).getPath();
-		MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape, DebugShape.drawPath(this.getPlayerState().getLoc(), path, "#FF000000"));
+		Path path = this.getPathfinderState().getPlayerSteps(getPlayer().getId()).getPath();
+		MessageManager.getInstance().dispatchMessage(PathfindingMessages.drawDebugShape,
+				DebugShape.drawPath(this.getPlayerState().getLoc(), path, "#FF000000"));
 		return path;
 	}
 

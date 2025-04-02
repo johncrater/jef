@@ -1,6 +1,5 @@
 package jef.movement.player;
 
-import jef.core.Player;
 import jef.geometry.AngularVelocity;
 import jef.geometry.LineSegment;
 import jef.geometry.LinearVelocity;
@@ -96,12 +95,7 @@ public class PlayerTracker extends Tracker
 		return this.currentPath;
 	}
 
-	public Player getPlayer()
-	{
-		return this.currentState.getPlayer();
-	}
-
-	public PlayerState.Posture getPosture()
+	public Posture getPosture()
 	{
 		return this.currentState.getPosture();
 	}
@@ -216,7 +210,7 @@ public class PlayerTracker extends Tracker
 		this.currentPath = path;
 	}
 
-	public void setPosture(final PlayerState.Posture posture)
+	public void setPosture(final Posture posture)
 	{
 		this.currentState = this.currentState.newFrom(null, null, null, posture);
 	}

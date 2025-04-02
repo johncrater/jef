@@ -43,7 +43,7 @@
 		</dependency>
 		<dependency>
 			<groupId>jef</groupId>
-			<artifactId>jef-core</artifactId>
+			<artifactId>jef-pathfinding</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>

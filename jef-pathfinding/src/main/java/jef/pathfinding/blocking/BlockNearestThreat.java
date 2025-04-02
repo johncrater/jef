@@ -4,33 +4,32 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import jef.core.Player;
-import jef.geometry.Direction;
 import jef.movement.player.Path;
 import jef.pathfinding.DefaultInterceptPlayer;
+import jef.pathfinding.IPathfinderPlayer;
+import jef.pathfinding.IPlayerSteps;
 import jef.pathfinding.PathfinderBase;
-import jef.pathfinding.Players;
-import jef.pathfinding.Players.PlayerSteps;
+import jef.pathfinding.PathfindingState;
 import jef.pathfinding.threats.ThreatAssessment;
 
 /**
  * A BlockingEscort stays between the runner and the biggest defensive threat
  */
-public class BlockNearestThreat extends PathfinderBase implements BlockerPathfinder
+public class BlockNearestThreat<T extends IPathfinderPlayer> extends PathfinderBase<T> implements IBlockerPathfinder
 {
 	public enum Option
 	{
 		distance, interception, distanceToRunner
 	}
 
-	private Player runner;
-	private Collection<Player> defenders;
+	private T runner;
+	private Collection<T> defenders;
 	private Option option;
 
-	public BlockNearestThreat(Players playerStates, Player runner, Player blocker, Collection<Player> defenders,
-			Option option, Direction direction)
+	public BlockNearestThreat(PathfindingState<T> playerStates, T runner, T blocker,
+			Collection<T> defenders, Option option)
 	{
-		super(playerStates, blocker, direction);
+		super(playerStates, blocker);
 		this.runner = runner;
 		this.defenders = defenders;
 		this.option = option;
@@ -39,19 +38,19 @@ public class BlockNearestThreat extends PathfinderBase implements BlockerPathfin
 	@Override
 	public Path calculatePath()
 	{
-		List<ThreatAssessment> threats = assessThreats();
+		List<ThreatAssessment<T>> threats = assessThreats();
 		if (threats.size() == 0)
 			return null;
 
 		threats.sort(null);
-		
-		ThreatAssessment biggestThreat = threats.get(0);
-		return new DefaultInterceptPlayer(getPlayers(), getPlayer(), getDirection(), biggestThreat.getPlayer()).calculatePath();
+
+		ThreatAssessment<T> biggestThreat = threats.get(0);
+		return new DefaultInterceptPlayer<T>(getPathfinderState(), getPlayer(), biggestThreat.getPlayer()).calculatePath();
 	}
 
-	private List<ThreatAssessment> assessThreats()
+	private List<ThreatAssessment<T>> assessThreats()
 	{
-		final List<ThreatAssessment> assessments = new ArrayList<>();
+		final List<ThreatAssessment<T>> assessments = new ArrayList<>();
 
 		defenders.forEach(p ->
 		{
@@ -61,19 +60,22 @@ public class BlockNearestThreat extends PathfinderBase implements BlockerPathfin
 		return assessments;
 	}
 
-	private ThreatAssessment getThreatAssessment(final Player defender)
+	private ThreatAssessment<T> getThreatAssessment(final T defender)
 	{
 		switch (option)
 		{
 			case distance:
-				return new ThreatAssessment(defender, -1 * this.getPlayers().getState(getPlayer()).getLoc().distanceBetween(this.getPlayers().getState(defender).getLoc()));
+				return new ThreatAssessment<T>(defender, -1 * this.getPathfinderState().getPlayerState(getPlayer().getId())
+						.getLoc().distanceBetween(this.getPathfinderState().getPlayerState(defender.getId()).getLoc()));
 			case distanceToRunner:
-				new ThreatAssessment(defender, -1 * this.getPlayers().getState(runner).getLoc().distanceBetween(this.getPlayers().getState(defender).getLoc()));
+				new ThreatAssessment<T>(defender, -1 * this.getPathfinderState().getPlayerState(runner.getId()).getLoc()
+						.distanceBetween(this.getPathfinderState().getPlayerState(defender.getId()).getLoc()));
 			case interception:
-				DefaultInterceptPlayer intercept = new DefaultInterceptPlayer(this.getPlayers(), this.getPlayer(), this.getDirection(), defender);
+				DefaultInterceptPlayer<T> intercept = new DefaultInterceptPlayer<T>(this.getPathfinderState(), this.getPlayer(),
+						defender);
 				Path pathToTarget = intercept.calculatePath();
-				PlayerSteps steps = this.getPlayers().createSteps(getPlayerState(), pathToTarget);
-				return new ThreatAssessment(defender, -1 * steps.getDestinationReachedSteps());
+				IPlayerSteps steps = this.getPathfinderState().createSteps(getPlayerState(), pathToTarget);
+				return new ThreatAssessment<T>(defender, -1 * steps.getDestinationReachedSteps());
 			default:
 				assert false;
 				return null;

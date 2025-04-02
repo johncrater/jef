@@ -10,93 +10,91 @@ import java.util.TreeSet;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
-import jef.core.Player;
-import jef.core.events.Messages;
 import jef.geometry.Direction;
 import jef.movement.DebugShape;
 import jef.movement.player.Path;
 import jef.pathfinding.DefaultInterceptPlayer;
-import jef.pathfinding.IPlayers;
-import jef.pathfinding.Players.PlayerSteps;
+import jef.pathfinding.IPathfinderPlayer;
+import jef.pathfinding.IPathfinderState;
+import jef.pathfinding.IPlayerSteps;
+import jef.pathfinding.PathfindingMessages;
 
-public class BlockersAction
+public class BlockersAction<T extends IPathfinderPlayer>
 {
-	private IPlayers players;
-//	private Player runner;
-	private Collection<Player> defenders;
-	private Collection<Player> blockers;
-	private Direction direction;
-	private Map<Player, Path> newPaths = new HashMap<>();
-	
-	public BlockersAction(IPlayers players, Player runner, Collection<Player> defenders,
-			Collection<Player> blockers, Direction direction)
+	private IPathfinderState<T> pathfinderState;
+	private Collection<T> defenders;
+	private Collection<T> blockers;
+	private Map<T, Path> newPaths = new HashMap<>();
+
+	public BlockersAction(IPathfinderState<T> pathfinderState, T runner,
+			Collection<T> defenders, Collection<T> blockers)
 	{
 		super();
-		this.players = players;
-//		this.runner = runner;
+		this.pathfinderState = pathfinderState;
 		this.defenders = defenders;
 		this.blockers = blockers;
-		this.direction = direction;
 	}
 
-	public Path getPath(Player player)
+	public Path getPath(T player)
 	{
 		return this.newPaths.get(player);
 	}
-	
+
 	public void move()
 	{
-		defenders.forEach(d -> MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape, DebugShape.drawText("" + (int)players.getSteps(d).getLast().getLoc().getX(),
-				players.getSteps(d).getLast().getLoc().add(0, -1, 0), "#FFFF0000", 12)));
-		
-		List<Player> defendersRanking = defenders.stream().sorted((d1, d2) ->
+		defenders.forEach(d -> MessageManager.getInstance().dispatchMessage(PathfindingMessages.drawDebugShape,
+				DebugShape.drawText("" + (int) pathfinderState.getPlayerSteps(d.getId()).getLast().getLoc().getX(),
+						pathfinderState.getPlayerSteps(d.getId()).getLast().getLoc().add(0, -1, 0), "#FFFF0000", 12)));
+
+		List<T> defendersRanking = defenders.stream().sorted((d1, d2) ->
 		{
-			int multiplier = direction == Direction.west ? -1 : 1;
-			int ranking = Double.compare(multiplier * players.getSteps(d1).getLast().getLoc().getX(),
-					multiplier * players.getSteps(d2).getLast().getLoc().getX());
-			
+			int multiplier = pathfinderState.getFootballState().getCurrentOffenseDirection() == Direction.west ? -1 : 1;
+			int ranking = Double.compare(multiplier * pathfinderState.getPlayerSteps(d1.getId()).getLast().getLoc().getX(),
+					multiplier * pathfinderState.getPlayerSteps(d2.getId()).getLast().getLoc().getX());
+
 			return ranking;
 		}).toList();
 
 		if (defendersRanking.size() > 0)
-			MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
-					DebugShape.drawCircle(players.getState(defendersRanking.getFirst()).getLoc(), "#FFFFFF00", 1));
+			MessageManager.getInstance().dispatchMessage(PathfindingMessages.drawDebugShape,
+					DebugShape.drawCircle(pathfinderState.getPlayerState(defendersRanking.getFirst().getId()).getLoc(), "#FFFFFF00", 1));
 
-		Map<Player, SortedSet<BlockerInterceptRating>> blockersList = new HashMap<>();
-		for (Player blocker : blockers)
+		Map<T, SortedSet<BlockerInterceptRating<T>>> blockersList = new HashMap<>();
+		for (T blocker : blockers)
 		{
-			for (Player d : defendersRanking)
+			for (T d : defendersRanking)
 			{
-				SortedSet<BlockerInterceptRating> ss = blockersList.get(d);
+				SortedSet<BlockerInterceptRating<T>> ss = blockersList.get(d);
 				if (ss == null)
 				{
-					ss = new TreeSet<BlockerInterceptRating>();
+					ss = new TreeSet<BlockerInterceptRating<T>>();
 					blockersList.put(d, ss);
 				}
 
-				DefaultInterceptPlayer dip = new DefaultInterceptPlayer(players, blocker, direction, d);
-				
+				DefaultInterceptPlayer<T> dip = new DefaultInterceptPlayer<T>(pathfinderState, blocker, d);
+
 				int ticks = Integer.MAX_VALUE;
 				Path path = dip.calculatePath();
-				PlayerSteps blockerSteps = this.players.createSteps(players.getState(blocker), path);
+				IPlayerSteps blockerSteps = this.pathfinderState.createSteps(pathfinderState.getPlayerState(blocker.getId()), path);
 				if (blockerSteps.hasReachedDestination())
 					ticks = blockerSteps.getDestinationReachedSteps();
-				
-				ss.add(new BlockerInterceptRating(dip, ticks, players.getState(d).getLoc().distanceBetween(players.getState(blocker).getLoc())));
+
+				ss.add(new BlockerInterceptRating<T>(dip, ticks,
+						pathfinderState.getPlayerState(d.getId()).getLoc().distanceBetween(pathfinderState.getPlayerState(blocker.getId()).getLoc())));
 			}
 		}
 
-		for (Player dr : defendersRanking)
+		for (T dr : defendersRanking)
 		{
-			SortedSet<BlockerInterceptRating> birss = blockersList.get(dr);
+			SortedSet<BlockerInterceptRating<T>> birss = blockersList.get(dr);
 			if (birss == null || birss.size() == 0)
 				continue;
 
-			BlockerInterceptRating bir = birss.getFirst();
-			
-			for (SortedSet<BlockerInterceptRating> ss : blockersList.values())
+			BlockerInterceptRating<T> bir = birss.getFirst();
+
+			for (SortedSet<BlockerInterceptRating<T>> ss : blockersList.values())
 			{
-				for (BlockerInterceptRating birTmp : ss)
+				for (BlockerInterceptRating<T> birTmp : ss)
 				{
 					if (birTmp.getBlocker().getPlayerState().equals(bir.getBlocker().getPlayerState()))
 					{
@@ -105,19 +103,19 @@ public class BlockersAction
 					}
 				}
 			}
-			
+
 			Path path = bir.blocker.calculatePath();
 			this.newPaths.put(bir.blocker.getPlayer(), path);
 		}
 	}
 
-	private class BlockerInterceptRating implements Comparable<BlockerInterceptRating>
+	private class BlockerInterceptRating<T2 extends IPathfinderPlayer> implements Comparable<BlockerInterceptRating<T2>>
 	{
-		private DefaultInterceptPlayer blocker;
+		private DefaultInterceptPlayer<T2> blocker;
 		private int steps;
 		private double distance;
 
-		public BlockerInterceptRating(DefaultInterceptPlayer blocker, int steps, double distance)
+		public BlockerInterceptRating(DefaultInterceptPlayer<T2> blocker, int steps, double distance)
 		{
 			super();
 			this.blocker = blocker;
@@ -125,7 +123,7 @@ public class BlockersAction
 			this.distance = distance;
 		}
 
-		public DefaultInterceptPlayer getBlocker()
+		public DefaultInterceptPlayer<T2> getBlocker()
 		{
 			return this.blocker;
 		}
@@ -136,16 +134,17 @@ public class BlockersAction
 		}
 
 		@Override
-		public int compareTo(BlockerInterceptRating o)
+		public int compareTo(BlockerInterceptRating<T2> o)
 		{
-			
+
 			int ret = Integer.compare(steps, o.getSteps());
 			if (ret == 0)
 				ret = Double.compare(this.distance, o.distance);
-				
+
 			if (ret == 0)
-				ret = blocker.getPlayerState().getPlayer().getPlayerID().compareTo(o.blocker.getPlayerState().getPlayer().getPlayerID());
-			
+				ret = blocker.getPlayerState().getPlayerId()
+						.compareTo(o.blocker.getPlayerState().getPlayerId());
+
 			return ret;
 		}
 
@@ -167,19 +166,20 @@ public class BlockersAction
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			BlockerInterceptRating other = (BlockerInterceptRating) obj;
+			@SuppressWarnings("unchecked")
+			BlockerInterceptRating<T2> other = (BlockerInterceptRating<T2>) obj;
 			return Objects.equals(this.blocker, other.blocker);
 		}
 
 		@Override
 		public String toString()
 		{
-			return "BlockerInterceptRating [bpf=" + this.blocker + ", steps=" + this.steps + ", distance=" + this.distance
-					+ "]";
+			return "BlockerInterceptRating [bpf=" + this.blocker + ", steps=" + this.steps + ", distance="
+					+ this.distance + "]";
 		}
 	}
 
-	public Collection<Player> getBlockers()
+	public Collection<T> getBlockers()
 	{
 		return this.blockers;
 	}

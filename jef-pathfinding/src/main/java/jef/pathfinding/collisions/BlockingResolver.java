@@ -1,15 +1,17 @@
 package jef.pathfinding.collisions;
 
 import jef.movement.player.PlayerState;
+import jef.pathfinding.IPathfinderPlayer;
+import jef.pathfinding.PathfindingState;
 
-public class BlockingResolver extends CollisionResolverBase
+public class BlockingResolver<T extends IPathfinderPlayer> extends CollisionResolverBase<T>
 {
 //	private static final double MAXIMUM_BLOCKING_ANGLE = Math.PI / 2;
 //	private static final double MAXIMUM_BLOCKING_DISTANCE = 1;
 
-	public BlockingResolver(PlayerState blocker, PlayerState defender)
+	public BlockingResolver(PathfindingState<T> pathfindingState, PlayerState blocker, PlayerState defender)
 	{
-		super(blocker, defender);
+		super(pathfindingState, blocker, defender);
 	}
 
 	@Override

@@ -5,17 +5,26 @@ import java.util.Objects;
 import jef.geometry.LinearVelocity;
 import jef.geometry.Vector;
 import jef.movement.player.PlayerState;
+import jef.pathfinding.IPathfinderPlayer;
+import jef.pathfinding.PathfindingState;
 
-public class CollisionResolverBase implements CollisionResolver
+public class CollisionResolverBase<T extends IPathfinderPlayer> implements ICollisionResolver
 {
 	private PlayerState playerState1;
 	private PlayerState playerState2;
+	private PathfindingState<T> pathfindingState;
 
-	public CollisionResolverBase(PlayerState playerState1, PlayerState playerState2)
+	public CollisionResolverBase(PathfindingState<T> pathfindingState, PlayerState playerState1, PlayerState playerState2)
 	{
 		super();
+		this.pathfindingState = pathfindingState;
 		this.playerState1 = playerState1;
 		this.playerState2 = playerState2;
+	}
+
+	public PathfindingState<T> getPathfindingState()
+	{
+		return this.pathfindingState;
 	}
 
 	@Override
@@ -42,8 +51,8 @@ public class CollisionResolverBase implements CollisionResolver
 
 	public void resolveCollision()
 	{
-		double playerTracker1Weight = playerState1.getPlayer().getWeight();
-		double playerTracker2Weight = playerState2.getPlayer().getWeight();
+		double playerTracker1Weight = pathfindingState.getPlayer(playerState1.getPlayerId()).getWeight();
+		double playerTracker2Weight = pathfindingState.getPlayer(playerState2.getPlayerId()).getWeight();
 
 		// m1 * v1 + m2 * v2 = (m1 + m2) * Vf
 		// Vf = (m1 * v1 + m2 * v2) / (m1 + m2);
@@ -78,7 +87,8 @@ public class CollisionResolverBase implements CollisionResolver
 		if (getClass() != obj.getClass())
 			return false;
 
-		CollisionResolverBase other = (CollisionResolverBase) obj;
+		@SuppressWarnings("unchecked")
+		CollisionResolverBase<T> other = (CollisionResolverBase<T>) obj;
 		return Objects.equals(this.playerState1, other.playerState1)
 				&& Objects.equals(this.playerState2, other.playerState2);
 	}

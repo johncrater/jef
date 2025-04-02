@@ -1,29 +1,39 @@
 package jef.core;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
-public abstract class Unit
+public class Unit
 {
 	private Team team;
 	private String name;
+	private UnitType unitType;
 	
 	private Map<String, Squad> squads = new HashMap<>();
-
-	public Unit(Team team, String name)
+	private Map<String, Formation> formations = new HashMap<>();
+	private Map<String, Play> plays = new HashMap<>();
+	private Set<Player> players = new HashSet<>();
+		
+	public Unit(Team team, UnitType unitType, String name)
 	{
 		super();
 		this.team = team;
+		this.unitType = unitType;
 		this.name = name;
+		
+		this.team.addUnit(this);
 	}
 
-	public void addSquad(Squad squad)
+	public UnitType getUnitType()
 	{
-		this.squads.put(squad.getName(), squad);
+		return this.unitType;
 	}
-	
+
 	public Team getTeam()
 	{
 		return this.team;
@@ -32,6 +42,46 @@ public abstract class Unit
 	public String getName()
 	{
 		return this.name;
+	}
+	
+	// only for use by Squad constructor
+	void addSquad(Squad squad)
+	{
+		this.squads.put(squad.getName(), squad);
+	}
+	
+	// only for use by Formation constructor 
+	void addFormation(Formation formation)
+	{
+		assert this.unitType == formation.getUnitType();
+		this.formations.put(formation.getName(), formation);
+	}
+	
+	// only for use by Play constructor 
+	void addPlay(Play play)
+	{
+		assert this.unitType == play.getUnitType();
+		this.plays.put(play.getName(), play);
+	}
+	
+	public void addPlayer(Player player)
+	{
+		this.players.add(player);
+	}
+	
+	public Collection<Formation> formations()
+	{
+		return this.formations.values();
+	}
+	
+	public Collection<Play> plays()
+	{
+		return this.plays.values();
+	}
+	
+	public Collection<Player> players()
+	{
+		return Collections.unmodifiableCollection(this.players);
 	}
 	
 	public Collection<Squad> squads()

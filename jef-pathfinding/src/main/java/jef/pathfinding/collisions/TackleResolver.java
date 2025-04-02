@@ -1,17 +1,19 @@
 package jef.pathfinding.collisions;
 
 import jef.movement.player.PlayerState;
-import jef.movement.player.PlayerState.Posture;
+import jef.movement.player.Posture;
+import jef.pathfinding.IPathfinderPlayer;
+import jef.pathfinding.PathfindingState;
 
-public class TackleResolver extends CollisionResolverBase
+public class TackleResolver<T extends IPathfinderPlayer> extends CollisionResolverBase<T>
 {
 //	private static final double MAXIMUM_TACKLE_ANGLE = Math.PI / 4;
 //	private static final double MAXIMUM_TACKLE_DISTANCE = 1;
 //	private static final double MINIMUM_BUMP_DISTANCE = 1.0 / 3.0;
 
-	public TackleResolver(PlayerState runner, PlayerState defender)
+	public TackleResolver(PathfindingState<T> pathfindingState, PlayerState runner, PlayerState defender)
 	{
-		super(runner, defender);
+		super(pathfindingState, runner, defender);
 	}
 
 	@Override

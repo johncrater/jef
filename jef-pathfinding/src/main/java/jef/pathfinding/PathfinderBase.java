@@ -1,42 +1,44 @@
 package jef.pathfinding;
 
-import jef.core.Player;
 import jef.geometry.Direction;
 import jef.movement.player.PlayerState;
 
-public abstract class PathfinderBase implements Pathfinder
+public abstract class PathfinderBase<T extends IPathfinderPlayer> implements IPathfinder<T>
 {
-	private final IPlayers players;
-	private final Player player;
-	private final Direction direction;
+	private final IPathfinderState<T> pathfinderState;
+	private final T player;
 
-	public PathfinderBase(final IPlayers players, final Player player, final Direction direction)
+	public PathfinderBase(final IPathfinderState<T> pathfinderState, final T player)
 	{
-		this.players = players;
+		this.pathfinderState = pathfinderState;
 		this.player = player;
-		this.direction = direction;
 	}
 
-	public Direction getDirection()
-	{
-		return this.direction;
-	}
-
-	public Player getPlayer()
+	public T getPlayer()
 	{
 		return this.player;
 	}
 
-	public IPlayers getPlayers()
+	public IPathfinderState<T> getPathfinderState()
 	{
-		return this.players;
+		return this.pathfinderState;
 	}
 
+	public Direction getDirection()
+	{
+		return getPathfinderState().getFootballState().getCurrentOffenseDirection();
+	}
+	
 	public PlayerState getPlayerState()
 	{
-		return this.getPlayers().getState(this.getPlayer());
+		return this.getPathfinderState().getPlayerState(this.getPlayer().getId());
 	}
 
+	public double getMaxSpeed()
+	{
+		return this.player.getSpeedMatrix().getSprintingSpeed();
+	}
+	
 	@Override
 	public String toString()
 	{

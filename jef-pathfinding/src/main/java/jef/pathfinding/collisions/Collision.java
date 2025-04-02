@@ -2,8 +2,8 @@ package jef.pathfinding.collisions;
 
 import java.util.Objects;
 
-import jef.core.Player;
 import jef.geometry.Location;
+import jef.movement.PlayerId;
 import jef.movement.player.PlayerState;
 
 public class Collision
@@ -58,9 +58,9 @@ public class Collision
 		return this.occupier2;
 	}
 
-	public boolean hasOccupier(Player player)
+	public boolean hasOccupier(PlayerId playerId)
 	{
-		return this.occupier1.getPlayer().equals(player) || this.occupier2.getPlayer().equals(player);
+		return this.occupier1.getPlayerId() == playerId || this.occupier2.getPlayerId() == playerId;
 	}
 	
 	public int getTickCountOfcollision()

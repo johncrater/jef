@@ -14,10 +14,10 @@ import com.badlogic.gdx.ai.msg.MessageManager;
 import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.ai.msg.Telegraph;
 
-import jef.core.events.Messages;
 import jef.geometry.Location;
 import jef.movement.DebugShape;
 import jef.movement.player.Waypoint;
+import jef.pathfinding.PathfindingMessages;
 
 public class DebugMessageHandler implements Telegraph
 {
@@ -37,7 +37,7 @@ public class DebugMessageHandler implements Telegraph
 
 	public DebugMessageHandler()
 	{
-		MessageManager.getInstance().addListener(this, Messages.drawDebugShape);
+		MessageManager.getInstance().addListener(this, PathfindingMessages.drawDebugShape);
 	}
 
 	public void clear()

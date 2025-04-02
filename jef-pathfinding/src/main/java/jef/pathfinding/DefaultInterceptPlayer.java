@@ -1,29 +1,25 @@
 package jef.pathfinding;
 
-import jef.core.Performance;
-import jef.core.Player;
-import jef.geometry.Direction;
 import jef.movement.player.Path;
 import jef.movement.player.PlayerState;
 import jef.movement.player.PlayerTracker;
-import jef.movement.player.Steering;
+import jef.movement.player.ISteering;
 import jef.movement.player.Waypoint;
 import jef.movement.player.Waypoint.DestinationAction;
-import jef.pathfinding.Players.PlayerSteps;
 
-public class DefaultInterceptPlayer extends PathfinderBase
+public class DefaultInterceptPlayer<T extends IPathfinderPlayer> extends PathfinderBase<T>
 {
 	public static final int IDEAL_INTERCEPT_TICKS_AHEAD = 0;
 
-	private Player targetPlayer;
+	private T targetPlayer;
 
-	public DefaultInterceptPlayer(IPlayers players, Player player, Direction direction, Player targetPlayer)
+	public DefaultInterceptPlayer(IPathfinderState<T> pathfinderState, T player, T targetPlayer)
 	{
-		super(players, player, direction);
+		super(pathfinderState, player);
 		this.targetPlayer = targetPlayer;
 	}
 
-	public Player getTargetPlayer()
+	public T getTargetPlayer()
 	{
 		return this.targetPlayer;
 	}
@@ -31,16 +27,16 @@ public class DefaultInterceptPlayer extends PathfinderBase
 	@Override
 	public Path calculatePath()
 	{
-		PlayerSteps interceptionPoints = getPlayers().getSteps(targetPlayer);
+		IPlayerSteps interceptionPoints = getPathfinderState().getPlayerSteps(targetPlayer.getId());
 
 		for (int i = 0; i < interceptionPoints.getStepCapacity(); i++)
 		{
 			PlayerState targetPlayerState = interceptionPoints.getPerceivedState(i);
-			Path path = new Path(new Waypoint(targetPlayerState.getLoc(), this.getPlayerState().getPlayer().getMaxSpeed(),
+			Path path = new Path(new Waypoint(targetPlayerState.getLoc(), this.getPlayerState().getMaxSpeed(),
 							DestinationAction.noStop));
 			
-			int ticks = Steering.getInstance()
-					.calculateTicks(new PlayerTracker(this.getPlayerState(), path, Performance.frameInterval));
+			int ticks = ISteering.getInstance()
+					.calculateTicks(new PlayerTracker(this.getPlayerState(), path, this.getPathfinderState().getTimerInterval()));
 
 			if (ticks - i <= 0)
 			{
@@ -50,8 +46,8 @@ public class DefaultInterceptPlayer extends PathfinderBase
 
 		// if we can't catch him at all, just run straight for him to put on a good show
 		// of it
-		PlayerState playerState = getPlayers().getPerceivedState(targetPlayer);
-		return new Path(new Waypoint(playerState.getLoc(), playerState.getPlayer().getMaxSpeed(), DestinationAction.noStop));
+		PlayerState playerState = getPathfinderState().getPerceivedPlayerState(targetPlayer.getId());
+		return new Path(new Waypoint(playerState.getLoc(), playerState.getMaxSpeed(), DestinationAction.noStop));
 	}
 
 }

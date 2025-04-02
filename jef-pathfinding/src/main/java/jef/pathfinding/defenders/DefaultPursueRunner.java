@@ -1,14 +1,13 @@
 package jef.pathfinding.defenders;
 
-import jef.core.Player;
-import jef.geometry.Direction;
 import jef.pathfinding.DefaultInterceptPlayer;
-import jef.pathfinding.IPlayers;
+import jef.pathfinding.IPathfinderPlayer;
+import jef.pathfinding.IPathfinderState;
 
-public class DefaultPursueRunner extends DefaultInterceptPlayer implements DefenderPathfinder
+public class DefaultPursueRunner<T extends IPathfinderPlayer> extends DefaultInterceptPlayer<T> implements IDefenderPathfinder
 {
-	public DefaultPursueRunner(IPlayers players, Player player, Direction direction, Player runner)
+	public DefaultPursueRunner(IPathfinderState<T> pathfinderState, T player, T runner)
 	{
-		super(players, player, direction, runner);
+		super(pathfinderState, player, runner);
 	}
 }

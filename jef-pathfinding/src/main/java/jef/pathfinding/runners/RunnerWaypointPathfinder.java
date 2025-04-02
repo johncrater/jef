@@ -2,28 +2,27 @@ package jef.pathfinding.runners;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
-import jef.core.Player;
-import jef.core.events.Messages;
-import jef.geometry.Direction;
 import jef.movement.DebugShape;
 import jef.movement.player.Path;
-import jef.pathfinding.IPlayers;
+import jef.pathfinding.IPathfinderPlayer;
+import jef.pathfinding.IPathfinderState;
 import jef.pathfinding.PathfinderBase;
+import jef.pathfinding.PathfindingMessages;
 
-public class RunnerWaypointPathfinder extends PathfinderBase implements RunnerPathfinder
+public class RunnerWaypointPathfinder<T extends IPathfinderPlayer> extends PathfinderBase<T> implements IRunnerPathfinder
 {
 
-	public RunnerWaypointPathfinder(IPlayers players, Player player, Direction direction)
+	public RunnerWaypointPathfinder(IPathfinderState<T> pathfinderState, T player)
 	{
-		super(players, player, direction);
+		super(pathfinderState, player);
 	}
 
 	@Override
 	public Path calculatePath()
 	{
 		// this is just for debugging. It can be deleted when finished.
-		Path path = this.getPlayers().getSteps(getPlayer()).getPath();
-		MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape, DebugShape.drawPath(this.getPlayerState().getLoc(), path, "#00FF0000"));
+		Path path = this.getPathfinderState().getPlayerSteps(getPlayer().getId()).getPath();
+		MessageManager.getInstance().dispatchMessage(PathfindingMessages.drawDebugShape, DebugShape.drawPath(this.getPlayerState().getLoc(), path, "#00FF0000"));
 		return path;
 	}	
 }

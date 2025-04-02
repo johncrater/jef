@@ -1,12 +1,11 @@
 package jef.movement.player;
 
-import jef.core.Player.DecelerationRate;
 import jef.geometry.Conversions;
 import jef.geometry.LinearVelocity;
 import jef.geometry.Location;
 import jef.movement.player.Waypoint.DestinationAction;
 
-public class AdvancedSteering implements Steering
+public class AdvancedSteering implements ISteering
 {
 	private static final boolean SHOW_MESSAGES = false;
 
@@ -93,7 +92,7 @@ public class AdvancedSteering implements Steering
 
 		final double startingSpeed = tracker.getLV().getSpeed();
 
-		if (startingSpeed > tracker.getPlayer().getSpeedMatrix().getSprintingSpeed())
+		if (startingSpeed > tracker.getState().getSpeedMatrix().getSprintingSpeed())
 		{
 			if ((options & USE_OUT_OF_CONTROL) > 0)
 			{
@@ -103,7 +102,7 @@ public class AdvancedSteering implements Steering
 			}
 			else
 			{
-				tracker.setLV(tracker.getLV().newFrom(null, null, tracker.getPlayer().getSpeedMatrix().getSprintingSpeed()));
+				tracker.setLV(tracker.getLV().newFrom(null, null, tracker.getState().getSpeedMatrix().getSprintingSpeed()));
 			}
 		}
 
@@ -164,10 +163,10 @@ public class AdvancedSteering implements Steering
 			{
 				// calculate where we are in the acceleration cycle
 				double elapsedTime = this
-						.calculateElapsedTime((tracker.getLV().getSpeed() + speedAdjustment) / tracker.getPlayer().getSpeedMatrix().getSprintingSpeed());
+						.calculateElapsedTime((tracker.getLV().getSpeed() + speedAdjustment) / tracker.getState().getSpeedMatrix().getSprintingSpeed());
 				elapsedTime += tracker.getRemainingTime();
 				double newSpeed = this.calculateSpeed(elapsedTime);
-				newSpeed *= tracker.getPlayer().getSpeedMatrix().getSprintingSpeed();
+				newSpeed *= tracker.getState().getSpeedMatrix().getSprintingSpeed();
 				newSpeed = Math.min(newSpeed, tracker.getPath().getCurrentWaypoint().getMaxSpeed());
 
 				if (SHOW_MESSAGES)
@@ -177,7 +176,7 @@ public class AdvancedSteering implements Steering
 			}
 			else
 			{
-				speedAdjustment = (tracker.getPlayer().getSpeedMatrix().getSprintingSpeed() - tracker.getLV().getSpeed()) / tracker.getRemainingTime();
+				speedAdjustment = (tracker.getState().getSpeedMatrix().getSprintingSpeed() - tracker.getLV().getSpeed()) / tracker.getRemainingTime();
 			}
 		}
 
@@ -240,7 +239,7 @@ public class AdvancedSteering implements Steering
 	private double calculateDistanceNeededToCompleteTurn(final PlayerTracker tracker, final double newAngle)
 	{
 		final double minTurnRadius = calculateTightestRadiusTurnAtSpeed(tracker.getLV().getSpeed(),
-				tracker.getPlayer().getSpeedMatrix().getSprintingSpeed());
+				tracker.getState().getSpeedMatrix().getSprintingSpeed());
 		return Math.abs(minTurnRadius * newAngle);
 	}
 
@@ -487,7 +486,7 @@ public class AdvancedSteering implements Steering
 
 		double adjustment = DecelerationRate.NORMAL.getRate();
 		final double adjustedSpeed = tracker.calculateAdjustedSpeed(adjustment);
-		if (adjustedSpeed > tracker.getPlayer().getSpeedMatrix().getSprintingSpeed())
+		if (adjustedSpeed > tracker.getState().getSpeedMatrix().getSprintingSpeed())
 		{
 			// we are falling. need to improve this
 			adjustment = -adjustedSpeed / 2;
@@ -496,7 +495,7 @@ public class AdvancedSteering implements Steering
 
 		tracker.moveRemaining(adjustment);
 
-		if (tracker.getPosture() == PlayerState.Posture.onTheGround)
+		if (tracker.getPosture() == Posture.onTheGround)
 			tracker.setLV(tracker.getLV().newFrom(null, null, 0.0));
 
 		if (SHOW_MESSAGES)

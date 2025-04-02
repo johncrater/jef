@@ -3,7 +3,7 @@ package jef.movement.player;
 import jef.geometry.Conversions;
 import jef.geometry.Location;
 
-public class DefaultSteering implements Steering
+public class DefaultSteering implements ISteering
 {
 	public int calculateTicks(PlayerTracker tracker)
 	{
@@ -43,7 +43,7 @@ public class DefaultSteering implements Steering
 				break;
 			default:
 				tracker.setLV(
-						tracker.getLV().newFrom(null, null, tracker.getPlayer().getSpeedMatrix().getSprintingSpeed()));
+						tracker.getLV().newFrom(null, null, tracker.getState().getSpeedMatrix().getSprintingSpeed()));
 				break;
 		}
 

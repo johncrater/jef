@@ -2,27 +2,26 @@ package jef.pathfinding.blocking;
 
 import com.badlogic.gdx.ai.msg.MessageManager;
 
-import jef.core.Player;
-import jef.core.events.Messages;
-import jef.geometry.Direction;
 import jef.movement.DebugShape;
 import jef.movement.player.Path;
+import jef.pathfinding.IPathfinderPlayer;
 import jef.pathfinding.PathfinderBase;
-import jef.pathfinding.Players;
+import jef.pathfinding.PathfindingMessages;
+import jef.pathfinding.PathfindingState;
 
-public class BlockerWaypointPathfinder extends PathfinderBase implements BlockerPathfinder
+public class BlockerWaypointPathfinder<T extends IPathfinderPlayer> extends PathfinderBase<T> implements IBlockerPathfinder
 {
 
-	public BlockerWaypointPathfinder(Players players, Player player, Direction direction)
+	public BlockerWaypointPathfinder(PathfindingState<T> pathfindingState, T player)
 	{
-		super(players, player, direction);
+		super(pathfindingState, player);
 	}
 
 	@Override
 	public Path calculatePath()
 	{
-		Path path = getPlayers().getPath(getPlayer());
-		MessageManager.getInstance().dispatchMessage(Messages.drawDebugShape,
+		Path path = getPathfinderState().getPath(getPlayer().getId());
+		MessageManager.getInstance().dispatchMessage(PathfindingMessages.drawDebugShape,
 				DebugShape.drawPath(this.getPlayerState().getLoc(), path, "#0000FF00"));
 		return path;
 	}

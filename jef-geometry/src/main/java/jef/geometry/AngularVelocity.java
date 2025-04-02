@@ -112,8 +112,9 @@ public class AngularVelocity
 
 		final AngularVelocity other = (AngularVelocity) obj;
 
-		return Precision.equals(orientation, other.getRotation(), epsilonAngle)
-				&& Precision.equals(rotation, other.getOrientation(), EPSILON_ROTATIONS);
+		return Precision.equals(orientation, other.getOrientation(), epsilonAngle)
+				&& Precision.equals(rotation, other.getRotation(), EPSILON_ROTATIONS)
+				&& Precision.equals(spiralVelocity, other.getSpiralVelocity(), EPSILON_SPIRAL_VELOCITY);
 	}
 
 	
