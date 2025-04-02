@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import jef.core.PlayerInfo;
-
 public class Database
 {
 	private static Database defaultDatabase;

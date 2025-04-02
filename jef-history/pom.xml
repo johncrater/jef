@@ -20,7 +20,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>jef</groupId>
-			<artifactId>jef-core</artifactId>
+			<artifactId>jef-formations</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>

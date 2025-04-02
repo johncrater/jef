@@ -30,9 +30,6 @@ import org.jdom.input.DOMBuilder;
 import org.jdom.xpath.XPath;
 import org.xml.sax.SAXException;
 
-import jef.core.PlayerRatings;
-import jef.core.PlayerStats;
-
 public class HistoricalDatabaseCreator
 {
 	public static final int START_YEAR = 1951;
@@ -546,7 +543,7 @@ public class HistoricalDatabaseCreator
 		final List<Element> elements = XPath.selectNodes(doc, "/tbody/tr");
 		for (final Element e : elements)
 		{
-			final PlayerStats player = this.readHistoricalPlayer(team, e);
+			final IPlayerStats player = this.readHistoricalPlayer(team, e);
 
 			player.setInterceptions(this.intOr0(this.getDataStat(e, "def_int")));
 			player.setInterceptionsYards(this.intOr0(this.getDataStat(e, "def_int_yds")));
@@ -623,7 +620,7 @@ public class HistoricalDatabaseCreator
 		final List<Element> elements = XPath.selectNodes(doc, "/tbody/tr");
 		for (final Element e : elements)
 		{
-			final PlayerStats player = this.readHistoricalPlayer(team, e);
+			final IPlayerStats player = this.readHistoricalPlayer(team, e);
 
 			player.setPuntsReturned(this.intOr0(this.getDataStat(e, "punt_ret")));
 			player.setPuntsReturnedYards(this.intOr0(this.getDataStat(e, "punt_ret_yds")));
@@ -646,7 +643,7 @@ public class HistoricalDatabaseCreator
 		final List<Element> elements = XPath.selectNodes(doc, "/tbody/tr");
 		for (final Element e : elements)
 		{
-			final PlayerStats player = this.readHistoricalPlayer(team, e);
+			final IPlayerStats player = this.readHistoricalPlayer(team, e);
 
 			player.setFgAttempted19(this.intOr0(this.getDataStat(e, "fga1")));
 			player.setFgMade19(this.intOr0(this.getDataStat(e, "fgm1")));
@@ -680,7 +677,7 @@ public class HistoricalDatabaseCreator
 		final List<Element> elements = XPath.selectNodes(doc, "/tbody/tr");
 		for (final Element e : elements)
 		{
-			final PlayerStats player = this.readHistoricalPlayer(team, e);
+			final IPlayerStats player = this.readHistoricalPlayer(team, e);
 
 			player.setPassingCompletions(this.intOr0(this.getDataStat(e, "pass_cmp")));
 			player.setPassingAttempts(this.intOr0(this.getDataStat(e, "pass_att")));
@@ -701,7 +698,7 @@ public class HistoricalDatabaseCreator
 		final List<Element> elements = XPath.selectNodes(doc, "/tbody/tr");
 		for (final Element e : elements)
 		{
-			final PlayerStats player = this.readHistoricalPlayer(team, e);
+			final IPlayerStats player = this.readHistoricalPlayer(team, e);
 
 			player.setPunts(this.intOr0(this.getDataStat(e, "punt")));
 			player.setPuntsYards(this.intOr0(this.getDataStat(e, "punt_yds")));
@@ -757,7 +754,7 @@ public class HistoricalDatabaseCreator
 		final List<Element> elements = XPath.selectNodes(doc, "/tbody/tr");
 		for (final Element e : elements)
 		{
-			final PlayerStats player = this.readHistoricalPlayer(team, e);
+			final IPlayerStats player = this.readHistoricalPlayer(team, e);
 
 			player.setRushingAttempts(this.intOr0(this.getDataStat(e, "rush_att")));
 			player.setRushingYards(this.intOr0(this.getDataStat(e, "rush_yds")));

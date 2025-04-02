@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import jef.core.PlayerPosition;
-import jef.core.PlayerStats;
+import jef.formations.PlayerPosition;
 
 public class HistoricalTeam
 {
@@ -243,7 +242,7 @@ public class HistoricalTeam
 		float attempts = 0;
 		float made = 0;
 		float longest = 0;
-		for (PlayerStats player : this.division.getConference().getLeague().getConferences(this.getDivision().getConference().getSeason())
+		for (IPlayerStats player : this.division.getConference().getLeague().getConferences(this.getDivision().getConference().getSeason())
 				.stream().flatMap(c -> c.getAllDivisions().stream()).flatMap(d -> d.getAllTeams().stream()).flatMap(t -> t.getPlayers().stream()).toList())
 		{
 			if (distance <= 19)
